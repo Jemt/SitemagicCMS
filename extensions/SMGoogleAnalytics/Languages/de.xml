@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Google Analytics" />
+	<entry key="Settings" value="Einstellungen" />
+	<entry key="TrackerId" value="Tracker ID" />
+	<entry key="Report" value="Melden" />
+	<entry key="ReportModeContentPages" value="Nur Seiten" />
+	<entry key="ReportModeEverything" value="Alles" />
+	<entry key="ReportModeNothing" value="Nichts" />
+	<entry key="Save" value="Save" />
+	<entry key="SettingsSaved" value="Einstellungen gespeichert" />
+
+	<entry key="Description" value="Halte den Überlick über alle Besucher mit Google Analytics" />
+</entries>

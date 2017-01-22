@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Bildmontage" />
+	<entry key="Description" value="Erstellen Sie einen schönen und dynamischen Bildmontage (Galerie) mit dieser Erweiterung" />
+	<entry key="SelectGallery" value="Wählen Galerie" />
+	<entry key="NoGalleries" value="Keine Galerie Ordner wurden in files/gallery gefunden" />
+	<entry key="Settings" value="Einstellungen" />
+	<entry key="MinHeight" value="Minimale Höhe von Fotos" />
+	<entry key="MaxHeight" value="Maximale Höhe von Fotos" />
+	<entry key="Margin" value="Bild Margin" />
+	<entry key="DisplayTitle" value="Anzeige Galerie Titel" />
+	<entry key="DisplayImageTitle" value="Zeige den Dateinamen als Titel" />
+	<entry key="DisplayImageExif" value="Anzeige EXIF Bilddaten" />
+	<entry key="DisplayPicker" value="Anzeige Galerie Selektor" />
+	<entry key="Shuffle" value="Mix Bilder" />
+	<entry key="SlideShowInterval" value="Diasshow intervall" />
+	<entry key="Second" value="Sekunde" />
+	<entry key="Seconds" value="Sekunden" />
+	<entry key="Minute" value="Minute" />
+	<entry key="Minutes" value="Minuten" />
+	<entry key="Save" value="Speichern" />
+	<entry key="Open" value="Zur Montage" />
+</entries>

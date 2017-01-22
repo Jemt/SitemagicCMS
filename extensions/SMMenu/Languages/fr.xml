@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContentMenu" value="Contenu"/>
+	<entry key="AdminMenu" value="Administration"/>
+	<entry key="MenuTitle" value="Menu"/>
+	<entry key="LinkDetails" value="Propriétés"/>
+	<entry key="MenuStructure" value="Structure du menu"/>
+	<entry key="CmdSelect" value="Sélectionner"/>
+	<entry key="CmdCreate" value="Créer"/>
+	<entry key="CmdClear" value="Effacer"/>
+	<entry key="CmdSave" value="Sauvegarder"/>
+	<entry key="CmdEdit" value="Editer"/>
+	<entry key="CmdDelete" value="Détruire"/>
+	<entry key="DeleteWarning" value="Veuillez confirmer la suppression"/>
+	<entry key="SelectedMissing" value="L'élément de menu sélectionné n'existe plus"/>
+	<entry key="MakeSelection" value="Veuillez sélectionner un élément de menu"/>
+	<entry key="RootItemError" value="Top menu ne peut pas être modifié"/>
+	<entry key="SetTitle" value="Veuillez indiquer le titre de l'élément de menu"/>
+	<entry key="Title" value="Titre"/>
+	<entry key="Url" value="Adresses URL"/>
+	<entry key="Root" value="MenuTop "/>
+	<entry key="Links" value="Liens"/>
+</entries>

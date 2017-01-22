@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContactForms" value="Contact forms" />
+	<entry key="Save" value="Save" />
+	<entry key="TextField" value="Text field" />
+	<entry key="TextBox" value="Textbox" />
+	<entry key="CheckBox" value="Checkbox" />
+	<entry key="Email" value="Email (reply to)" />
+	<entry key="Attachment" value="File attachment" />
+	<entry key="FileSizeLimit" value="Unable to attach file - the maximum upload size allowed is 2048 KB in total" />
+	<entry key="Clear" value="Clear" />
+	<entry key="Create" value="Create" />
+	<entry key="Edit" value="Edit" />
+	<entry key="Delete" value="Delete" />
+	<entry key="DeleteWarning" value="Please confirm deletion" />
+	<entry key="ChangeForm" value="Change form" />
+	<entry key="Form" value="Form" />
+	<entry key="Recipients" value="Recipients" />
+	<entry key="Subject" value="E-mail subject" />
+	<entry key="FieldTitle" value="Field title" />
+	<entry key="FieldType" value="Field type" />
+	<entry key="FieldsetSettings" value="Settings" />
+	<entry key="FieldsetFieldForm" value="Properties" />
+	<entry key="FieldsetFieldList" value="Fields" />
+	<entry key="SuccessMessage" value="Success message" />
+	<entry key="SettingsSaved" value="Settings have been saved" />
+	<entry key="ErrorFillOutAll" value="Please fill out all fields" />
+	<entry key="ErrorTitleAlreadyExists" value="A field with the specified title already exists" />
+	<entry key="ErrorNoSelection" value="Please select a field" />
+	<entry key="ErrorMissing" value="The selected field no longer exist" />
+	<entry key="ErrorNoRecipients" value="No recpients have been specified in the settings" />
+	<entry key="ErrorInvalidFilename" value="Filename contains invalid characters" />
+	<entry key="ErrorSending" value="The message could not be delivered - an error occured" />
+	<entry key="FieldsNotDefined" value="No text fields have been defined for the contact form" />
+
+	<entry key="RequiredError" value="Please fill out all required fields" />
+	<entry key="Send" value="Send" />
+
+	<entry key="Description" value="Let visitors contact your by inserting this extension on a content page (using the WYSIWYG editor) - contact forms can be easily customized in the control panel" />
+</entries>

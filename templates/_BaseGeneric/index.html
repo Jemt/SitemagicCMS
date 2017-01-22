@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="{[Language]}" class="{[TemplateType]} {[SMLogin Access]} TPLTemplate{[CurrentTemplate]} TPLImageTheme{[CurrentImageTheme]}">
+<head>
+	<title>{[Title]}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+</head>
+<body ontouchstart="">
+
+<div class="TPLTop" id="TPLTop"></div>
+<div class="TPLMiddle" id="TPLMiddle">
+	<div class="TPLPage" id="TPLPage">
+
+		<div class="TPLHeader" id="TPLHeader">
+			{[Header]}
+		</div>
+
+		<div class="TPLMenu" id="TPLMenu">
+			<ul class="TPLMenuLevel1">
+				<li style="display: none">W3C compliance</li>
+				<!-- REPEAT SMMenuLevel1 -->
+				<li class="{[SMMenuItemLevel1 Id]}">
+					<a href="{[SMMenuItemLevel1 Url]}">
+						{[SMMenuItemLevel1 Title]}
+					</a>
+
+					<ul class="TPLMenuLevel2">
+						<li style="display: none">W3C compliance</li>
+						<!-- REPEAT SMMenuLevel2 {[SMMenuItemLevel1 Id]} -->
+						<li class="{[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Id]}">
+							<a href="{[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Url]}">
+								{[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Title]}
+							</a>
+
+							<ul class="TPLMenuLevel3">
+								<li style="display: none">W3C compliance</li>
+								<!-- REPEAT SMMenuLevel3 {[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Id]} -->
+								<li class="{[SMMenuItemLevel3 {[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Id]} Id]}">
+									<a href="{[SMMenuItemLevel3 {[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Id]} Url]}">
+										{[SMMenuItemLevel3 {[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Id]} Title]}
+									</a>
+								</li>
+								<!-- /REPEAT SMMenuLevel3 {[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Id]} -->
+							</ul>
+						</li>
+						<!-- /REPEAT SMMenuLevel2 {[SMMenuItemLevel1 Id]} -->
+					</ul>
+				</li>
+				<!-- /REPEAT SMMenuLevel1 -->
+			</ul>
+		</div>
+
+		<div class="TPLContent" id="TPLContent">
+			<div class="TPLSnippets">
+				<!-- REPEAT SMBoxesBox -->
+				<div id="{[SMBoxesBox Id]}" class="TPLSnippet">
+					<h1>{[SMBoxesBox Title]}</h1>
+					<div>{[SMBoxesBox Content]}</div>
+				</div>
+				<!-- /REPEAT SMBoxesBox -->
+			</div>
+
+			{[Extension]}
+		</div>
+
+		<div class="TPLFooter" id="TPLFooter">
+			{[Footer]}
+		</div>
+	</div>
+</div>
+<div class="TPLBottom" id="TPLBottom"></div>
+
+<div class="TPLLinks" id="TPLLinks">
+	<a href="{[SMLogin Url]}">{[SMLogin Link]}</a> |
+	<a href="http://sitemagic.org">Sitemagic CMS</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Modules externes"/>
+	<entry key="Settings" value="Paramétrages"/>
+	<entry key="Modules" value="Les modules enregistrés"/>
+	<entry key="Name" value="Nom du module"/>
+	<entry key="Url" value=" addresses URL / Code iFrame"/>
+	<entry key="Width" value="Largeur"/>
+	<entry key="Height" value="Hauteur"/>
+	<entry key="Pixels" value="Pixels"/>
+	<entry key="Percent" value="Pourcentage"/>
+	<entry key="Scroll" value="Utilisez DEFIL"/>
+	<entry key="ScrollNo" value="Non"/>
+	<entry key="ScrollYes" value="Oui"/>
+	<entry key="ScrollAuto" value="Ajuster automatiquement"/>
+	<entry key="ShowFrame" value="Montrer cadre"/>
+	<entry key="NoFrame" value="Sans cadre"/>
+	<entry key="FrameColorBlack" value="Noir"/>
+	<entry key="FrameColorWhite" value="Blanc"/>
+	<entry key="FrameColorGray" value="Gris"/>
+	<entry key="FrameColorSilver" value="Argenté"/>
+	<entry key="FrameColorMaroon" value="Maron"/>
+	<entry key="FrameColorRed" value="Rouge"/>
+	<entry key="FrameColorPurple" value="Violet"/>
+	<entry key="FrameColorFuchsia" value="Fushsia"/>
+	<entry key="FrameColorGreen" value="Vert"/>
+	<entry key="FrameColorLime" value="Citron"/>
+	<entry key="FrameColorOlive" value="Olive"/>
+	<entry key="FrameColorYellow" value="Jaune"/>
+	<entry key="FrameColorNavy" value="Navy"/>
+	<entry key="FrameColorBlue" value="Bleu"/>
+	<entry key="FrameColorTeal" value=" Canard"/>
+	<entry key="FrameColorAqua" value="Aqua"/>
+	<entry key="ReloadToTop" value="Recharger le fait défiler vers le haut"/>
+	<entry key="Create" value="Créer"/>
+	<entry key="Clear" value="Effacement"/>
+	<entry key="Save" value="Sauver"/>
+	<entry key="Delete" value="Détruire"/>
+	<entry key="Preview" value="Visionner"/>
+	<entry key="ModuleCreated" value="Module créé"/>
+	<entry key="SettingsSaved" value="Paramètres enregistrés"/>
+	<entry key="ModuleDeleted" value="Module détruit"/>
+	<entry key="DeleteWarning" value="Confirmer la suppression"/>
+	<entry key="MissingFields" value="Veuillez remplir tous les champs"/>
+	<entry key="AlreadyExists" value="Un module portant le nom spécifié existe déjà."/>
+	<entry key="ModuleNotFound" value="Configuration du module externe n'existe plus"/>
+	<entry key="InvalidWidthHeight" value="Veuillez saisir des valeurs numériques dans les champs Largeur et hauteur"/>
+	<entry key="CreationError" value="Impossible de créer le module (erreur inconnue)"/>
+	<entry key="UpdateError" value="Impossible de mettre à jour le module (erreur inconnue)"/>
+	<entry key="DeleteError" value="Impossible de supprimer le module (erreur inconnue)"/>
+	<entry key="Description" value="Configurer facilement des modules externes tels qu'un calendrier ou un forum, et les ajouter à vos pages de contenu (à l'aide de l'éditeur WYSIWYG)"/>
+</entries>

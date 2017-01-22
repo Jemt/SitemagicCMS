@@ -1,0 +1,51 @@
+/*
+NOTICE (TODO):
+Snippets are not shown in Page Preview or Editor, making it fairly
+difficult to control the exact result while manipulating content.
+
+ - To show snippets in Preview: Add Snippet Place Holders to basic.html
+    - Snippets will not work properly with margin:20px in Preview!
+      They are indented too much from the top (double spacing).
+      Also, snippets will still not be shown in Editor (would require
+      snippets to be implemented like Cards, most likely).
+*/
+
+div.TPLSnippets
+{
+	display: none;
+}
+
+html.SMPagesClassicLayout div.TPLSnippets
+{
+	display: block;
+	float: right;
+}
+
+html.SMPagesClassicLayout div.TPLSnippet
+{
+	border: 1px solid silver;
+	overflow: auto; /* Ensure proper indentation if border is removed - alternative fix to http://jsfiddle.net/o1vkar7c/2/ */
+
+	/* Set width and margin on div.TPLSnippet rather than on div.TPLSnippets
+	   to make sure container does not take up space if no snippets are defined */
+	width: 200px;
+	margin: 20px;
+}
+
+html.SMPagesClassicLayout div.TPLSnippet > div
+{
+	margin: 1em; /* Using margin rather than padding to prevent double indentation (margin collapse) if contained elements define margins (e.g. paragraphs) */
+}
+
+html.SMPagesClassicLayout div.TPLSnippet > h1
+{
+	font-size: 1.15em;
+	font-weight: bold;
+	margin: 0px;
+	padding: 0.75em;
+	border-bottom: 1px solid silver;
+}
+html.SMPagesClassicLayout div.TPLSnippet > h1:empty /* :empty not supported by IE8 and below - too bad! */
+{
+	display: none;
+}

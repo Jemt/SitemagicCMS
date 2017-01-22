@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="FileManagerTitle" value="Files" />
+	<entry key="Folders" value="Folders" />
+	<entry key="Files" value="Files" />
+	<entry key="Create" value="Create" />
+	<entry key="Rename" value="Rename" />
+	<entry key="Delete" value="Delete" />
+	<entry key="Upload" value="Upload" />
+	<entry key="Download" value="Download" />
+	<entry key="Confirm" value="Please confirm action" />
+	<entry key="Foldername" value="Please specify folder name" />
+	<entry key="Filename" value="Please specify filename" />
+	<entry key="RootFolder" value="Root folder" />
+	<entry key="ColFilename" value="Filename" />
+	<entry key="ColSize" value="Size" />
+	<entry key="ColModified" value="Modified" />
+	<entry key="ValidCharacters" value="Allowed characters: A-Z, 0-9, full stop (.), dash (-), and underscore (_)" />
+	<entry key="InvalidCharacters" value="Invalid characeters in use" />
+	<entry key="FilesystemError" value="An error occured, please try again" />
+	<entry key="FolderMissing" value="The selected folder does not exist anymore" />
+	<entry key="FileMissing" value="The selected file does not exist anymore" />
+	<entry key="SelectFolder" value="Please select a folder" />
+	<entry key="SelectFile" value="Please select a file" />
+	<entry key="DateTimeFormat" value="Y-m-d H:i:s" />
+
+	<entry key="UploadTitle" value="Transfer file" />
+	<entry key="UploadWait" value="Uploading, please wait.." />
+	<entry key="UploadSucceeded" value="File uploaded" />
+	<entry key="UploadError" value="An error occured during transfer, please try again" />
+	<entry key="ValidFileTypes" value="Valid file types" />
+</entries>

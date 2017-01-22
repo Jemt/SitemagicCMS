@@ -1,0 +1,399 @@
+/* FrmViewer transforms <p> to <div class="smPagesParagraph"> to allow use
+   of content page extensions, which may contain block elements not allowed
+   in ordinary paragraphs. Make div paragraphs look like normal paragraphs. */
+div.smPagesParagraph
+{
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+div.smPagesClear
+{
+	clear: both;
+}
+
+/* IE11 bug fix - min-height defaults to 100px, which should have been 0px */
+html.SMPagesEditor body
+{
+	min-height: 0px;
+}
+
+/* Remove margin surrounding paragraphs in tables */
+html.SMPagesEditor table p,				/* Paragraphs in tables in TinyMCE editor */
+table div.smPagesParagraph,				/* OBSOLETE (table replaced by div.SMPagesTable) - Paragraphs in tables in FrmViewer (<p> is transformed to <div class="smPagesParagraph">) */
+div.SMPagesTable div.smPagesParagraph	/* Paragraphs in new CSS tables in FrmViewer (<p> is transformed to <div class="smPagesParagraph">) */
+{
+	margin: 0px;
+}
+
+/* Style Page Extension place holder in TinyMCE - set centered background image */
+html.SMPagesEditor img[src*="SMPages/editor/plugins/smextensions/img/placeholder.gif"]
+{
+	border: 1px dotted #3A3A3A;
+	background: #D5D5D5 url("editor/plugins/smextensions/img/button.gif") no-repeat center;
+	box-sizing: border-box;
+	opacity: 0.7;
+}
+
+/* Cards support (optimized for page width of 800px) */
+
+div.SMPagesCard
+{
+	float: left;
+
+	margin: 20px;
+	padding: 10px;
+
+	width: 185px; /* Width of SMPagesCardSmall and SMPagesCardHidden */
+}
+div.SMPagesCardMedium
+{
+	width: 430px;
+}
+div.SMPagesCardLarge
+{
+	width: 675px;
+}
+html.SMPagesEditor div.SMPagesCardHidden
+{
+	opacity: 0.3;
+}
+html.SMPagesViewer div.SMPagesCardHidden
+{
+	visibility: hidden;
+}
+html.SMPagesEditor div.SMPagesCard
+{
+	outline: 1px dashed gray;
+	*border: 1px dashed gray; /* IE7 alternative to outline which is not supported - expands width of cards by 2px! */
+}
+
+/* Card header and footer (tabs like) */
+
+/* Using span which allows for background color to be changed using editor */
+span.SMPagesCardHeader,
+span.SMPagesCardFooter
+{
+	display: block;
+
+	margin: -10px;
+	margin-bottom: 10px;
+	padding: 10px;
+
+	font-size: 16px;
+	font-weight: bold;
+
+	background-color: #000000;
+	color: #FFFFFF;
+}
+span.SMPagesCardFooter
+{
+	margin-bottom: -10px;
+	margin-top: 10px;
+}
+
+/* Remove margin-top from footer if it comes after a header - this allows us to use the
+   headers and a footer at the end to build a simple menu without spacing between elements. */
+span.SMPagesCardHeader + span.SMPagesCardFooter
+{
+	margin-top: -10px;
+}
+
+/* Handle content in Cards */
+
+/* Snap images to card edges (only images added using image picker in editor, not images or button icons from e.g. Page Extensions) */
+div.SMPagesCard img[width][height][src^="files/images/"],			/* Does not work in TinyMCE on IE7/IE8 since full URLs are used internally in DOM - data-mce-src DOM attribute can be used instead */
+div.SMPagesCard img[width][height][data-mce-src^="files/images/"]	/* IE7/IE8 fix - this attribute contains the relative image path in TinyMCE on IE7/IE8 */
+{
+	margin: -10px;			/* Overflow padding in card (edge to edge) */
+	display: block;			/* Remove spacing below image */
+}
+
+/* Make page extension place holder image stretch to fill cards in editor */
+div.SMPagesCard img[src*="SMPages/editor/plugins/smextensions/img/placeholder.gif"]
+{
+	width: 100% !important;	/* using !important to overrule width specified in inline style attribute */
+}
+
+/* CSS tables */
+
+/* Undo TinyMCE table styles */
+.mceItemTable, .mceItemTable td, .mceItemTable th, .mceItemTable caption, .mceItemVisualAid
+{
+	border: none;
+	margin: 0px;
+}
+
+table.mceItemTable,
+div.SMPagesTable
+{
+	display: table;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.mceItemTable thead,
+div.SMPagesTableHeader
+{
+	display: table-header-group;
+}
+
+.mceItemTable tbody,
+div.SMPagesTableBody
+{
+	display: table-row-group;
+}
+
+.mceItemTable tfoot,
+div.SMPagesTableFooter
+{
+	display: table-footer-group;
+}
+
+.mceItemTable tr,
+div.SMPagesTableRow
+{
+	display: table-row;
+}
+
+.mceItemTable td,
+div.SMPagesTableCell
+{
+	display: table-cell;
+	vertical-align: top;
+	box-sizing: border-box;
+	padding: 0.75em;
+}
+.mceItemTable td
+{
+	/* Inherit from row, table or document, rather than
+	   using table cell styling defined in design templates */
+	color: inherit;
+	font-family: inherit;
+	font-size: inherit;
+}
+.mceItemTable td.SMPagesTableCellSpacing,
+div.SMPagesTableCell.SMPagesTableCellSpacing
+{
+	padding: 0px; /* Allow width/height properties to control actual size */
+}
+.mceItemTable td
+{
+	border: 1px dashed #333333;
+}
+
+/* Fluid Grid */
+
+.mceItemTable[class*="SMPagesFluidGrid"],
+div.SMPagesTable[class*="SMPagesFluidGrid"]
+{
+	table-layout: fixed; /* Width of cells are equally divided (unless cell width is set) and do not depend on content */
+}
+
+.mceItemTable[class*="SMPagesFluidGrid"] td,
+div.SMPagesTable[class*="SMPagesFluidGrid"] div.SMPagesTableCell
+{
+	overflow: hidden;
+}
+
+@media (max-width: 900px) /* Stack below 900px */
+{
+	.mceItemTable.SMPagesFluidGridStack900,
+	div.SMPagesTable.SMPagesFluidGridStack900,
+	.mceItemTable.SMPagesFluidGridStack900 thead,
+	div.SMPagesTable.SMPagesFluidGridStack900 div.SMPagesTableHeader,
+	.mceItemTable.SMPagesFluidGridStack900 tbody,
+	div.SMPagesTable.SMPagesFluidGridStack900 div.SMPagesTableBody,
+	.mceItemTable.SMPagesFluidGridStack900 tfoot,
+	div.SMPagesTable.SMPagesFluidGridStack900 div.SMPagesTableFooter,
+	.mceItemTable.SMPagesFluidGridStack900 tr,
+	div.SMPagesTable.SMPagesFluidGridStack900 div.SMPagesTableRow,
+	.mceItemTable.SMPagesFluidGridStack900 td,
+	div.SMPagesTable.SMPagesFluidGridStack900 div.SMPagesTableCell
+	{
+		display: block;
+		width: auto !important; /* In case a fixed width is set */
+	}
+}
+@media (max-width: 700px) /* Stack below 700px */
+{
+	.mceItemTable.SMPagesFluidGridStack700,
+	div.SMPagesTable.SMPagesFluidGridStack700,
+	.mceItemTable.SMPagesFluidGridStack700 thead,
+	div.SMPagesTable.SMPagesFluidGridStack700 div.SMPagesTableHeader,
+	.mceItemTable.SMPagesFluidGridStack700 tbody,
+	div.SMPagesTable.SMPagesFluidGridStack700 div.SMPagesTableBody,
+	.mceItemTable.SMPagesFluidGridStack700 tfoot,
+	div.SMPagesTable.SMPagesFluidGridStack700 div.SMPagesTableFooter,
+	.mceItemTable.SMPagesFluidGridStack700 tr,
+	div.SMPagesTable.SMPagesFluidGridStack700 div.SMPagesTableRow,
+	.mceItemTable.SMPagesFluidGridStack700 td,
+	div.SMPagesTable.SMPagesFluidGridStack700 div.SMPagesTableCell
+	{
+		display: block;
+		width: auto !important; /* In case a fixed width is set */
+	}
+}
+
+@media (max-width: 500px) /* Stack below 500px */
+{
+	.mceItemTable.SMPagesFluidGridStack500,
+	div.SMPagesTable.SMPagesFluidGridStack500,
+	.mceItemTable.SMPagesFluidGridStack500 thead,
+	div.SMPagesTable.SMPagesFluidGridStack500 div.SMPagesTableHeader,
+	.mceItemTable.SMPagesFluidGridStack500 tbody,
+	div.SMPagesTable.SMPagesFluidGridStack500 div.SMPagesTableBody,
+	.mceItemTable.SMPagesFluidGridStack500 tfoot,
+	div.SMPagesTable.SMPagesFluidGridStack500 div.SMPagesTableFooter,
+	.mceItemTable.SMPagesFluidGridStack500 tr,
+	div.SMPagesTable.SMPagesFluidGridStack500 div.SMPagesTableRow,
+	.mceItemTable.SMPagesFluidGridStack500 td,
+	div.SMPagesTable.SMPagesFluidGridStack500 div.SMPagesTableCell
+	{
+		display: block;
+		width: auto !important; /* In case a fixed width is set */
+	}
+}
+
+/* Fluid Grid Cards */
+
+.mceItemTable.SMPagesGridCards,
+div.SMPagesTable.SMPagesGridCards
+{
+	border-collapse: separate;
+	border-spacing: 3em;
+}
+.mceItemTable.SMPagesGridCards + .mceItemTable.SMPagesGridCards,
+div.SMPagesTable.SMPagesGridCards + div.SMPagesTable.SMPagesGridCards
+{
+	margin-top: -3em;
+}
+
+/* Allow use of original (old) Card Header/Footer within new Fluid Grid Cards */
+.mceItemTable.SMPagesGridCards span.SMPagesCardHeader,
+.mceItemTable.SMPagesGridCards span.SMPagesCardFooter,
+div.SMPagesTable.SMPagesGridCards span.SMPagesCardHeader,
+div.SMPagesTable.SMPagesGridCards span.SMPagesCardFooter
+{
+	margin: -0.75em;
+	margin-bottom: 0.75em;
+	padding: 0.75em;
+	font-size: 1.2em;
+}
+.mceItemTable.SMPagesGridCards span.SMPagesCardFooter,
+div.SMPagesTable.SMPagesGridCards span.SMPagesCardFooter
+{
+	margin-bottom: -0.75em;
+	margin-top: 0.75em;
+}
+
+@media (max-width: 900px) /* Optimize spacing between cards when below 900px (also applies to 700px and 500px) */
+{
+	/* Reduce spacing between cards (applies to all stacking configurations below 900px) */
+	.mceItemTable.SMPagesGridCards,
+	div.SMPagesTable.SMPagesGridCards
+	{
+		border-spacing: 1em 2em;
+	}
+	.mceItemTable.SMPagesGridCards + .mceItemTable.SMPagesGridCards,
+	div.SMPagesTable.SMPagesGridCards + div.SMPagesTable.SMPagesGridCards
+	{
+		margin-top: -2em;
+	}
+}
+
+@media (max-width: 900px)
+{
+	/* At this point SMPagesFluidGridStack900 elements are stacked (display: block) */
+
+	.mceItemTable.SMPagesFluidGridStack900.SMPagesGridCards + .mceItemTable.SMPagesFluidGridStack900.SMPagesGridCards,
+	div.SMPagesTable.SMPagesFluidGridStack900.SMPagesGridCards + div.SMPagesTable.SMPagesFluidGridStack900.SMPagesGridCards
+	{
+		margin: auto; /* Replying on margin set on cells instead (see below) */
+	}
+
+	/* Set vertical spacing between cards when stacked (applies to all stacking configurations below 900px) */
+	.mceItemTable.SMPagesFluidGridStack900.SMPagesGridCards td,
+	div.SMPagesTable.SMPagesFluidGridStack900.SMPagesGridCards div.SMPagesTableCell
+	{
+		margin: 1em;
+		margin-top: 2em;
+		margin-bottom: 2em;
+	}
+}
+@media (max-width: 700px)
+{
+	/* At this point SMPagesFluidGridStack900 and SMPagesFluidGridStack700 elements are stacked (display: block) */
+
+	.mceItemTable.SMPagesFluidGridStack900.SMPagesGridCards + .mceItemTable.SMPagesFluidGridStack700.SMPagesGridCards,			/* Stack 900 followed by Stack 700 */
+	div.SMPagesTable.SMPagesFluidGridStack900.SMPagesGridCards + div.SMPagesTable.SMPagesFluidGridStack700.SMPagesGridCards,
+	.mceItemTable.SMPagesFluidGridStack700.SMPagesGridCards + .mceItemTable.SMPagesFluidGridStack900.SMPagesGridCards,			/* Stack 700 followed by Stack 900 */
+	div.SMPagesTable.SMPagesFluidGridStack700.SMPagesGridCards + div.SMPagesTable.SMPagesFluidGridStack900.SMPagesGridCards,
+	.mceItemTable.SMPagesFluidGridStack700.SMPagesGridCards + .mceItemTable.SMPagesFluidGridStack700.SMPagesGridCards,			/* Stack 700 followed by Stack 700 */
+	div.SMPagesTable.SMPagesFluidGridStack700.SMPagesGridCards + div.SMPagesTable.SMPagesFluidGridStack700.SMPagesGridCards
+	{
+		margin: auto; /* Replying on margin set on cells instead (see below) */
+	}
+
+	/* Set vertical spacing between cards when stacked (applies to all stacking configurations below 900px) */
+	.mceItemTable.SMPagesFluidGridStack700.SMPagesGridCards td,
+	div.SMPagesTable.SMPagesFluidGridStack700.SMPagesGridCards div.SMPagesTableCell
+	{
+		margin: 1em;
+		margin-top: 2em;
+		margin-bottom: 2em;
+	}
+}
+@media (max-width: 500px)
+{
+	/* At this point SMPagesFluidGridStack900, SMPagesFluidGridStack700, and SMPagesFluidGridStack500 elements are stacked (display: block) */
+
+	.mceItemTable[class*="SMPagesFluidGridStack"].SMPagesGridCards + .mceItemTable[class*="SMPagesFluidGridStack"].SMPagesGridCards,
+	div.SMPagesTable[class*="SMPagesFluidGridStack"].SMPagesGridCards + div.SMPagesTable[class*="SMPagesFluidGridStack"].SMPagesGridCards
+	{
+		margin: auto; /* Replying on margin set on cells instead (see below) */
+	}
+
+	/* Set vertical spacing between cards when stacked (applies to all stacking configurations below 900px) */
+	.mceItemTable[class*="SMPagesFluidGridStack"].SMPagesGridCards td,
+	div.SMPagesTable[class*="SMPagesFluidGridStack"].SMPagesGridCards div.SMPagesTableCell
+	{
+		margin: 1em;
+		margin-top: 2em;
+		margin-bottom: 2em;
+	}
+}
+
+/* Apply default look and feel to Fluid Grid Cards
+   to make them useable without requiring updates
+   to existing design templates */
+.mceItemTable.SMPagesGridCards td,
+div.SMPagesTable.SMPagesGridCards div.SMPagesTableCell
+{
+	background: #FFFFFF;
+	box-shadow: 0px 0px 8px -1px #333333;
+	border-radius: 2px;
+}
+
+
+/* DataTable */
+
+.mceItemTable.SMPagesDataTable tr:first-child,
+div.SMPagesTable.SMPagesDataTable div.SMPagesTableRow:first-child,
+.mceItemTable.SMPagesDataTable thead,
+div.SMPagesTable.SMPagesDataTable div.SMPagesTableHeader,
+.mceItemTable.SMPagesDataTable tfoot,
+div.SMPagesTable.SMPagesDataTable div.SMPagesTableFooter
+{
+	background-color: #333333;
+	color: #F5F5F5;
+	font-weight: bold;
+	line-height: 150%;
+}
+
+.mceItemTable.SMPagesDataTable td,
+div.SMPagesTable.SMPagesDataTable div.SMPagesTableCell
+{
+	border: 1px solid #333333;
+	padding: 0.75em;
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="$Title" />
+	<entry key="Description" value="Provides information about new releases, security updates, new extensions, new design templates etc." />
+	<entry key="Author" value="Jimmy Thomsen" />
+	<entry key="Company" value="Sitemagic" />
+	<entry key="Website" value="http://sitemagic.org" />
+	<entry key="Email" value="dev@sitemagic.org" />
+	<entry key="Version" value="20150802" />
+	<entry key="Dependencies" value="" />
+	<entry key="Notes" value="" />
+</entries>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Settings" />
+	<entry key="Login" value="Login" />
+	<entry key="Username" value="Username" />
+	<entry key="Password" value="Password" />
+	<entry key="HidePassword" value="Hide password" />
+	<entry key="Appearance" value="Appearance" />
+	<entry key="ImageTheme" value="Icon theme" />
+	<entry key="Template" value="Design template" />
+	<entry key="CopyTemplate" value="Copy" />
+	<entry key="DeleteTemplate" value="Delete" />
+	<entry key="Language" value="Language" />
+	<entry key="TimeZone" value="Timezone" />
+	<entry key="License" value="License" />
+	<entry key="LicenseKey" value="License key" />
+	<entry key="DatabaseTitle" value="MySQL Database (optional)" />
+	<entry key="Server" value="Server" />
+	<entry key="Database" value="Database" />
+	<entry key="SmtpTitle" value="SMTP Server (optional)" />
+	<entry key="Port" value="Port" />
+	<entry key="AuthType" value="Login type" />
+	<entry key="Encryption" value="Encryption" />
+	<entry key="ExtensionsEnabled" value="Extensions enabled" />
+	<entry key="Save" value="Save" />
+	<entry key="Cancel" value="Cancel" />
+
+	<entry key="SettingsSaved" value="Settings saved" />
+	<entry key="CopyTemplateDialog" value="Enter new template name (A-Z, 0-9 allowed)" />
+	<entry key="DeleteTemplateDialog" value="Are you sure you want to remove the selected template?" />
+	<entry key="WarningTemplateNameInvalid" value="The name entered is invalid" />
+	<entry key="WarningTemplatesNotWritable" value="The templates folder is write protected" />
+	<entry key="WarningTemplateAlreadyExists" value="A template with the name entered already exists" />
+	<entry key="NotificationTemplateCopySucceeded" value="Template copied successfully and is now ready for use" />
+	<entry key="WarningTemplateCopyFailed" value="An unknown error occured copying template" />
+	<entry key="WarningTemplateDeleteInUse" value="Template could not be removed, it is currently being used" />
+	<entry key="WarningTemplateNotWritable" value="The folder is write protected" />
+	<entry key="NotificationTemplateDeleteSucceeded" value="Template has been removed" />
+	<entry key="WarningTemplateDeleteFailed" value="An unknown error occured removing template" />
+</entries>

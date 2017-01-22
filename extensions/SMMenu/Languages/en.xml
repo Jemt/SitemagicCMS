@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContentMenu" value="Content" />
+	<entry key="AdminMenu" value="Admin" />
+	<entry key="MenuTitle" value="Menu" />
+	<entry key="LinkDetails" value="Properties" />
+	<entry key="MenuStructure" value="Menu structure" />
+	<entry key="CmdSelect" value="Select" />
+	<entry key="CmdCreate" value="Create" />
+	<entry key="CmdClear" value="Clear" />
+	<entry key="CmdSave" value="Save" />
+	<entry key="CmdEdit" value="Edit" />
+	<entry key="CmdDelete" value="Delete" />
+	<entry key="DeleteWarning" value="Please confirm deletion" />
+	<entry key="SelectedMissing" value="The selected menu item does not exist anymore" />
+	<entry key="MakeSelection" value="Please select a menu item" />
+	<entry key="RootItemError" value="Top menu cannot be modified" />
+	<entry key="SetTitle" value="Please specify title for the menu item" />
+	<entry key="Title" value="Title" />
+	<entry key="Url" value="URL address" />
+	<entry key="Root" value="Top menu" />
+
+	<entry key="Links" value="Links" />
+</entries>

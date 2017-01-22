@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContentMenu" value="&amp;#928;&amp;#949;&amp;#961;&amp;#953;&amp;#949;&amp;#967;&amp;#972;&amp;#956;&amp;#949;&amp;#957;&amp;#959;"/>
+	<entry key="AdminMenu" value="&amp;#916;&amp;#953;&amp;#945;&amp;#967;&amp;#949;&amp;#943;&amp;#961;&amp;#953;&amp;#963;&amp;#951;"/>
+	<entry key="MenuTitle" value="&amp;#924;&amp;#949;&amp;#957;&amp;#959;&amp;#973;"/>
+	<entry key="LinkDetails" value="&amp;#921;&amp;#948;&amp;#953;&amp;#972;&amp;#964;&amp;#951;&amp;#964;&amp;#949;&amp;#962;"/>
+	<entry key="MenuStructure" value="&amp;#916;&amp;#959;&amp;#956;&amp;#942; &amp;#956;&amp;#949;&amp;#957;&amp;#959;&amp;#973;"/>
+	<entry key="CmdSelect" value="&amp;#917;&amp;#960;&amp;#953;&amp;#955;&amp;#959;&amp;#947;&amp;#942;"/>
+	<entry key="CmdCreate" value="&amp;#916;&amp;#951;&amp;#956;&amp;#953;&amp;#959;&amp;#965;&amp;#961;&amp;#947;&amp;#943;&amp;#945;"/>
+	<entry key="CmdClear" value="&amp;#922;&amp;#945;&amp;#952;&amp;#945;&amp;#961;&amp;#953;&amp;#963;&amp;#956;&amp;#972;&amp;#962;"/>
+	<entry key="CmdSave" value="&amp;#913;&amp;#960;&amp;#959;&amp;#952;&amp;#942;&amp;#954;&amp;#949;&amp;#965;&amp;#963;&amp;#951;"/>
+	<entry key="CmdEdit" value="&amp;#917;&amp;#960;&amp;#949;&amp;#958;&amp;#949;&amp;#961;&amp;#947;&amp;#945;&amp;#963;&amp;#943;&amp;#945;"/>
+	<entry key="CmdDelete" value="&amp;#916;&amp;#953;&amp;#945;&amp;#947;&amp;#961;&amp;#945;&amp;#966;&amp;#942;"/>
+	<entry key="DeleteWarning" value="&amp;#928;&amp;#945;&amp;#961;&amp;#945;&amp;#954;&amp;#945;&amp;#955;&amp;#959;&amp;#973;&amp;#956;&amp;#949; &amp;#949;&amp;#960;&amp;#953;&amp;#946;&amp;#949;&amp;#946;&amp;#945;&amp;#953;&amp;#974;&amp;#963;&amp;#964;&amp;#949; &amp;#964;&amp;#951; &amp;#948;&amp;#953;&amp;#945;&amp;#947;&amp;#961;&amp;#945;&amp;#966;&amp;#942;"/>
+	<entry key="SelectedMissing" value="&amp;#932;&amp;#959; &amp;#949;&amp;#960;&amp;#953;&amp;#955;&amp;#949;&amp;#947;&amp;#956;&amp;#941;&amp;#957;&amp;#959; &amp;#956;&amp;#949;&amp;#957;&amp;#959;&amp;#973; &amp;#948;&amp;#949;&amp;#957; &amp;#965;&amp;#960;&amp;#940;&amp;#961;&amp;#967;&amp;#949;&amp;#953; &amp;#960;&amp;#955;&amp;#941;&amp;#959;&amp;#957;"/>
+	<entry key="MakeSelection" value="&amp;#928;&amp;#945;&amp;#961;&amp;#945;&amp;#954;&amp;#945;&amp;#955;&amp;#959;&amp;#973;&amp;#956;&amp;#949; &amp;#949;&amp;#960;&amp;#953;&amp;#955;&amp;#941;&amp;#958;&amp;#964;&amp;#949; &amp;#941;&amp;#957;&amp;#945; &amp;#945;&amp;#957;&amp;#964;&amp;#953;&amp;#954;&amp;#949;&amp;#943;&amp;#956;&amp;#949;&amp;#957;&amp;#959; &amp;#964;&amp;#959;&amp;#965; &amp;#956;&amp;#949;&amp;#957;&amp;#959;&amp;#973;"/>
+	<entry key="RootItemError" value="&amp;#932;&amp;#959; &amp;#956;&amp;#949;&amp;#957;&amp;#959;&amp;#973; &amp;#954;&amp;#959;&amp;#961;&amp;#965;&amp;#966;&amp;#942;&amp;#962; &amp;#948;&amp;#949;&amp;#957; &amp;#956;&amp;#960;&amp;#959;&amp;#961;&amp;#949;&amp;#943; &amp;#957;&amp;#945; &amp;#964;&amp;#961;&amp;#959;&amp;#960;&amp;#959;&amp;#960;&amp;#959;&amp;#953;&amp;#951;&amp;#952;&amp;#949;&amp;#943;"/>
+	<entry key="SetTitle" value="&amp;#928;&amp;#945;&amp;#961;&amp;#945;&amp;#954;&amp;#945;&amp;#955;&amp;#959;&amp;#973;&amp;#956;&amp;#949; &amp;#954;&amp;#945;&amp;#952;&amp;#959;&amp;#961;&amp;#943;&amp;#963;&amp;#964;&amp;#949; &amp;#964;&amp;#943;&amp;#964;&amp;#955;&amp;#959; &amp;#947;&amp;#953;&amp;#945; &amp;#964;&amp;#959; &amp;#945;&amp;#957;&amp;#964;&amp;#953;&amp;#954;&amp;#949;&amp;#943;&amp;#956;&amp;#949;&amp;#957;&amp;#959; &amp;#964;&amp;#959;&amp;#965; &amp;#956;&amp;#949;&amp;#957;&amp;#959;&amp;#973;"/>
+	<entry key="Title" value="&amp;#932;&amp;#943;&amp;#964;&amp;#955;&amp;#959;&amp;#962;"/>
+	<entry key="Url" value="&amp;#916;&amp;#953;&amp;#949;&amp;#973;&amp;#952;&amp;#965;&amp;#957;&amp;#963;&amp;#951; URL"/>
+	<entry key="Root" value="&amp;#924;&amp;#949;&amp;#957;&amp;#959;&amp;#973; &amp;#954;&amp;#959;&amp;#961;&amp;#965;&amp;#966;&amp;#942;&amp;#962;"/>
+	<entry key="Links" value="&amp;#931;&amp;#973;&amp;#957;&amp;#948;&amp;#949;&amp;#963;&amp;#956;&amp;#959;&amp;#953;"/>
+</entries>

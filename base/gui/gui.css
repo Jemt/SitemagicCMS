@@ -1,0 +1,210 @@
+@import url("Fonts/FontAwesome/css/font-awesome.min.css");
+
+/* Framework */
+
+div.SMFormInputWrapper
+{
+	/* Container wrapping input controls that allows for a maxlength warning to be displayed inside */
+	display: inline;
+	position: relative;
+}
+div.SMFormMaxLengthWarning
+{
+	/* Used in conjunction with fa and fa-exclamation-circle classes to produce a warning
+	   indicator that floats to the left of input fields exceeding their max length */
+	position: absolute;
+	left: -20px;
+	width: 12px;
+	height: 14px;
+	font-size: 14px;
+	padding: 2px;
+	background-color: black;
+	color: white;
+	border-radius: 8px; /* IE7/IE8: Rounded corners not supported - too bad! */
+	cursor: pointer;
+}
+
+
+/* SMIntegrated mode */
+
+div.SMIntegrated fieldset.SMFieldset
+{
+	border-style: none;
+}
+div.SMIntegrated fieldset.SMFieldset > legend
+{
+	text-transform: uppercase;
+	padding-bottom: 0.1em;
+	padding-left: 0px !important;
+	margin-left: 0px !important;
+}
+div.SMIntegrated fieldset.SMFieldset > div
+{
+	border-top: 1px solid #9F9F9F;
+	border-top: 1px solid rgba(0, 0, 0, 0.3);
+	padding: 0px !important;
+}
+div.SMIntegrated fieldset.SMFieldsetExpanded > div
+{
+	padding-top: 1em !important;
+}
+
+div.SMIntegrated table
+{
+	border: none;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+div.SMIntegrated td
+{
+	border: none;
+	padding-top: 1px;
+}
+div.SMIntegrated tr:first-child td
+{
+	padding-top: 0px;
+}
+
+
+/* Standard HTML controls */
+
+input, textarea, select
+{
+	margin: 1px;
+	padding: 1px 2px 1px 2px;
+	outline: none;
+	box-sizing: border-box; /* Make sure e.g. height:20px is in fact 20px to give more control over input control dimensions */
+}
+
+input[type="checkbox"], input[type="radio"]
+{
+	border-style: none;				/* Remove border in IE */
+	background-color: transparent;	/* Remove background color in IE */
+}
+
+a img
+{
+	/* Remove border on image links on old versions of IE */
+	border-style: none;
+}
+
+
+/* GUI Controls */
+
+fieldset.SMFieldset,
+fieldset.SMFieldsetNoChrome
+{
+	margin: 0px;
+	padding: 0px;
+}
+fieldset.SMFieldset legend
+{
+	margin-left: 8px;
+}
+
+span.SMLinkButton
+{
+	/* Make spacing between link buttons */
+	margin-right: 4px;
+}
+html.TPLImageThemeDefault span.SMLinkButton img,
+html.TPLImageThemeDefaultBlue span.SMLinkButton img,
+html.TPLImageThemeDefaultGreen span.SMLinkButton img,
+html.TPLImageThemeDefaultOrange span.SMLinkButton img,
+html.TPLImageThemeDefaultWhite span.SMLinkButton img
+{
+	/* Reduce icon size for link buttons when using one of the default icon themes */
+	width: 20px;
+}
+
+div.SMNotify
+{
+	/* Define look and feel for notifications */
+	border: 2px solid #777777;
+	background-color: rgba(255, 255, 255, 0.40); /* Legacy IE8 and below will have no background color when using RGBA */
+	background-image: url("../../images/Default/information.png");
+	background-position: 10px 50%;
+	background-repeat: no-repeat;
+
+	margin-bottom: 20px;
+	padding: 15px;
+	padding-left: 45px;
+	font-weight: bold;
+	color: #333333;
+}
+
+table.SMGrid
+{
+	width: 100%;
+	border: none;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+table.SMGrid td
+{
+	border: none;
+	padding: 0px;
+}
+
+
+/* jQuery overrides */
+
+/* Transparent overlay used when e.g. opening modal dialogs */
+.ui-widget-overlay /* Defined without a CSS scope */
+{
+	background-color: black;
+	opacity: 0.5;
+	filter: alpha(opacity=50); /* IE8 and earlier */
+}
+
+
+/* SMWindow specific */
+
+.Sitemagic.SMWindow.ui-dialog
+{
+	/* jQuery dialog - main element */
+
+	padding: 0px;
+	position: fixed !important; /* Make window stay in place when scrolling */
+}
+.Sitemagic.SMWindow .ui-dialog-titlebar
+{
+	/* jQuery dialog title bar */
+
+	border-bottom-style: none;
+	margin-bottom: 0px;
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+	padding: 2px;
+}
+.Sitemagic.SMWindow .ui-dialog-titlebar .ui-button
+{
+	/* jQuery dialog close button in title bar */
+
+	outline: none;
+}
+.Sitemagic.SMWindow .ui-dialog-content
+{
+	/* jQuery dialog content area */
+
+	padding: 0px;
+	width: 100%;
+	overflow: hidden;
+
+	background: none; /* Remove background color along with odd centered white background image */
+	background-color: white; /* Properly set background color */
+}
+.Sitemagic.SMWindow.SMWindowTransparent .ui-dialog-content iframe
+{
+	/* Registered by SMWindow when moving or resizing window - hides iFrame and its content */
+
+	display: none;
+}
+.Sitemagic.SMWindow.SMWindowTransparent .ui-dialog-content
+{
+	/* Registered by SMWindow when moving or resizing window - makes content area transparent */
+
+	background-color: black;
+	opacity: 0.5;
+	filter: alpha(opacity=50); /* IE8 and earlier */
+}

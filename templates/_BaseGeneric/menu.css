@@ -1,0 +1,129 @@
+/*********************************/
+/*** GENERAL *********************/
+/*********************************/
+
+/* Menu item containers (ul) */
+div.TPLMenu ul
+{
+	/* Remove bullets and indention */
+	list-style-type: none;
+	padding: 0px;
+	margin: 0px;
+	font-size: 0px; /* Prevent spacing between menu items (li) */
+}
+div.TPLMenu li
+{
+	/* Set font-size for menu items to browser default size.
+	   It was set to 0px for item containers (ul) above which gets inherited.
+	   Unfortunately the general font-size on the site is no longer inherited now! */
+	font-size: medium;
+}
+
+/* Menu items (li) */
+div.TPLMenu li
+{
+	/* Allow absolute positioning of sub menus within menu items */
+	position: relative;
+}
+
+/* Menu links (a) */
+div.TPLMenu a
+{
+	display: block;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+
+/*********************************/
+/*** MENU LEVEL 1 (ROOT) *********/
+/*********************************/
+
+/* Align root menu links (left/right).
+   Possible because links are turned into inline-block elements (see below). */
+div.TPLMenu > ul
+{
+	text-align: left;
+}
+
+/* Root menu items */
+div.TPLMenu > ul > li
+{
+	/* Make root menu items behave as text elements to make them float next to each
+	   other. This also allows them to be aligned using text-align on the item container (ul) */
+	display: inline-block;
+	/* Make it work with IE7 */
+	zoom: 1;
+	*display: inline;
+}
+
+
+/*********************************/
+/*** MENU LEVEL 2+3 (SUB MENUS) **/
+/*********************************/
+
+/* Sub menu item containers */
+div.TPLMenu li ul
+{
+	position: absolute;
+	left: -9999px; /* Moving off screen to hide it rather than using display:none which on IE7 causes root items to be positioned incorrectly */
+
+	background-color: #FFFFFF;
+	min-width: 125px;
+	z-index: 50;
+
+	text-align: left; /* Is inherited, so make sure it stays left aligned if root links are right aligned */
+}
+div.TPLMenu li:hover > ul,
+div.TPLMenu li.TPLMenuHover > ul /* Used by Designer to display drop downs programmatically */
+{
+	left: 0px; /* Move sub menu into view */
+}
+div.TPLMenu li:hover
+{
+	*height: auto;	/* IE7 fix: Trigger hasLayout to make IE7 display sub menus */
+	*z-index: 50;	/* IE7 fix: Make sure menu is shown above input fields which are wrapped in a container with relative positioning */
+}
+
+
+/*********************************/
+/*** MENU LEVEL 3 (SUB MENUS) ****/
+/*********************************/
+
+div.TPLMenu > ul > li > ul > li:hover ul
+{
+	left: 30px;
+}
+
+
+/*********************************/
+/*** EMPTY SUB MENUS ****/
+/*********************************/
+
+div.TPLMenu ul.TPLMenuIsEmpty
+{
+	/* Hide all empty sub menus (TPLMenuIsEmpty class added using JS) */
+	left: -9999px !important;
+}
+
+
+/*********************************/
+/*** MENU ICONS (CONTENT/ADMIN) **/
+/*********************************/
+
+li.SMMenuSMMenuContent > a:before,
+li.SMMenuSMMenuAdmin > a:before
+{
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transform: translate(0, 0);
+
+	content: "\f14b";
+}
+li.SMMenuSMMenuAdmin > a:before
+{
+	content: "\f013";
+}

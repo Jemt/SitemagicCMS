@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContentPages" value="Seiten" />
+	<entry key="ContentPageDetails" value="Eigenschaften" />
+	<entry key="Filename" value="Dateiname" />
+	<entry key="PageTitle" value="Titel" />
+	<entry key="Accessible" value="Zügänglich" />
+	<entry key="Template" value="Vorlage" />
+	<entry key="CopyTemplate" value="Kopieren" />
+	<entry key="DeleteTemplate" value="Löschen" />
+	<entry key="Keywords" value="Schlüsselwörter" />
+	<entry key="Description" value="Beschreibung" />
+	<entry key="AllowIndexing" value="Indexieren erlauben" />
+	<entry key="Password" value="Passwort" />
+	<entry key="MaskPassword" value="Passwort verstecken" />
+	<entry key="AllOptions" value="Mehr Optionen" />
+	<entry key="Create" value="Erstellen" />
+	<entry key="Clear" value="Löschen" />
+	<entry key="Save" value="Speichern" />
+	<entry key="Settings" value="Einstellungen" />
+	<entry key="UrlType" value="URL Typ" />
+	<entry key="SeoUrls" value="SEO URLs" />
+	<entry key="UrlTypeFilename" value="Dateiname" />
+	<entry key="UrlTypeUniqueId" value="Einzigartige ID" />
+	<entry key="Edit" value="Eigenschaften" />
+	<entry key="EditContent" value="Beitrag editieren" />
+	<entry key="Display" value="Anzeigen" />
+	<entry key="Delete" value="Löschen" />
+	<entry key="Modified" value="Verändert" />
+	<entry key="FilenameMissing" value="Bitte Dateinamen spezifizieren" />
+	<entry key="FilenameInvalid" value="Ungültiger Dateiname - erlaubte Zeichen: A-Z, 0-9, Punkt (.), Dash (-), und Unterstrich (_)" />
+	<entry key="FilenameExists" value="Der Dateiname wird schon benutzt" />
+	<entry key="SelectPage" value="Bitte wähle eine Seite aus" />
+	<entry key="PageMissing" value="Die ausgewählte Seite existiert nicht mehr" />
+	<entry key="DeleteWarning" value="Bitte Löschen bestätigen" />
+	<entry key="Yes" value="Ja" />
+	<entry key="No" value="Nein" />
+	<entry key="DateTimeFormat" value="Y-m-d H:i:s" />
+
+	<entry key="CopyTemplateDialog" value="Neuen Template-Namen eingeben (A-Z, 0-9 sind erlaubt)" />
+	<entry key="DeleteTemplateDialog" value="Sind Sie sich sicher, dass Sie dieses Template entfernen möchten?" />
+	<entry key="WarningTemplateNoSelection" value="Bitte Template wählen" />
+	<entry key="WarningTemplateNameInvalid" value="Der eingegebene Name ist ungültig" />
+	<entry key="WarningTemplatesNotWritable" value="Die Templates-Mappe ist schreibgeschützt " />
+	<entry key="WarningTemplateAlreadyExists" value="Es existiert bereits ein Template mit diesem Namen" />
+	<entry key="NotificationTemplateCopySucceeded" value="Das Template wurde erfolgreich kopiert und ist jetzt einsatzbereit" />
+	<entry key="WarningTemplateCopyFailed" value="Ein unbekannter Fehler ist beim Kopieren des Templates aufgetreten" />
+	<entry key="WarningTemplateDeleteInUse" value="Das Template kann nicht entfernt werden, es wird momentan benutzt" />
+	<entry key="WarningTemplateDeleteNotWritable" value="Die Mappe ist schreibgeschützt" />
+	<entry key="NotificationTemplateDeleteSucceeded" value="Das Template ist entfernt worden" />
+	<entry key="WarningTemplateDeleteFailed" value="Ein unbekannter Fehler ist beim Entfernen des Templates aufgetreten" />
+
+	<entry key="HeaderFooter" value="Kopfzeile und Fußzeile" />
+	<entry key="AddHeader" value="Header hinzufügen" />
+	<entry key="EditHeader" value="Kopfzeile bearbeiten" />
+	<entry key="RemoveHeader" value="Entfernen" />
+	<entry key="AddFooter" value="Fußzeile hinzufügen" />
+	<entry key="EditFooter" value="Fußzeile bearbeiten" />
+	<entry key="RemoveFooter" value="Entfernen" />
+
+	<entry key="PageNotFound" value="Ausgewählte Seite existiert nicht mehr" />
+	<entry key="NoIndexPage" value="Es wurde keine Frontseite erstellt - Erstelle eine Seite mit dem Dateinamenindex" />
+	<entry key="NotAccessible" value="Ausgewählte Seite ist anzeigegeschützt" />
+	<entry key="SettingsSaved" value="Einstellungen gespeichert" />
+
+	<entry key="NoIndexingOnPassword" value="Indexieren ist nicht möglich, wenn die Seite passwortgeschützt ist" />
+	<entry key="PasswordProtected" value="Passwortgeschützt" />
+	<entry key="Unauthorized" value="Diese Seite ist passwortgeschützt" />
+	<entry key="PageLogin" value="Hier zum Anmelden klicken" />
+	<entry key="IncorrectPassword" value="Eingegebenes Passwort ist ungültig - bitte nochmal versuchen." />
+
+	<entry key="CardSmall" value="Karte (klein)" />
+	<entry key="CardMedium" value="Karte (medium)" />
+	<entry key="CardLarge" value="Karte (groß)" />
+	<entry key="CardHidden" value="Karte (versteckt)" />
+	<entry key="CardHeader" value="Karte Kopfzeile" />
+	<entry key="CardFooter" value="Karte Fußzeile" />
+	<entry key="Resizing" value="Fenstergröße ändern" />
+	<entry key="ResizingDescription" value="Inhalt zum neu,geänderten Fenster adjustieren" />
+	<entry key="Saving" value="Speichert" />
+	<entry key="SavingDescription" value="Der Inhalt wird gespeichert" />
+</entries>

@@ -1,0 +1,184 @@
+/* Common */
+
+table#SMGridSMContactFieldList:not(#IE7IE8) td + td + td,	/* SMContact	(field type column) */
+table#SMGridSMFilesFiles:not(#IE7IE8) td + td + td,			/* SMFiles		(size and timestamp column) */
+table#SMGridSMPages:not(#IE7IE8) td + td + td				/* SMPages		(timestamp column) */
+{
+	/* Make cell as narrow as possible to move them to the right side of the table */
+	width: 1px;
+	white-space: nowrap;
+	padding-left: 20px;
+}
+
+
+/* SMFiles */
+
+/* Prevent word wrapping in file list */
+table#SMGridSMFilesFiles td
+{
+	white-space: nowrap;
+}
+
+/* Position upload field in middle (horizontally) and 50px from the top */
+input#SMInputSMFilesUpload
+{
+	display: block;
+	margin: 0px auto;
+	margin-top: 50px;
+	width: 275px !important;
+}
+
+/* Position upload status text identical to upload field */
+div#SMFilesUploadWait
+{
+	margin-top: 50px;
+	text-align: center;
+}
+
+/* Remove margin-top from upload field and upload status text when success/error message is shown */
+div.SMNotify + input#SMInputSMFilesUpload,
+div.SMNotify + input#SMInputSMFilesUpload + div#SMFilesUploadWait
+{
+	margin-top: 0px;
+}
+
+
+/* SMPages */
+
+/* Make page extensions behave as inline elements to allow them to be displayed next to each other, like in page editor */
+div.SMPagesExtension
+{
+	display: inline-block;
+	*display: inline; /* IE7 does not support inline-block, using inline instead */
+}
+div.SMPagesExtension fieldset
+{
+	/* Make fieldset and surrounding div.SMPagesExtension (inline-block element - see rule above) fit properly together.
+	   A fieldset with a fixed width may be widened by some wider content within. In this case the fieldset will overflow
+	   the boundaries of the div.SMPagesExtension container. Setting the width of the fieldset to either "auto" or "inherit"
+	   solves this problem (* see IE7 note below). The fieldset and surrounding div.SMPagesExtension container will adjust
+	   their width automatically both when the content within the fieldset is narrower and wider.
+	   * IE7 note: width:auto doesn't work as expected with IE7 when the fieldset is contained in an inline element
+	   (notice *display:inline rule above) - the fieldset assumes the width of the first parent block element,
+	   which is usually the width of the page container.
+	   Example demonstrating problem: http://jsfiddle.net/f28ya7a4/2/show (switch back and forth between IE7 and IE8 mode).
+	   Using width:inherit below gives us the same result as width:auto, but isn't supported in IE7, which therefore keeps
+	   the hardcoded fieldset width. Unfortunately that leaves IE7 with the initial problem, but it's unlikely to happen.
+	   It requires dynamic content within a narrow fieldset that doesn't allow e.g. text and images to wrap, like the
+	   contact form which prevents word-wrapping in order to keep labels on one line. Fortunately word-wrapping remains
+	   enabled for IE7 in this particular case due to another bug in IE7 (see SMContact section further down below). */
+	width: inherit !important;
+}
+
+/* Allow page extensions to consume all space horizontally within card */
+div.SMPagesCard div.SMPagesExtension
+{
+	display: block; /* Usually set to be displayed as inline-block - revert back to block element when displayed in card */
+}
+div.SMPagesCard div.SMPagesExtension fieldset
+{
+	margin: 0px;				/* Avoid further indention, usually supplied using padding in cards */
+	*width: 100% !important;	/* Make fieldset stretch on IE7 (width:inherit set above doesn't work on IE7) */
+}
+div.SMPagesCard div.SMPagesExtension fieldset legend
+{
+	display: none;
+}
+
+/* Make external modules (iframes) stretch horizontally to card borders (edge to edge) - great for videos, maps etc.
+   An External Module snap to edges only if it's the only element in the Card, or if it's followed by a Card Header. */
+div.SMPagesCard div.SMPagesExtension:only-child div[id^="SMExternalModules"], /* IE7/IE8 does not support :only-child */
+div.SMPagesCard span.SMPagesCardHeader + div.SMPagesExtension div[id^="SMExternalModules"] /* This does not work on IE8 because :only-child above breaks entire rule - strangely enough this selector works fine with IE7 */
+{
+	margin: -10px; /* Overflow padding in card (edge to edge) */
+}
+
+/* Make iFrames stretch within Cards */
+div.SMPagesCard iframe
+{
+	display: block;		/* Remove spacing below iframe */
+	width: 100%;		/* Adjust width to card size - edge to edge */
+}
+
+/* Remove borders from External Module iFrames in case added in configuration - they exceed Card boundaries */
+div.SMPagesCard div.SMPagesExtension:only-child div[id^="SMExternalModules"] iframe, /* IE7/IE8 does not support :only-child */
+div.SMPagesCard span.SMPagesCardHeader + div.SMPagesExtension div[id^="SMExternalModules"] iframe /* This does not work on IE8 because :only-child above breaks entire rule - strangely enough this selector works fine with IE7 */
+{
+    border: none !important;
+}
+
+
+/* SMContact */
+
+div.SMContactContentPageExtension,
+div.SMContactContentPageExtension table
+{
+    width: 100%;
+}
+
+div.SMContactContentPageExtension td
+{
+	display: block;
+    width: 100% !important;
+	padding: 1px;
+}
+
+div.SMContactContentPageExtension input[type="text"],
+div.SMContactContentPageExtension input[type="file"],
+div.SMContactContentPageExtension textarea
+{
+    width: 100% !important;
+    padding: 0.3em;
+}
+
+div.SMContactContentPageExtension tr:nth-last-child(2)
+{
+	display: none;
+}
+
+span.SMContactRequired
+{
+	color: red;
+}
+
+
+/* SMComments */
+
+div.SMCommentsContentPageExtension td
+{
+	padding: 1px;
+}
+div.SMCommentsContentPageExtension td:first-child
+{
+	white-space: nowrap; /* Does not work with IE7 on table cells, must be wrapped in span - too bad */
+	padding-right: 30px;
+}
+
+/* Make comment forms stretch within Cards.
+   Notice that these rules are not applied to IE7/IE8 due to a bug in IE7 that causes an input field
+   to widen to show its entire value if one has been set initially (bug triggered by width:XYZ% on inputs). */
+div.SMPagesCard:not(#IE7IE8) div.SMCommentsContentPageExtension td + td
+{
+	width: 100% !important;
+}
+div.SMPagesCard:not(#IE7IE8) div.SMCommentsContentPageExtension td + td input,
+div.SMPagesCard:not(#IE7IE8) div.SMCommentsContentPageExtension td + td textarea
+{
+	width: 95% !important; /* Using 95% to allow styles such as padding and borders which will be added to the width (95% + padding + margin + border). 100% would cause input elements to overflow boundaries of table cells */
+}
+
+
+/* SMSearch */
+
+div.SMSearchContentPageExtension
+{
+	font-size: 1rem; /* Make button label adapt general document font size */
+}
+
+span.SMSearchMatch
+{
+	font-weight: bold;
+	background: yellow;
+	background: rgba(255, 255, 0, 0.4);
+	padding: 1px;
+}

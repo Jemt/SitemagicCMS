@@ -1,0 +1,19 @@
+RewriteEngine on
+
+# Example request:
+# http://domain.com/sites/demo/files/images/test.png
+
+# Configuration options:
+
+# 1) Files folder containing ONLY .htaccess
+#    Result: Files from root site will be available and used.
+#    Any file, e.g. images/test.png, will - from a browser's perspective - be loaded from
+#    http://domain.com/sites/demo/files/images/test.png, which is why the .htaccess file
+#    is required to redirect the request to:
+#    http://domain.com/sites/demo/files/../../../files/images/test.png
+#
+# 2) Files folder contaning NO .htaccess file
+#    Result: Only files found under sub site will be used
+
+# The RegEx captures the file path relative to the folder containing the .htaccess file - e.g. images/test.png
+RewriteRule ^(.*)$ ../../../files/$1

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Externe Module" />
+	<entry key="Settings" value="Einstellung" />
+	<entry key="Modules" value="Gespeichert Module" />
+	<entry key="Name" value="Modulname" />
+	<entry key="Url" value="URL Adresse / iFrame Code" />
+	<entry key="Width" value="Breite" />
+	<entry key="Height" value="Höhe" />
+	<entry key="Pixels" value="Pixel" />
+	<entry key="Percent" value="Prozent" />
+	<entry key="Scroll" value="Benutze Scroll" />
+	<entry key="ScrollNo" value="Nein" />
+	<entry key="ScrollYes" value="Ja" />
+	<entry key="ScrollAuto" value="Automatisch adjustieren" />
+	<entry key="ShowFrame" value="Rahmen Zeigen" />
+	<entry key="NoFrame" value="Keinen Rahmen" />
+	<entry key="FrameColorBlack" value="Schwarz" />
+	<entry key="FrameColorWhite" value="Weiß" />
+	<entry key="FrameColorGray" value="Grau" />
+	<entry key="FrameColorSilver" value="Silber" />
+	<entry key="FrameColorMaroon" value="Braun" />
+	<entry key="FrameColorRed" value="Rot" />
+	<entry key="FrameColorPurple" value="Lila" />
+	<entry key="FrameColorFuchsia" value="Pink" />
+	<entry key="FrameColorGreen" value="Grün" />
+	<entry key="FrameColorLime" value="Hellgrün" />
+	<entry key="FrameColorOlive" value="Olivgrün" />
+	<entry key="FrameColorYellow" value="Gelb" />
+	<entry key="FrameColorNavy" value="Marineblau" />
+	<entry key="FrameColorBlue" value="Blau" />
+	<entry key="FrameColorTeal" value="Blaugrün" />
+	<entry key="FrameColorAqua" value="Aquamarin" />
+	<entry key="ReloadToTop" value="Scroll up erneut laden" />
+	<entry key="Create" value="Erstellen" />
+	<entry key="Clear" value="Löschen" />
+	<entry key="Save" value="Speichern" />
+	<entry key="Delete" value="Löschen" />
+	<entry key="Preview" value="Vorschau" />
+
+	<entry key="ModuleCreated" value="Modul erstellt" />
+	<entry key="SettingsSaved" value="Einstellungen gespeichert" />
+	<entry key="ModuleDeleted" value="Modul gelöscht" />
+	<entry key="DeleteWarning" value="Bitte Löschen bestätigen" />
+	<entry key="MissingFields" value="Bitte alle Felder ausfüllen" />
+	<entry key="AlreadyExists" value="Ein Modul mit dem gleichen Namen existiert bereits" />
+	<entry key="ModuleNotFound" value="Externe Modulkonfiguration existiert nicht mehr" />
+	<entry key="InvalidWidthHeight" value="Bitte Nummernwert in Breite und Höhe einfügen" />
+	<entry key="CreationError" value="Erstellung eines Moduls nicht möglich(unbekannter Fehler)" />
+	<entry key="UpdateError" value="Update des Moduls nicht möglich(unbekannter Fehler)" />
+	<entry key="DeleteError" value="Löschen des Moduls nicht möglich(unbekannter Fehler)" />
+
+	<entry key="Description" value="Konfigurier externe Module, bspw. Kalender oder Foren , ganz einfach und füge sie deine Seiten hinzu (benutze den WYSIWYG editor)" />
+</entries>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="FileManagerTitle" value="Fichier"/>
+	<entry key="Folders" value="Dossier"/>
+	<entry key="Files" value="Fichier"/>
+	<entry key="Create" value="Créer"/>
+	<entry key="Rename" value="Renommer"/>
+	<entry key="Delete" value="Détruire"/>
+	<entry key="Upload" value="Charger"/>
+	<entry key="Download" value="Télécharger"/>
+	<entry key="Confirm" value="Veuillez confirmer l'action"/>
+	<entry key="Foldername" value="Veuillez spécifier le nom du dossier"/>
+	<entry key="Filename" value="Veuillez spécifier le nom du fichier"/>
+	<entry key="RootFolder" value="Dossier racine"/>
+	<entry key="ColFilename" value="Nom de fichier "/>
+	<entry key="ColSize" value="Taille"/>
+	<entry key="ColModified" value="Modifié"/>
+	<entry key="ValidCharacters" value="Caractères autorisés : A-Z, 0-9, point (.), tiret (-) et des traits de soulignement (_)"/>
+	<entry key="InvalidCharacters" value="Charactères invalides en cours d'utilisation"/>
+	<entry key="FilesystemError" value="Une erreur s'est produite, veuillez réessayer"/>
+	<entry key="FolderMissing" value="Le dossier sélectionné n'existe plus"/>
+	<entry key="FileMissing" value="Le fichier sélectionné n'existe plus"/>
+	<entry key="SelectFolder" value="Veuillez sélectionner un dossier"/>
+	<entry key="SelectFile" value="Veuillez sélectionner un fichier"/>
+	<entry key="DateTimeFormat" value="d-m-Y H:i:s"/>
+	<entry key="UploadTitle" value="Transfert de fichier"/>
+	<entry key="UploadWait" value="Chargement, veuillez patienter..."/>
+	<entry key="UploadSucceeded" value="Fichier téléchargé"/>
+	<entry key="UploadError" value="Une erreur s'est produite pendant le transfert, veuillez réessayer"/>
+	<entry key="ValidFileTypes" value="Validez le fichier de type" />
+</entries>

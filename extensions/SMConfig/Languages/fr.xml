@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Paramétrages"/>
+	<entry key="Login" value="Login"/>
+	<entry key="Username" value="Nom d'utilisateur"/>
+	<entry key="Password" value="Mot de passe"/>
+	<entry key="HidePassword" value="Masquer le mot de passe"/>
+	<entry key="Appearance" value="Apparence"/>
+	<entry key="ImageTheme" value="Thème d'icône"/>
+	<entry key="Template" value="Modèle de conception"/>
+	<entry key="CopyTemplate" value="Copier"/>
+	<entry key="DeleteTemplate" value="Effacer"/>
+	<entry key="Language" value="Langue"/>
+	<entry key="TimeZone" value="Fuseau horaire"/>
+	<entry key="License" value="License"/>
+	<entry key="LicenseKey" value="Clef de licence"/>
+	<entry key="DatabaseTitle" value="Base de données MySQL (facultatif)"/>
+	<entry key="Server" value="Server"/>
+	<entry key="Database" value="Base de données"/>
+	<entry key="SmtpTitle" value="Serveur SMTP (optionnel)"/>
+	<entry key="Port" value="Port"/>
+	<entry key="AuthType" value="Type de connexion"/>
+	<entry key="Encryption" value="Chiffrement"/>
+	<entry key="ExtensionsEnabled" value="Activation des extensions"/>
+	<entry key="Save" value="Sauvegarder"/>
+	<entry key="Cancel" value="Annuler"/>
+	<entry key="SettingsSaved" value="Paramètres enregistrés"/>
+	<entry key="CopyTemplateDialog" value="Entrer nouveau nom du modèle (A-Z, 0-9 autorisés)"/>
+	<entry key="DeleteTemplateDialog" value="Êtes-vous sûr de vouloir supprimer le modèle sélectionné ?"/>
+	<entry key="WarningTemplateNameInvalid" value="Le nom entré est incorrect"/>
+	<entry key="WarningTemplatesNotWritable" value="Le dossier Modèles est protégé en écriture"/>
+	<entry key="WarningTemplateAlreadyExists" value="Un modèle avec le nom saisi existe déjà"/>
+	<entry key="NotificationTemplateCopySucceeded" value="Modèle copié avec succès et est maintenant prêt à l'emploi"/>
+	<entry key="WarningTemplateCopyFailed" value="Une erreur inconnue s'est produite pendant la copie"/>
+	<entry key="WarningTemplateDeleteInUse" value="Le Template n'a pas pu être supprimé, il est utilisé actuellement"/>
+	<entry key="WarningTemplateNotWritable" value="Le dossier est protégé en écriture"/>
+	<entry key="NotificationTemplateDeleteSucceeded" value="Le modèle a été supprimé"/>
+	<entry key="WarningTemplateDeleteFailed" value="Une erreur inconnue s'est produite retrait de modèle"/>
+</entries>

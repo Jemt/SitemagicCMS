@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Billedmontage" />
+	<entry key="Description" value="Skab en smuk og dynamisk billedmontage (galleri) med denne udvidelse" />
+	<entry key="SelectGallery" value="Vælg galleri" />
+	<entry key="NoGalleries" value="Ingen galleri-mapper fundet under files/gallery" />
+	<entry key="Settings" value="Indstillinger" />
+	<entry key="MinHeight" value="Minimumshøjde på billeder" />
+	<entry key="MaxHeight" value="Maksimumshøjde på billeder" />
+	<entry key="Margin" value="Billedmargin" />
+	<entry key="DisplayTitle" value="Vis galleri-titel" />
+	<entry key="DisplayImageTitle" value="Vis filnavn som titel" />
+	<entry key="DisplayImageExif" value="Vis EXIF billed-data" />
+	<entry key="DisplayPicker" value="Vis galleri-vælger" />
+	<entry key="Shuffle" value="Bland billeder" />
+	<entry key="SlideShowInterval" value="Diasshow interval" />
+	<entry key="Second" value="Sekund" />
+	<entry key="Seconds" value="Sekunder" />
+	<entry key="Minute" value="Minut" />
+	<entry key="Minutes" value="Minutter" />
+	<entry key="Save" value="Gem" />
+	<entry key="Open" value="Gå til montage" />
+</entries>

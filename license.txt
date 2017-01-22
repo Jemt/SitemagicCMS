@@ -1,0 +1,71 @@
+
+=========================================================================
+===  Sitemagic CMS         ==============================================
+===  http://sitemagic.org  ==============================================
+=========================================================================
+
+Sitemagic CMS is free software, meaning you may use it
+free of charge for both personal and commercial use.
+
+
+What you are most welcome to do:
+
+ - Build personal websites based on Sitemagic CMS.
+
+ - Build commercial websites based on Sitemagic CMS.
+
+ - Sell websites based on Sitemagic CMS including
+   your own extensions and design templates.
+
+ - Sell design templates for Sitemagic CMS.
+
+ - Sell extensions for Sitemagic CMS.
+
+ - Sell hosting for Sitemagic CMS.
+
+ - Sell support for Sitemagic CMS.
+
+
+The following limitations apply:
+
+ - You can not create derivatives (e.g. fork it)
+   or change the name of the product.
+
+ - You can not extract parts of the code or other
+   elements from Sitemagic CMS for use in other products,
+   unless subject to alternative license (e.g. TinyMCE).
+
+ - Codemagic retains full copyright and ownership
+   of Sitemagic CMS.
+
+
+Basically we honour the first 3 rules from the
+Free Software Definition defined by the Free Software Foundation (FSF)
+http://www.fsf.org
+
+ - The freedom to run the program, for any purpose.
+
+ - The freedom to study how the program works, and change it
+   so it does your computing as you wish. Access to the
+   source code is a precondition for this.
+
+ - The freedom to redistribute copies so you can help your neighbor.
+
+ - *The freedom to distribute copies of your modified versions to
+   others. By doing this you can give the whole community a chance
+   to benefit from your changes. Access to the source code is a
+   precondition for this.
+
+ * Although we do not allow distribution of modified (forked) copies,
+   we highly encourage users and developers to participate with
+   development of new extensions and design templates.
+   Developers are welcome to apply different licensing
+   terms to their own code - also the full FSF license.
+
+
+The purpose of this license is to ensure control with the
+development, and most importantly, quality of Sitemagic CMS.
+
+=========================================================================
+=========================================================================
+=========================================================================

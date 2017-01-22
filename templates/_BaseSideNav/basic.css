@@ -1,0 +1,36 @@
+@import url("_basic.css"); /* Complex CSS hidden from CSS Designer */
+
+/* CSS exposed to CSS Designer. Several of these
+   classes are often overridden in derivatives. */
+
+body,td,legend,input,textarea,select
+{
+	color: #333333;
+	font-family: verdana;
+	font-size: 11px;
+}
+
+body
+{
+	background-color: #F7F7F7;
+}
+
+input,textarea,select,fieldset
+{
+	border-color: #E8E8E8;
+}
+
+input,textarea,select,option
+{
+	background-color: #FFFFFF;
+}
+
+input[type=button],input[type=submit],input[type=reset]
+{
+	background-color: #C5C5C5;
+}
+
+a
+{
+	color: #617C8C;
+}

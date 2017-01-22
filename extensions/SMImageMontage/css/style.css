@@ -1,0 +1,115 @@
+/* CSS specific to Automatic Image Montage jQuery plugin */
+
+.SMImageMontageWrapper
+{
+	float:left;
+	position:relative;
+	overflow:hidden;
+}
+.SMImageMontageWrapper img
+{
+	position:absolute;
+	outline:none;
+}
+
+/* CSS specific to Sitemagic CMS extension */
+
+div.SMImageMontageLoading
+{
+	width: 180px;
+	padding: 20px;
+	margin: 50px auto;
+	background-color: #EEEEEE;
+	border: 2px solid #333333;
+	border-radius: 10px;
+	text-align: center;
+	position: relative;
+}
+
+div.SMImageMontageLoadingStatus
+{
+	color: #333333;
+	font-weight: bold;
+	font-size: 12px;
+	
+	position: absolute;
+	width: 100px;
+	top: 76px;
+	left: 50%;
+	margin-left: -50px;
+	text-align: center;
+}
+
+div.SMImageMontageFullScreenLayer
+{
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background: #000000;
+	display: none;
+	width: 100%;
+	height: 100%;
+	z-index: 99;
+}
+
+img.SMImageMontageFullScreenImage
+{
+	border: 2px solid whitesmoke;
+	border-radius: 10px;
+}
+
+div.SMImageMontageButton
+{
+	position: absolute;
+	top: 10px;
+	width: 75px;
+	height: 75px;
+	cursor: pointer;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+div.SMImageMontageButtonPrevious
+{
+	left: 10px;
+	background-image: url("../images/previous.png");
+}
+
+div.SMImageMontageButtonNext
+{
+	right: 10px;
+	background-image: url("../images/next.png");
+}
+
+div.SMImageMontageButtonSlideShow
+{
+	right: 100px;
+}
+
+div.SMImageMontageButtonSlideShowPlay
+{
+	background-image: url("../images/play.png");
+}
+
+div.SMImageMontageButtonSlideShowPause
+{
+	background-image: url("../images/pause.png");
+}
+
+div.SMImageMontageTitle
+{
+	margin-top: 35px;
+	text-align: center;
+	color: whitesmoke;
+	font-size: 20px;
+	font-weight: bold;
+}
+
+div.SMImageMontageDescription
+{
+	position: absolute;
+	bottom: 20px;
+	width: 100%;
+	text-align: center;
+	color: gray;
+}

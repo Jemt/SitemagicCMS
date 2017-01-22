@@ -1,0 +1,51 @@
+@import url("_basic.css"); /* Complex CSS hidden from CSS Designer */
+
+/* CSS exposed to CSS Designer. Several of these
+   classes are often overridden in derivatives. */
+
+body,td,legend,input,textarea,select
+{
+	color: #333333;
+	font-family: verdana;
+}
+
+html.SMPagesViewer body,
+html.SMPagesViewer td,
+html.SMPagesViewer legend,
+html.SMPagesViewer input,
+html.SMPagesViewer textarea,
+html.SMPagesViewer select,
+body#tinymce,
+body#tinymce td,
+body#tinymce legend,
+body#tinymce input,
+body#tinymce textarea,
+body#tinymce select
+{
+	font-size: 14px;
+}
+
+body
+{
+	background-color: #F5F5F5;
+}
+
+input,textarea,select,fieldset
+{
+	border-color: #CAD1DB;
+}
+
+input,textarea,select,option
+{
+	background-color: #FFFFFF;
+}
+
+input[type=button],input[type=submit],input[type=reset]
+{
+	background-color: #C5C5C5;
+}
+
+a
+{
+	color: #729E5C;
+}

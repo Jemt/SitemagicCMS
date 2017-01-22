@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContentPages" value="Sider" />
+	<entry key="ContentPageDetails" value="Egenskaber" />
+	<entry key="Filename" value="Filnavn" />
+	<entry key="PageTitle" value="Titel" />
+	<entry key="Accessible" value="Tilgængelig" />
+	<entry key="Template" value="Skabelon" />
+	<entry key="CopyTemplate" value="Kopier" />
+	<entry key="DeleteTemplate" value="Slet" />
+	<entry key="Keywords" value="Nøgleord" />
+	<entry key="Description" value="Beskrivelse" />
+	<entry key="AllowIndexing" value="Tillad indeksering" />
+	<entry key="Password" value="Adgangskode" />
+	<entry key="MaskPassword" value="Skjul adgangskode" />
+	<entry key="AllOptions" value="Flere muligheder" />
+	<entry key="Create" value="Opret" />
+	<entry key="Clear" value="Rens" />
+	<entry key="Save" value="Gem" />
+	<entry key="Settings" value="Indstillinger" />
+	<entry key="UrlType" value="URL type" />
+	<entry key="SeoUrls" value="SEO URLer" />
+	<entry key="UrlTypeFilename" value="Filnavn" />
+	<entry key="UrlTypeUniqueId" value="Unikt ID" />
+	<entry key="Edit" value="Egenskaber" />
+	<entry key="EditContent" value="Rediger indhold" />
+	<entry key="Display" value="Vis" />
+	<entry key="Delete" value="Slet" />
+	<entry key="Modified" value="Ændret" />
+	<entry key="FilenameMissing" value="Angiv venligst et filnavn" />
+	<entry key="FilenameInvalid" value="Ugyldigt filnavn - tilladte karakterer: A-Z, 0-9, punktum (.), bindestreg (-) og underscore (_)" />
+	<entry key="FilenameExists" value="Filnavnet er allerede i brug" />
+	<entry key="SelectPage" value="Vælg venligst en side" />
+	<entry key="PageMissing" value="Den valgte side eksisterer ikke længere" />
+	<entry key="DeleteWarning" value="Bekræft venligst sletning" />
+	<entry key="Yes" value="Ja" />
+	<entry key="No" value="Nej" />
+	<entry key="DateTimeFormat" value="d-m-Y H:i:s" />
+
+	<entry key="CopyTemplateDialog" value="Indtast navnet på den nye skabelon (A-Z, 0-9 tilladt)" />
+	<entry key="DeleteTemplateDialog" value="Er du sikker på at du vil slette den valgte skabelon?" />
+	<entry key="WarningTemplateNoSelection" value="Vælg venligst en skabelon" />
+	<entry key="WarningTemplateNameInvalid" value="Det indtastede navn er ugyldigt" />
+	<entry key="WarningTemplatesNotWritable" value="Mappen templates er skrivebeskyttet" />
+	<entry key="WarningTemplateAlreadyExists" value="En skabelon med det indtastede navn eksisterer allerede" />
+	<entry key="NotificationTemplateCopySucceeded" value="Skabelonen blev kopieret og er nu klar til brug" />
+	<entry key="WarningTemplateCopyFailed" value="Der opstod en ukendt fejl ifm. kopiering af skabelonen" />
+	<entry key="WarningTemplateDeleteInUse" value="Skabelonen kunne ikke slettes, den er i øjeblikket i brug" />
+	<entry key="WarningTemplateDeleteNotWritable" value="Mappen er skrivebeskyttet" />
+	<entry key="NotificationTemplateDeleteSucceeded" value="Skabelonen er blevet slettet" />
+	<entry key="WarningTemplateDeleteFailed" value="Der opstod en ukendt fejl ifm. sletning" />
+
+	<entry key="HeaderFooter" value="Sidehoved og sidefod" />
+	<entry key="AddHeader" value="Tilføj sidehoved" />
+	<entry key="EditHeader" value="Rediger sidehoved" />
+	<entry key="RemoveHeader" value="Fjern" />
+	<entry key="AddFooter" value="Tilføj sidefod" />
+	<entry key="EditFooter" value="Rediger sidefod" />
+	<entry key="RemoveFooter" value="Fjern" />
+
+	<entry key="PageNotFound" value="Den valgte side eksisterer ikke" />
+	<entry key="NoIndexPage" value="Der er ikke oprettet en startside i systemet - opret en side med filnavnet Index" />
+	<entry key="NotAccessible" value="Den valgte side er beskyttet mod visning" />
+	<entry key="SettingsSaved" value="Indstillingerne blev gemt" />
+
+	<entry key="NoIndexingOnPassword" value="Indeksering er ikke muligt når siden beskyttes af en adgangskode" />
+	<entry key="PasswordProtected" value="Adgangsbeskyttet" />
+	<entry key="Unauthorized" value="Denne side er beskyttet af en adgangskode" />
+	<entry key="PageLogin" value="Klik her for at logge ind" />
+	<entry key="IncorrectPassword" value="Den indtastede adgangskode er forkert - prøv venligst igen." />
+
+	<entry key="CardSmall" value="Kort (lille)" />
+	<entry key="CardMedium" value="Kort (mellem)" />
+	<entry key="CardLarge" value="Kort (stor)" />
+	<entry key="CardHidden" value="Kort (skjult)" />
+	<entry key="CardHeader" value="Kort header" />
+	<entry key="CardFooter" value="Kort footer" />
+	<entry key="Resizing" value="Justerer vinduets størrelse" />
+	<entry key="ResizingDescription" value="Indholdet justeres til vinduets nye størrelse" />
+	<entry key="Saving" value="Gemmer" />
+	<entry key="SavingDescription" value="Indholdet gemmes" />
+</entries>

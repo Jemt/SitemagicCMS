@@ -1,0 +1,79 @@
+/* Complex CSS hidden from CSS Designer */
+
+div.TPLBackground
+{
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	z-index: -1;
+	top: 0px;
+	left: 0px;
+}
+
+div.TPLPage
+{
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div.TPLLogo
+{
+	background-repeat: no-repeat;
+}
+
+div.TPLMenu
+{
+	float: left;
+}
+
+a.TPLMenuLink:hover
+{
+	text-decoration: none;
+}
+
+a.TPLMenuLinkActive
+{
+	font-weight: bold;
+}
+
+a.TPLTopMenuLink
+{
+	padding-left: 10px;
+}
+
+a.TPLSubMenuLink
+{
+	padding-left: 25px;
+}
+
+div.TPLContent
+{
+	float: left;
+}
+
+div.TPLContentInner
+{
+	margin: 15px;
+}
+
+div.TPLFooter
+{
+	text-align: center;
+	line-height: 30px;
+}
+
+/* Content and Admin menu links */
+div.SMMenuSMMenuContent:not(#IE7IE8) > a, div.SMMenuSMMenuAdmin:not(#IE7IE8) > a
+{
+	padding-left: 27px;
+	background-image: url("../../images/Default/modify.png");
+	background-size: 18px;
+	background-position: 5px 50%;
+	background-repeat: no-repeat;
+}
+div.SMMenuSMMenuAdmin:not(#IE7IE8) > a
+{
+	background-image: url("../../images/Default/settings.png");
+}

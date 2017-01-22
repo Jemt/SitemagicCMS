@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="External modules" />
+	<entry key="Settings" value="Settings" />
+	<entry key="Modules" value="Saved modules" />
+	<entry key="Name" value="Module name" />
+	<entry key="Url" value="URL address / iFrame code" />
+	<entry key="Width" value="Width" />
+	<entry key="Height" value="Height" />
+	<entry key="Pixels" value="Pixels" />
+	<entry key="Percent" value="Percent" />
+	<entry key="Scroll" value="Use scroll" />
+	<entry key="ScrollNo" value="No" />
+	<entry key="ScrollYes" value="Yes" />
+	<entry key="ScrollAuto" value="Adjust automatically" />
+	<entry key="ShowFrame" value="Show frame" />
+	<entry key="NoFrame" value="No frame" />
+	<entry key="FrameColorBlack" value="Black" />
+	<entry key="FrameColorWhite" value="White" />
+	<entry key="FrameColorGray" value="Gray" />
+	<entry key="FrameColorSilver" value="Silver" />
+	<entry key="FrameColorMaroon" value="Maroon" />
+	<entry key="FrameColorRed" value="Red" />
+	<entry key="FrameColorPurple" value="Purple" />
+	<entry key="FrameColorFuchsia" value="Fushsia" />
+	<entry key="FrameColorGreen" value="Green" />
+	<entry key="FrameColorLime" value="Lime" />
+	<entry key="FrameColorOlive" value="Olive" />
+	<entry key="FrameColorYellow" value="Yellow" />
+	<entry key="FrameColorNavy" value="Navy" />
+	<entry key="FrameColorBlue" value="Blue" />
+	<entry key="FrameColorTeal" value="Teal" />
+	<entry key="FrameColorAqua" value="Aqua" />
+	<entry key="ReloadToTop" value="Reload scrolls up" />
+	<entry key="Create" value="Create" />
+	<entry key="Clear" value="Clear" />
+	<entry key="Save" value="Save" />
+	<entry key="Delete" value="Delete" />
+	<entry key="Preview" value="Preview" />
+
+	<entry key="ModuleCreated" value="Module created" />
+	<entry key="SettingsSaved" value="Settings saved" />
+	<entry key="ModuleDeleted" value="Module deleted" />
+	<entry key="DeleteWarning" value="Please confirm deletion" />
+	<entry key="MissingFields" value="Please fill out all fields" />
+	<entry key="AlreadyExists" value="A module with the specified name already exists" />
+	<entry key="ModuleNotFound" value="External module configuration no longer exists" />
+	<entry key="InvalidWidthHeight" value="Please enter numeric values in Width and Height" />
+	<entry key="CreationError" value="Unable to create module (unknown error)" />
+	<entry key="UpdateError" value="Unable to update module (unknown error)" />
+	<entry key="DeleteError" value="Unable to delete module (unknown error)" />
+
+	<entry key="Description" value="Easily configure external modules such as a calendar or a forum, and add them to your content pages (using the WYSIWYG editor)" />
+</entries>

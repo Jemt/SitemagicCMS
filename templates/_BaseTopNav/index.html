@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="{[Language]}" class="{[TemplateType]} {[SMLogin Access]} TPLTemplate{[CurrentTemplate]} TPLImageTheme{[CurrentImageTheme]}">
+<head>
+	<title>{[Title]}</title>
+	<script type="text/javascript" src="{[TemplatesDirectory]}/_BaseTopNav/menu.js"></script>
+</head>
+<body class="{[TemplateType]} {[SMLogin Access]} TPLTemplate{[CurrentTemplate]} TPLImageTheme{[CurrentImageTheme]}">
+
+<div class="TPLBackground" id="TPLBackground"></div>
+<div class="TPLTop" id="TPLTop"></div>
+<div class="TPLMiddle" id="TPLMiddle">
+	<div class="TPLPage" id="TPLPage">
+		<div class="TPLHeader" id="TPLHeader">{[Header]}</div>
+		<div class="TPLLogo" id="TPLLogo"></div>
+		<div class="TPLMenu" id="TPLMenu">
+			<div style="height: 0px"><!-- IE7 fix: Floating menu items cause problems in IE7 when content is added above and below menu --></div>
+			<!-- REPEAT SMMenuLevel1 -->
+			<div class="TPLTopMenuLinkContainer {[SMMenuItemLevel1 Id]}">
+				<a href="{[SMMenuItemLevel1 Url]}" class="TPLMenuLink TPLTopMenuLink" style="display: block" onmouseover="tplMenuToggle('{[SMMenuItemLevel1 Id]}SubMenu', 'onmouseover')" onmouseout="tplMenuToggle('{[SMMenuItemLevel1 Id]}SubMenu', 'onmouseout')">{[SMMenuItemLevel1 Title]}</a>
+				<div class="TPLSubMenu" style="position: absolute; visibility: hidden; z-index: 9999" id="{[SMMenuItemLevel1 Id]}SubMenu" onmouseover="tplMenuToggle('{[SMMenuItemLevel1 Id]}SubMenu', 'onmouseover')" onmouseout="tplMenuToggle('{[SMMenuItemLevel1 Id]}SubMenu', 'onmouseout')">
+					<!-- REPEAT SMMenuLevel2 {[SMMenuItemLevel1 Id]} -->
+		  			<a href="{[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Url]}" class="TPLMenuLink TPLSubMenuLink {[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Id]}" style="display: block">{[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Title]}</a>
+		  			<!-- /REPEAT SMMenuLevel2 {[SMMenuItemLevel1 Id]} -->
+				</div>
+	  		</div>
+	  		<!-- /REPEAT SMMenuLevel1 -->
+	  		<div style="clear: both"></div>
+			<div style="height: 0px"><!-- IE7 fix: Floating menu items cause problems in IE7 when content is added above and below menu --></div>
+		</div>
+		<div class="TPLContent" id="TPLContent">
+			{[Extension]}
+		</div>
+		<div class="TPLFooter" id="TPLFooter">{[Footer]}</div>
+	</div>
+</div>
+<div class="TPLBottom" id="TPLBottom"></div>
+
+<div class="TPLLinks" id="TPLLinks">
+	<a href="{[SMLogin Url]}">{[SMLogin Link]}</a> |
+	<a href="http://sitemagic.org">Sitemagic CMS</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+<div id="SMImageMontageContainer"></div>
+<div style="clear: both"></div>
+
+<script type="text/javascript">
+SMResourceManager.LoadScript("{[ExtensionPath]}/js/ImageMontage.js", function(src)
+{
+	var im = new SMImageMontage("{[ExtensionPath]}", "SMImageMontageContainer");
+	im.MinHeight = {[MinHeight]};
+	im.MaxHeight = {[MaxHeight]};
+	im.Margin = {[Margin]};
+	im.SlideShowInterval = {[SlideShowInterval]};
+
+	<!-- REPEAT Images -->
+	im.AddImage("{[ImagePath]}", "{[ImageTitle]}", "{[ImageDescription]}");
+	<!-- /REPEAT Images -->
+
+	im.Start();
+});
+</script>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Gallerie"/>
+	<entry key="Choose" value="Choisisez gallerie"/>
+	<entry key="Page" value="Page {x} de {y}"/>
+	<entry key="SettingsTitle" value="Paramètres gallerie"/>
+	<entry key="Settings" value="Paramétrages"/>
+	<entry key="SettingColumns" value="Nombre de colonnes"/>
+	<entry key="SettingRows" value="Nombre de lignes"/>
+	<entry key="SettingWidth" value="La largeur des images (pixels)"/>
+	<entry key="SettingHeight" value="Hauteur des images (pixels)"/>
+	<entry key="SettingPadding" value="Padding (pixels)"/>
+	<entry key="SaveSettings" value="Sauvegarde"/>
+	<entry key="SettingsSaved" value="Paramètres enregistrés"/>
+	<entry key="SettingsTypeError" value="Veuillez saisir uniquement des entiers positifs"/>
+	<entry key="EntireGallery" value="Galerie complète"/>
+	<entry key="Description" value="Ajoutez vos images dans un nouveau dossier du dossier de la galerie, et insérez votre galerie nouvellement créée dans une page de contenu (à l'aide de l'éditeur WYSIWYG)"/>
+</entries>

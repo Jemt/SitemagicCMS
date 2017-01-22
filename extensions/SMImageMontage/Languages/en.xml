@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Image montage" />
+	<entry key="Description" value="Create a beautiful and dynamic image montage (gallery) using this extension" />
+	<entry key="SelectGallery" value="Select gallery" />
+	<entry key="NoGalleries" value="No gallery folders found under files/gallery" />
+	<entry key="Settings" value="Settings" />
+	<entry key="MinHeight" value="Image minimum height" />
+	<entry key="MaxHeight" value="Image maximum height" />
+	<entry key="Margin" value="Image margin" />
+	<entry key="DisplayTitle" value="Display gallery title" />
+	<entry key="DisplayImageTitle" value="Display filename as title" />
+	<entry key="DisplayImageExif" value="Display EXIF image data" />
+	<entry key="DisplayPicker" value="Display gallery picker" />
+	<entry key="Shuffle" value="Shuffle images" />
+	<entry key="SlideShowInterval" value="Slide show interval" />
+	<entry key="Second" value="Second" />
+	<entry key="Seconds" value="Seconds" />
+	<entry key="Minute" value="Minute" />
+	<entry key="Minutes" value="Minutes" />
+	<entry key="Save" value="Save" />
+	<entry key="Open" value="Go to montage" />
+</entries>

@@ -1,0 +1,27 @@
+RewriteEngine on
+
+# Example request:
+# http://domain.com/sites/demo/templates/Sunrise/styles.css
+
+# Configuration options:
+
+# 1) Templates folder containing ONLY .htaccess
+#    Result: Template files from root site will be available and used.
+#    Various resources such as styles.css will - from a browser's perspective - be loaded from
+#    http://domain.com/sites/demo/templates/Sunrise/styles.css, which is why the .htaccess file
+#    is required to redirect the request to:
+#    http://domain.com/sites/demo/templates/../../../templates/Sunrise/styles.css
+#
+# 2a) Templates folder containing .htacces and at least one template folder (e.g. Sunrise)
+#     Result: Only templates contain is made available to subsite.
+#     Since we do not want to dublicate e.g. _BaseGeneric, the .htaccess file is still
+#     required to redirect requests to e.g. sites/haps/templates/_BaseGeneric/enhancements/menu.normal.js
+#     to sites/haps/templates/../../../templates/_BaseGeneric/enhancements/menu.normal.js instead.
+#
+# 2b) Templates folder containing both _BaseGeneric and at least one functional template.
+#     In this case no .htaccess file is required, and no template files from the root site will be required.
+
+# The RegEx captures the file path relative to the folder containing the .htaccess file - e.g. Sunrise/styles.css
+RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ ../../../templates/$1

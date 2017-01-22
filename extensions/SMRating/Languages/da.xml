@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Rating" value="Vurdering" />
+	<entry key="Stars" value="Stjerner" />
+
+	<entry key="NumberOfRatings" value="Antal vurderinger" />
+	<entry key="Average" value="Gennemsnit" />
+
+	<entry key="Description" value="Lad besøgende vurdere dit indhold ved at indsætte denne udvidelse på dine indholdssider (i WYSIWYG editoren)" />
+</entries>

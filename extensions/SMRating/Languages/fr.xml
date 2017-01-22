@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Rating" value="Evaluation"/>
+	<entry key="Stars" value="Etoiles"/>
+	<entry key="NumberOfRatings" value="Décompte de cotation"/>
+	<entry key="Average" value="Moyenne"/>
+	<entry key="Description" value="Laisser les visiteurs évaluer votre contenu en insérant cette extension sur vos pages de contenu (à l'aide de l'éditeur WYSIWYG)"/>
+</entries>

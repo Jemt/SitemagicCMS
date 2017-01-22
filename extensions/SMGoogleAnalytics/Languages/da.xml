@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Google Analytics" />
+	<entry key="Settings" value="Indstillinger" />
+	<entry key="TrackerId" value="Tracker ID" />
+	<entry key="Report" value="Rapporter" />
+	<entry key="ReportModeContentPages" value="Kun indholdssider" />
+	<entry key="ReportModeEverything" value="Alt" />
+	<entry key="ReportModeNothing" value="Intet" />
+	<entry key="Save" value="Gem" />
+	<entry key="SettingsSaved" value="Indstillingerne blev gemt" />
+
+	<entry key="Description" value="Hold styr på dine besøgende med Google Analytics" />
+</entries>

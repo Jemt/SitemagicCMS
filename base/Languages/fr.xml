@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="SMClientEnterPassword" value="Mot de passe"/>
+	<entry key="SMClientOk" value="Ok"/>
+	<entry key="SMClientCancel" value="Annuler"/>
+	<entry key="SMClientMaxLengthExceededWarning" value="Valeur saisie est trop longue, veuillez le raccourcir"/>
+</entries>

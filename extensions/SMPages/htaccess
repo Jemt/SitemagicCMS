@@ -1,0 +1,169 @@
+RewriteEngine on
+
+Options -Indexes
+
+# === Sitemagic Cloud ===================================
+# Only applied to subsites within Sitemagic Cloud
+# running on individual VHosts with subdomains.
+# Proxying is necessary in order to avoid cross domain
+# restrictions for e.g. fonts.
+# =======================================================
+#RewriteRule ^(base/.*)$ http://powerzone.dk/Sitemagic/$1 [P,L]
+#RewriteRule ^(extensions/.*)$ http://powerzone.dk/Sitemagic/$1 [P,L]
+#RewriteRule ^(images/.*)$ http://powerzone.dk/Sitemagic/$1 [P,L]
+#RewriteRule ^(sites/.*)$ http://powerzone.dk/Sitemagic/$1 [P,L]
+
+# Variables (RewriteCond):
+# %{REQUEST_URI} (absolute path - leading slash - does not include query string, use %{QUERY_STRING} for that):
+#  - /index.php
+#  - /Sitemagic/index.php
+#  - /Sitemagic/sites/demo  (file)
+#  - /Sitemagic/sites/demo/ (folder)
+# %{HTTP_HOST}:
+#  - domain.com
+# %{QUERY_STRING}
+#  - arg1=val1&parm2=val2
+
+# Example URLs (RewriteRule - relative to .htaccess file - no leading slash - does not include query string, use RewriteCond for that):
+#  - index.php
+#  - sites/demo  (file)
+#  - sites/demo/ (folder)
+
+# DEBUG/TEST for alpha release.
+# Ensure backward compatibility for renamed folders.
+# Especially pages are likely to reference content using old paths.
+# Map requests to old folder names to new folder names:
+#    files => smfls2
+#    sites/XYZ/files => sites/XYZ/smfls2
+#    extensions => smexts2 (e.g. extension place holder image)
+#    sites/XYZ/extensions => sites/XYZ/smexts2 (e.g. extension place holder image)
+#RewriteRule ^files/(.*)$ smfls2/$1 [L]
+#RewriteRule ^(sites/[A-Za-z0-9_\.-]+)/files/(.*)$ $1/smfls2/$2 [L]
+#RewriteRule ^extensions/(.*)$ smexts2/$1 [L]
+#RewriteRule ^(sites/[A-Za-z0-9_\.-]+)/extensions/(.*)$ $1/smexts2/$2 [L]
+
+# Remove www. from URL on http protocol
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^(.*)$ http://%1%{REQUEST_URI} [R=301,NE,L]
+
+# Remove www. from URL on https protocol
+RewriteCond %{HTTPS} on
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^(.*)$ https://%1%{REQUEST_URI} [R=301,NE,L]
+
+# Remove index.html from URL - do not apply under /shop/, let Shop rewrites take care of behaviour
+RewriteCond %{REQUEST_URI} ^(.*/)index\.html$ [NC]
+RewriteCond %{REQUEST_URI} !^.*/shop/index\.html$ [NC]
+RewriteRule . %1 [R=301,NE,L]
+
+# Remove index.php from URL (only if no args are passed in query string,
+# and if data has not been posted back to server - POST data is lost
+# when redirecting).
+# Do not apply under /shop/ - let Shop rewrites take care of behaviour.
+RewriteCond %{QUERY_STRING} ^$
+RewriteCond %{REQUEST_URI} ^(.*/)index\.php$ [NC]
+RewriteCond %{REQUEST_URI} !^.*/shop/index\.php$ [NC]
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteRule . %1 [R=301,NE,L]
+
+# Subsites:
+# Redirect requests to base, extensions, and images to base installation
+# Example: sites/demo/base/gui/SMClient.js => base/gui/SMClient.js
+RewriteRule ^sites/[A-Za-z0-9_\.-]+/(base/.*)$ $1 [L]
+RewriteRule ^sites/[A-Za-z0-9_\.-]+/(extensions/.*)$ $1 [L]
+RewriteRule ^sites/[A-Za-z0-9_\.-]+/(images/.*)$ $1 [L]
+
+# Subsites fix - client perspective on subsite specific folders:
+# Server side, some folders (data, files, templates) are located
+# under a subsite (unless shared with the main site).
+# Example: sites/demo/templates.
+# If this path was used client side under a subsite, we
+# would request e.g. sites/demo/templates/Sunrise/styles.css
+# from a sites located on http://domain.com/sites/demo.
+# This would result in a request to the server with the following URL:
+# http://domain.com/sites/demo/sites/demo/templates/Sunrise/styles.css
+#                   ^^^^^^^^^^ ^^^^^^^^^^
+# To allow the server side code to use SMEnvironment::Get***Directory()
+# to construct file paths for both server side and client side logic,
+# we make sure to redirect requests such as
+# http://domain.com/sites/demo/sites/demo/templates/Sunrise/styles.css
+# to http://domain.com/sites/demo/templates/Sunrise/styles.css instead.
+# That way the same server side code can be used to construct file
+# paths for both server side and client side logic.
+RewriteRule ^sites/[A-Za-z0-9_\.-]+/(sites/[A-Za-z0-9_\.-]+/.*)$ $1 [L]
+
+# Map /Admin to index.php?SMExt=SMLogin for easy access
+RewriteRule ^admin$ index.php?SMExt=SMLogin [NC,L]
+RewriteRule ^(sites/[A-Za-z0-9_\.-]+)/admin$ $1/index.php?SMExt=SMLogin [NC,L]
+
+# Shop - redirect /shop to shop/Overview (http protocol) - do not apply to sites/shop
+RewriteCond %{HTTPS} off
+RewriteCond %{REQUEST_URI} ^(.*)/shop/?$ [NC]
+RewriteCond %{REQUEST_URI} !^.*/sites/shop/?$ [NC]
+RewriteRule . http://%{HTTP_HOST}%1/shop/Overview [R=301,L]
+
+# Shop - redirect /shop to /shop/Overview (https protocol) - do not apply to sites/shop
+RewriteCond %{HTTPS} on
+RewriteCond %{REQUEST_URI} ^(.*)/shop/?$ [NC]
+RewriteCond %{REQUEST_URI} !^.*/sites/shop/?$ [NC]
+RewriteRule . https://%{HTTP_HOST}%1/shop/Overview [R=301,L]
+
+# Shop - map product category to URL argument
+RewriteRule ^shop/([A-Za-z0-9_-]+)$ index.php?SMExt=SMShop&SMShopCategory=$1 [L]
+RewriteRule ^sites/([sS][hH][oO][pP])/shop/([A-Za-z0-9_-]+)$ sites/$1/index.php?SMExt=SMShop&SMShopCategory=$2 [L]
+
+##### Shop - redirect client requests to files found one level above shop directory
+##### DISABLED - now handled by new rules further down
+##### RewriteRule ^shop/(base/.*)$ $1 [L]
+##### RewriteRule ^shop/(extensions/.*)$ $1 [L]
+##### RewriteRule ^shop/(images/.*)$ $1 [L]
+##### RewriteRule ^shop/(templates/.*)$ $1 [L]
+##### RewriteRule ^shop/(files/.*)$ $1 [L]
+##### RewriteRule ^shop/(data/SMShop/.*)$ $1 [L]
+
+# Shop - redirect requests to files under /shop/ to parent folder (on http protocol) - do not apply to sites/shop
+# Examples - e.g. shop/index.html or shop/templates/Sunrise/style.css
+RewriteCond %{HTTPS} off
+RewriteCond %{REQUEST_URI} ^(.*/)shop/(.*)$
+RewriteCond %{REQUEST_URI} !^.*/sites/shop/.*$ [NC]
+RewriteRule . http://%{HTTP_HOST}%1%2 [R=301,NE,L]
+
+# Shop (sites/shop/shop fix) - redirect requests to files under /sites/shop/shop/ to parent folder (on http protocol)
+# Examples - e.g. sites/shop/shop/index.html or sites/shop/shop/templates/Sunrise/style.css
+RewriteCond %{HTTPS} off
+RewriteCond %{REQUEST_URI} ^(.*/sites/[sS][hH][oO][pP]/)shop/(.*)$
+RewriteRule . http://%{HTTP_HOST}%1%2 [R=301,NE,L]
+
+# Shop - redirect requests to files under /shop/ to parent folder (on https protocol) - do not apply to sites/shop
+# Examples - e.g. shop/index.html or shop/templates/Sunrise/style.css
+RewriteCond %{HTTPS} on
+RewriteCond %{REQUEST_URI} ^(.*/)shop/(.*)$
+RewriteCond %{REQUEST_URI} !^.*/sites/shop/.*$ [NC]
+RewriteRule . https://%{HTTP_HOST}%1%2 [R=301,NE,L]
+
+# Shop (sites/shop/shop fix) - redirect requests to files under /sites/shop/shop/ to parent folder (on https protocol)
+# Examples - e.g. sites/shop/shop/index.html or sites/shop/shop/templates/Sunrise/style.css
+RewriteCond %{HTTPS} on
+RewriteCond %{REQUEST_URI} ^(.*/sites/[sS][hH][oO][pP]/)shop/(.*)$
+RewriteRule . https://%{HTTP_HOST}%1%2 [R=301,NE,L]
+
+# SEO frindly URLs
+RewriteRule ^([A-Za-z0-9_\.-]+)\.html$ index.php?SMExt=SMPages&SMPagesFilename=$1 [L,QSA]
+RewriteRule ^([A-Za-z0-9_\.-]+)\.htm$ index.php?SMExt=SMPages&SMPagesId=$1 [L,QSA]
+RewriteRule ^(sites/[A-Za-z0-9_\.-]+)/([A-Za-z0-9_\.-]+)\.html$ $1/index.php?SMExt=SMPages&SMPagesFilename=$2 [L,QSA]
+RewriteRule ^(sites/[A-Za-z0-9_\.-]+)/([A-Za-z0-9_\.-]+)\.htm$ $1/index.php?SMExt=SMPages&SMPagesId=$2 [L,QSA]
+
+# Cache control
+
+<IfModule mod_headers.c>
+	<FilesMatch ".(js|css|png|jpg|jpeg|gif|ico)$">
+		Header set Cache-Control "max-age=3600, public, must-revalidate"
+	</FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+	<FilesMatch ".(html|htm|php)$">
+		Header set Cache-Control "no-cache"
+	</FilesMatch>
+</IfModule>

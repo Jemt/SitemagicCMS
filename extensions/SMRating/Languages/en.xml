@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Rating" value="Rating" />
+	<entry key="Stars" value="Stars" />
+
+	<entry key="NumberOfRatings" value="Rating count" />
+	<entry key="Average" value="Average" />
+
+	<entry key="Description" value="Let visitors rate your content by inserting this extension on your content pages (using the WYSIWYG editor)" />
+</entries>

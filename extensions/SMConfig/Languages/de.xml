@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Einstellungen" />
+	<entry key="Login" value="Anmeldung" />
+	<entry key="Username" value="Benutzername" />
+	<entry key="Password" value="Passwort" />
+	<entry key="HidePassword" value="Passwort verstecken" />
+	<entry key="Appearance" value="Design" />
+	<entry key="ImageTheme" value="Symboldarstellung" />
+	<entry key="Template" value="Designvorlage" />
+	<entry key="CopyTemplate" value="Kopieren" />
+	<entry key="DeleteTemplate" value="Löschen" />
+	<entry key="Language" value="Sprache" />
+	<entry key="TimeZone" value="Zeitzone" />
+	<entry key="License" value="Lizenz" />
+	<entry key="LicenseKey" value="Lizenzschlüssel" />
+	<entry key="DatabaseTitle" value="MySQL Datenbank (freiwillig)" />
+	<entry key="Server" value="Server" />
+	<entry key="Database" value="Datenbank" />
+	<entry key="SmtpTitle" value="SMTP Server (freiwillig)" />
+	<entry key="Port" value="Port" />
+	<entry key="AuthType" value="Login-Typ" />
+	<entry key="Encryption" value="Verschlüsselung" />
+	<entry key="ExtensionsEnabled" value="Extensions freigeben" />
+	<entry key="Save" value="Speichern" />
+	<entry key="Cancel" value="Abbrechen" />
+
+	<entry key="SettingsSaved" value="Einstellungen gespeichert" />
+	<entry key="CopyTemplateDialog" value="Neuen Template-Namen eingeben (A-Z, 0-9 sind erlaubt)" />
+	<entry key="DeleteTemplateDialog" value="Sind Sie sich sicher, dass Sie dieses Template entfernen möchten?" />
+	<entry key="WarningTemplateNameInvalid" value="Der eingegebene Name ist ungültig" />
+	<entry key="WarningTemplatesNotWritable" value="Die Templates-Mappe ist schreibgeschützt " />
+	<entry key="WarningTemplateAlreadyExists" value="Es existiert bereits ein Template mit diesem Namen" />
+	<entry key="NotificationTemplateCopySucceeded" value="Das Template wurde erfolgreich kopiert und ist jetzt einsatzbereit" />
+	<entry key="WarningTemplateCopyFailed" value="Ein unbekannter Fehler ist beim Kopieren des Templates aufgetreten" />
+	<entry key="WarningTemplateDeleteInUse" value="Das Template kann nicht entfernt werden, es wird momentan benutzt" />
+	<entry key="WarningTemplateNotWritable" value="Die Mappe ist schreibgeschützt" />
+	<entry key="NotificationTemplateDeleteSucceeded" value="Das Template ist entfernt worden" />
+	<entry key="WarningTemplateDeleteFailed" value="Ein unbekannter Fehler ist beim Entfernen des Templates aufgetreten" />
+</entries>

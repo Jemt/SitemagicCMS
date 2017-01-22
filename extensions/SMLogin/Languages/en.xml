@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Administration" value="Administration" />
+	<entry key="Username" value="Username" />
+	<entry key="Password" value="Password" />
+	<entry key="Language" value="Language" />
+	<entry key="Error" value="Wrong username or password" />
+	<entry key="Login" value="Log in" />
+	<entry key="Logout" value="Log out" />
+
+	<entry key="LoginForm" value="Login form" />
+</entries>

@@ -1,0 +1,45 @@
+html.Normal,html.Basic.SMPagesViewer,html.SMPagesEditor.SMPagesContentPage,html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader,html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter{background-image: url("../../files/images/backgrounds/Sunset.jpg");}html.SMPagesCustomHeader div.TPLHeader, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body{margin-top: -70px;margin-bottom: 0px;}html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body{display: inline-block;margin-top: 20px;margin-bottom: 20px;}div.TPLMenu > ul{margin-top: -50px;margin-left: 0px;margin-right: 0px;margin-bottom: 0px;border-radius: 0px;background: transparent;}div.TPLMenu > ul > li > a{font-size: 14px;color: #F0F0F0;font-weight: normal;font-style: normal;line-height: 50px;}div.TPLMenu > ul{float: right;}html.SMPagesCustomHeader div.TPLHeader{float: left;}div.TPLMenu:after{visibility: hidden;display: block;content: '';clear: both;height: 0;}div.TPLMenu { *zoom: 1; }div.TPLMenu li ul{background: #303030;background: rgba(48, 48, 48, 0.8);}div.TPLMenu li ul li{padding-left: 10px;padding-right: 10px;}div.TPLMenu li ul li a{color: #F0F0F0;font-weight: normal;font-style: normal;line-height: 215%;}div.TPLContent, html.Basic.SMPagesViewer body, html.SMPagesEditor.SMPagesContentPage body{margin-top: 1px;margin-bottom: 1px;}html.Basic.SMPagesViewer body, html.SMPagesEditor.SMPagesContentPage body{margin-top: 20px;margin-bottom: 20px;}html.SMPagesCardLayout div.TPLContent, html.Basic.SMPagesViewer.SMPagesCardLayout body, html.SMPagesEditor.SMPagesContentPage.SMPagesCardLayout body{margin: 0px;}html.SMPagesCardLayout div.TPLContent{margin-top: 20px;}html.SMPagesCardLayout div.TPLFooter{margin-bottom: 20px;}html.Normal div.SMExtension, html.Basic.SMPagesViewer div.SMExtension{margin-top: 30px;margin-left: 15px;margin-right: 15px;margin-bottom: 30px;}html.SMPagesEditor.SMPagesContentPage body:before{margin-bottom: 30px;}html.SMPagesEditor.SMPagesContentPage body:after{margin-top: 30px;}html.SMPagesEditor.SMPagesContentPage body{padding-left: 15px;padding-right: 15px;}div.TPLContent, html.Basic.SMPagesViewer.SMPagesClassicLayout body, html.SMPagesEditor.SMPagesContentPage.SMPagesClassicLayout body{background: #FFFFFF;background: rgba(255, 255, 255, 0.4);border-radius: 0px;-moz-box-shadow: 0px 0px 9px 1px #5D5E5E;-webkit-box-shadow: 0px 0px 9px 1px #5D5E5E;box-shadow: 0px 0px 9px 1px #5D5E5E;}html.SMPagesCardLayout div.TPLContent{border: none;box-shadow: none;}a{color: #AB651F;}html.SMPagesCardLayout div.TPLContent{margin-top: 0;}div.SMPagesCard a{color: #AB651F;}html.SMPagesCustomFooter div.TPLFooter, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body{padding-left: 0;padding-right: 0;border-radius: 0px;background: transparent;}div.TPLMiddle{background: #FFFFFF;background: rgba(255, 255, 255, 0.3);margin-top: 100px;}html.Basic.SMPagesViewer,html.SMPagesEditor.SMPagesContentPage{background: #FFFFFF;background: rgba(255, 255, 255, 0.3);}/* Upper case in menu */
+div.TPLMenu
+{
+    text-transform: uppercase;
+}
+div.TPLMenu li ul li
+{
+    text-transform: none;
+}
+
+/* Position footer
+    below page. */
+div.TPLPage
+{
+    position: relative;
+    padding: 0px;
+}
+div.TPLFooter
+{
+    position: absolute;
+    left: 0px;
+    right: 0px;
+}
+
+/* =============
+Mobile optimizations
+=============== */
+
+@media (max-width: 900px)
+{
+/* Position header - requires
+    special care since it is
+    floated and positioned
+    using negative margin. */
+div.TPLPage
+{
+    position: static;
+}
+html.SMPagesCustomHeader div.TPLHeader
+{
+    float: none;
+    position: absolute;
+    top: 0px;
+}
+}

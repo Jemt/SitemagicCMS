@@ -1,0 +1,61 @@
+@import url("_index.css"); /* Complex CSS hidden from CSS Designer */
+
+/* CSS exposed to CSS Designer. Several of these
+   classes are often overridden in derivatives. */
+
+body
+{
+	background-color: #FFFFFF;
+}
+
+div.TPLBackground
+{
+	background-image: url("images/blank.gif");
+}
+
+div.TPLPage
+{
+	width: 900px;
+}
+
+div.TPLMenu, div.TPLSubMenu
+{
+	background-color: #F7D35E;
+}
+
+a.TPLTopMenuLink:hover, a.TPLSubMenuLink:hover
+{
+	background-color: #F7E0A1;
+}
+
+a.TPLMenuLink
+{
+	color: #333333;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+a.TPLTopMenuLink
+{
+	line-height: 45px;
+}
+
+a.TPLSubMenuLink
+{
+	line-height: 30px;
+}
+
+div.TPLContent
+{
+	background-color: #F5F5F5;
+}
+
+div.TPLFooter
+{
+	background-color: #3C3C3C;
+	color: #DADADA;
+}
+div.TPLFooter a
+{
+	color: #A1A1A1;
+}

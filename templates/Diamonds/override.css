@@ -1,0 +1,92 @@
+html{background: #E8E5D8;background: rgba(232, 229, 216, 0.6);}html.Normal,html.Basic.SMPagesViewer,html.SMPagesEditor.SMPagesContentPage,html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader,html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter{background-image: url("generated-bg.jpg?cache=c1bbdfd7dd903347687b28801d702819");}html.SMPagesCustomHeader div.TPLHeader, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body{margin-top: 3px;margin-left: 10px;margin-bottom: 10px;color: #FFFFFF;}html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body{margin-top: 20px;margin-bottom: 20px;}div.TPLMenu > ul{padding-left: 0;padding-right: 0;border-style: none;border-bottom: 6px solid #FF0000;border-bottom: 6px solid rgba(255, 0, 0, 0.4);border-radius: 0px;border-bottom-left-radius: 0px;border-bottom-right-radius: 0px;background: #000000;background: rgba(0, 0, 0, 0.7);text-align: center;}div.TPLMenu > ul > li > a{color: #F5F5F5;}div.TPLMenu li ul{background: #000000;background: rgba(0, 0, 0, 0.7);}div.TPLMenu li ul li a{color: #F5F5F5;}div.TPLContent, html.Basic.SMPagesViewer body, html.SMPagesEditor.SMPagesContentPage body{margin-top: 1px;margin-bottom: 1px;}html.Basic.SMPagesViewer body, html.SMPagesEditor.SMPagesContentPage body{margin-top: 20px;margin-bottom: 20px;}html.SMPagesCardLayout div.TPLContent, html.Basic.SMPagesViewer.SMPagesCardLayout body, html.SMPagesEditor.SMPagesContentPage.SMPagesCardLayout body{margin: 0px;}html.SMPagesCardLayout div.TPLContent{margin-top: 20px;}html.SMPagesCardLayout div.TPLFooter{margin-bottom: 20px;}html.Normal div.SMExtension, html.Basic.SMPagesViewer div.SMExtension{margin-top: 80px;margin-bottom: 150px;}html.SMPagesEditor.SMPagesContentPage body:before{margin-bottom: 80px;}html.SMPagesEditor.SMPagesContentPage body:after{margin-top: 150px;}div.TPLContent, html.Basic.SMPagesViewer.SMPagesClassicLayout body, html.SMPagesEditor.SMPagesContentPage.SMPagesClassicLayout body{background: #D9D2CA;background: rgba(217, 210, 202, 0.35);border-radius: 0px;}html.SMPagesCardLayout div.TPLContent{border: none;}a{color: #4671B0;}html.SMPagesCardLayout div.TPLContent{margin-top: 80px;margin-bottom: 150px;}div.SMPagesCard{background: #D9D2CA;background: rgba(217, 210, 202, 0.3);border-radius: 0px;}div.SMPagesCard a{color: #4671B0;}html.SMPagesCustomFooter div.TPLFooter, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body{border-radius: 0px;background: #000000;background: rgba(0, 0, 0, 0.75);}div.TPLLinks, div.TPLLinks a{color: #969696;}/* Position menu */
+div.TPLMenu
+{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    z-index: 5;
+}
+
+/* Place links over menu */
+div.TPLLinks
+{
+    z-index: 7;
+}
+
+/* Position header */
+div.TPLHeader
+{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 10;
+}
+
+/* Position footer */
+div.TPLFooter
+{
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: 10;
+    margin-bottom: 0px !important;
+}
+
+/* Remove default padding */
+div.TPLPage
+{
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+/* Spacing applied at top and
+    bottom on pages (using
+    Designer) is also applied in
+    editor and preview - undo
+    since it looks odd with so
+    much spacing. */
+html.SMPagesEditor.SMPagesContentPage body:before
+{
+    margin-bottom: 20px;
+}
+html.SMPagesEditor.SMPagesContentPage body:after
+{
+    margin-top: 20px;
+}
+html.Basic.SMPagesViewer div.SMExtension
+{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* ===============
+CSS Applied on Mobile
+================= */
+
+@media (max-width: 900px)
+{
+/* Revert header positioning */
+div.TPLHeader
+{
+    position: static;
+}
+
+/* Revert footer positioning */
+div.TPLFooter
+{
+    position: static;
+}
+
+div.TPLHeader
+{
+    text-shadow: 0px 0px 1px rgba(0, 0, 0, 1);
+
+    /* overflow:auto prevents
+        proper shadow rendering.
+        Make room for shadows. */
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+}

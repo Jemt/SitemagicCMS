@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Trucs et astuces"/>
+	<entry key="Description" value="Affiche des conseils utiles qui donne à l'utilisateur une introduction aux fonctionnalités Sitemagic CMS"/>
+	<entry key="SpeechBubbleButtonOk" value="Ok"/>
+	<entry key="SpeechBubbleButtonDisable" value="Désactiver conseils"/>
+	<entry key="SpeechBubbleDisableWarning" value="Certaines fonctionnalités dans Sitemagic CMS exige certaines explications. Souhaitez-vous vraiment désactiver conseils?o disable tips?"/>
+	<entry key="SMAnnouncementsWelcomeTitle" value="Bienvenue chez Sitemagic CMS"/>
+	<entry key="SMAnnouncementsWelcomeThanks" value="Merci d'avoir choisi Sitemagic CMS pour votre nouveau site web."/>
+	<entry key="SMAnnouncementsWelcomeTips" value="Pour vous aider à démarrer avec Sitemagic CMS, trucs et astuces sera affiché la première fois que vous accédez à un module dans le panneau de commande."/>
+	<entry key="SMAnnouncementsWelcomeNotice" value="Certaines fonctionnalités nécessitent une certaine explication. Il est recommandé de garder des trucs et astuces activée."/>
+	<entry key="SMAnnouncementsWelcomeButtonClose" value="Cliquez sur la petite croix dans le coin supérieur droit pour fermer temporairement la pointe."/>
+	<entry key="SMAnnouncementsWelcomeButtonOk" value="Cliquez sur le bouton OK vert à fermer définitivement une astuce - il ne s'affichera plus."/>
+	<entry key="SMAnnouncementsWelcomeButtonDisable" value="Cliquez sur le bouton de désactivation rouge pour désactiver tous les conseils."/>
+	<entry key="SMAnnouncementsWelcomeEnjoy" value="Profitez de votre nouveau site :-)"/>
+	<entry key="SMAnnouncementsContentMenuTitle" value="Menu Contenu"/>
+	<entry key="SMAnnouncementsContentMenuDescription" value="Utilisez ce menu pour modifier la conception, de la mise à jour du menu, ajouter et modifier des pages, ou gérer vos fichiers."/>
+	<entry key="SMAnnouncementsAdminMenuTitle" value="Menu Administrateur"/>
+	<entry key="SMAnnouncementsAdminMenuDescription" value="La plupart configuration est effectuée à partir de ce menu. Accédez à Admin &gt; paramètres pour permettre à davantage de fonctionnalités."/>
+	<entry key="SMFilesFoldersTitle" value="Dossiers"/>
+	<entry key="SMFilesFoldersDescription" value="Sélectionnez un dossier à la liste des fichiers intérieur. Utilisez les boutons pour créer, renommer ou supprimer des dossiers."/>
+	<entry key="SMFilesFilesTitle" value="Fichiers"/>
+	<entry key="SMFilesFilesDescription" value="Les fichiers contenus dans le dossier sélectionné est indiqué ici. Sélectionnez un fichier et utilisez les boutons pour télécharger, renommer, ou supprimer. Cliquez sur le bouton Télécharger pour ajouter de nouveaux fichiers pour le dossier sélectionné."/>
+	<entry key="SMMenuFormTitle" value="Lier le formulaire"/>
+	<entry key="SMMenuFormDescription" value="Utilisez ce formulaire pour créer de nouveaux liens, ou modifier des liens existants."/>
+	<entry key="SMMenuSelectTitle" value="Lien picker"/>
+	<entry key="SMMenuSelectDescription" value="Ce bouton vous permet de sélectionner facilement une page ou une extension du lien."/>
+	<entry key="SMMenuStructureTitle" value="Structure du menu"/>
+	<entry key="SMMenuStructureDescription" value="Cliquez sur un lien pour le sélectionner. Utilisez les boutons pour modifier le lien, la supprimer ou la déplacer vers le haut et vers le bas de la hiérarchie. Si un lien est sélectionné, de nouveaux liens seront automatiquement ajoutés à un menu déroulant en dessous."/>
+	<entry key="SMPagesFormTitle" value="Propriétés"/>
+	<entry key="SMPagesFormDescription" value="Utilisez ce formulaire pour créer de nouvelles pages, ou de modifier leurs propriétés. Cliquez sur Autres options pour définir un modèle de design personnalisé, travailler avec les méta-données, ou définir un mot de passe."/>
+	<entry key="SMPagesListTitle" value="Pages"/>
+	<entry key="SMPagesListDescription" value="Les pages existantes sont répertoriés ici. Sélectionnez une page et cliquez sur le bouton contenu Edition pour ouvrir l'éditeur de page."/>
+	<entry key="SMPagesHeaderFooterTitle" value="En-tête et pied de page"/>
+	<entry key="SMPagesHeaderFooterDescription" value="Cliquez sur Modifier pour modifier le contenu de l'en-tête ou le pied de page de l'article."/>
+	<entry key="SMPagesEditorButtonSaveTitle" value="Enregistrer la page"/>
+	<entry key="SMPagesEditorButtonSaveDescription" value="Utilisez ce bouton pour enregistrer les modifications. Si c'est une nouvelle page, vous pouvez l'ajouter au menu sous Contenu &gt; Menu."/>
+	<entry key="SMPagesEditorButtonLinksTitle" value="Insérer le lien"/>
+	<entry key="SMPagesEditorButtonLinksDescription" value="Sélectionnez le texte ou l'image, et cliquez sur ce bouton pour le transformer en un lien vers une autre page, vers un fichier ou vers un autre site web."/>
+	<entry key="SMPagesEditorButtonLinksDialog" value="Utilisez ce menu pour sélectionner une page, un fichier, ou l'extension du lien."/>
+	<entry key="SMPagesEditorButtonImagesTitle" value="Insérer une image"/>
+	<entry key="SMPagesEditorButtonImagesDescription" value="Utilisez ce bouton pour insérer une image là où le curseur est actuellement placé."/>
+	<entry key="SMPagesEditorButtonImagesDialog" value="Utilisez ce menu pour sélectionner une image à insérer. Les images sont téléchargées sous Contenu &gt; des fichiers dans le dossier images."/>
+	<entry key="SMPagesEditorButtonCardsTitle" value="Cards Design"/>
+	<entry key="SMPagesEditorButtonCardsDescription" value="Utilisez ce menu pour basculer le modèle à cartes. Une fois que le modèle est modifié, vous pouvez appuyer sur ENTER pour créer de nouvelles cartes et utilisez ce menu pour modifier la taille de chaque carte. Pour créer des sauts de ligne, appuyez simplement sur la touche Maj+Entrée."/>
+	<entry key="SMPagesEditorButtonExtensionsTitle" value="Insérer la page Extension"/>
+	<entry key="SMPagesEditorButtonExtensionsDescription" value="Cliquez ici pour ajouter la page Extensions comme des formulaires de contact, les modules externes (p. ex. YouTube, cartes, ou de la musique.), zone de commentaire, Classements et bien plus encore. La page des extensions sont activées et désactivées sous Admin &gt; Paramètres."/>
+	<entry key="SMDesignerTitle" value="Décorateur"/>
+	<entry key="SMDesignerDescription" value="Déplacez la souris pour avoir éléments éditables décrits. Cliquez sur un élément pour modifier son apparence et sa conception dans le concepteur. Cliquez sur le bouton Enregistrer pour enregistrer les modifications."/>
+	<entry key="SMContactIntroTitle" value="Formulaires de contact"/>
+	<entry key="SMContactIntroDescription" value="Les formulaires de contact sont Page Extension qui sont ajoutés aux pages en utilisant l'éditeur de page sous Contenu &gt; Pages."/>
+	<entry key="SMContactExistingTitle" value="Modifier formulaire de contact"/>
+	<entry key="SMContactExistingDescription" value="Pour modifier un formulaire de contact, il vous suffit de la sélectionner ici"/>
+	<entry key="SMContactBasicConfigTitle" value="Configuration de base"/>
+	<entry key="SMContactBasicConfigDescription" value="Configurer le formulaire de contact avec votre adresse e-mail, un objet de l'e-mails que vous recevez, et un message affiché à l'utilisateur une fois qu'un message a été envoyé."/>
+	<entry key="SMContactFormTitle" value="Propriétés"/>
+	<entry key="SMContactFormDescription" value="Utilisez ce formulaire pour créer ou modifier les champs de saisie dans le formulaire de contact."/>
+	<entry key="SMContactFieldsTitle" value="Champs de saisie"/>
+	<entry key="SMContactFieldsDescription" value="Il s'agit d'une liste de champs de saisie dans le formulaire de contact. Sélectionnez un champ et cliquez sur un des boutons pour modifier, supprimer ou déplacer vers le haut et vers le bas."/>
+	<entry key="SMExternalModulesIntroTitle" value="Les modules externes"/>
+	<entry key="SMExternalModulesIntroDescription" value="Les modules externes peuvent être utilisés pour ajouter du contenu ou des fonctionnalités à partir d'un autre site, par exemple des vidéos YouTube, Google Maps, ou SoundCloud musique. Utiliser le bouton Extensions dans l'éditeur de page pour insérer un module dans une page."/>
+	<entry key="SMExternalModulesListTitle" value="Les modules existants"/>
+	<entry key="SMExternalModulesListDescription" value="Pour modifier un module externe, il suffit de la sélectionner ici."/>
+	<entry key="SMExternalModulesConfigTitle" value="Créer ou modifier"/>
+	<entry key="SMExternalModulesConfigDescription" value="Utilisez ce formulaire pour créer ou modifier des modules externes. Pour insérer une vidéo YouTube, suivez ces étapes :"/>
+	<entry key="SMExternalModulesConfigStep1" value="Trouver une vidéo sur YouTube et copiez l'URL à partir de la barre d'adresse."/>
+	<entry key="SMExternalModulesConfigStep2" value="Entrez un nom pour le module dans Nom du module, par exemple Ma vidéo."/>
+	<entry key="SMExternalModulesConfigStep3" value="Collez l'URL à partir de l'étape 1 dans le champ d'adresse URL."/>
+	<entry key="SMExternalModulesConfigStep4" value="Cliquez sur le bouton Créer."/>
+	<entry key="SMExternalModulesConfigStep5" value="Aller au contenu &gt; pages et ouvrir une page pour l'édition."/>
+	<entry key="SMExternalModulesConfigStep6" value="Cliquez sur le bouton Extensions sous le bouton Save (Enregistrer) et insérez le module."/>
+	<entry key="SMImageMontageTitle" value="Album de photos"/>
+	<entry key="SMImageMontageDescription" value="Utilisez ce formulaire pour modifier la façon dont Image Montage expose des photos. Pour créer un album photo, suivez ces étapes :"/>
+	<entry key="SMImageMontageStep1" value="Aller au contenu des fichiers et Créer un nouveau dossier sous le dossier gallerie."/>
+	<entry key="SMImageMontageStep2" value="Cliquez sur le dossier nouvellement créé pour le sélectionner et cliquez sur le bouton Télécharger pour y ajouter des photos."/>
+	<entry key="SMImageMontageStep3" value="Aller au contenu &gt; Menu et utilisez le bouton Sélectionner pour ajouter un lien vers le nouvel album sur le menu."/>
+	<entry key="SMConfigLoginTitle" value="Changement de connexion"/>
+	<entry key="SMConfigLoginDescription" value="Modifier votre nom d'utilisateur et votre mot de passe ici (hautement recommandé)."/>
+	<entry key="SMConfigLookTitle" value="Aspect et convivialité"/>
+	<entry key="SMConfigLookDescription" value="Modifier l'aspect et la convivialité de votre site web en appliquant un autre modèle de design ou des icônes différentes. La copier et supprimer les boutons sont utilisés pour gérer les copies des modèles de conception."/>
+	<entry key="SMConfigExtensionsTitle" value="Extensions"/>
+	<entry key="SMConfigExtensionsDescription" value="Sélectionnez extensions (plug-ins) à utiliser. Comment accéder à et l'utilisation des extensions différentes. Certaines extensions ajouter une entrée dans le menu Admin, certains sont mis à la disposition de l'éditeur de page, tandis que d'autres peuvent être ajoutés directement au menu. Extenions peuvent même utiliser les trois approches décrites."/>
+</entries>

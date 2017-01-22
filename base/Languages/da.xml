@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="SMClientEnterPassword" value="Indtast adgangskode" />
+	<entry key="SMClientOk" value="Ok" />
+	<entry key="SMClientCancel" value="Annuller" />
+	<entry key="SMClientMaxLengthExceededWarning" value="Den indtastede værdi er for lang, forkort den venligst" />
+</entries>

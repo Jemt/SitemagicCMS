@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Commentaires"/>
+	<entry key="CommentBox" value="Boite à Commentaires"/>
+	<entry key="Name" value="Nom"/>
+	<entry key="Comment" value="Commentaire"/>
+	<entry key="Submit" value="Envoyer"/>
+	<entry key="Delete" value="Detruire"/>
+	<entry key="DeleteWarning" value="Veuillez confirmer la suppression"/>
+	<entry key="DateTimeFormat" value="d-m-Y H:i:s,Format Date"/>
+	<entry key="MissingData" value="Veuillez remplir tous les champs"/>
+	<entry key="NameLengthExceeded" value="Nom peut contenir un maximum de 30 caractères"/>
+	<entry key="CommentLengthExceeded" value="Commentaire peut contenir un maximum de 1000 caractères"/>
+	<entry key="UnknownError" value="Une erreur inconnue s'est produite"/>
+	<entry key="CommentSaved" value="Commentaire enregistré"/>
+	<entry key="Description" value="Permettez aux visiteurs de commenter votre contenu en insérant cette extension sur vos pages de contenu (à l'aide de l'éditeur WYSIWYG)"/>
+</entries>

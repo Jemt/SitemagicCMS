@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Kommentare" />
+	<entry key="CommentBox" value="Kommentarbox" />
+	<entry key="Name" value="Name" />
+	<entry key="Comment" value="Kommentar" />
+	<entry key="Submit" value="Senden" />
+	<entry key="Delete" value="Löschen" />
+	<entry key="DeleteWarning" value="Löschen bestätigen" />
+	<entry key="DateTimeFormat" value="Y-m-d H:i:s" />
+	<entry key="MissingData" value="Bitte alle Felder ausfüllen" />
+	<entry key="NameLengthExceeded" value="Der Name kann maximal 30 Zeichen beinhalten" />
+	<entry key="CommentLengthExceeded" value="Der Kommentar kann maximal 1000 Zeichen beinhalten" />
+	<entry key="UnknownError" value="Ein unbekannter Fehler ist aufgetreten" />
+	<entry key="CommentSaved" value="Kommentar gespeichert" />
+
+	<entry key="Description" value="Lass Besucher deinen Inhalt kommentieren (anhand des WYSIWYG Editors)" />
+</entries>

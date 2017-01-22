@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="{[Language]}" class="{[TemplateType]} {[SMLogin Access]} TPLTemplate{[CurrentTemplate]} TPLImageTheme{[CurrentImageTheme]}">
+<head>
+	<title>{[Title]}</title>
+	<script type="text/javascript" src="{[TemplatesDirectory]}/_BaseSideNav/height.js?ver={[Version]}"></script>
+</head>
+<body class="{[TemplateType]} {[SMLogin Access]} TPLTemplate{[CurrentTemplate]} TPLImageTheme{[CurrentImageTheme]}">
+
+<div class="TPLBackground" id="TPLBackground"></div>
+<div class="TPLTop" id="TPLTop"></div>
+<div class="TPLMiddle" id="TPLMiddle">
+	<div class="TPLPage" id="TPLPage">
+		<div class="TPLLogo" id="TPLLogo"></div>
+		<div class="TPLMenu" id="TPLMenu">
+			<!-- REPEAT SMMenuLevel1 -->
+			<div class="TPLTopMenuLinkContainer {[SMMenuItemLevel1 Id]}">
+				<a href="{[SMMenuItemLevel1 Url]}" class="TPLMenuLink TPLTopMenuLink" style="display: block">{[SMMenuItemLevel1 Title]}</a>
+				<div class="TPLSubMenu">
+					<!-- REPEAT SMMenuLevel2 {[SMMenuItemLevel1 Id]} -->
+					<a href="{[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Url]}" class="TPLMenuLink TPLSubMenuLink {[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Id]}" style="display: block">{[SMMenuItemLevel2 {[SMMenuItemLevel1 Id]} Title]}</a>
+					<!-- /REPEAT SMMenuLevel2 {[SMMenuItemLevel1 Id]} -->
+				</div>
+			</div>
+			<!-- /REPEAT SMMenuLevel1 -->
+		</div>
+		<div class="TPLContent" id="TPLContent">
+			<div class="TPLContentInner" id="TPLContentInner">
+				{[Extension]}
+			</div>
+		</div>
+		<div style="clear: both"></div>
+		<div class="TPLFooter" id="TPLFooter">
+			<a href="{[SMLogin Url]}" class="TPLFooterLink">{[SMLogin Link]}</a> |
+			<a href="http://sitemagic.org" class="TPLFooterLink">Sitemagic CMS</a>
+		</div>
+	</div>
+</div>
+<div class="TPLBottom" id="TPLBottom"></div>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter
+{
+	/* Width set on HTML element to prevent padding on BODY element from
+	   increasing its width: http://jsfiddle.net/fu6hcdro/2 vs. http://jsfiddle.net/vk8tx4gw/1 */
+
+	margin: 0 auto; /* Editor content not centered in IE7-8 - too bad! */
+	width: 900px;
+}
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body
+{
+	margin: 20px 0px 20px 0px; /* Remove margin left/right set by editor which reduces page width and ensure spacing above and below editable area */
+	outline: 1px dashed silver;
+	*border: 1px dashed silver; /* IE7 alternative to outline which is not supported */
+}
+
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body,
+html.SMPagesCustomFooter div.TPLFooter
+{
+	padding-left: 20px;
+	padding-right: 20px;
+
+	/* Make contained elements with top/bottom margins expand the footer rather than
+	   causing spacing above and below it. Example: http://jsfiddle.net/o1vkar7c/2/ */
+	overflow: auto;
+}
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body:before,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body:after
+{
+	/* overflow:auto on body (see above) does not work,
+	   but it does for pseudo elements before and after body element. */
+	content: "";
+	display: block;
+	overflow: auto;
+}
+
+/* Remove styling for links in footer */
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body a:hover,
+html.SMPagesCustomFooter div.TPLFooter a:hover
+{
+	text-decoration: none;
+}

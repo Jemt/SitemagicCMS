@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContactForms" value="Formulaires de contact"/>
+	<entry key="Save" value="Sauvegarder"/>
+	<entry key="TextField" value="Champ de texte"/>
+	<entry key="TextBox" value="Zone de texte"/>
+	<entry key="CheckBox" value="Case à cocher"/>
+	<entry key="Email" value="Courrièl de réponse"/>
+	<entry key="Attachment" value="Fichier attaché" />
+	<entry key="FileSizeLimit" value="Impossible d'attacher le fichier - la taille maximum de téléchargement permise est de 2048 Ko au total" />
+	<entry key="Clear" value="Effacement"/>
+	<entry key="Create" value="Créer"/>
+	<entry key="Edit" value="Editer"/>
+	<entry key="Delete" value="Détruire"/>
+	<entry key="DeleteWarning" value="Veuillez confirmer la suppression"/>
+	<entry key="ChangeForm" value="ChangementFormulaire "/>
+	<entry key="Form" value="Formulaire"/>
+	<entry key="Recipients" value="Bénéficiaire"/>
+	<entry key="Subject" value="Sujet Courrièl"/>
+	<entry key="FieldTitle" value="Intitulé du champ"/>
+	<entry key="FieldType" value="Type de champ"/>
+	<entry key="FieldsetSettings" value=" Fixations"/>
+	<entry key="FieldsetFieldForm" value="Propriétés"/>
+	<entry key="FieldsetFieldList" value="Champs"/>
+	<entry key="SuccessMessage" value="Message de réussite"/>
+	<entry key="SettingsSaved" value="Les paramètres ont été enregistrés"/>
+	<entry key="ErrorFillOutAll" value="Veuillez remplir tous les champs"/>
+	<entry key="ErrorTitleAlreadyExists" value="Un champ avec le titre spécifié existe déjà"/>
+	<entry key="ErrorNoSelection" value="Veuillez sélectionner un champ"/>
+	<entry key="ErrorMissing" value="Le champ sélectionné n'existent plus"/>
+	<entry key="ErrorNoRecipients" value="Aucun élément n'a été spécifiés dans les paramètres"/>
+	<entry key="ErrorInvalidFilename" value="Filename contains invalid characters" />
+	<entry key="ErrorSending" value="Le message n'a pas pu être délivré - Une erreur s'est produite"/>
+	<entry key="FieldsNotDefined" value="Aucun champ de texte n'a été définis pour le formulaire de contact"/>
+	<entry key="RequiredError" value="Veuillez remplir tous les champs obligatoires"/>
+	<entry key="Send" value="Envoyer"/>
+	<entry key="Description" value="Permettez aux visiteurs de communiquer avec vous en insérant cette extension sur une page de contenu (à l'aide de l'éditeur WYSIWYG) - Les formulaires de contact peuvent être facilement personnalisés dans le panneau de commande"/>
+</entries>

@@ -1,0 +1,67 @@
+/* Complex CSS hidden from CSS Designer */
+
+body,td,legend,input,textarea,select
+{
+	font-size: 12px;
+}
+
+input, textarea, select, fieldset
+{
+	border-style: solid;
+	border-width: 1px;
+}
+
+input[type=checkbox], input[type=radio]
+{
+	border-style: none; /* Remove border in IE */
+	background-color: transparent; /* Remove background color in IE */
+}
+
+input, textarea, select
+{
+	margin: 1px; /* Reduce margin in Chrome which is too big */
+}
+
+input[type="text"], input[type="password"], input[type="file"], textarea
+{
+	padding: 2px;
+	border-radius: 3px;
+}
+
+input[type="checkbox"], input[type="radio"]
+{
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+
+a
+{
+	text-decoration: none;
+}
+
+a:hover
+{
+	text-decoration: underline;
+}
+
+*:focus
+{
+	outline: 0;
+}
+
+h1, h2, h3, h4, h5, h6, h7
+{
+	font-size: 14px;
+	margin-top: 0px;
+	margin-bottom: 15px;
+}
+
+ul, ol
+{
+	margin-top: 0px;
+}
+
+a img
+{
+	border-style: none; /* Remove border surrounding link images in IE */
+}

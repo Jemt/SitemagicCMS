@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Indstillinger" />
+	<entry key="Login" value="Login" />
+	<entry key="Username" value="Brugernavn" />
+	<entry key="Password" value="Adgangskode" />
+	<entry key="HidePassword" value="Skjul adgangskode" />
+	<entry key="Appearance" value="Udseende" />
+	<entry key="ImageTheme" value="Ikontema" />
+	<entry key="Template" value="Designskabelon" />
+	<entry key="CopyTemplate" value="Kopier" />
+	<entry key="DeleteTemplate" value="Slet" />
+	<entry key="Language" value="Sprog" />
+	<entry key="TimeZone" value="Tidszone" />
+	<entry key="License" value="Licens" />
+	<entry key="LicenseKey" value="Licensnøgle" />
+	<entry key="DatabaseTitle" value="MySQL Database (valgfri)" />
+	<entry key="Server" value="Server" />
+	<entry key="Database" value="Database" />
+	<entry key="SmtpTitle" value="SMTP Server (valgfri)" />
+	<entry key="Port" value="Port" />
+	<entry key="AuthType" value="Login type" />
+	<entry key="Encryption" value="Kryptering" />
+	<entry key="ExtensionsEnabled" value="Aktiverede udvidelser" />
+	<entry key="Save" value="Gem" />
+	<entry key="Cancel" value="Annuller" />
+
+	<entry key="SettingsSaved" value="Indstillingerne blev gemt" />
+	<entry key="CopyTemplateDialog" value="Indtast navnet på den nye skabelon (A-Z, 0-9 tilladt)" />
+	<entry key="DeleteTemplateDialog" value="Er du sikker på at du vil slette den valgte skabelon?" />
+	<entry key="WarningTemplateNameInvalid" value="Det indtastede navn er ugyldigt" />
+	<entry key="WarningTemplatesNotWritable" value="Mappen templates er skrivebeskyttet" />
+	<entry key="WarningTemplateAlreadyExists" value="En skabelon med det indtastede navn eksisterer allerede" />
+	<entry key="NotificationTemplateCopySucceeded" value="Skabelonen blev kopieret og er nu klar til brug" />
+	<entry key="WarningTemplateCopyFailed" value="Der opstod en ukendt fejl ifm. kopiering af skabelonen" />
+	<entry key="WarningTemplateDeleteInUse" value="Skabelonen kunne ikke slettes, den er i øjeblikket i brug" />
+	<entry key="WarningTemplateNotWritable" value="Mappen er skrivebeskyttet" />
+	<entry key="NotificationTemplateDeleteSucceeded" value="Skabelonen er blevet slettet" />
+	<entry key="WarningTemplateDeleteFailed" value="Der opstod en ukendt fejl ifm. sletning" />
+</entries>

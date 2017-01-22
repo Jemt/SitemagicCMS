@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Sitemagic CMS" />
+	<entry key="Description" value="User friendly, feature rich, extendable, and customizable Content Management System" />
+	<entry key="Author" value="Jimmy Thomsen" />
+	<entry key="Company" value="Sitemagic" />
+	<entry key="Website" value="http://sitemagic.org" />
+	<entry key="Email" value="dev@sitemagic.org" />
+	<entry key="Version" value="20170108" />
+	<entry key="Release" value="4.2.2" />
+	<entry key="Dependencies" value="" />
+	<entry key="Notes" value="" />
+</entries>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContentPages" value="Pages" />
+	<entry key="ContentPageDetails" value="Properties" />
+	<entry key="Filename" value="Filename" />
+	<entry key="PageTitle" value="Title" />
+	<entry key="Accessible" value="Accessible" />
+	<entry key="Template" value="Template" />
+	<entry key="CopyTemplate" value="Copy" />
+	<entry key="DeleteTemplate" value="Delete" />
+	<entry key="Keywords" value="Keywords" />
+	<entry key="Description" value="Description" />
+	<entry key="AllowIndexing" value="Allow indexing" />
+	<entry key="Password" value="Password" />
+	<entry key="MaskPassword" value="Hide password" />
+	<entry key="AllOptions" value="More options" />
+	<entry key="Create" value="Create" />
+	<entry key="Clear" value="Clear" />
+	<entry key="Save" value="Save" />
+	<entry key="Settings" value="Settings" />
+	<entry key="UrlType" value="URL type" />
+	<entry key="SeoUrls" value="SEO URLs" />
+	<entry key="UrlTypeFilename" value="Filename" />
+	<entry key="UrlTypeUniqueId" value="Unique ID" />
+	<entry key="Edit" value="Properties" />
+	<entry key="EditContent" value="Edit content" />
+	<entry key="Display" value="Display" />
+	<entry key="Delete" value="Delete" />
+	<entry key="Modified" value="Modified" />
+	<entry key="FilenameMissing" value="Please specify filename" />
+	<entry key="FilenameInvalid" value="Invalid filename - allowed characters: A-Z, 0-9, full stop (.), dash (-), and underscore (_)" />
+	<entry key="FilenameExists" value="The filename is already being used" />
+	<entry key="SelectPage" value="Please select a page" />
+	<entry key="PageMissing" value="The selected page does not exist anymore" />
+	<entry key="DeleteWarning" value="Please confirm deletion" />
+	<entry key="Yes" value="Yes" />
+	<entry key="No" value="No" />
+	<entry key="DateTimeFormat" value="Y-m-d H:i:s" />
+
+	<entry key="CopyTemplateDialog" value="Enter new template name (A-Z, 0-9 allowed)" />
+	<entry key="DeleteTemplateDialog" value="Are you sure you want to remove the selected template?" />
+	<entry key="WarningTemplateNoSelection" value="Please select a template" />
+	<entry key="WarningTemplateNameInvalid" value="The name entered is invalid" />
+	<entry key="WarningTemplatesNotWritable" value="The templates folder is write protected" />
+	<entry key="WarningTemplateAlreadyExists" value="A template with the name entered already exists" />
+	<entry key="NotificationTemplateCopySucceeded" value="Template copied successfully and is now ready for use" />
+	<entry key="WarningTemplateCopyFailed" value="An unknown error occured copying template" />
+	<entry key="WarningTemplateDeleteInUse" value="Template could not be removed, it is currently being used" />
+	<entry key="WarningTemplateDeleteNotWritable" value="The folder is write protected" />
+	<entry key="NotificationTemplateDeleteSucceeded" value="Template has been removed" />
+	<entry key="WarningTemplateDeleteFailed" value="An unknown error occured removing template" />
+
+	<entry key="HeaderFooter" value="Header and footer" />
+	<entry key="AddHeader" value="Add header" />
+	<entry key="EditHeader" value="Edit header" />
+	<entry key="RemoveHeader" value="Remove" />
+	<entry key="AddFooter" value="Add footer" />
+	<entry key="EditFooter" value="Edit footer" />
+	<entry key="RemoveFooter" value="Remove" />
+
+	<entry key="PageNotFound" value="Selected page does not exist" />
+	<entry key="NoIndexPage" value="No front page has been created in the system - create a page with the filename Index" />
+	<entry key="NotAccessible" value="Selected page is display protected" />
+	<entry key="SettingsSaved" value="Settings saved" />
+
+	<entry key="NoIndexingOnPassword" value="Indexing is not possible when page is protected by a password" />
+	<entry key="PasswordProtected" value="Password protected" />
+	<entry key="Unauthorized" value="This page is protected by a password" />
+	<entry key="PageLogin" value="Click here to log in" />
+	<entry key="IncorrectPassword" value="Password entered is incorrect - please try again." />
+
+	<entry key="CardSmall" value="Card (small)" />
+	<entry key="CardMedium" value="Card (medium)" />
+	<entry key="CardLarge" value="Card (large)" />
+	<entry key="CardHidden" value="Card (hidden)" />
+	<entry key="CardHeader" value="Card header" />
+	<entry key="CardFooter" value="Card footer" />
+	<entry key="Resizing" value="Resizing window" />
+	<entry key="ResizingDescription" value="Adjusting content according to the new size of the window" />
+	<entry key="Saving" value="Saving" />
+	<entry key="SavingDescription" value="Content is being saved" />
+</entries>

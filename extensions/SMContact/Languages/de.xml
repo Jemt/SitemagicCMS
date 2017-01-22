@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContactForms" value="Kontaktformulare" />
+	<entry key="Save" value="Speichern" />
+	<entry key="TextField" value="Textfeld" />
+	<entry key="TextBox" value="Textbox" />
+	<entry key="CheckBox" value="Checkbox" />
+	<entry key="Email" value="E-Mail (antworten)" />
+	<entry key="Attachment" value="Anhang" />
+	<entry key="FileSizeLimit" value="Die Datei konnte nicht angehängt werden - Die maximale Größe für Datei-uploads beträgt 2048 KB" />
+	<entry key="Clear" value="Löschen" />
+	<entry key="Create" value="Erstellen" />
+	<entry key="Edit" value="Ändern" />
+	<entry key="Delete" value="Löschen" />
+	<entry key="DeleteWarning" value="Bitte Löschen bestätigen" />
+	<entry key="ChangeForm" value="Formular ändern" />
+	<entry key="Form" value="Formular" />
+	<entry key="Recipients" value="Empfänger" />
+	<entry key="Subject" value="E-Mail Titel" />
+	<entry key="FieldTitle" value="Feldtitel" />
+	<entry key="FieldType" value="Feltyp" />
+	<entry key="FieldsetSettings" value="Einstellungen" />
+	<entry key="FieldsetFieldForm" value="Eigenschaften" />
+	<entry key="FieldsetFieldList" value="Felder" />
+	<entry key="SuccessMessage" value="Erfolgreiche Sendung" />
+	<entry key="SettingsSaved" value="Einstellungen wurden gespeichert" />
+	<entry key="ErrorFillOutAll" value="Bitte fülle alle Felder aus" />
+	<entry key="ErrorTitleAlreadyExists" value="Ein Feld mit diesem Namen existiert schon" />
+	<entry key="ErrorNoSelection" value="Bitte wähle ein Feld aus" />
+	<entry key="ErrorMissing" value="Das ausgewählte feld existiert nicht mehr" />
+	<entry key="ErrorNoRecipients" value="Keine Empfänger wurden in den Einstellungen aufgeführt" />
+	<entry key="ErrorInvalidFilename" value="Filename contains invalid characters" />
+	<entry key="ErrorSending" value="Diese Nachricht konnte nicht verschickt werden - Ein Fehler ist aufgetreten" />
+	<entry key="FieldsNotDefined" value="Es wurden keine Felder für dieses Kontaktformular angegeben" />
+
+	<entry key="RequiredError" value="Bitte füllen Sie alle Felder aus" />
+	<entry key="Send" value="Senden" />
+
+	<entry key="Description" value="Lass Besucher deinen Inhalt kommentieren (anhand des WYSIWYG Editors) - Kontaktformulare kann in den Systemsteuerung ganz einfach geändert werden" />
+</entries>

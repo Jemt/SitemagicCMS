@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContentPages" value="Pages"/>
+	<entry key="ContentPageDetails" value="Propriétes"/>
+	<entry key="Filename" value="Nom de fichier "/>
+	<entry key="PageTitle" value="Titre"/>
+	<entry key="Accessible" value="Accessible"/>
+	<entry key="Template" value="Modèle"/>
+	<entry key="CopyTemplate" value="Copier"/>
+	<entry key="DeleteTemplate" value="Détruire"/>
+	<entry key="Keywords" value="Mots clef"/>
+	<entry key="Description" value="Description"/>
+	<entry key="AllowIndexing" value="Permettre l'indexation"/>
+	<entry key="Password" value="Mot de passe"/>
+	<entry key="MaskPassword" value="Masquer mot de passe"/>
+	<entry key="AllOptions" value="Plus d'options"/>
+	<entry key="Create" value="Créer"/>
+	<entry key="Clear" value="Effacer"/>
+	<entry key="Save" value="Sauvegarder"/>
+	<entry key="Settings" value="Paramétrages"/>
+	<entry key="UrlType" value="Type d'URL"/>
+	<entry key="SeoUrls" value="URL SEO "/>
+	<entry key="UrlTypeFilename" value="Nom du fichier"/>
+	<entry key="UrlTypeUniqueId" value="ID Unique"/>
+	<entry key="Edit" value="Propriétés"/>
+	<entry key="EditContent" value="Modifier le contenu"/>
+	<entry key="Display" value="Afficher"/>
+	<entry key="Delete" value="Détruire"/>
+	<entry key="Modified" value="Modifier"/>
+	<entry key="FilenameMissing" value="Veuillez spécifier le nom du fichier"/>
+	<entry key="FilenameInvalid" value="Nom de fichier non valide - Les caractères autorisés : A-Z, 0-9, point (.), tiret (-) et des traits de soulignement (_)"/>
+	<entry key="FilenameExists" value="Le nom de fichier est déjà utilisé"/>
+	<entry key="SelectPage" value="Veuillez sélectionner une page"/>
+	<entry key="PageMissing" value="La page sélectionnée n'existe plus"/>
+	<entry key="DeleteWarning" value="Veuillez confirmer la suppression"/>
+	<entry key="Yes" value="Oui"/>
+	<entry key="No" value="Non"/>
+	<entry key="DateTimeFormat" value="d-m-Y H:i:s"/>
+	<entry key="CopyTemplateDialog" value="Entrer nouveau nom du modèle (A-Z, 0-9 admis)"/>
+	<entry key="DeleteTemplateDialog" value="Êtes-vous sûr de vouloir supprimer le modèle sélectionné ?"/>
+	<entry key="WarningTemplateNoSelection" value="Veuillez sélectionner un modèle"/>
+	<entry key="WarningTemplateNameInvalid" value="Le nom entré est incorrect"/>
+	<entry key="WarningTemplatesNotWritable" value="Le dossier Modèles est protégé en écriture"/>
+	<entry key="WarningTemplateAlreadyExists" value="Un modèle avec le nom saisi existe déjà"/>
+	<entry key="NotificationTemplateCopySucceeded" value="Modèle copié avec succès et est maintenant prêt à l'emploi"/>
+	<entry key="WarningTemplateCopyFailed" value="Une erreur inconnue s'est produite Modèle de copie"/>
+	<entry key="WarningTemplateDeleteInUse" value="Le Template n'a pas pu être supprimé, il est utilisé actuellement"/>
+	<entry key="WarningTemplateDeleteNotWritable" value="Le dossier est protégé en écrire"/>
+	<entry key="NotificationTemplateDeleteSucceeded" value="Le modèle a été supprimé"/>
+	<entry key="WarningTemplateDeleteFailed" value="Une erreur inconnue s'est produite retrait de modèle"/>
+	<entry key="HeaderFooter" value="En-tête et pied de page"/>
+	<entry key="AddHeader" value="Ajouter un en-tête"/>
+	<entry key="EditHeader" value="Editer en-tête"/>
+	<entry key="RemoveHeader" value="Détruire"/>
+	<entry key="AddFooter" value="Ajouter un pied"/>
+	<entry key="EditFooter" value="er un pied"/>
+	<entry key="RemoveFooter" value="Détruire"/>
+	<entry key="PageNotFound" value="Page sélectionnée n'existe pas"/>
+	<entry key="NoIndexPage" value="Aucune page principale a été créée dans le système - créer une page avec le nom de fichier index"/>
+	<entry key="NotAccessible" value="Page sélectionnée est protégée en affichage"/>
+	<entry key="SettingsSaved" value="Paramétrages sauvegardés"/>
+	<entry key="NoIndexingOnPassword" value="L'indexation n'est pas possible lorsque la page est protégée par un mot de passe"/>
+	<entry key="PasswordProtected" value="Protégé par mot de passe"/>
+	<entry key="Unauthorized" value="Cette page est protégée par un mot de passe"/>
+	<entry key="PageLogin" value="Cliquez ici pour vous connecter"/>
+	<entry key="IncorrectPassword" value="Le mot de passe entré est incorrect - Veuillez réessayer"/>
+	<entry key="CardSmall" value="Carte (petite)"/>
+	<entry key="CardMedium" value="Carte (moyen)"/>
+	<entry key="CardLarge" value="Carte (grande)"/>
+	<entry key="CardHidden" value="Carte (caché)"/>
+	<entry key="CardHeader" value="En-tête de carte"/>
+	<entry key="CardFooter" value="Pied de page carte"/>
+	<entry key="Resizing" value="Redimensionnement d'une fenêtre"/>
+	<entry key="ResizingDescription" value="Réglage de contenu en fonction de la nouvelle taille de la fenêtre"/>
+	<entry key="Saving" value="Sauvegarde"/>
+	<entry key="SavingDescription" value="Le contenu est enregistré"/>
+</entries>

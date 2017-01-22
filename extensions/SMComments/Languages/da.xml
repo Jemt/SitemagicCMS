@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Kommentarer" />
+	<entry key="CommentBox" value="Kommentarboks" />
+	<entry key="Name" value="Navn" />
+	<entry key="Comment" value="Kommentar" />
+	<entry key="Submit" value="Send" />
+	<entry key="Delete" value="Slet" />
+	<entry key="DeleteWarning" value="Bekræft venligst sletning" />
+	<entry key="DateTimeFormat" value="d-m-Y H:i:s" />
+	<entry key="MissingData" value="Udfyld venligst alle felter" />
+	<entry key="NameLengthExceeded" value="Navnet kan højest indeholde 30 karakterer" />
+	<entry key="CommentLengthExceeded" value="Kommentaren kan højest indeholde 1000 karakterer" />
+	<entry key="UnknownError" value="En ukendt fejl opstod" />
+	<entry key="CommentSaved" value="Kommentaren blev gemt" />
+
+	<entry key="Description" value="Lad besøgende kommentere dit indhold ved at indsætte denne udvidelse på dine indholdssider (i WYSIWYG editoren)" />
+</entries>

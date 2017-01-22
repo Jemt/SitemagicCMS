@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Rating" value="Bewertung" />
+	<entry key="Stars" value="Sterne" />
+
+	<entry key="NumberOfRatings" value="Bewertungszähler" />
+	<entry key="Average" value="Durchschnitt" />
+
+	<entry key="Description" value="Lass Besucher deinen Inhalt bewerten, indem du diese Erweiterung deiner Seite hinzufügst (benutze den WYSIWYG Editor)" />
+</entries>

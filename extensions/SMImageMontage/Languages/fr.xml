@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Montage d'image"/>
+	<entry key="Description" value="Créer une belle image dynamique et montage (galerie) à l'aide de cette extension"/>
+	<entry key="SelectGallery" value="Sélectionnez Galerie"/>
+	<entry key="NoGalleries" value="Aucune galerie de dossiers trouvés sous les fichiers/gallere"/>
+	<entry key="Settings" value="Paramétrages"/>
+	<entry key="MinHeight" value="Hauteur minimale d'image"/>
+	<entry key="MaxHeight" value="Hauteur maximale d'image"/>
+	<entry key="Margin" value="Marge d'image"/>
+	<entry key="DisplayTitle" value="Titre de la galerie d'affichage"/>
+	<entry key="DisplayImageTitle" value="Nom du fichier d'affichage comme titre"/>
+	<entry key="DisplayImageExif" value="Affichage des données d'image EXIF"/>
+	<entry key="DisplayPicker" value="Afficher Sélecteur de galerie"/>
+	<entry key="Shuffle" value="Lecture aléatoire des images"/>
+	<entry key="SlideShowInterval" value="Intervalle du diaporama"/>
+	<entry key="Second" value="Second"/>
+	<entry key="Seconds" value="secondes"/>
+	<entry key="Minute" value="Minute"/>
+	<entry key="Minutes" value="Minutes"/>
+	<entry key="Save" value="Sauvegarder"/>
+	<entry key="Open" value="Passer au montage"/>
+</entries>

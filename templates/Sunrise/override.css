@@ -1,0 +1,23 @@
+/* DO NOT MAKE CHANGES TO THIS FILE!
+   This file is generated and maintained by Sitemagic Designer.
+   Any changes to this file will be lost if the Designer is used! */
+
+/* Remove border radius between page and footer.
+   This applies to all content pages, as well as any other extension loaded. */
+html.SMPagesCustomFooter div.TPLContent
+{
+	border-bottom-left-radius: 0px;
+	border-bottom-right-radius: 0px;
+}
+html.SMPagesCustomFooter div.TPLFooter
+{
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+}
+
+/* Undo changes above if page is using Card Layout */
+html.SMPagesCardLayout.SMPagesCustomFooter div.TPLFooter
+{
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}

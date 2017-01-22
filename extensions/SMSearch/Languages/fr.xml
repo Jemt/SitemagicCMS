@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Recherche"/>
+	<entry key="Description" value="Recherche du champ qui peut être inséré dans la page, et permet au contenu du site d'être recherché"/>
+	<entry key="SearchField" value="Champ recherché"/>
+	<entry key="SearchPage" value="Page recherchée"/>
+	<entry key="SearchResults" value="Résultat de la recherche"/>
+	<entry key="NoMatches" value="Pas de correspondance"/>
+	<entry key="ReadMore" value="Lire plus"/>
+</entries>

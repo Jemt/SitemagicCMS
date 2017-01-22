@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Søg" />
+	<entry key="Description" value="Søgeboks der kan indsættes på indholdssider, og giver mulighed for at søge i websidens indhold" />
+	<entry key="SearchField" value="Søgefelt" />
+	<entry key="SearchPage" value="Søgeside" />
+	<entry key="SearchResults" value="Søgeresultater" />
+	<entry key="NoMatches" value="Ingen resultater fundet" />
+	<entry key="ReadMore" value="Læs mere" />
+</entries>

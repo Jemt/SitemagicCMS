@@ -1,0 +1,95 @@
+/* Speech bubble generator: http://ilikepixels.co.uk/drop/bubbler/ */
+
+.SMTipsSpeechBubble
+{
+	position: relative;
+	width: 175px;
+	height: 65px;
+	padding: 15px;
+	background: #FFFFFF;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+}
+
+.SMTipsSpeechBubble:after
+{
+	content: '';
+	position: absolute;
+	border-style: solid;
+	border-width: 8px 12px 8px 0;
+	border-color: transparent #FFFFFF;
+	display: block;
+	width: 0;
+	z-index: 1;
+	left: -12px;
+	top: 14px;
+}
+
+/* Overrides by SMTips */
+
+/* Positioning, colors, and size */
+.SMTipsSpeechBubble
+{
+	position: absolute;
+	background: rgb(0, 0, 0); /* Legacy IE */
+	background: rgba(0, 0, 0, 0.85);
+	color: whitesmoke;
+	width: auto;
+	height: auto;
+	min-width: 300px;
+	max-width: 300px;
+	z-index: 99; /* jQuery UI dialog has z-index:100, keep below dialogs */
+}
+.SMTipsSpeechBubble:after
+{
+	border-color: transparent rgb(0, 0, 0); /* Legacy IE */
+	border-color: transparent rgba(0, 0, 0, 0.85);
+}
+form[action*='SMPagesEditor'] .SMTipsSpeechBubble /* TinyMCE fix - tips above inline popups (links/images dialog) */
+{
+	z-index: 999999;
+}
+
+/* Close button (X in upper right corner) */
+div.SMTipsCloseButton
+{
+	position: absolute;
+	top: 3px;
+	right: 8px;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+/* Button panel and contained buttons */
+.SMTipsSpeechBubble
+{
+	padding-bottom: 4em;
+}
+div.SMTipsButtonPanel
+{
+	position: absolute;
+	right: 8px;
+	bottom: 8px;
+}
+div.SMTipsButtonPanel div /* All buttons */
+{
+	display: inline-block;
+	padding: 5px;
+	margin: 3px;
+	min-width: 50px;
+	border-radius: 3px;
+	font-size: 0.85em;
+	text-align: center;
+	cursor: pointer;
+}
+div.SMTipsDisableButton
+{
+	background: rgb(191, 33, 33); /* Legacy IE */
+	background: rgba(191, 33, 33, 0.7);
+}
+div.SMTipsOkButton
+{
+	background: rgb(91, 195, 48); /* Legacy IE */
+	background: rgba(91, 195, 48, 0.7);
+}

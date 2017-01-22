@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="$Title" />
+	<entry key="Description" value="Easily change configuration such as username, password, design template, enabled extensions and more" />
+	<entry key="Author" value="Jimmy Thomsen" />
+	<entry key="Company" value="Sitemagic" />
+	<entry key="Website" value="http://sitemagic.org" />
+	<entry key="Email" value="dev@sitemagic.org" />
+	<entry key="Version" value="20150802" />
+	<entry key="Dependencies" value="SMExtensionCommon" />
+	<entry key="Notes" value="" />
+</entries>

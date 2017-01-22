@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContentMenu" value="Indhold" />
+	<entry key="AdminMenu" value="Admin" />
+	<entry key="MenuTitle" value="Menu" />
+	<entry key="LinkDetails" value="Egenskaber" />
+	<entry key="MenuStructure" value="Menustruktur" />
+	<entry key="CmdSelect" value="Vælg" />
+	<entry key="CmdCreate" value="Opret" />
+	<entry key="CmdClear" value="Rens" />
+	<entry key="CmdSave" value="Gem" />
+	<entry key="CmdEdit" value="Rediger" />
+	<entry key="CmdDelete" value="Slet" />
+	<entry key="DeleteWarning" value="Bekræft venligst sletning" />
+	<entry key="SelectedMissing" value="Det valgte menupunkt eksisterer ikke længere" />
+	<entry key="MakeSelection" value="Vælg venligst et menupunkt" />
+	<entry key="RootItemError" value="Topmenu kan ikke ændres" />
+	<entry key="SetTitle" value="Angiv venligst titlen på menupunktet" />
+	<entry key="Title" value="Titel" />
+	<entry key="Url" value="URL adresse" />
+	<entry key="Root" value="Topmenu" />
+
+	<entry key="Links" value="Links" />
+</entries>

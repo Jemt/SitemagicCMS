@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="FileManagerTitle" value="Filer" />
+	<entry key="Folders" value="Mapper" />
+	<entry key="Files" value="Filer" />
+	<entry key="Create" value="Opret" />
+	<entry key="Rename" value="Omdøb" />
+	<entry key="Delete" value="Slet" />
+	<entry key="Upload" value="Overfør" />
+	<entry key="Download" value="Hent" />
+	<entry key="Confirm" value="Bekræft venligst handlingen" />
+	<entry key="Foldername" value="Angiv venligst mappenavn" />
+	<entry key="Filename" value="Angiv venligst filnavn" />
+	<entry key="RootFolder" value="Rodmappe" />
+	<entry key="ColFilename" value="Filnavn" />
+	<entry key="ColSize" value="Størrelse" />
+	<entry key="ColModified" value="Ændret" />
+	<entry key="ValidCharacters" value="Tilladte karakterer: A-Z, 0-9, punktum (.), bindestreg (-) og underscore (_)" />
+	<entry key="InvalidCharacters" value="Ugyldige karakterer i brug" />
+	<entry key="FilesystemError" value="Den valgte handling fejlede, prøv venligst igen" />
+	<entry key="FolderMissing" value="Den valgte mappe eksisterer ikke længere" />
+	<entry key="FileMissing" value="Den valgte fil eksisterer ikke længere" />
+	<entry key="SelectFolder" value="Vælg venligst en mappe" />
+	<entry key="SelectFile" value="Vælg venligst en fil" />
+	<entry key="DateTimeFormat" value="d-m-Y H:i:s" />
+
+	<entry key="UploadTitle" value="Overfør fil" />
+	<entry key="UploadWait" value="Overfører, vent venligst.." />
+	<entry key="UploadSucceeded" value="Fil overført" />
+	<entry key="UploadError" value="Der opstod en fejl i overførslen, prøv venligst igen" />
+	<entry key="ValidFileTypes" value="Gyldige filtyper" />
+</entries>

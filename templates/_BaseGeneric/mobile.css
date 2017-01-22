@@ -1,0 +1,277 @@
+/*
+
+Notice: The !important statement is used a lot.
+        The reason for this is that mobile.css needs to take precedence
+        in almost every situation, even when template specific styles are
+        applied (e.g. templates/Sunrise/style.css which loads after mobile.css).
+
+*/
+
+div.TPLMenuMobile
+{
+	display: none;
+}
+
+/*@media (max-device-width: 768px)*/
+/*@media (max-width: 768px)*/
+@media (max-width: 900px)
+{
+	/* Make background image scale properly on mobile devices with Android/iOS */
+	html.Normal
+	{
+		height: 100%;
+		overflow: hidden;
+	}
+	html.Normal body
+	{
+		height:100%;
+		overflow: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	div.TPLTop,
+	div.TPLMiddle,
+	div.TPLBottom
+	{
+		/* Margins may have been applied in Designer - prevent vertical scroll on mobile */
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+
+	div.TPLPage
+	{
+		width: 100% !important;
+	}
+
+	div.TPLPage,
+	div.TPLHeader,
+	div.TPLContent, html.Normal div.SMExtension,
+	div.TPLFooter
+	{
+		margin: 0px 0px 0px 0px !important;
+		padding: 0px 0px 0px 0px !important;
+
+		/* Make contained elements with top/bottom margins expand the content area rather than
+	       causing spacing above and below it. Example: http://jsfiddle.net/o1vkar7c/2/ */
+		padding-top: 0.1px !important;
+		padding-bottom: 0.1px !important;
+	}
+	div.TPLHeader
+	{
+		margin-top: 20px !important;
+		float: none !important;
+	}
+	div.TPLContent
+	{
+		margin-top: 20px !important;
+		margin-bottom: 20px !important;
+	}
+	div.TPLFooter
+	{
+		margin-bottom: 20px !important;
+		padding: 0em 1.5em 0em 1.5em !important;
+	}
+	div.TPLHeader,
+	div.TPLContent,
+	div.TPLFooter
+	{
+		margin-left: 10px !important;
+		margin-right: 10px !important;
+	}
+	html.Normal div.SMExtension /* Indenting content in div.TPLContent */
+	{
+		margin: 1.5em 1.5em 1.5em 1.5em !important;
+	}
+
+	html.SMPagesCardLayout div.SMExtension
+	{
+		margin: 0px 0px 0px 0px !important;
+	}
+	html.SMPagesCardLayout div.TPLContent
+	{
+		margin-top: 0px !important;
+		margin-bottom: 0px !important;
+	}
+
+	html:not(.SMPagesCardLayout) div.TPLContent, /* :not is likely to be supported on mobile */
+	html:not(.SMPagesCardLayout) div.TPLFooter
+	{
+		/* TPLContent and TPLFooter may have been joined i Designer. In this case
+		   border radius is removed from TPLContent bottom and from TPLFooter top.
+		   However, in mobile view, TPLContent and TPLFooter is always separated,
+		   so we remove rounded corners completely, to make sure TPLContent top
+		   and TPLFooter bottom is not rounded, while TPLContent bottom and
+		   TPLFooter top is not.
+		   There is no need to do this for Cards Layout since cards and footer
+		   is never joined. */
+		border-radius: 0px !important;
+	}
+
+	/* Menu */
+
+	div.TPLMenuMobile
+	{
+		display: block;
+	}
+
+	div.TPLMenuMobile select,
+	div.TPLMenuMobile:before
+	{
+		/* Position select menu and icon (pseudo element)
+		   on top of each other in upper right corner. */
+
+		position: fixed;
+		top: 5px;
+		right: 5px;
+		z-index: 999;
+
+		display: block;
+		width: 50px;
+		height: 50px;
+	}
+
+	div.TPLMenuMobile select
+	{
+		/* Make select element invisible */
+
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		border: none;
+		border-radius: 0px;
+		background: transparent;
+		font-size: 0px; /* Safari Mobile fix - prevent item title from being shown when selected - unfortunately breaks drop down in Firefox on Desktop */
+	}
+	div.TPLMenuMobile select option
+	{
+		font-size: 14px; /* Fix FireFox which does not show menu when font-size is set to 0px on select element (see above) */
+	}
+	div.TPLMenuMobile:before
+	{
+		/* Create menu icon shown on top of select element */
+
+		/* Copied from FontAwesome .fa class */
+		display: inline-block;
+		font: normal normal normal 14px/1 FontAwesome;
+		font-size: inherit;
+		text-rendering: auto;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		transform: translate(0, 0);
+
+		content: "\f0c9";
+		font-size: 20px;
+		line-height: 50px;
+		text-align: center;
+		color: whitesmoke;
+		background: rgba(0, 0, 0, 0.6);
+		border-radius: 8px;
+	}
+
+	div.TPLMenu
+	{
+		display: none;
+	}
+
+	/* Links */
+
+	div.TPLLinks
+	{
+		display: none;
+	}
+
+	/* Content */
+
+	html.SMPagesViewer.SMPagesClassicLayout div.TPLContent img[width][height][src^="files/images/"]
+	{
+		/* Optimize images in ordinary content pages (Classic Layout)
+		   so they shrink properly on small screens. */
+
+		max-width: 100% !important;
+		height: auto !important;
+		float: none !important;
+		display: block !important;
+	}
+	html.SMPagesViewer.SMPagesClassicLayout div.TPLContent img[width][height][src^="files/images/"][style*="margin"]
+	{
+		margin: 1em auto 1em auto !important;
+	}
+
+	div.SMPagesCard img[width][height][src^="files/images/"]:first-child,
+	div.SMPagesCard img[width][height][data-mce-src^="files/images/"]:first-child
+	{
+		/* Optimize Cards containing "fullscreen" image (only element, edge-to-edge) */
+
+		width: 100% !important;
+		height: auto !important;
+		margin: 0px !important;
+	}
+
+	div.SMPagesCard
+	{
+		/* Make cards consume full page width and set proper spacing */
+
+		float: none;
+		box-sizing: border-box !important;
+		width: 100% !important;
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+
+	html.SMPagesCustomFooter.SMPagesCardLayout div.TPLFooter
+	{
+		/* Prevent double spacing between last card and footer */
+
+		margin-top: 0px !important;
+	}
+
+	/* Image montage. */
+	/* Have each image appear on new line with full width and proper spacing. */
+
+	div.SMImageMontageContainer > a
+	{
+		display: block !important;
+		float: none !important;
+		position: static !important;
+		width: 100% !important;
+		height: auto !important;
+		margin: 15px 0px 15px 0px !important;
+	}
+	div.SMImageMontageContainer > a > img
+	{
+		position: static !important;
+		width: 100% !important;
+		height: auto !important;
+	}
+
+	div.SMImageMontageButton,
+	div.SMImageMontageTitle,
+	div.SMImageMontageDescription
+	{
+		display: none !important;
+	}
+
+	img.SMImageMontageFullScreenImage
+	{
+		position: static !important;
+		width: auto !important;
+		height: auto !important;
+		max-height: 100% !important;
+		max-width: 100% !important;
+		display: block !important;
+		margin: 0 auto !important;
+		border: none !important;
+		border-radius: 0px !important;
+	}
+
+	/* Page Extensions - Iframes / external modules - stretch to full width */
+
+	div.TPLContent div.SMPagesExtension
+	{
+		display: block !important;
+	}
+	div.TPLContent div.SMExternalModulesContentPageExtension,
+	div.TPLContent div.SMExternalModulesContentPageExtension iframe
+	{
+		width: 100% !important;
+	}
+}

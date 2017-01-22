@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Search" />
+	<entry key="Description" value="Search field that can be inserted into content pages, and allows for website content to be searched" />
+	<entry key="SearchField" value="Search field" />
+	<entry key="SearchPage" value="Search page" />
+	<entry key="SearchResults" value="Search results" />
+	<entry key="NoMatches" value="No matches found" />
+	<entry key="ReadMore" value="Read more" />
+</entries>

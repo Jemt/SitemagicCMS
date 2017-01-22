@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="FileManagerTitle" value="Dateien" />
+	<entry key="Folders" value="Ordner" />
+	<entry key="Files" value="Dateien" />
+	<entry key="Create" value="Erstellen" />
+	<entry key="Rename" value="Ändern" />
+	<entry key="Delete" value="Löschen" />
+	<entry key="Upload" value="Überweisung" />
+	<entry key="Download" value="Herunterladen" />
+	<entry key="Confirm" value="Bitte bestätigen" />
+	<entry key="Foldername" value="Bitte Ordnernamen auswählen" />
+	<entry key="Filename" value="Bitte Dateinamen auswäählen" />
+	<entry key="RootFolder" value="ursprungsordner" />
+	<entry key="ColFilename" value="Dateiname" />
+	<entry key="ColSize" value="Größe" />
+	<entry key="ColModified" value="Modifiziert" />
+	<entry key="ValidCharacters" value="Erlaubte zeichen: A-Z, 0-9, Punkt (.), Dash (-), und Unterstrich (_)" />
+	<entry key="InvalidCharacters" value="Unerlaubtes zeichen" />
+	<entry key="FilesystemError" value="Ein fehler ist aufgetreten, bitte nochmal versuchen" />
+	<entry key="FolderMissing" value="Der ausgewählte Ordner existiert nicht mehr" />
+	<entry key="FileMissing" value="Die ausgewählte Datei existiert nicht mehr" />
+	<entry key="SelectFolder" value="Bitte Ordner auswählen" />
+	<entry key="SelectFile" value="Bitte Datei auswählen" />
+	<entry key="DateTimeFormat" value="Y-m-d H:i:s" />
+
+	<entry key="UploadTitle" value="Datei verschicken" />
+	<entry key="UploadWait" value="Hochladen, bitte warten.." />
+	<entry key="UploadSucceeded" value="Datei hochgeladen" />
+	<entry key="UploadError" value="Ein Fehler ist beim Versenden aufgetreten, bitte nochmal versuchen" />
+	<entry key="ValidFileTypes" value="Gültige Dateitypen" />
+</entries>

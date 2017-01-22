@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Tips og Tricks"/>
+	<entry key="Description" value="Viser hjælpsomme tips der giver brugeren en introduktion til funktionerne i Sitemagic CMS"/>
+	<entry key="SpeechBubbleButtonOk" value="Ok"/>
+	<entry key="SpeechBubbleButtonDisable" value="Deaktiver tips"/>
+	<entry key="SpeechBubbleDisableWarning" value="Nogle funktioner i Sitemagic CMS kræver lidt forklaring. Er du fuldstændig sikker på at du vil slå tips fra?"/>
+	<entry key="SMAnnouncementsWelcomeTitle" value="Velkommen til Sitemagic CMS"/>
+	<entry key="SMAnnouncementsWelcomeThanks" value="Tak fordi du valgte Sitemagic CMS til din nye webside."/>
+	<entry key="SMAnnouncementsWelcomeTips" value="For at hjælpe dig godt i gang med Sitemagic CMS, vises tips og tricks første gang du åbner et modul i kontrolpanelet."/>
+	<entry key="SMAnnouncementsWelcomeNotice" value="Nogle funktioner kræver lidt forklaring. Det anbefales at lade Tips og Tricks forblive slået til."/>
+	<entry key="SMAnnouncementsWelcomeButtonClose" value="Klik på det lille X i øverste højre hjørne for midlertidigt at lukke tippet."/>
+	<entry key="SMAnnouncementsWelcomeButtonOk" value="Klik på den grønne Ok-knap for permanent at lukke tippet - det vil ikke blive vist igen."/>
+	<entry key="SMAnnouncementsWelcomeButtonDisable" value="Klik på den røde Deaktiver-knap for at slå alle tips fra."/>
+	<entry key="SMAnnouncementsWelcomeEnjoy" value="Nyd din nye webside :-)"/>
+	<entry key="SMAnnouncementsContentMenuTitle" value="Indholdsmenu"/>
+	<entry key="SMAnnouncementsContentMenuDescription" value="Brug denne menu til at ændre Design, opdatere Menuen, tilføje eller redigere Sider eller håndtere dine Filer."/>
+	<entry key="SMAnnouncementsAdminMenuTitle" value="Admin-menu"/>
+	<entry key="SMAnnouncementsAdminMenuDescription" value="Det meste konfiguration udføres i denne menu. Gå til Admin &gt; Indstillinger for at aktivere flere funktioner."/>
+	<entry key="SMFilesFoldersTitle" value="Mapper"/>
+	<entry key="SMFilesFoldersDescription" value="Vælg en mappe for at vise alle filer heri. Brug knapperne for at Oprette, Omdøbe eller Slette mapper."/>
+	<entry key="SMFilesFilesTitle" value="Filer"/>
+	<entry key="SMFilesFilesDescription" value="Filer indeholdt i den valgte mappe vises her. Vælg en fil og brug knapperne for at Hente, Omdøbe eller Slette filen. Brug knappen Overfør til at tilføje nye filer til den valgte mappe."/>
+	<entry key="SMMenuFormTitle" value="Linkformular"/>
+	<entry key="SMMenuFormDescription" value="Brug denne formular til at oprette nye links, eller redigere eksisterende."/>
+	<entry key="SMMenuSelectTitle" value="Link-vælger"/>
+	<entry key="SMMenuSelectDescription" value="Denne knap lader dig let vælge en side eller udvidelse som der kan linkes til."/>
+	<entry key="SMMenuStructureTitle" value="Menustruktur"/>
+	<entry key="SMMenuStructureDescription" value="Klik på et link for at vælge det. Brug knapperne til at Redigere et link, Slette det, eller flytte det Op og Ned i hierarkiet. Hvis et link er valgt, oprettes nye links automatisk i en undermenu hertil."/>
+	<entry key="SMPagesFormTitle" value="Egenskaber"/>
+	<entry key="SMPagesFormDescription" value="Brug denne formular til at oprette nye sider, eller redigere deres egenskaber. Klik Flere Muligheder for at angive en brugerdefineret Designskabelon, arbejd med meta data, eller angiv en adgangskode."/>
+	<entry key="SMPagesListTitle" value="Sider"/>
+	<entry key="SMPagesListDescription" value="Eksisterende sider vises her. Vælg en side og klik på Rediger Indhold for at åbne Side-redigering."/>
+	<entry key="SMPagesHeaderFooterTitle" value="Sidehoved og Sidefod"/>
+	<entry key="SMPagesHeaderFooterDescription" value="Klik Rediger for at ændre indholdet af sidehovedet eller sidefoden."/>
+	<entry key="SMPagesEditorButtonSaveTitle" value="Gem side"/>
+	<entry key="SMPagesEditorButtonSaveDescription" value="Brug denne knap til at gemme ændringerne. Hvis dette er en ny side, ønsker du formentlig at tilføje den til menuen under Indhold &gt; Menu."/>
+	<entry key="SMPagesEditorButtonLinksTitle" value="Indsæt link"/>
+	<entry key="SMPagesEditorButtonLinksDescription" value="Vælg noget tekst eller et billede og klik på denne knap, for at lave et link til en anden side, til en fil, eller til en anden webside."/>
+	<entry key="SMPagesEditorButtonLinksDialog" value="Brug denne menu til at vælge en side, fil eller udvidelse som der linkes til."/>
+	<entry key="SMPagesEditorButtonImagesTitle" value="Indsæt billede"/>
+	<entry key="SMPagesEditorButtonImagesDescription" value="Brug denne knap for at indsætte et billede hvor markøren er placeret."/>
+	<entry key="SMPagesEditorButtonImagesDialog" value="Brug denne menu til at vælge et billede. Billeder uploades under Indhold &gt; Filer til mappen images."/>
+	<entry key="SMPagesEditorButtonCardsTitle" value="Kort-design"/>
+	<entry key="SMPagesEditorButtonCardsDescription" value="Brug denne menu til at ændre layoutet til Kort. Så snart layoutet er ændret, kan du trykke ENTER for at oprette nye kort og bruge denne menu til at ændre størrelsen på hvert kort. For at lave lineskift trykkes blot SHIFT+ENTER."/>
+	<entry key="SMPagesEditorButtonExtensionsTitle" value="Indsæt Side-udvidelse"/>
+	<entry key="SMPagesEditorButtonExtensionsDescription" value="Klik her for at tilføje Side-udvidelser som Kontaktformularer, Eksterne Moduler (fx YouTube, Kort eller Musik), kommentar-boks, Vurderings-stjerner og mere. Side-udvidelser aktiveres og deaktiveres under Admin &gt; Indstillinger."/>
+	<entry key="SMDesignerTitle" value="Designer"/>
+	<entry key="SMDesignerDescription" value="Flyt musen omkring for at få skitseret redigerbare elementer. Klik på et element for at ændre dets udseende i Designeren. Klik på Gem-knappen for at gemme ændringerne."/>
+	<entry key="SMContactIntroTitle" value="Kontaktformularer"/>
+	<entry key="SMContactIntroDescription" value="Kontaktformularer er Side-udvidelser som tilføjes siderne via Side-redigering under Indhold &gt; Sider."/>
+	<entry key="SMContactExistingTitle" value="Rediger kontaktformular"/>
+	<entry key="SMContactExistingDescription" value="Vælg en Kontaktformular her, for at redigere den."/>
+	<entry key="SMContactBasicConfigTitle" value="Basis-konfiguration"/>
+	<entry key="SMContactBasicConfigDescription" value="Konfigurer Kontaktformularen med din e-mail-adresse, et emne til den e-mail du modtager, samt en besked der vises til brugeren efter en besked er blevet sendt."/>
+	<entry key="SMContactFormTitle" value="Egenskaber"/>
+	<entry key="SMContactFormDescription" value="Brug denne formular til at oprette eller redigere indtastningsfelter i kontaktformularen."/>
+	<entry key="SMContactFieldsTitle" value="Indtastningsfelter"/>
+	<entry key="SMContactFieldsDescription" value="Dette er en liste med indtastningsfelter i Kontaktformularen. Vælg et felt og klik på en af knapperne for at Redigere, Slette eller flytte det Op og Ned."/>
+	<entry key="SMExternalModulesIntroTitle" value="Eksterne Moduler"/>
+	<entry key="SMExternalModulesIntroDescription" value="Eksterne Moduler kan bruges til at tilføje indhold eller funktionalitet fra en anden webside, fx YouTube videoer, Google Kort eller SoundCloud musik. Brug Udvidelses-knappen i Side-redigering for at indsætte et modul på en side."/>
+	<entry key="SMExternalModulesListTitle" value="Eksisterende moduler"/>
+	<entry key="SMExternalModulesListDescription" value="Vælg et eksisterende Eksternt Modul her, for at redigere det."/>
+	<entry key="SMExternalModulesConfigTitle" value="Opret eller rediger"/>
+	<entry key="SMExternalModulesConfigDescription" value="Brug denne formular til at oprette eller redigere Eksterne Moduler. Følg disse trin for at indsætte en YouTube Video:"/>
+	<entry key="SMExternalModulesConfigStep1" value="Find en video på YouTube og kopier URL'en fra adresse-baren."/>
+	<entry key="SMExternalModulesConfigStep2" value="Indtast et navn til modulet i Modulnavn, fx. Min Video."/>
+	<entry key="SMExternalModulesConfigStep3" value="Indsæt URL'en fra trin 1 i feltet URL Adresse."/>
+	<entry key="SMExternalModulesConfigStep4" value="Klik på knappen Opret."/>
+	<entry key="SMExternalModulesConfigStep5" value="Gå til Indhold &gt; Sider og åben en side for redigering."/>
+	<entry key="SMExternalModulesConfigStep6" value="Klik på knappen til Udvidelser under Gem-knappen og indsæt modulet."/>
+	<entry key="SMImageMontageTitle" value="Fotoalbum"/>
+	<entry key="SMImageMontageDescription" value="Brug denne formular til at ændre måden hvorpå Billedemontage viser billeder. Følg disse trin for at oprette et nyt fotoalbum:"/>
+	<entry key="SMImageMontageStep1" value="Gå til Indhold &gt; Filer og opret en ny mappe under mappen &quot;gallery&quot;."/>
+	<entry key="SMImageMontageStep2" value="Klik på den nyoprettede mappe for at vælge den, og brug knappen Overfør til at tilføje billeder."/>
+	<entry key="SMImageMontageStep3" value="Gå til Indhold &gt; Menu og brug Vælg-knappen til at tilføje et link til det nye album i menuen."/>
+	<entry key="SMConfigLoginTitle" value="Ændr login"/>
+	<entry key="SMConfigLoginDescription" value="Ændr dit brugernavn og adgangskode her (anbefales kraftigt)."/>
+	<entry key="SMConfigLookTitle" value="Udseende"/>
+	<entry key="SMConfigLookDescription" value="Ændr hjemmesidens udseende ved at angive en anden Designskabelon eller andre ikoner. Knapperne Kopier og Slet bruges til at håndtere kopier af Designskabeloner."/>
+	<entry key="SMConfigExtensionsTitle" value="Udvidelser"/>
+	<entry key="SMConfigExtensionsDescription" value="Vælg de udvidelser (plugins) der ønskes brugt. Hvordan disse tilgås og bruges kan variere. Nogle udvidelser tilføjer et element i Admin-menuen, nogle gøres tilgængelig i Side-redigering, mens andre kan tilføjes direkte til Menuen. Udvidelser kan endog benytte alle tre tilgange beskrevet."/>
+</entries>

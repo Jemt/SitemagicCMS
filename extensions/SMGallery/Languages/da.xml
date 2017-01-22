@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Galleri" />
+
+	<entry key="Choose" value="Vælg galleri" />
+	<entry key="Page" value="Side {x} af {y}" />
+	<entry key="SettingsTitle" value="Indstillinger for galleri" />
+	<entry key="Settings" value="Indstillinger" />
+	<entry key="SettingColumns" value="Antal kolonner" />
+	<entry key="SettingRows" value="Antal rækker" />
+	<entry key="SettingWidth" value="Bredde på billeder (pixels)" />
+	<entry key="SettingHeight" value="Højde på billeder (pixels)" />
+	<entry key="SettingPadding" value="Mellemrum (pixels)" />
+	<entry key="SaveSettings" value="Gem" />
+	<entry key="SettingsSaved" value="Indstillingerne blev gemt" />
+	<entry key="SettingsTypeError" value="Indtast venligst kun positive heltal" />
+
+	<entry key="EntireGallery" value="Hele galleriet" />
+
+	<entry key="Description" value="Tilføj dine billeder til en ny mappe i galleri-mappen, og indsæt dit nyoprettede galleri direkte på en indholdsside (i WYSIWYG editoren)" />
+</entries>

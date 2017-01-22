@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Tips and Tricks" />
+	<entry key="Description" value="Displays helpful tips that gives the user an introduction to the features in Sitemagic CMS" />
+
+	<entry key="SpeechBubbleButtonOk" value="Ok" />
+	<entry key="SpeechBubbleButtonDisable" value="Disable tips" />
+	<entry key="SpeechBubbleDisableWarning" value="Some features in Sitemagic CMS requires some explaination. Are you absolutely sure you want to disable tips?" />
+
+	<entry key="SMAnnouncementsWelcomeTitle" value="Welcome to Sitemagic CMS" />
+	<entry key="SMAnnouncementsWelcomeThanks" value="Thank you for choosing Sitemagic CMS for your new website." />
+	<entry key="SMAnnouncementsWelcomeTips" value="To help you get started with Sitemagic CMS, tips and tricks will be shown the first time you browse to a module in the control panel." />
+	<entry key="SMAnnouncementsWelcomeNotice" value="Some features require some explaination. It is recommended to keep Tips and Tricks turned on." />
+	<entry key="SMAnnouncementsWelcomeButtonClose" value="Click the small X in the upper right corner to temporarily close the tip." />
+	<entry key="SMAnnouncementsWelcomeButtonOk" value="Click the green Ok button to permanently close a tip - it will not show up again." />
+	<entry key="SMAnnouncementsWelcomeButtonDisable" value="Click the red Disable button to disable all tips." />
+	<entry key="SMAnnouncementsWelcomeEnjoy" value="Enjoy your new website :-)" />
+	<entry key="SMAnnouncementsContentMenuTitle" value="Content menu" />
+	<entry key="SMAnnouncementsContentMenuDescription" value="Use this menu to change the Design, update the Menu, add and edit Pages, or manage your Files." />
+	<entry key="SMAnnouncementsAdminMenuTitle" value="Admin menu" />
+	<entry key="SMAnnouncementsAdminMenuDescription" value="Most configuration is done from this menu. Go to Admin > Settings to enable more functionality." />
+
+	<entry key="SMFilesFoldersTitle" value="Folders" />
+	<entry key="SMFilesFoldersDescription" value="Select a folder to list files within. Use the buttons to Create, Rename, or Delete folders." />
+	<entry key="SMFilesFilesTitle" value="Files" />
+	<entry key="SMFilesFilesDescription" value="Files contained in selected folder is listed here. Select a file and use the buttons to Download, Rename, or Delete it. Use the Upload button to add new files to the selected folder." />
+
+	<entry key="SMMenuFormTitle" value="Link form" />
+	<entry key="SMMenuFormDescription" value="Use this form to create new links, or edit existing links." />
+	<entry key="SMMenuSelectTitle" value="Link picker" />
+	<entry key="SMMenuSelectDescription" value="This button lets you easily select a page or extension to link to." />
+	<entry key="SMMenuStructureTitle" value="Menu structure" />
+	<entry key="SMMenuStructureDescription" value="Click on a link to select it. Use the buttons to Edit the link, Delete it, or move it Up and Down the hierarchy. If a link is selected, new links will automatically be added to a drop down menu underneath it." />
+
+	<entry key="SMPagesFormTitle" value="Properties" />
+	<entry key="SMPagesFormDescription" value="Use this form to create new pages, or edit their properties. Click More Options to set a custom Design Template, work with meta data, or set a password." />
+	<entry key="SMPagesListTitle" value="Pages" />
+	<entry key="SMPagesListDescription" value="Existing pages are listed here. Select a page and click the Edit Content button to open the Page Editor." />
+	<entry key="SMPagesHeaderFooterTitle" value="Header and Footer" />
+	<entry key="SMPagesHeaderFooterDescription" value="Click Edit to change the content of the Header or Footer section." />
+	<entry key="SMPagesEditorButtonSaveTitle" value="Save page" />
+	<entry key="SMPagesEditorButtonSaveDescription" value="Use this button to save the changes. If this is a new page, you may want to add it to the menu under Content > Menu." />
+	<entry key="SMPagesEditorButtonLinksTitle" value="Insert link" />
+	<entry key="SMPagesEditorButtonLinksDescription" value="Select some text or an image, and click this button to turn it into a link to another page, to a file, or to another website." />
+	<entry key="SMPagesEditorButtonLinksDialog" value="Use this menu to select a page, file, or extension to link to." />
+	<entry key="SMPagesEditorButtonImagesTitle" value="Insert image" />
+	<entry key="SMPagesEditorButtonImagesDescription" value="Use this button to insert an image where the cursor is currently positioned." />
+	<entry key="SMPagesEditorButtonImagesDialog" value="Use this menu to select an image to insert. Images are uploaded under Content > Files to the images folder." />
+	<entry key="SMPagesEditorButtonCardsTitle" value="Cards design" />
+	<entry key="SMPagesEditorButtonCardsDescription" value="Use this menu to switch the layout to cards. Once the layout is changed you can press ENTER to create new cards and use this menu to change the size of each card. To create line breaks, simply press Shift+Enter." />
+	<entry key="SMPagesEditorButtonExtensionsTitle" value="Insert Page Extension" />
+	<entry key="SMPagesEditorButtonExtensionsDescription" value="Click here to add Page Extensions like Contact Forms, External Modules (e.g. YouTube, Maps, or Music.), Comment box, Ratings, and more. Page Extensions are enabled and disabled under Admin > Settings." />
+
+	<entry key="SMDesignerTitle" value="Designer" />
+	<entry key="SMDesignerDescription" value="Move the mouse around to have editable elements outlined. Click an element to change its look and feel in the Designer. Click the Save button to save the changes." />
+
+	<entry key="SMContactIntroTitle" value="Contact forms" />
+	<entry key="SMContactIntroDescription" value="Contact Forms are Page Extension that are added to pages using the Page Editor under Content > Pages." />
+	<entry key="SMContactExistingTitle" value="Edit contact form" />
+	<entry key="SMContactExistingDescription" value="To edit a Contact Form, simply select it here." />
+	<entry key="SMContactBasicConfigTitle" value="Basic configuration" />
+	<entry key="SMContactBasicConfigDescription" value="Configure the Contact Form with your e-mail address, a subject for the e-mails you receive, and a message displayed to the user after a message has been sent." />
+	<entry key="SMContactFormTitle" value="Properties" />
+	<entry key="SMContactFormDescription" value="Use this form to create or edit input fields in the contact form." />
+	<entry key="SMContactFieldsTitle" value="Input fields" />
+	<entry key="SMContactFieldsDescription" value="This is a list of input fields in the Contact Form. Select a field and click on one of the buttons to Edit, Delete, or move it Up and Down." />
+
+	<entry key="SMExternalModulesIntroTitle" value="External Modules" />
+	<entry key="SMExternalModulesIntroDescription" value="External Modules can be used to add content or functionality from another website, e.g. YouTube videos, Google Maps, or SoundCloud music. Use the Extensions button in the Page Editor to insert a module into a page." />
+	<entry key="SMExternalModulesListTitle" value="Existing modules" />
+	<entry key="SMExternalModulesListDescription" value="To edit an existing External Module, simply select it here." />
+	<entry key="SMExternalModulesConfigTitle" value="Create or edit" />
+	<entry key="SMExternalModulesConfigDescription" value="Use this form to create or edit External Modules. To insert a YouTube video, follow these steps:" />
+	<entry key="SMExternalModulesConfigStep1" value="Find a video on YouTube and copy the URL from the address bar." />
+	<entry key="SMExternalModulesConfigStep2" value="Enter a name for the module in Module Name, e.g. My Video." />
+	<entry key="SMExternalModulesConfigStep3" value="Paste the URL from step 1 into the URL Address field." />
+	<entry key="SMExternalModulesConfigStep4" value="Click the Create button." />
+	<entry key="SMExternalModulesConfigStep5" value="Go to Content > Pages and open a Page for editing." />
+	<entry key="SMExternalModulesConfigStep6" value="Click the Extensions button underneath the Save button and insert the module." />
+
+	<entry key="SMImageMontageTitle" value="Photo album" />
+	<entry key="SMImageMontageDescription" value="Use this form to change how Image Montage lays out photos. To create a photo album, follow these steps:" />
+	<entry key="SMImageMontageStep1" value="Go to Content > Files and create a new folder under the &quot;gallery&quot; folder." />
+	<entry key="SMImageMontageStep2" value="Click on the newly created folder to select it and use the Upload button to add photos to it." />
+	<entry key="SMImageMontageStep3" value="Go to Content > Menu and use the Select button to add a link to the new album to the menu." />
+
+	<entry key="SMConfigLoginTitle" value="Change login" />
+	<entry key="SMConfigLoginDescription" value="Change your username and password here (highly recommended)." />
+	<entry key="SMConfigLookTitle" value="Look and feel" />
+	<entry key="SMConfigLookDescription" value="Change the look and feel of your website by applying another Design Template or different icons. The Copy and Delete buttons are used to manage copies of Design Templates." />
+	<entry key="SMConfigExtensionsTitle" value="Extensions" />
+	<entry key="SMConfigExtensionsDescription" value="Select extensions (plug-ins) to use. How to access and use extensions differ. Some extensions add an entry to the Admin menu, some are made available to the Page Editor, while others can be added directly to the Menu. Extenions may even use all three approaches described." />
+</entries>

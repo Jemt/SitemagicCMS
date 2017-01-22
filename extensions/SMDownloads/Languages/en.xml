@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Downloads" />
+	<entry key="Files" value="Files" />
+	<entry key="Fetched" value="Downloaded" />
+
+	<entry key="Description" value="Add public files to the new download folder and create links to them (using the WYSIWYG editor) - a download counter is available from the control panel" />
+</entries>

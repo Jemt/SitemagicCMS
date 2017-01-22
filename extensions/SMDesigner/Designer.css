@@ -1,0 +1,259 @@
+/* NOTICE:
+   Designer runs in Dedicated Execution Mode, so no need to use safe class names */
+
+html
+{
+	background: white;
+}
+
+div.Container
+{
+	padding-top: 75px;
+
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+/* Toolbar */
+
+div.Toolbar
+{
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	z-index: 100;
+	padding: 15px 10px 10px 10px;
+	background-color: #DFDFDF;
+	border-bottom: 1px solid gray;
+}
+
+/* Toolbar section selector (e.g. Menu, Page, Cards) */
+
+div.Toolbar select
+{
+	width: 100%;
+}
+
+/* Toolbar buttons */
+
+div.ButtonPanel
+{
+	display: inline-block;
+	float: right;
+	margin-top: 5px;
+}
+
+span.Button
+{
+	margin-right: 10px;
+	cursor: pointer;
+}
+span.Button:before
+{
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transform: translate(0, 0);
+
+	margin-right: 5px;
+}
+span.Button.Download:before
+{
+	content: "\f019";
+}
+span.Button.Save:before
+{
+	content: "\f0c7";
+}
+span.Button.Saved:before
+{
+	content: "\f00c";
+	color: #61CD36;
+}
+span.Button.Undo:before
+{
+	content: "\f0e2";
+}
+span.Button.Reset:before
+{
+	content: "\f021";
+}
+
+/* Accordion */
+
+.Sitemagic h3.ui-accordion-header
+{
+	padding: 3px;
+	padding-left: 6px;
+	font-size: 12px;
+	font-weight: bold;
+	background: #EEEEEE;
+}
+.Sitemagic h3.ui-accordion-header:before
+{
+	font: normal normal normal 14px/1 FontAwesome;
+	font-size: inherit;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	transform: translate(0, 0);
+
+	content: "\f106";
+	margin-right: 5px;
+}
+.Sitemagic h3.ui-accordion-header.ui-accordion-header-active:before
+{
+	content: "\f107";
+}
+.Sitemagic span.ui-accordion-header-icon
+{
+	display: none;
+}
+
+.Sitemagic div.ui-accordion-content
+{
+	padding: 12px;
+	font-size: 12px;
+	border-top: none;
+}
+
+div.ui-accordion-content h4
+{
+	font-weight: bold;
+	margin: 0px;
+}
+
+div.ui-accordion-content div + h4
+{
+	margin-top: 25px;
+	border-top: 1px solid silver;
+	padding-top: 15px;
+}
+
+/* Controls */
+
+div.Property
+{
+    margin-top: 15px
+}
+
+div.Control
+{
+	position: relative; /* Allow absolute positioning in combined Input and Selector */
+}
+
+div.Control, input, textarea, select, div.ui-slider
+{
+	width: 175px;
+}
+textarea
+{
+	height: 150px;
+
+	white-space: pre;
+	word-wrap: normal;
+	overflow-x: scroll;
+}
+
+*[disabled="disabled"]
+{
+	background-color: #E4E4E4;
+}
+
+/* Combined Input and Selector */
+input, select
+{
+	height: 20px;
+}
+input + select
+{
+	position: absolute;
+	width: auto;
+	top: 0px;
+	right: -5px;
+}
+
+/* Slider */
+div.ui-slider
+{
+	margin-top: 5px;
+	height: 5px;
+}
+div.ui-slider a.ui-slider-handle
+{
+	width: 10px;
+	height: 12px;
+	outline: none;
+}
+
+/* Color picker */
+div.colpick
+{
+	/* Improve positioning */
+	left: 10px !important;
+	margin-top: -1px;
+
+	/* Make sure color picker is on top of slider handle which has z-index:2 */
+	z-index: 100;
+}
+div.colpick div.colpick_hue_rarr
+{
+	display: none; /* Hide right arrow on vertical color picker */
+}
+
+/* Lock Layer (loading indicator) */
+
+div.LockLayer
+{
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background: rgb(0, 0, 0);
+	background: rgba(0, 0, 0, 0.80);
+	z-index: 999;
+
+	text-align: center;
+	padding-top: 110px;
+	font-size: 80px;
+	color: #FFFFFF;
+}
+
+/* Dark theme */
+
+html.DarkTheme,
+html.DarkTheme .Sitemagic h3.ui-accordion-header,
+html.DarkTheme .Sitemagic div.ui-accordion-content,
+html.DarkTheme .Sitemagic div.ui-slider,
+html.DarkTheme .Sitemagic a.ui-slider-handle
+{
+	background: #303030;
+    color: whitesmoke;
+}
+
+html.DarkTheme .Sitemagic h3.ui-accordion-header
+{
+	background: #434343;
+}
+
+html.DarkTheme span.Button
+{
+	color: whitesmoke;
+}
+
+html.DarkTheme div.Toolbar
+{
+	background-color: #365069;
+}
+
+html.DarkTheme *[disabled="disabled"]
+{
+	background-color: #BCBCBC;
+}

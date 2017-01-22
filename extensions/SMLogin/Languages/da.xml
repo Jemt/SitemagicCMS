@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Administration" value="Administration" />
+	<entry key="Username" value="Brugernavn" />
+	<entry key="Password" value="Adgangskode" />
+	<entry key="Language" value="Sprog" />
+	<entry key="Error" value="Forkert brugernavn eller adgangskode" />
+	<entry key="Login" value="Log ind" />
+	<entry key="Logout" value="Log ud" />
+
+	<entry key="LoginForm" value="Login formular" />
+</entries>

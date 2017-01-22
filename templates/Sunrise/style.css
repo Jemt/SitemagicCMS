@@ -1,0 +1,285 @@
+@import url("../_BaseGeneric/all.css");
+
+
+/* GENERAL */
+
+html.Normal,
+html.Basic.SMPagesViewer,
+html.SMPagesEditor.SMPagesContentPage,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter
+{
+	background-image: url("../../files/images/backgrounds/Sunrise.jpg");
+}
+
+html, body, td, legend, input, textarea, select
+{
+	font-size: 14px;
+}
+
+a
+{
+	color: #106FC7;
+}
+
+input, textarea, select, fieldset
+{
+	border: 1px solid #9F9F9F;
+}
+
+
+/* HEADER */
+
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body
+{
+	background: none; /* Remove white background in page editor */
+}
+
+html.SMPagesCustomHeader div.TPLHeader,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body
+{
+	font-size: 32px;
+	color: #F0F0F0;
+}
+html.SMPagesCustomHeader div.TPLHeader a,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body a
+{
+	color: inherit;
+	*color: expression(this.parentNode.currentStyle['color']);
+}
+
+html.SMPagesCustomHeader div.TPLHeader div.smPagesParagraph,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body p
+{
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+html.SMPagesCustomHeader div.TPLHeader
+{
+	margin-bottom: 20px;
+}
+
+
+/* MENU */
+
+div.TPLMenu > ul /* Menu bar */
+{
+	background-color: #F7D35E;
+	border-radius: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+div.TPLMenu li ul /* Submenus */
+{
+	background-color: #F7D35E;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+div.TPLMenu li ul li ul /* Submenus level 3 */
+{
+	border: 2px solid rgb(255, 255, 255); /* Fallback for IE8 and below */
+	border: 2px solid rgba(255, 255, 255, 0.5);
+	border-radius: 5px;
+}
+
+div.TPLMenu li:hover, /* Menu items */
+div.TPLMenu li.TPLMenuHover /* Used by Designer to display drop downs programmatically */
+{
+	background: none;
+	background: rgba(255, 255, 255, 0.4);
+}
+
+div.TPLMenu a /* All links */
+{
+	font-size: 16px;
+	color: #333333;
+	font-weight: bold;
+
+	padding-left: 0.75em;
+	padding-right: 0.75em;
+}
+div.TPLMenu li ul li a /* Links in sub menus */
+{
+	font-size: 14px;
+}
+
+/* Menu item height */
+div.TPLMenu > ul > li > a /* Root item links only */
+{
+	line-height: 300%;
+}
+div.TPLMenu li ul li a /* Sub menu item links */
+{
+	line-height: 200%;
+}
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) /* Targets IE10+ */
+{
+	div.TPLMenu li ul
+	{
+		margin-top: -1px; /* IE11 fix to prevent 1px spacing between menu and submenus caused by buggy border-radius */
+	}
+}
+
+
+/* PAGE AND CONTENT AREA */
+
+div.TPLPage
+{
+	padding-top: 30px;
+	padding-bottom: 35px;
+}
+
+div.TPLContent
+{
+	margin-top: 20px;
+}
+
+div.TPLContent,
+html.Basic.SMPagesViewer body,
+html.SMPagesEditor.SMPagesContentPage body
+{
+	background: rgb(255, 255, 255);
+	background: rgba(255, 255, 255, 0.6);
+	border-radius: 5px;
+}
+
+html.SMPagesEditor.SMPagesContentPage body
+{
+	outline: none;
+	*border: none;
+}
+
+
+/* FOOTER */
+
+html.SMPagesCustomFooter div.TPLFooter,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body
+{
+	background: rgb(0, 0, 0);
+	background: rgba(0, 0, 0, 0.7);
+	border-radius: 5px;
+}
+
+html.SMPagesCustomFooter.SMPagesCardLayout div.TPLFooter
+{
+	margin-top: 20px;
+}
+
+html.SMPagesCustomFooter div.TPLFooter,
+html.SMPagesCustomFooter div.TPLFooter td,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body td
+{
+	color: #EFEFEF;
+}
+html.SMPagesCustomFooter div.TPLFooter a,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body a
+{
+	color: inherit;
+	*color: expression(this.parentNode.currentStyle['color']);
+}
+
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body
+{
+	outline: none;
+	*border: none;
+}
+
+
+/* CARDS */
+
+/* Remove transparent background from content area */
+html.SMPagesCardLayout.Normal div.TPLContent,
+html.SMPagesCardLayout.Basic body,
+html.SMPagesCardLayout.SMPagesEditor.SMPagesContentPage body
+{
+	background: none;
+}
+
+/* Set colors, and add rounded cornors and shadows to cards */
+div.SMPagesCard
+{
+	/* Make card transparent - using rgba(..) when possible rather than opacity to avoid children being affected */
+	background: rgb(255, 255, 255); /* Fallback for IE8 and below - only works with shorthand due to a bug in IE7, so background-color will not work */
+	background: rgba(255, 255, 255, 0.6);
+
+	border-radius: 5px;
+	box-shadow: 2px 2px 10px #333333;
+
+	width: 230px; /* SMPagesCardSmall and SMPagesCardHidden */
+}
+div.SMPagesCardMedium
+{
+	width: 520px;
+}
+
+div.SMPagesCardLarge
+{
+	width: 810px;
+}
+
+/* Remove guide lines on cards in editor */
+html.SMPagesEditor div.SMPagesCard
+{
+	outline: none;
+	*border: none;
+}
+
+/* Style card headers and card footers */
+span.SMPagesCardHeader,
+span.SMPagesCardFooter
+{
+	background-color: #000000;
+	color: #FFFFFF;
+	font-size: 14px;
+}
+span.SMPagesCardHeader
+{
+	border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+}
+span.SMPagesCardFooter
+{
+	border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+}
+span.SMPagesCardHeader + span.SMPagesCardHeader
+{
+    border-radius: 0px;
+}
+
+/* Add rounded corners to images in cards. Only applied to images added by
+   editor to avoid affecting images and button icons from Page Extensions,
+   and only if given image is first element, or followed by card header.
+   A footer after an image removes border radious from image bottom. */
+div.SMPagesCard img[width][height][src^="files/images/"]:first-child,
+div.SMPagesCard span.SMPagesCardHeader + img[width][height][src^="files/images/"]
+{
+	border-radius: inherit; /*5px;*/
+}
+div.SMPagesCard span.SMPagesCardHeader + img[width][height][src^="files/images/"]
+{
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
+
+/* Snippets */
+
+html.SMPagesClassicLayout div.TPLSnippet
+{
+	background: rgba(255, 255, 255, 0.40); /* No need for fallback - we don't want a background if RGBA is not supported */
+	border: 1px solid rgba(0, 0, 0, 0.25); /* No need for fallback, border specified in _BaseGeneric/snippets.css will be used */
+	border-radius: 5px;
+}
+
+html.SMPagesClassicLayout div.TPLSnippet > h1
+{
+	background: rgba(255, 255, 255, 0.40); /* No need for fallback - we don't want a background if RGBA is not supported */
+	border-bottom: 1px solid rgba(0, 0, 0, 0.25); /* No need for fallback, border specified in _BaseGeneric/snippets.css will be used */
+	border-top-left-radius: inherit;
+	border-top-right-radius: inherit;
+}

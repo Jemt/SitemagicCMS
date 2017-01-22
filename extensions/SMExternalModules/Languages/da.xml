@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Eksterne moduler" />
+	<entry key="Settings" value="Indstillinger" />
+	<entry key="Modules" value="Gemte moduler" />
+	<entry key="Name" value="Modulnavn" />
+	<entry key="Url" value="URL adresse / iFrame kode" />
+	<entry key="Width" value="Bredde" />
+	<entry key="Height" value="Højde" />
+	<entry key="Pixels" value="Pixels" />
+	<entry key="Percent" value="Procent" />
+	<entry key="Scroll" value="Benyt scroll" />
+	<entry key="ScrollNo" value="Nej" />
+	<entry key="ScrollYes" value="Ja" />
+	<entry key="ScrollAuto" value="Tilpas automatisk" />
+	<entry key="ShowFrame" value="Vis ramme" />
+	<entry key="NoFrame" value="Ingen ramme" />
+	<entry key="FrameColorBlack" value="Sort" />
+	<entry key="FrameColorWhite" value="Hvid" />
+	<entry key="FrameColorGray" value="Grå" />
+	<entry key="FrameColorSilver" value="Sølv" />
+	<entry key="FrameColorMaroon" value="Mørkerød" />
+	<entry key="FrameColorRed" value="Rød" />
+	<entry key="FrameColorPurple" value="MørkeLilla" />
+	<entry key="FrameColorFuchsia" value="Lyselilla" />
+	<entry key="FrameColorGreen" value="Grøn" />
+	<entry key="FrameColorLime" value="Lime" />
+	<entry key="FrameColorOlive" value="Oliven" />
+	<entry key="FrameColorYellow" value="Gul" />
+	<entry key="FrameColorNavy" value="Mørkeblå" />
+	<entry key="FrameColorBlue" value="Blå" />
+	<entry key="FrameColorTeal" value="Mørketurkis" />
+	<entry key="FrameColorAqua" value="Lyseturkis" />
+	<entry key="ReloadToTop" value="Genindlæs ruller op" />
+	<entry key="Create" value="Opret" />
+	<entry key="Clear" value="Rens" />
+	<entry key="Save" value="Gem" />
+	<entry key="Delete" value="Slet" />
+	<entry key="Preview" value="Eksempelvisning" />
+
+	<entry key="ModuleCreated" value="Modulet blev oprettet" />
+	<entry key="SettingsSaved" value="Indstillingerne blev gemt" />
+	<entry key="ModuleDeleted" value="Modulet blev slettet" />
+	<entry key="DeleteWarning" value="Bekræft venligst sletning" />
+	<entry key="MissingFields" value="Udfyld venligst alle felter" />
+	<entry key="AlreadyExists" value="Et modul med det givne navn eksisterer allerede" />
+	<entry key="ModuleNotFound" value="Ekstern modul konfiguration eksisterer ikke længere" />
+	<entry key="InvalidWidthHeight" value="Indtast venligst heltal i Bredde og Højde" />
+	<entry key="CreationError" value="Modulet kunne ikke oprettes (ukendt fejl)" />
+	<entry key="UpdateError" value="Modulet kunne ikke opdateres (ukendt fejl)" />
+	<entry key="DeleteError" value="Modulet kunne ikke slettes (ukendt fejl)" />
+
+	<entry key="Description" value="Konfigurer let eksterne moduler så som en kalender eller et forum, og tilføj dem til dine indholdssider (i WYSIWYG editor)" />
+</entries>

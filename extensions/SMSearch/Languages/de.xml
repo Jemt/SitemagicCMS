@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Suchen"/>
+	<entry key="Description" value="Suchbox zum Einsetzen auf Inhaltseiten, um die Suche nach dem Inhalt der Homepage zu ermöglichen"/>
+	<entry key="SearchField" value="Suchfeld"/>
+	<entry key="SearchPage" value="Suchseite"/>
+	<entry key="SearchResults" value="Suchergebnisse"/>
+	<entry key="NoMatches" value="Keine Ergebnisse gefunden"/>
+	<entry key="ReadMore" value="Mehr lesen"/>
+</entries>
