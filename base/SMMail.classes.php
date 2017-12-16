@@ -263,9 +263,8 @@ class SMMail
 		$enc	= $cfg->GetEntry("SMTPEncryption");
 		$usr	= $cfg->GetEntry("SMTPUser");
 		$psw	= $cfg->GetEntry("SMTPPass");
+		$sender	= $cfg->GetEntry("SMTPSender");
 		$debug	= $cfg->GetEntry("SMTPDebug");
-
-		$sender = (($this->sender !== "") ? $this->sender : "no-reply@localhost");
 
 		// Send mail
 
@@ -273,8 +272,9 @@ class SMMail
 		{
 			// Construct headers
 
-			$headers = "";
+			$sender = (($this->sender !== "") ? $this->sender : "no-reply@localhost");
 
+			$headers = "";
 			$headers .= (($headers !== "") ? "\r\n" : "") . "from: " . $sender;
 			$headers .= (($headers !== "") ? "\r\n" : "") . "reply-to: " . $sender;
 
@@ -331,9 +331,25 @@ class SMMail
 					$mail->Password = $psw;
 			}
 
+			// Sender and reply-to
+
+			$sender = (($sender !== null) ? $sender : "");
+
+			// NOTICE: Some mail servers refuse to send e-mails if spoofing incorrect sender information!
+			// In that case make sure Sender, From, and FromName is set to an empty string - PHPMailer assign
+			// default values to From and FromName which might cause the mail server to refuse delivery.
 			$mail->Sender = $sender;
 			$mail->From = $sender;
 			$mail->FromName = $sender;
+
+			if ($this->sender !== "")
+			{
+				// Setting reply-to is not recommended as it may trigger FREEMAIL_FORGED_REPLYTO in SpamAssassing
+				// for free e-mail accounts such as Gmail and Yahoo, when From is not set to an identical value.
+				// But From should not be set to an address not identical to the actual sender as this is violating
+				// SPF (Sender Policy Framework) which will cause the e-mail to be considered spam if SPF is configured.
+				$mail->addReplyTo($this->sender);
+			}
 
 			// Add recipients
 
@@ -358,12 +374,15 @@ class SMMail
 			$mail->CharSet = "ISO-8859-1";
 
 			if ($this->type === SMMailType::$Html)
+			{
 				$mail->Encoding = "base64"; // Encode e-mail as Base64 to prevent large HTML strings from being broken up, causing corrupted output
+				$mail->AltBody = "Please use a modern e-mail client to read this message";
+			}
 
 			// Set content
 
 			$mail->Subject = $this->subject;
-			$mail->Body = $this->content;
+			$mail->Body = (($this->type === SMMailType::$Html && strpos(strtolower($this->content), "<html>") === false) ? "<html>" . $this->content . "</html>" : $this->content);
 
 			// Send mail
 

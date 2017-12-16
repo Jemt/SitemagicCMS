@@ -8,6 +8,7 @@
 	<entry key="Appearance" value="Appearance" />
 	<entry key="ImageTheme" value="Icon theme" />
 	<entry key="Template" value="Design template" />
+	<entry key="InstallWebsiteData" value="Install website data" />
 	<entry key="CopyTemplate" value="Copy" />
 	<entry key="DeleteTemplate" value="Delete" />
 	<entry key="Language" value="Language" />
@@ -21,6 +22,7 @@
 	<entry key="Port" value="Port" />
 	<entry key="AuthType" value="Login type" />
 	<entry key="Encryption" value="Encryption" />
+	<entry key="Sender" value="Sender" />
 	<entry key="ExtensionsEnabled" value="Extensions enabled" />
 	<entry key="Save" value="Save" />
 	<entry key="Cancel" value="Cancel" />
@@ -37,4 +39,5 @@
 	<entry key="WarningTemplateNotWritable" value="The folder is write protected" />
 	<entry key="NotificationTemplateDeleteSucceeded" value="Template has been removed" />
 	<entry key="WarningTemplateDeleteFailed" value="An unknown error occured removing template" />
+	<entry key="WarningInstallWebsiteData" value="You are about to install the website data associated with the selected design template (recommended for new websites). This may overwrite the existing website though. Do you want to continue?" />
 </entries>

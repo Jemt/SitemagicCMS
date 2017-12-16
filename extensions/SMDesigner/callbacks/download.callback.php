@@ -129,7 +129,8 @@ $downloadPath = filesToZip($templatePath, $newTemplatePath);
 
 // Download ZIP file to client and remove ZIP file from server
 
-SMFileSystem::DownloadFileToClient($downloadPath, true); // true = proceed with normal execution, rather than terminating process (file is deleted below)
+SMFileSystem::DownloadFileToClient($downloadPath, true); // true = proceed with normal execution, rather than terminating process (file is deleted below - exit called afterwards to prevent file corruption)
 SMFileSystem::Delete($downloadPath);
+exit; // Prevent file from being corrupted in case additional data is sent to the client (a single whitespace may be sufficient to corrupt the file)
 
 ?>

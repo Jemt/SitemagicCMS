@@ -216,7 +216,7 @@ class SMController
 
 		// Send result to client
 
-		header("Content-Type: text/html; charset=" . $charSet);
+		$this->setHeaders($charSet);
 		echo $this->template->GetContent();
 
 		// Continue life cycle
@@ -275,6 +275,30 @@ class SMController
 		return "SMClientEnvironmentInfo = { IsSubSite: " . ((SMEnvironment::IsSubSite() === true) ? "true" : "false") . ", Dirs: { RequestPath: '" . $requestPath . "', Files: '" . $filesDir . "', Data: '" . $dataDir . "', Images: '" . $imagesDir . "', Templates: '" . $templatesDir . "', Extensions: '" . $extensionsDir . "' } };";
 	}
 
+	private function setHeaders($charSet)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "charSet", $charSet, SMTypeCheckType::$String);
+
+		if ($this->isHeaderSet("Cache-Control") === false)
+			header("Cache-Control: max-age=0, no-cache, no-store, must-revalidate"); // Content is dynamic, never cache
+
+		if ($this->isHeaderSet("Content-Type") === false)
+			header("Content-Type: text/html; charset=" . $charSet);
+	}
+
+	private function isHeaderSet($key)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "key", $key, SMTypeCheckType::$String);
+
+		$key = strtolower($key);
+
+		foreach (headers_list() as $header)
+			if (strpos(strtolower($header), $key) === 0)
+				return true;
+
+		return false;
+	}
+
 	private function stripSubsite($path)
 	{
 		$subsite = SMEnvironment::GetSubsiteDirectory();
@@ -318,7 +342,31 @@ class SMController
 				throw new Exception("Callback '" . $cb . "' not found");
 
 			$SMCallback = true; // Allow callback to determine whether it is invoked through Sitemagic
+
+			// NOTICE:
+			// Data sent from the client using e.g. AJAX is Unicode.
+			// But Sitemagic CMS turns data from GET, POST, SESSION, COOKIE, and SERVER
+			// into ISO-8859-1 so the data can safely be passed around in the system.
+			// However, this only occure when data is retrieved using SMEnvironment::GetPostValue(..),
+			// SMEnvironment::GetQueryValue(..) etc.
+			// Once data is returned/outputted, the encoded unicode characters are transformed into
+			// real unicode characters again (see further down). This makes it completely transparent
+			// to the developer of callbacks that encoding and decoding is taking place, and one
+			// never has to worry about it.
+			// However, the developer will never be able to return e.g. &#8364; since it would always
+			// be turned into its unicode equivalent (Euro sign in this case) by the code below.
+
+			ob_start();
 			require_once($callback);
+			$output = ob_get_contents(); // NOTICE: MUST return ISO-8859-1 - data is passed to UnicodeDecoded(..) below which will corrupt data if encoding is not ISO-8859-1
+			ob_end_clean();
+
+			$this->setHeaders("UTF-8"); // Notice: Contrary to ordinary requests, callbacks are mainly used to exchange data using JS which is all Unicode
+
+			// Callbacks are expected to return unicode (used by JS), so we decode unicode characters represented as HEX entities.
+			// UnicodeDecode(..) turns ISO-8859-1 into real unicode character and all HEX entities (e.g. &#8364; = Euro sign) are transformed to unicode characters.
+			echo SMStringUtilities::UnicodeDecode($output);
+
 			return true;
 		}
 
@@ -341,6 +389,8 @@ class SMController
 
 		if (is_string($content) === false)
 			throw new Exception($extension . "->Render() did not return a valid string");
+
+		$this->template->AddHtmlClass("SM" . (($ext->GetIsIntegrated() === true) ? "Integrated" : "") . "Extension");
 
 		return "<div class=\"SMExtension" . (($ext->GetIsIntegrated() === true) ? " SMIntegrated" : "") . " " . $extension . "\">" . $content . "</div>";
 	}

@@ -45,7 +45,7 @@ SMTips.CreateSpeechBubble = function(id, tar, content, closeCallback, disableCal
 	if (!document.querySelector || document.forms.length === 0)
 		return null;
 
-	// Handle disabled speech bubbles which may be display as part of a chain
+	// Handle disabled speech bubbles which may be displayed as part of a chain
 
 	if (SMTips.Enabled === false)
 	{
@@ -113,38 +113,41 @@ SMTips.CreateSpeechBubble = function(id, tar, content, closeCallback, disableCal
 	}
 	buttons.appendChild(cmdOk);
 
-	var cmdDisable = document.createElement("div");
-	cmdDisable.innerHTML = SMTips.Language.Disable;
-	cmdDisable.className = "SMTipsDisableButton";
-	cmdDisable.onclick = function(e)
+	if (SMTips.CallbackUrl !== null)
 	{
-		if (confirm(SMTips.Language.Confirm) === true)
+		var cmdDisable = document.createElement("div");
+		cmdDisable.innerHTML = SMTips.Language.Disable;
+		cmdDisable.className = "SMTipsDisableButton";
+		cmdDisable.onclick = function(e)
 		{
-			// Disable extension
-
-			var req = new SMHttpRequest(SMTips.CallbackUrl, true);
-			req.SetStateListener(function()
+			if (confirm(SMTips.Language.Confirm) === true)
 			{
-				if (req.GetCurrentState() === 4)
-				{
-					if (req.GetHttpStatus() === 200)
-					{
-						sb.parentElement.removeChild(sb);
-						SMTips.Enabled = false;
+				// Disable extension
 
-						if (disableCallback)
-							disableCallback();
-					}
-					else
+				var req = new SMHttpRequest(SMTips.CallbackUrl, true);
+				req.SetStateListener(function()
+				{
+					if (req.GetCurrentState() === 4)
 					{
-						alert("An error occure, tips may not have been disabled");
+						if (req.GetHttpStatus() === 200)
+						{
+							sb.parentElement.removeChild(sb);
+							SMTips.Enabled = false;
+
+							if (disableCallback)
+								disableCallback();
+						}
+						else
+						{
+							alert("An error occurred, tips may not have been disabled");
+						}
 					}
-				}
-			});
-			req.Start();
+				});
+				req.Start();
+			}
 		}
+		buttons.appendChild(cmdDisable);
 	}
-	buttons.appendChild(cmdDisable);
 
 	// Position tip next to target
 

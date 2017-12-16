@@ -7,6 +7,9 @@
 	<entry key="SpeechBubbleButtonDisable" value="Disable tips" />
 	<entry key="SpeechBubbleDisableWarning" value="Some features in Sitemagic CMS requires some explaination. Are you absolutely sure you want to disable tips?" />
 
+	<entry key="SMLoginTitle" value="Log in to administration"/>
+	<entry key="SMLoginDescription" value="Enter username (default: admin) and password (default: admin) to access the administration section. Remember to change the default username and password immediately after log in under Admin &gt; Settings!"/>
+
 	<entry key="SMAnnouncementsWelcomeTitle" value="Welcome to Sitemagic CMS" />
 	<entry key="SMAnnouncementsWelcomeThanks" value="Thank you for choosing Sitemagic CMS for your new website." />
 	<entry key="SMAnnouncementsWelcomeTips" value="To help you get started with Sitemagic CMS, tips and tricks will be shown the first time you browse to a module in the control panel." />
@@ -46,8 +49,10 @@
 	<entry key="SMPagesEditorButtonImagesTitle" value="Insert image" />
 	<entry key="SMPagesEditorButtonImagesDescription" value="Use this button to insert an image where the cursor is currently positioned." />
 	<entry key="SMPagesEditorButtonImagesDialog" value="Use this menu to select an image to insert. Images are uploaded under Content > Files to the images folder." />
-	<entry key="SMPagesEditorButtonCardsTitle" value="Cards design" />
-	<entry key="SMPagesEditorButtonCardsDescription" value="Use this menu to switch the layout to cards. Once the layout is changed you can press ENTER to create new cards and use this menu to change the size of each card. To create line breaks, simply press Shift+Enter." />
+	<!--entry key="SMPagesEditorButtonCardsTitle" value="Cards design" />
+	<entry key="SMPagesEditorButtonCardsDescription" value="Use this menu to switch the layout to cards. Once the layout is changed you can press ENTER to create new cards and use this menu to change the size of each card. To create line breaks, simply press Shift+Enter." /-->
+	<entry key="SMPagesEditorButtonFluidGridsTitle" value="Insert Table or Grid"/>
+	<entry key="SMPagesEditorButtonFluidGridsDescription" value="Click here to add a responsive Data Table, Fluid Grid, or Fluid Grid Cards"/>
 	<entry key="SMPagesEditorButtonExtensionsTitle" value="Insert Page Extension" />
 	<entry key="SMPagesEditorButtonExtensionsDescription" value="Click here to add Page Extensions like Contact Forms, External Modules (e.g. YouTube, Maps, or Music.), Comment box, Ratings, and more. Page Extensions are enabled and disabled under Admin > Settings." />
 

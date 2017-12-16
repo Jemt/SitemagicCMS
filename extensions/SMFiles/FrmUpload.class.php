@@ -60,7 +60,14 @@ class SMFilesFrmUpload implements SMIExtensionForm
 			$this->error = $this->lang->GetTranslation("UploadError");
 
 			if ($extensions !== null)
-				$this->error .= "<br><br>" . $this->lang->GetTranslation("ValidFileTypes") . ": " . str_replace(";", ", ", $extensions);
+			{
+				if ($extensions !== "")
+					$this->error .= "<br><br>" . $this->lang->GetTranslation("ValidFileTypes") . ": " . str_replace(";", ", ", $extensions);
+				else
+					$this->error = $this->lang->GetTranslation("NoValidFileTypes");
+			}
+
+			$this->error .= "<br><br>" . $this->lang->GetTranslation("MaxUploadSize") . ": " . ((SMEnvironment::GetMaxUploadSize() > 0) ? number_format(SMEnvironment::GetMaxUploadSize() / 1024 / 1024, 2) : "0") . " MB";
 		}
 	}
 

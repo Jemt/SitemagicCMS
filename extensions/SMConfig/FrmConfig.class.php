@@ -15,6 +15,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 	private $lstTimeZones;
 	private $lstImageThemes;
 	private $lstTemplates;
+	private $chkInstallWebsiteData;
 
 	private $txtCopyTemplateName;
 	private $cmdCopyTemplate;
@@ -35,6 +36,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 	private $chkSmtpMaskPassword;
 	private $lstSmtpAuthType;
 	private $lstSmtpEncryption;
+	private $txtSmtpSender;
 
 	private $chkLstExtensions;
 
@@ -95,7 +97,11 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 		$this->lstTemplates = new SMOptionList("SMConfigTemplates");
 		$this->lstTemplates->SetAttribute(SMOptionListAttribute::$Style, "width: 150px");
+		$this->lstTemplates->SetAttribute(SMOptionListAttribute::$OnChange, "smConfigTemplateChangeHandler(this);");
 		$this->populateTemplates();
+
+		$this->chkInstallWebsiteData = new SMInput("SMConfigInstallWebsiteData", SMInputType::$Checkbox);
+		$this->chkInstallWebsiteData->SetAttribute(SMInputAttributeCheckbox::$OnChange, "smConfigState.PreferInstallDemoData = this.checked;");
 
 		$this->txtCopyTemplateName = new SMInput("SMConfigCopyTemplateName", SMInputType::$Hidden);
 
@@ -167,6 +173,10 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$this->lstSmtpEncryption->AddOption(new SMOptionListItem("SMConfigSmtpEncryptionTls", "TLS", "TLS"));
 		$this->lstSmtpEncryption->AddOption(new SMOptionListItem("SMConfigSmtpEncryptionSsl", "SSL", "SSL"));
 
+		$this->txtSmtpSender = new SMInput("SMConfigSmtpSender", SMInputType::$Text);
+		$this->txtSmtpSender->SetAttribute(SMInputAttributeText::$Style, "width: 150px");
+		$this->txtSmtpSender->SetAttribute(SMInputAttributeText::$MaxLength, "250");
+
 		$this->chkLstExtensions = new SMCheckboxList("SMConfigExtensions");
 		$this->chkLstExtensions->SetLabelStyle("font-weight: bold");
 		$this->chkLstExtensions->SetDescriptionStyle("margin-bottom: 10px");
@@ -190,13 +200,14 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$this->cmdNewSubSite = new SMLinkButton("SMConfigSave");
 		$this->cmdNewSubSite->SetTitle("New subsite");
 		$this->cmdNewSubSite->SetIcon(SMImageProvider::GetImage(SMImageType::$Create));
-		$this->cmdNewSubSite->SetOnClick("var w = new SMWindow(); w.SetUrl('" . SMExtensionManager::GetExtensionUrl($this->context->GetExtensionName(), SMTemplateType::$Basic, SMExecutionMode::$Dedicated) . "&SMConfigSubsiteForm'); w.SetSize(500, 500); w.Show(); return;");
+		$this->cmdNewSubSite->SetOnClick("var w = new SMWindow('SubsiteDialog'); w.SetUrl('" . SMExtensionManager::GetExtensionUrl($this->context->GetExtensionName(), SMTemplateType::$Basic, SMExecutionMode::$Dedicated) . "&SMConfigSubsiteForm'); w.SetSize(500, 500); w.Show(); return;");
 
 		// SUBSITES - BETA SECTION - END
 
 
 		$this->cmdSave = new SMLinkButton("SMConfigSave");
 		$this->cmdSave->SetTitle($this->lang->GetTranslation("Save"));
+		$this->cmdSave->SetOnClick("if (smConfigValidateBeforeSave() === false) { return; }");
 		$this->cmdSave->SetIcon(SMImageProvider::GetImage(SMImageType::$Save));
 
 		$this->cmdCancel = new SMLinkButton("SMConfigCancel");
@@ -214,14 +225,52 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$this->lstTemplates->SetOptions(array());
 
 		$templates = SMTemplateInfo::GetTemplates();
+
+		$tplTitle = null;
+		$mdFile = null;
+		$cfg = null;
+
 		foreach ($templates as $template)
-			$this->lstTemplates->AddOption(new SMOptionListItem("SMConfigTemplate" . $template, $template, $template));
+		{
+			$tplTitle = $template;
+
+			if (strpos($template, "SM") === 0) // Built-in templates start with "SM" - we cannot expect metadata.xml to contain an updated title for user-defined templates
+			{
+				$mdFile = SMEnvironment::GetTemplatesDirectory() . "/" . $template . "/metadata.xml";
+
+				if (SMFileSystem::FileExists($mdFile) === true)
+				{
+					$cfg = new SMConfiguration($mdFile);
+					$tplTitle = $cfg->GetEntry("Title");
+				}
+				else
+				{
+					$tplTitle = substr($template, 2);
+				}
+			}
+
+			$this->lstTemplates->AddOption(new SMOptionListItem("SMConfigTemplate" . $template, $tplTitle, $template));
+		}
 
 		if ($restoreSelectionFromConfig === true)
 		{
 			$conf = SMEnvironment::GetConfiguration();
 			$this->lstTemplates->SetSelectedValue((($conf->GetEntry("TemplatePublic") !== null) ? $conf->GetEntry("TemplatePublic") : "Default"));
 		}
+	}
+
+	private function getTemplatesJson()
+	{
+		$templates = SMTemplateInfo::GetTemplates();
+		$json = "";
+
+		foreach ($templates as $template)
+		{
+			$json .= (($json !== "") ? ", " : "");
+			$json .= "\"" . $template . "\": { HasDemoData: " . (($this->hasDemoData($template) === true) ? "true" : "false") . " }";
+		}
+
+		return "{" . $json . "}";
 	}
 
 
@@ -298,16 +347,16 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$tableLogin = "
 		<table>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Username") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Username") . "</td>
 				<td>" . $this->txtUsername->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Password") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Password") . "</td>
 				<td>" . $this->txtPassword->Render()
 				. "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("HidePassword") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("HidePassword") . "</td>
 				<td>" . $this->chkMaskPassword->Render() . "</td>
 			</tr>
 		</table>
@@ -316,15 +365,19 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$tableAppearance = "
 		<table>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("ImageTheme") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("ImageTheme") . "</td>
 				<td>" . $this->lstImageThemes->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Template") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Template") . "</td>
 				<td>" . $this->lstTemplates->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">&nbsp;</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("InstallWebsiteData") . "</td>
+				<td>" . $this->chkInstallWebsiteData->Render() . "</td>
+			</tr>
+			<tr>
+				<td style=\"width: 200px\">&nbsp;</td>
 				<td>" . $this->txtCopyTemplateName->Render() . $this->cmdCopyTemplate->Render() . " " . $this->cmdDeleteTemplate->Render() . "</td>
 			</tr>
 		</table>
@@ -333,11 +386,11 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$tableLanguage = "
 		<table>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Language") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Language") . "</td>
 				<td>" . $this->lstLanguages->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("TimeZone") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("TimeZone") . "</td>
 				<td>" . $this->lstTimeZones->Render() . "</td>
 			</tr>
 		</table>
@@ -346,7 +399,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		/*$tableLicense = "
 		<table>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("LicenseKey") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("LicenseKey") . "</td>
 				<td>" . $this->txtLicense->Render() . "</td>
 			</tr>
 		</table>
@@ -355,23 +408,23 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$tableDatabase = "
 		<table>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Server") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Server") . "</td>
 				<td>" . $this->txtDbServer->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Database") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Database") . "</td>
 				<td>" . $this->txtDbDatabase->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Username") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Username") . "</td>
 				<td>" . $this->txtDbUsername->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Password") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Password") . "</td>
 				<td>" . $this->txtDbPassword->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("HidePassword") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("HidePassword") . "</td>
 				<td>" . $this->chkDbMaskPassword->Render() . "</td>
 			</tr>
 		</table>
@@ -380,32 +433,36 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$tableSmtp = "
 		<table>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Server") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Server") . "</td>
 				<td>" . $this->txtSmtpHost->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Port") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Port") . "</td>
 				<td>" . $this->txtSmtpPort->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Username") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Username") . "</td>
 				<td>" . $this->txtSmtpUser->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Password") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Password") . "</td>
 				<td>" . $this->txtSmtpPass->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("HidePassword") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("HidePassword") . "</td>
 				<td>" . $this->chkSmtpMaskPassword->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("AuthType") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("AuthType") . "</td>
 				<td>" . $this->lstSmtpAuthType->Render() . "</td>
 			</tr>
 			<tr>
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Encryption") . "</td>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Encryption") . "</td>
 				<td>" . $this->lstSmtpEncryption->Render() . "</td>
+			</tr>
+			<tr>
+				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Sender") . "</td>
+				<td>" . $this->txtSmtpSender->Render() . "</td>
 			</tr>
 		</table>
 		";
@@ -445,13 +502,13 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$output .= "
 		<table>
 			<tr>
-				<td style=\"width: 300px; vertical-align: top;\">
+				<td style=\"width: 350px; vertical-align: top;\">
 					" . $this->renderFieldset("Login", $this->lang->GetTranslation("Login"), $tableLogin) . "
 					<br><br>
 					" . $this->renderFieldset("Extensions", $this->lang->GetTranslation("ExtensionsEnabled"), $this->chkLstExtensions->Render()) . "
 				</td>
-				<td style=\"width: 50px\">&nbsp;</td>
-				<td style=\"width: 300px; vertical-align: top;\">
+				<td style=\"width: 75px\">&nbsp;</td>
+				<td style=\"width: 350px; vertical-align: top;\">
 					" . $this->renderFieldset("Appearance", $this->lang->GetTranslation("Appearance"), $tableAppearance) . "
 					<br><br>
 					" . $this->renderFieldset("Language", $this->lang->GetTranslation("Language"), $tableLanguage) . "
@@ -477,6 +534,8 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 		$output .= "
 		<script type=\"text/javascript\">
+		var smConfigState = { Templates: " . $this->getTemplatesJson() . ", TemplateActive: \"" . $this->lstTemplates->GetSelectedValue() . "\", PreferInstallDemoData: true };
+
 		function smConfigChangeInputType(input, newType)
 		{
 			var newInput = document.createElement(\"input\");
@@ -492,10 +551,43 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 			input.parentNode.replaceChild(newInput, input);
 		}
+
+		function smConfigTemplateChangeHandler(sender)
+		{
+			var lstTemplates = sender;
+			var selected = lstTemplates.options[lstTemplates.selectedIndex].value;
+			var chkInstallWebsiteData = document.getElementById(\"" . $this->chkInstallWebsiteData->GetClientId() . "\");
+
+			if (smConfigState.Templates[selected].HasDemoData === true)
+			{
+				chkInstallWebsiteData.disabled = false;
+				chkInstallWebsiteData.checked = smConfigState.PreferInstallDemoData;
+			}
+			else
+			{
+				chkInstallWebsiteData.disabled = true;
+				chkInstallWebsiteData.checked = false;
+			}
+
+			if (selected === smConfigState.TemplateActive)
+				chkInstallWebsiteData.checked = false;
+		}
+
+		function smConfigValidateBeforeSave()
+		{
+			var res = true;
+
+			if (document.getElementById(\"" . $this->chkInstallWebsiteData->GetClientId() . "\").checked === true)
+			{
+				res = confirm(\"" . $this->lang->GetTranslation("WarningInstallWebsiteData") . "\");
+			}
+
+			return (res === true);
+		}
 		</script>
 		";
 
-		// Disable password storage prompts (not W3C complient).
+		// Disable password storage prompts (not W3C compliant).
 		$output .= "
 		<script type=\"text/javascript\">SMEventHandler.AddEventHandler(window, \"load\", function() { SMDom.GetElement(\"" . $this->txtPassword->GetClientId() . "\").autocomplete = \"off\"; });</script>
 		<script type=\"text/javascript\">SMEventHandler.AddEventHandler(window, \"load\", function() { SMDom.GetElement(\"" . $this->txtDbPassword->GetClientId() . "\").autocomplete = \"off\"; });</script>
@@ -512,7 +604,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		SMTypeCheck::CheckObject(__METHOD__, "collapse", $collapse, SMTypeCheckType::$Boolean);
 
 		$fieldset = new SMFieldset("SMConfig" . $id);
-		$fieldset->SetAttribute(SMFieldsetAttribute::$Style, "width: 300px");
+		$fieldset->SetAttribute(SMFieldsetAttribute::$Style, "width: 350px");
 		$fieldset->SetContent($content);
 		$fieldset->SetLegend($title);
 		$fieldset->SetPostBackControl($this->cmdSave->GetClientId());
@@ -533,6 +625,13 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$this->lstTimeZones->SetSelectedValue((($conf->GetEntry("DefaultTimeZoneOverride") !== null) ? $conf->GetEntry("DefaultTimeZoneOverride") : ""));
 		$this->lstImageThemes->SetSelectedValue((($conf->GetEntry("ImageTheme") !== null) ? $conf->GetEntry("ImageTheme") : "Default"));
 		$this->lstTemplates->SetSelectedValue((($conf->GetEntry("TemplatePublic") !== null) ? $conf->GetEntry("TemplatePublic") : "Default"));
+		$this->chkInstallWebsiteData->SetChecked(false);
+
+		if ($this->hasDemoData($this->lstTemplates->GetSelectedValue()) === false)
+		{
+			$this->chkInstallWebsiteData->SetAttribute(SMInputAttributeCheckbox::$Disabled, "true");
+		}
+
 		//$this->txtLicense->SetValue((($conf->GetEntry("LicenseKey") !== null) ? $conf->GetEntry("LicenseKey") : ""));
 
 		$dbInfo = (($conf->GetEntry("DatabaseConnection") !== null) ? explode(";", $conf->GetEntry("DatabaseConnection")) : array());
@@ -551,6 +650,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$this->txtSmtpPass->SetValue((($conf->GetEntry("SMTPPass") !== null) ? $conf->GetEntry("SMTPPass") : ""));
 		$this->lstSmtpAuthType->SetSelectedValue((($conf->GetEntry("SMTPAuthType") !== null) ? $conf->GetEntry("SMTPAuthType") : ""));
 		$this->lstSmtpEncryption->SetSelectedValue((($conf->GetEntry("SMTPEncryption") !== null) ? $conf->GetEntry("SMTPEncryption") : ""));
+		$this->txtSmtpSender->SetValue((($conf->GetEntry("SMTPSender") !== null) ? $conf->GetEntry("SMTPSender") : ""));
 
 		$this->chkLstExtensions->SetSelectedValue(implode(";", SMExtensionManager::GetExtensions()));
 	}
@@ -592,6 +692,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$conf->SetEntry("SMTPPass", $this->txtSmtpPass->GetValue());
 		$conf->SetEntry("SMTPAuthType", $this->lstSmtpAuthType->GetSelectedValue());
 		$conf->SetEntry("SMTPEncryption", $this->lstSmtpEncryption->GetSelectedValue());
+		$conf->SetEntry("SMTPSender", $this->txtSmtpSender->GetValue());
 		//$conf->SetEntry("ExtensionsEnabled", implode(";", $this->defaultExtensions) . (($this->chkLstExtensions->GetSelectedValue() !== null) ? ";" : "") . $this->chkLstExtensions->GetSelectedValue());
 
 		$conf->Commit();
@@ -607,6 +708,87 @@ class SMConfigFrmConfig implements SMIExtensionForm
 				continue;
 
 			SMExtensionManager::SetExtensionEnabled($ext, in_array($ext, $enabled, true)); // Enabled/Disabled event is only fired if Enabled state is changed
+		}
+
+		// Install template demo data if template was changed.
+		// NOTICE: Only files (e.g. images) will be available if Sitemagic has been configured with MySQL!
+
+		if ($this->chkInstallWebsiteData->GetChecked() === true)
+		{
+			// Handle extension dependencies
+
+			$mdFile = SMEnvironment::GetTemplatesDirectory() . "/" . $this->lstTemplates->GetSelectedValue() . "/metadata.xml";
+			$alternativeData = null;
+
+			if (SMFileSystem::FileExists($mdFile) === true)
+			{
+				$cfg = new SMConfiguration($mdFile);
+				$dependencies = $cfg->GetEntry("Dependencies");
+				$alternativeData = $cfg->GetEntry("TemplateData");
+
+				if ($dependencies !== null && $dependencies !== "")
+				{
+					$deps = explode(";", $dependencies);
+
+					foreach ($deps as $dep)
+					{
+						if (SMExtensionManager::ExtensionExists($dep, true) === true)
+						{
+							SMExtensionManager::SetExtensionEnabled($dep, true);
+						}
+					}
+				}
+			}
+
+			// Handle demo data
+
+			$path = SMEnvironment::GetTemplatesDirectory() . "/" . (($alternativeData !== null && $alternativeData !== "") ? $alternativeData : $this->lstTemplates->GetSelectedValue()) . "/demo-data";
+
+			// Allow session to be restored if SMAttributes.xml.php is replaced.
+			// If the session name contained in SMAttributes.xml.php is not restored,
+			// then the user will loose the session once SMAttributes.xml.php is replaced,
+			// and be logged out of Sitemagic.
+			// This solution is ugly as it requires knowledge about how SMEnvironment
+			// establishes the session (see Initialize() function).
+
+			$sessionToRestore = null;
+			if (SMFileSystem::FileExists($path . "/data/SMAttributes.xml.php") === true)
+			{
+				$sessionToRestore = SMAttributes::GetAttribute("SMEnvironmentSessionName" . SMEnvironment::GetRequestPath());
+			}
+
+			// Copy folders - will merge with existing folders but overwrite existing files
+
+			if (SMFileSystem::FolderExists($path . "/data") === true)
+			{
+				SMFileSystem::Copy($path . "/data", SMEnvironment::GetDataDirectory(), true);
+
+				// Purge old data to prevent Sitemagic from committing it back at the end of the page's life cycle
+
+				$dataSourceNames = SMDataSourceCache::GetInstance()->GetDataSourceNames();
+				foreach ($dataSourceNames as $dataSourceName)
+				{
+					SMDataSourceCache::GetInstance()->RemoveDataSource($dataSourceName);
+				}
+
+				SMAttributes::Reload(true, true);
+			}
+
+			if (SMFileSystem::FolderExists($path . "/files") === true)
+				SMFileSystem::Copy($path . "/files", SMEnvironment::GetFilesDirectory(), true);
+
+			/*if (SMFileSystem::FolderExists($path . "/images") === true) // WARNING: May not be writable since we never instruct users to make it so!
+				SMFileSystem::Copy($path . "/images", SMEnvironment::GetImagesDirectory(), true);
+
+			if (SMFileSystem::FolderExists($path . "/extensions") === true) // WARNING: May not be writable since we never instruct users to make it so!
+				SMFileSystem::Copy($path . "/extensions", SMEnvironment::GetExtensionsDirectory(), true);*/
+
+			// Restore session
+
+			if ($sessionToRestore !== null)
+			{
+				$sessionToRestore = SMAttributes::SetAttribute("SMEnvironmentSessionName" . SMEnvironment::GetRequestPath(), $sessionToRestore);
+			}
 		}
 
 		// Re-login in case username or password was changed
@@ -635,6 +817,28 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		// "Restart" - we need to make sure that added/removed extensions does not (or has not) been partially
 		// executed. Also make sure that e.g. design template is reloaded (it was loaded very early).
 		SMExtensionManager::ExecuteExtension("SMConfig", $args);
+	}
+
+	private function hasDemoData($template)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "template", $template, SMTypeCheckType::$String);
+
+		$hasData = SMFileSystem::FolderExists(SMEnvironment::GetTemplatesDirectory() . "/" . $template . "/demo-data");
+
+		if ($hasData === false) // Check if metadata.xml points to data from another template
+		{
+			$mdFile = SMEnvironment::GetTemplatesDirectory() . "/" . $template . "/metadata.xml";
+
+			if (SMFileSystem::FileExists($mdFile) === true)
+			{
+				$cfg = new SMConfiguration($mdFile);
+
+				if ($cfg->GetEntry("TemplateData") !== null && $cfg->GetEntry("TemplateData") !== "" && SMFileSystem::FolderExists(SMEnvironment::GetTemplatesDirectory() . "/" . $cfg->GetEntry("TemplateData") . "/demo-data") === true)
+					$hasData = true;
+			}
+		}
+
+		return $hasData;
 	}
 
 	private function copyTemplate()

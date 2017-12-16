@@ -8,6 +8,7 @@
 	<entry key="Appearance" value="&amp;#917;&amp;#956;&amp;#966;&amp;#940;&amp;#957;&amp;#953;&amp;#963;&amp;#951;"/>
 	<entry key="ImageTheme" value="&amp;#920;&amp;#941;&amp;#956;&amp;#945; &amp;#949;&amp;#953;&amp;#954;&amp;#959;&amp;#957;&amp;#953;&amp;#948;&amp;#943;&amp;#969;&amp;#957;"/>
 	<entry key="Template" value="&amp;#920;&amp;#941;&amp;#956;&amp;#945; &amp;#949;&amp;#956;&amp;#966;&amp;#940;&amp;#957;&amp;#953;&amp;#963;&amp;#951;&amp;#962;"/>
+	<entry key="InstallWebsiteData" value="Install website data" />
 	<entry key="CopyTemplate" value="&amp;#913;&amp;#957;&amp;#964;&amp;#953;&amp;#947;&amp;#961;&amp;#940;&amp;#968;&amp;#964;&amp;#949;" />
 	<entry key="DeleteTemplate" value="&amp;#916;&amp;#953;&amp;#945;&amp;#947;&amp;#961;&amp;#945;&amp;#966;&amp;#942;" />
 	<entry key="Language" value="&amp;#915;&amp;#955;&amp;#974;&amp;#963;&amp;#963;&amp;#945;"/>
@@ -21,6 +22,7 @@
 	<entry key="Port" value="&amp;#920;&amp;#973;&amp;#961;&amp;#945;"/>
 	<entry key="AuthType" value="&amp;#932;&amp;#973;&amp;#960;&amp;#959;&amp;#962; &amp;#949;&amp;#953;&amp;#963;&amp;#972;&amp;#948;&amp;#959;&amp;#965;"/>
 	<entry key="Encryption" value="&amp;#922;&amp;#961;&amp;#965;&amp;#960;&amp;#964;&amp;#959;&amp;#947;&amp;#961;&amp;#940;&amp;#966;&amp;#951;&amp;#963;&amp;#951;"/>
+	<entry key="Sender" value="Sender" />
 	<entry key="ExtensionsEnabled" value="&amp;#917;&amp;#957;&amp;#949;&amp;#961;&amp;#947;&amp;#959;&amp;#960;&amp;#959;&amp;#943;&amp;#951;&amp;#963;&amp;#951; &amp;#949;&amp;#960;&amp;#949;&amp;#954;&amp;#964;&amp;#940;&amp;#963;&amp;#949;&amp;#969;&amp;#957;"/>
 	<entry key="Save" value="&amp;#913;&amp;#960;&amp;#959;&amp;#952;&amp;#942;&amp;#954;&amp;#949;&amp;#965;&amp;#963;&amp;#951;"/>
 	<entry key="Cancel" value="&amp;#913;&amp;#954;&amp;#973;&amp;#961;&amp;#969;&amp;#963;&amp;#951;"/>
@@ -37,4 +39,5 @@
 	<entry key="WarningTemplateNotWritable" value="TRANSLATE: The folder is write protected" />
 	<entry key="NotificationTemplateDeleteSucceeded" value="&amp;#932;&amp;#959; &amp;#960;&amp;#961;&amp;#972;&amp;#964;&amp;#965;&amp;#960;&amp;#959; &amp;#941;&amp;#967;&amp;#949;&amp;#953; &amp;#945;&amp;#966;&amp;#945;&amp;#953;&amp;#961;&amp;#949;&amp;#952;&amp;#949;&amp;#943;"/>
 	<entry key="WarningTemplateDeleteFailed" value="&amp;#928;&amp;#945;&amp;#961;&amp;#959;&amp;#965;&amp;#963;&amp;#953;&amp;#940;&amp;#963;&amp;#964;&amp;#951;&amp;#954;&amp;#949; &amp;#940;&amp;#947;&amp;#957;&amp;#969;&amp;#963;&amp;#964;&amp;#959; &amp;#963;&amp;#966;&amp;#940;&amp;#955;&amp;#956;&amp;#945; &amp;#954;&amp;#945;&amp;#964;&amp;#940; &amp;#964;&amp;#951;&amp;#957; &amp;#945;&amp;#966;&amp;#945;&amp;#943;&amp;#961;&amp;#949;&amp;#963;&amp;#951; &amp;#964;&amp;#959;&amp;#965; &amp;#960;&amp;#961;&amp;#959;&amp;#964;&amp;#973;&amp;#960;&amp;#959;&amp;#965;"/>
+	<entry key="WarningInstallWebsiteData" value="You are about to install the website data associated with the selected design template (recommended for new websites). This may overwrite the existing website though. Do you want to continue?" />
 </entries>

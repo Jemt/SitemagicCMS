@@ -28,4 +28,6 @@
 	<entry key="UploadSucceeded" value="&amp;#932;&amp;#959; &amp;#945;&amp;#961;&amp;#967;&amp;#949;&amp;#943;&amp;#959; &amp;#956;&amp;#949;&amp;#964;&amp;#945;&amp;#966;&amp;#959;&amp;#961;&amp;#964;&amp;#974;&amp;#952;&amp;#951;&amp;#954;&amp;#949;"/>
 	<entry key="UploadError" value="&amp;#928;&amp;#945;&amp;#961;&amp;#959;&amp;#965;&amp;#963;&amp;#953;&amp;#940;&amp;#963;&amp;#964;&amp;#951;&amp;#954;&amp;#949; &amp;#963;&amp;#966;&amp;#940;&amp;#955;&amp;#956;&amp;#945; &amp;#954;&amp;#945;&amp;#964;&amp;#940; &amp;#964;&amp;#951;&amp;#957; &amp;#956;&amp;#949;&amp;#964;&amp;#945;&amp;#966;&amp;#959;&amp;#961;&amp;#940;, &amp;#960;&amp;#945;&amp;#961;&amp;#945;&amp;#954;&amp;#945;&amp;#955;&amp;#959;&amp;#973;&amp;#956;&amp;#949; &amp;#960;&amp;#961;&amp;#959;&amp;#963;&amp;#960;&amp;#945;&amp;#952;&amp;#942;&amp;#963;&amp;#964;&amp;#949; &amp;#958;&amp;#945;&amp;#957;&amp;#940;"/>
 	<entry key="ValidFileTypes" value="&amp;#941;&amp;#947;&amp;#954;&amp;#965;&amp;#961;&amp;#951; &amp;#964;&amp;#973;&amp;#960;&amp;#959;&amp;#953; &amp;#945;&amp;#961;&amp;#967;&amp;#949;&amp;#943;&amp;#969;&amp;#957;" />
+	<entry key="NoValidFileTypes" value="File transfers disabled - no file types allowed" />
+	<entry key="MaxUploadSize" value="Max file size" />
 </entries>

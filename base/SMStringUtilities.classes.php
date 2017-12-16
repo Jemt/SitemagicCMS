@@ -191,6 +191,11 @@ class SMStringUtilities
 		if (property_exists("SMValueRestriction", $restriction) === false)
 			throw new Exception("Specified value restriction does not exist - use SMValueRestriction::Restriction");
 
+		return self::validateString($str, $restriction, $exceptions);
+	}
+
+	private static function validateString($str, $restriction, $exceptions = array())
+	{
 		foreach ($exceptions as $exception) // Allow elements in $exceptions
 			$str = str_replace($exception, "", $str);
 
@@ -260,6 +265,51 @@ class SMStringUtilities
 		return true; // SMValueRestriction::$None
 	}
 
+	/// <function container="base/SMStringUtilities" name="RemoveInvalidCharacters" access="public" static="true" returns="string">
+	/// 	<description> Remove characters that are invalid according to given value restriction </description>
+	/// 	<param name="str" type="string"> String value from which invalid characters are removed </param>
+	/// 	<param name="restriction" type="SMValueRestriction">
+	/// 		Value restriction - rule to validate against.
+	/// 		See base/SMValueRestriction for more information.
+	/// 	</param>
+	/// 	<param name="exceptions" type="string[]" default="string[0]">
+	/// 		Array of characters allowed dispite of chosen value restriction.
+	/// 		This parameter should not be used with the following value restrictions:
+	/// 		- SMValueRestriction::$Url
+	/// 		- SMValueRestriction::$UrlEncoded
+	/// 		- SMValueRestriction::$Guid
+	/// 		- SMValueRestriction::$SafePath
+	/// 	</param>
+	/// </function>
+	public static function RemoveInvalidCharacters($str, $restriction, $exceptions = array())
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
+		SMTypeCheck::CheckObject(__METHOD__, "restriction", $restriction, SMTypeCheckType::$String);
+		SMTypeCheck::CheckArray(__METHOD__, "exceptions", $exceptions, SMTypeCheckType::$String);
+
+		if (property_exists("SMValueRestriction", $restriction) === false)
+			throw new Exception("Specified value restriction does not exist - use SMValueRestriction::Restriction");
+
+		if (self::validateString($str, $restriction, $exceptions) === true)
+			return $str;
+
+		// NOTICE: This is pretty inefficient! TODO: copy all regular expressions from validateString(..),
+		// invert them to match invalid characters instead, and remove them using preg_replace(..).
+
+		$chars = str_split($str);
+		$newStr = "";
+
+		for ($i = 0 ; $i < count($chars) ; $i++)
+		{
+			if (in_array($chars[$i], $exceptions, true) === true)
+				$newStr .= $chars[$i];
+			else if (self::validateString($chars[$i], $restriction, $exceptions) === true)
+				$newStr .= $chars[$i];
+		}
+
+		return $newStr;
+	}
+
 	/// <function container="base/SMStringUtilities" name="HtmlEntityEncode" access="public" static="true" returns="string">
 	/// 	<description>
 	/// 		Returns string with reserved HTML characters (&amp; &quot; &lt; &gt;) encoded into HTML entities.
@@ -307,6 +357,53 @@ class SMStringUtilities
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
 		return htmlspecialchars_decode($str, ENT_COMPAT); // Notice: ENT_HTML401 undefined in PHP 5.2 + No encoding argument according to documentation
+	}
+
+	/// <function container="base/SMStringUtilities" name="UnicodeEncode" access="public" static="true" returns="string">
+	/// 	<description> Converts Unicode string to ISO-8859-1 string with unicode characters encoded into HEX entities </description>
+	/// 	<param name="unicodeStr" type="string"> Value to encode </param>
+	/// </function>
+	public static function UnicodeEncode($unicodeStr)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "unicodeStr", $unicodeStr, SMTypeCheckType::$String);
+
+		// Notice: Do NOT pass anything but a Unicode string into this function.
+		// Passing e.g. "זרו" as ISO-8859-1 will cause characters to be corrupted
+		// since utf8_decode(..) only converts reliably from UTF-8 to ISO-8859-1.
+
+		// Prevent invalid byte sequences which may lead to Invalid Encoding Attacks
+		if (mb_check_encoding($unicodeStr, "UTF-8") === false)
+			throw new Exception("Invalid byte sequence detected");
+
+		// Encode characters that are not between code point 0 (Unicode HEX 0000) and code point 255 (Unicode HEX 0100).
+		// Behaviour must be identical to SMStringUtilities.UnicodeEncode(..) client side!
+		// Also passing data through utf8_decode(..) since remaining ISO-8859-1 characters are still encoded as UTF-8.
+		return utf8_decode(preg_replace_callback("/[^\x{0000}-\x{0100}]/u", "self::unicodeEncodeReplaceCallback", $unicodeStr));
+	}
+
+	private static function unicodeEncodeReplaceCallback($matchArray)
+	{
+		$res = mb_convert_encoding($matchArray[0], "UTF-32BE", "UTF-8");
+		return "&#" . hexdec(bin2hex($res)) . ";";
+	}
+
+	/// <function container="base/SMStringUtilities" name="UnicodeDecode" access="public" static="true" returns="string">
+	/// 	<description> Returns string with unicode characters represented by HEX entities decoded into a true unicode string </description>
+	/// 	<param name="str" type="string"> Value to decode </param>
+	/// 	<param name="isUnicode" type="boolean" default="false"> Set True if string passed is already unicode encoded </param>
+	/// </function>
+	public static function UnicodeDecode($str, $isUnicode = false)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
+		SMTypeCheck::CheckObject(__METHOD__, "isUnicode", $isUnicode, SMTypeCheckType::$Boolean);
+
+		$str = ($isUnicode === false ? utf8_encode($str) : $str); // Make sure an ISO-8859-1 string is transformed into UTF-8 - however, calling utf8_encode(..) on a string already unicode encoded will cause characters such as "זרו" to be corrupted
+		return preg_replace_callback("/&#\d+;/", "self::unicodeDecodeReplaceCallback", $str);
+	}
+
+	private static function unicodeDecodeReplaceCallback($matchArray)
+	{
+		return html_entity_decode($matchArray[0], ENT_COMPAT, "UTF-8"); // Notice: ENT_HTML401 undefined in PHP 5.2
 	}
 
 	/// <function container="base/SMStringUtilities" name="EscapeJson" access="public" static="true" returns="string">

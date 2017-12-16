@@ -149,21 +149,25 @@ RewriteCond %{REQUEST_URI} ^(.*/sites/[sS][hH][oO][pP]/)shop/(.*)$
 RewriteRule . https://%{HTTP_HOST}%1%2 [R=301,NE,L]
 
 # SEO frindly URLs
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([A-Za-z0-9_\.-]+)\.html$ index.php?SMExt=SMPages&SMPagesFilename=$1 [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([A-Za-z0-9_\.-]+)\.htm$ index.php?SMExt=SMPages&SMPagesId=$1 [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(sites/[A-Za-z0-9_\.-]+)/([A-Za-z0-9_\.-]+)\.html$ $1/index.php?SMExt=SMPages&SMPagesFilename=$2 [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(sites/[A-Za-z0-9_\.-]+)/([A-Za-z0-9_\.-]+)\.htm$ $1/index.php?SMExt=SMPages&SMPagesId=$2 [L,QSA]
 
 # Cache control
 
 <IfModule mod_headers.c>
-	<FilesMatch ".(js|css|png|jpg|jpeg|gif|ico)$">
+	<FilesMatch ".(js|css|png|jpg|jpeg|gif|ico|html|htm)$">
 		Header set Cache-Control "max-age=3600, public, must-revalidate"
 	</FilesMatch>
 </IfModule>
 
-<IfModule mod_headers.c>
-	<FilesMatch ".(html|htm|php)$">
-		Header set Cache-Control "no-cache"
-	</FilesMatch>
-</IfModule>
+#<IfModule mod_headers.c>
+#	<FilesMatch ".(html|htm|php)$">
+#		Header set Cache-Control "no-cache"
+#	</FilesMatch>
+#</IfModule>

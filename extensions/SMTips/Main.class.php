@@ -6,13 +6,28 @@ class SMTips extends SMExtension
 
 	public function PreTemplateUpdate()
 	{
-		if (SMAuthentication::Authorized() === false)
+		if (SMAuthentication::Authorized() === false && SMExtensionManager::GetExecutingExtension() !== "SMLogin")
 			return;
 
 		$lang = ucfirst(SMLanguageHandler::GetSystemLanguage());
 		$ext = SMExtensionManager::GetExecutingExtension();
 		$messages = array();
 		$js = "";
+
+		// Login
+
+		if ($ext === "SMLogin")
+		{
+			$messages[] = array(
+				"id"		=> $lang . $ext . "Form",
+				"target"	=> "#SMInputSMLoginUsername",
+				"message"	=> "
+					<b>" . $this->getTranslation("SMLoginTitle") . "</b>
+					<br><br>
+					" . $this->getTranslation("SMLoginDescription") . "
+				"
+			);
+		}
 
 		// Announcements (after login)
 
@@ -182,13 +197,22 @@ class SMTips extends SMExtension
 						" . $this->getTranslation("SMPagesEditorButtonImagesDescription") . "
 					"
 				);
-				$messages[] = array(
+				/*$messages[] = array(
 					"id"		=> $lang . $ext . "EditorCards",
 					"target"	=> "#SMInputSMPagesContent_styleselect_text",
 					"message"	=> "
 						<b>" . $this->getTranslation("SMPagesEditorButtonCardsTitle") . "</b>
 						<br><br>
 						" . $this->getTranslation("SMPagesEditorButtonCardsDescription") . "
+					"
+				);*/
+				$messages[] = array(
+					"id"		=> $lang . $ext . "EditorFluidGrids",
+					"target"	=> "#SMInputSMPagesContent_table",
+					"message"	=> "
+						<b>" . $this->getTranslation("SMPagesEditorButtonFluidGridsTitle") . "</b>
+						<br><br>
+						" . $this->getTranslation("SMPagesEditorButtonFluidGridsDescription") . "
 					"
 				);
 				$messages[] = array(
@@ -419,7 +443,7 @@ class SMTips extends SMExtension
 
 			$body = "
 			<script type=\"text/javascript\">
-			SMTips.CallbackUrl = \"" . SMExtensionManager::GetCallbackUrl($this->context->GetExtensionName(), "Callbacks/disable") . "\";
+			SMTips.CallbackUrl = " . ((SMAuthentication::Authorized() === true) ? "\"" . SMExtensionManager::GetCallbackUrl($this->context->GetExtensionName(), "Callbacks/disable") . "\"" : "null") . ";
 			SMTips.Language.Ok = \"" . $this->getTranslation("SpeechBubbleButtonOk") . "\";
 			SMTips.Language.Disable = \"" . $this->getTranslation("SpeechBubbleButtonDisable") . "\";
 			SMTips.Language.Confirm = \"" . $this->getTranslation("SpeechBubbleDisableWarning", false) . "\";

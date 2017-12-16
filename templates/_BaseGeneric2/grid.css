@@ -1,0 +1,9 @@
+/*div.SMPagesTable[class*="SMPagesFluidGrid"] div.SMPagesExtension
+{
+	display: block !important;
+}*/
+div.SMPagesTable[class*="SMPagesFluidGrid"] div.SMExternalModulesContentPageExtension,
+div.SMPagesTable[class*="SMPagesFluidGrid"] div.SMExternalModulesContentPageExtension iframe
+{
+	width: 100% !important; /* Make External Modules stretch in Fluid Grids */
+}

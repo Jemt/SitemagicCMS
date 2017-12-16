@@ -37,10 +37,16 @@ class SMDesigner extends SMExtension
 			$this->SetIsIntegrated(false);
 
 			$template = $this->context->GetTemplate();
-			$template->RegisterResource(SMTemplateResource::$StyleSheet, SMExtensionManager::GetExtensionPath($this->id) . "/Designer.css");
-			$template->RegisterResource(SMTemplateResource::$JavaScript, SMExtensionManager::GetExtensionPath($this->id) . "/Designer.js");
+			$template->RegisterResource(SMTemplateResource::$StyleSheet, SMExtensionManager::GetExtensionPath($this->id) . "/Designer.css?ver=" . SMEnvironment::GetVersion());
+			$template->RegisterResource(SMTemplateResource::$JavaScript, SMExtensionManager::GetExtensionPath($this->id) . "/Designer.js?ver=" . SMEnvironment::GetVersion());
 
 			$files = $this->getFiles(SMEnvironment::GetFilesDirectory() . "/images");
+
+			// Disabled - difficult for the user to distinguish "images/xyz.jpg" (within template folder) from "files/images/xyz.jpg"
+			/*$tplFiles = $this->getFiles($templatePath . "/images");
+			for ($i = 0 ; $i < count($tplFiles) ; $i++)
+				$tplFiles[$i] = str_replace($templatePath . "/", "", $tplFiles[$i]);
+			$files = array_merge($files, $tplFiles);*/
 
 			$downloadCallbackUrl = SMExtensionManager::GetCallbackUrl($this->context->GetExtensionName(), "callbacks/download");
 			$saveCallbackUrl = SMExtensionManager::GetCallbackUrl($this->context->GetExtensionName(), "callbacks/save");
@@ -56,6 +62,7 @@ class SMDesigner extends SMExtension
 			$script .= "\n    SMDesigner.Resources.WsLoadUrl = '" . $loadCallbackUrl . "';";
 			$script .= "\n    SMDesigner.Resources.WsGraphicsUrl = '" . $gfxCallbackUrl . "';";
 			$script .= "\n    SMDesigner.Resources.Files = [" . join(", ", $files) . "];";
+			$script .= "\n    SMDesigner.Resources.Pages = " . $this->getPagesJson() . ";";
 			$script .= "\n    ";
 			$script .= "\n    var designer = new SMDesigner.Designer(\"" . $templatePath . "\");";
 			$script .= "\n})();";
@@ -84,7 +91,7 @@ class SMDesigner extends SMExtension
 			$adminItem = SMMenuManager::GetInstance()->GetChild("SMMenuContent");
 
 			if ($adminItem !== null)
-				$adminItem->AddChild(new SMMenuItem($this->id, $this->getTranslation("MenuTitle"), "javascript: (function() { var w = new SMWindow('" . $this->id . "'); w.SetSize( ((SMBrowser.GetBrowser() !== 'MSIE' ) ? 240 : 265), 550); w.SetResizable(false); w.SetPosition(SMBrowser.GetPageWidth() - 280, 50); w.SetUrl('" . SMExtensionManager::GetExtensionUrl($this->id, SMTemplateType::$Basic) . "&" . $this->id . "Template=" . SMTemplateInfo::GetCurrentTemplate() . "'); w.Show(); })();"));
+				$adminItem->AddChild(new SMMenuItem($this->id, $this->getTranslation("MenuTitle"), "javascript: (function() { var w = new SMWindow('" . $this->id . "'); w.SetSize( ((SMBrowser.GetBrowser() !== 'MSIE' ) ? 260 : 260 /*285*/), 550); w.SetResizable(false); w.SetPosition(SMBrowser.GetPageWidth() - 320, 50); w.SetUrl('" . SMExtensionManager::GetExtensionUrl($this->id, SMTemplateType::$Basic) . "&" . $this->id . "Template=" . SMTemplateInfo::GetCurrentTemplate() . "'); w.Show(); })();"));
 		}
 	}
 
@@ -118,6 +125,33 @@ class SMDesigner extends SMExtension
 			$res = array_merge($res, $this->getFiles($folder . "/" . $subFolder));
 
 		return $res;
+	}
+
+	private function getPages()
+	{
+		$res = array();
+
+		if (SMExtensionManager::ExtensionEnabled("SMPages") === true)
+		{
+			$pages = SMPagesLoader::GetPages();
+
+			foreach ($pages as $page)
+				$res[] = array($page->GetFilename(), $page->GetId());
+		}
+
+		return $res;
+	}
+
+	private function getPagesJson()
+	{
+		$pages = $this->getPages();
+
+		$json = "[";
+		foreach ($pages as $page)
+			$json .= (($json !== "[") ? ", " : "") . "{ 'Filename': '" . $page[0] . "', 'Id': '" . $page[1] . "' }";
+		$json .= "]";
+
+		return $json;
 	}
 
 	private function getJsError($msg)

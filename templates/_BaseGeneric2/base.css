@@ -1,0 +1,184 @@
+/****************************/
+/*** DOCUMENTATION **********/
+/****************************/
+
+/*
+	Some of the selectors may seem more complicated than needs to be - here is the reason:
+	Often we need to style only specific types of pages or dialogs. Here are the most common
+	selectors for that:
+
+	Normal pages (full design incl. menu, header, footer, etc.)			html.Normal
+	All dialog pages (e.g. upload, link picker, page preview, etc.)		html.Basic
+	Page preview dialog only											html.Basic.SMPagesViewer
+	Page editor															html.SMPagesEditor
+	Page editor, Content Pages only										html.SMPagesEditor.SMPagesContentPage
+	Page editor, System Pages only										html.SMPagesEditor.SMPagesSystemPage
+
+	So, to apply styles to the Content Area that is also applied when editing a content page or
+	previewing it, the combined selector would be:
+
+	div.TPLContent,
+	html.SMPagesEditor body,
+	html.Basic.SMPagesViewer body
+	{
+		width: 800px;
+		margin: 0 auto;
+		background-color: orange;
+	}
+
+	The html element contains the following classes:
+	<html lang="en" class="Normal|Basic Public|Admin TPLTemplateNAME TPLImageThemeNAME {SMPagesAdmin|SMPagesViewer|SMPagesEditor} {SMPagesCustomHeader} {SMPagesCustomFooter} {SMPagesClassicLayout|SMPagesCardLayout} {SMPagesFilenameNAME}">
+
+	Normal|Basic								: Normal is applied for ordinary content pages, Basic for dialog pages
+	Public|Admin								: Public is normally applied, but replaced by Admin if someone logged in to Sitemagic
+	TPLTemplateNAME								: Will resolve to TPLTemplateSunrise if Sunrise template is applied
+	TPLImageThemeNAME							: Will resolve to TPLImageThemeDefault if Default icon theme is applied
+	SMPagesAdmin|SMPagesViewer|SMPagesEditor	: SMPagesAdmin = Page administration, SMPagesViewer = Ordinary page view, SMPagesEditor = Page editor
+	SMPagesCustomHeader							: Applied if a custom header has been defined
+	SMPagesCustomFooter							: Applied if a custom footer has been defined
+	SMPagesClassicLayout|SMPagesCardLayout		: Defines the layout being used, both when editing and viewing pages
+	SMPagesFilenameNAME							: Will resolve to SMPagesFilenameContactUs when editing or viewing a page with the filename ContactUs
+*/
+
+
+/****************************/
+/*** DOCUMENT ***************/
+/****************************/
+
+/* Reset margin/padding in document.
+   using html.Basic and html.Normal rather than just
+   html to avoid targeting HTML element in page editor iframe. */
+html.Basic, html.Basic body,
+html.Normal, html.Normal body
+{
+	margin: 0px;
+	padding: 0px;
+}
+html.Basic body
+{
+	/* Indent content in dialogs/popups.
+	   This does not affect the page editor dialog since margin:0px
+	   has been applied to body tag as inline style which takes precedence. */
+	margin: 10px;
+}
+
+/* Set background image/color */
+html
+{
+	/* Sometimes the body element is sized to a specific width and at the same time assigned a background color.
+	   In this case the background color does not stay within the boundaries of the body tag, but extends to the
+	   entire browser window. Fortunately the fix is a simple as specifying a background color for the html element. */
+	background-color: #FFFFFF;
+}
+html.Normal,
+html.Basic.SMPagesViewer,
+html.SMPagesEditor.SMPagesContentPage,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader,
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter
+{
+	/* Background color/image is not applied to normal dialogs such as
+	   file upload or menu link picker, or when editing ordinary system pages. */
+
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-attachment: fixed;
+	background-position: top center;
+	/*background-image: url("images/test.png"); */
+}
+
+
+/****************************/
+/*** TEXT FORMATTING ********/
+/****************************/
+
+html, body, input, textarea, select
+{
+	color: #333333;
+	font-family: verdana;
+	font-size: 12px;
+}
+
+legend
+{
+	color: inherit; /* IE */
+}
+
+a
+{
+	text-decoration: none;
+	color: blue;
+}
+a:hover
+{
+	text-decoration: underline;
+}
+
+h1, h2, h3, h4, h5, h6
+{
+	font-size: 1.5em;
+	margin-top: 0.7em;
+	margin-bottom: 0.7em;
+	font-weight: bold;
+}
+h2
+{
+	font-size: 1.25em;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+h3, h4, h5, h6
+{
+	font-size: 1em;
+	margin-top: 1.2em;
+	margin-bottom: 1.2em;
+}
+
+
+/****************************/
+/*** INPUT CONTROLS *********/
+/****************************/
+
+input, textarea, select, fieldset
+{
+	border: 1px solid #CAD1DB;
+}
+
+input, textarea, select, option
+{
+	background-color: #FFFFFF;
+}
+
+input[type="button"], input[type="reset"], input[type="submit"]
+{
+	padding-left: 5px;
+	padding-right: 5px;
+	background-color: #C5C5C5;
+}
+
+
+/****************************/
+/*** LINKS ******************/
+/****************************/
+
+div.TPLLinks
+{
+	position: absolute;
+	top: 5px;
+	right: 10px;
+	font-size: 0.7em;
+	color: #AEAEAE;
+}
+div.TPLLinks a
+{
+	color: #AEAEAE;
+}
+
+
+/****************************/
+/*** BOX MODEL **************/
+/****************************/
+
+[class^="TPL"] /*  *, *:before, *:after  */
+{
+	box-sizing: border-box;
+}

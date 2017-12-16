@@ -28,4 +28,6 @@
 	<entry key="UploadSucceeded" value="Fichier téléchargé"/>
 	<entry key="UploadError" value="Une erreur s'est produite pendant le transfert, veuillez réessayer"/>
 	<entry key="ValidFileTypes" value="Validez le fichier de type" />
+	<entry key="NoValidFileTypes" value="File transfers disabled - no file types allowed" />
+	<entry key="MaxUploadSize" value="Max file size" />
 </entries>

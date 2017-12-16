@@ -29,4 +29,6 @@
 	<entry key="UploadSucceeded" value="Fil overført" />
 	<entry key="UploadError" value="Der opstod en fejl i overførslen, prøv venligst igen" />
 	<entry key="ValidFileTypes" value="Gyldige filtyper" />
+	<entry key="NoValidFileTypes" value="Filoverførsler deaktiveret - ingen filtyper tilladt" />
+	<entry key="MaxUploadSize" value="Max filstørrelse" />
 </entries>

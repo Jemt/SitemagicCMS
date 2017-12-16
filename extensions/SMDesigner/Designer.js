@@ -1,13 +1,7 @@
 
 // TODO:
-//  - Support widgets !
-//  - Allow styling of links (at least color!)
 //  - "Save as" to save template under a different name. Show dialog: Apply new template to: This page | Entire system
-//  - Individual styling for H1-H6 tags (perhaps just using Page Editor ?!)
-//  - Rename Reset to Undo - Perhaps have both Reset and Undo ?!
 //  - Expert and Simple mode - lots of things are too difficult to understand for most people!
-//  - Allow custom CSS in textarea
-//  - Allow Widget styling
 //  - Allow file uploads
 //  - Language support (Designer Defition + Menu)
 //  - Excitement factors:
@@ -42,6 +36,8 @@ SMDesigner =
 		var config = null;				// Config: Template configuration object with GetEditors(), GetCss(..), etc.
 		var editors = null;				// Config: Array containing editor control configuration objects (config.GetEditors())
 		var selectors = null;			// Config: Selector strings identifying editable blocks - for point and click (config.GetSelectors())
+		var unrecognizedValues = null;	// Internal: Values which (no longer) have any associated controls
+		var selectorsThread = -1;		// Internal: ID of scheduled task responsible for updating selectors - createSelectableAreas()
 		var suppressUpdate = false;		// Internal: Suppress call to config.GetCss(..) if True
 		var lockLayer = null;			// Internal: Loading indicator
 		var isDirty = false;			// Internal: Flag indicating whether user has changed design (used by download button)
@@ -182,9 +178,16 @@ SMDesigner =
 				if (config !== null) // Initialize UI and load data if Template Designer Definition finished loading before jQuery (see further down below)
 				{
 					createEditorControls();
+					loadData(null, function() // loadData(..) calls updateCss()
+					{
+						createSelectableAreas();
+						renderUi();
+					});
+
+					/*createEditorControls();
 					createSelectableAreas();
 					renderUi();
-					loadData(); // calls updateCss()
+					loadData(); // calls updateCss()*/
 				}
 			},
 			// Load additional plugin(s) - must be compatible with version of jQuery used by Sitemagic!
@@ -192,25 +195,27 @@ SMDesigner =
 
 			// Load designer definition from template
 
-			var req = new SMHttpRequest(templatePath + "/designer.js", true);
+			var req = new SMHttpRequest(templatePath + "/designer.js?ran=" + SMRandom.CreateGuid(), true);
 			req.SetStateListener(function()
 			{
 				if (req.GetCurrentState() === 4 && req.GetHttpStatus() === 200)
 				{
 					config = eval(req.GetResponseText());
-
 					editors = config.GetEditors.call(config, getEventArgs());
-					selectors = [];
-
-					if (config.GetSelectors)
-						selectors = config.GetSelectors.call(config, getEventArgs());
 
 					if (SMDesigner.Jquery !== null) // JQuery may not be ready yet - JQuery loader callback takes care of initialization in that case!
 					{
 						createEditorControls();
+						loadData(null, function() // loadData(..) calls updateCss()
+						{
+							createSelectableAreas();
+							renderUi();
+						});
+
+						/*createEditorControls();
 						createSelectableAreas();
 						renderUi();
-						loadData(); // calls updateCss()
+						loadData(); // calls updateCss()*/
 					}
 				}
 				else if (req.GetCurrentState() === 4)
@@ -234,13 +239,19 @@ SMDesigner =
 							// Create object for holding internal variables
 							editors[i][j][k][l]._internal = {};
 
-							// Adds Control property to configuration object with reference to control instance
-							createPropertyEditor(l, editors[i][j][k][l]);
+							// Adds Control property to configuration object with reference to control instance.
+							// The property key may consist of both a display value and internal value separated by semicolon.
+							createPropertyEditor(((l.indexOf(";") > -1) ? l.split(";")[0] : l), editors[i][j][k][l]);
 
-							// Make sure initial value is accessible when control value is changed
+							// Make sure initial value is accessible when control value is changed (used by updateLinkedControls(..))
+
 							editors[i][j][k][l]._internal.PreviousValue = editors[i][j][k][l].Control.GetValue();
-							if (editors[i][j][k][l].Selector) // Input controls may be combined with a Selector control
-								editors[i][j][k][l]._internal.PreviousValue += editors[i][j][k][l].Selector.Control.GetValue();
+
+							if (editors[i][j][k][l].Selector || editors[i][j][k][l].Slider)
+							{
+								editors[i][j][k][l]._internal.PreviousValue += "|" + ((editors[i][j][k][l].Selector && editors[i][j][k][l].Selector.Control.GetValue() !== null) ? editors[i][j][k][l].Selector.Control.GetValue() : "");
+								editors[i][j][k][l]._internal.PreviousValue += "|" + ((editors[i][j][k][l].Slider && editors[i][j][k][l].Slider.Control.GetValue() !== 0) ? editors[i][j][k][l].Slider.Control.GetValue().toString() : "");
+							}
 						}
 					}
 				}
@@ -310,6 +321,60 @@ SMDesigner =
 
 				for (var i = 0 ; i < SMDesigner.Resources.Files.length ; i++)
 					cfg.Items.push({ Value: SMDesigner.Resources.Files[i] });
+
+				// Add value if not already found in items.
+				// Selector control also adds missing values to the collection
+				// of items, but if an OnChange handler is registered, it fires.
+				// No need to cause events to fire unnecessarily.
+				if (cfg.Value)
+				{
+					var valueExists = false;
+
+					for (var i = 0 ; i < cfg.Items.length ; i++)
+					{
+						if (cfg.Items[i].Value === cfg.Value)
+						{
+							valueExists = true;
+							break;
+						}
+					}
+
+					if (valueExists === false)
+						cfg.Items.push({ Value: cfg.Value });
+				}
+
+				contrl.Control = new SMDesigner.Controls.Selector(cfg);
+				control = contrl.Control.GetElement();
+			}
+			else if (contrl.Type.toLowerCase() === "page")
+			{
+				var cfg = {};
+				cfg.Items = (contrl.Items ? contrl.Items : []);
+				cfg.AllowEmpty = true;
+				cfg.Value = contrl.Value;
+				cfg.Disabled = contrl.Disabled;
+				cfg.OnChange = function(sender, value)
+				{
+					if (contrl.OnChange)
+					{
+						// Notice:
+						// Control may have been set by control synchronization mechanism.
+						// In that case we must make sure not to set suppressUpdate
+						// to False, but keep it True. If we fail to do so, an infinite loop
+						// will occure, and eventually a Stack Overflow Exception is thrown.
+
+						var prevSuppressUpdate = suppressUpdate;
+						suppressUpdate = true;
+						contrl.OnChange(sender, value);
+						suppressUpdate = prevSuppressUpdate;
+					}
+
+					contrl.Value = value;
+					updateCss(contrl);
+				}
+
+				for (var i = 0 ; i < SMDesigner.Resources.Pages.length ; i++)
+					cfg.Items.push({ Title: SMDesigner.Resources.Pages[i].Filename, Value: SMDesigner.Resources.Pages[i].Id });
 
 				// Add value if not already found in items.
 				// Selector control also adds missing values to the collection
@@ -481,8 +546,39 @@ SMDesigner =
 					cfg.Selector = contrl.Selector.Control;
 				}
 
-				input = new SMDesigner.Controls.Input(cfg);
+				if (contrl.Slider)
+				{
+					var sliderCfg = {};
+					sliderCfg.Value = contrl.Slider.Value;
+					sliderCfg.Min = contrl.Slider.Min;
+					sliderCfg.Max = contrl.Slider.Max;
+					sliderCfg.Step = contrl.Slider.Step;
+					sliderCfg.Disabled = contrl.Disabled;
+					sliderCfg.OnChange = function(sender, value)
+					{
+						if (contrl.Slider.OnChange)
+						{
+							// Notice:
+							// Control may have been set by control synchronization mechanism.
+							// In that case we must make sure not to set suppressUpdate
+							// to False, but keep it True. If we fail to do so, an infinite loop
+							// will occure, and eventually a Stack Overflow Exception is thrown.
 
+							var prevSuppressUpdate = suppressUpdate;
+							suppressUpdate = true;
+							contrl.Slider.OnChange(sender, value);
+							suppressUpdate = prevSuppressUpdate;
+						}
+
+						contrl.Slider.Value = value;
+						updateCss(contrl);
+					}
+
+					contrl.Slider.Control = new SMDesigner.Controls.Slider(sliderCfg);
+					cfg.Slider = contrl.Slider.Control;
+				}
+
+				input = new SMDesigner.Controls.Input(cfg);
 				contrl.Control = input;
 				control = input.GetElement();
 			}
@@ -506,33 +602,101 @@ SMDesigner =
 
 			var parentWindow = window.opener || window.top;
 
-			var css = "";
-			css += "\n .ActiveElement,";
-			css += "\n .SelectableElement:hover";
-			css += "\n {";
-			css += "\n      outline: 3px dashed red;";
-			css += "\n }";
+			if (selectors === null) // First call
+			{
+				var css = "";
+				css += "\n .ActiveElement,";
+				css += "\n .SelectableElement:hover";
+				css += "\n {";
+				css += "\n      outline: 3px dashed red;";
+				css += "\n }";
 
-			// Outline is buggy in Firefox: http://reference.sitepoint.com/css/outline
-			// Using shadow behind elements to highlight them instead.
-			css += "\n @-moz-document url-prefix()";
-			css += "\n {";
-			css += "\n      .ActiveElement,";
-			css += "\n      .SelectableElement:hover";
-			css += "\n      {";
-			css += "\n          outline: none;";
-			css += "\n          box-shadow: 0px 0px 0px 3px red !important;";
-			css += "\n      }";
-			css += "\n }";
+				// Outline is buggy in Firefox: http://reference.sitepoint.com/css/outline
+				// Using shadow behind elements to highlight them instead.
+				css += "\n @-moz-document url-prefix()";
+				css += "\n {";
+				css += "\n      .ActiveElement,";
+				css += "\n      .SelectableElement:hover";
+				css += "\n      {";
+				css += "\n          outline: none;";
+				css += "\n          box-shadow: 0px 0px 0px 3px red !important;";
+				css += "\n      }";
+				css += "\n }";
 
-			var style = parentWindow.document.createElement("style");
-			style.type = "text/css";
-			parentWindow.document.getElementsByTagName("head")[0].appendChild(style);
+				var style = parentWindow.document.createElement("style");
+				style.type = "text/css";
+				parentWindow.document.getElementsByTagName("head")[0].appendChild(style);
 
-			if (style.styleSheet)
-				style.styleSheet.cssText = css; // IE8 - element MUST be appended first!
-			else
-				style.appendChild(document.createTextNode(css));
+				if (style.styleSheet)
+					style.styleSheet.cssText = css; // IE8 - element MUST be appended first!
+				else
+					style.appendChild(document.createTextNode(css));
+
+				SMEventHandler.AddEventHandler(parentWindow.document, "click", function(e)
+				{
+					if (!window || !window.SMCore) // Window closed (window becomes null in Chrome while window.SMCore becomes undefined in other browsers)
+						return;
+
+					var ev = e || window.event;
+					var target = ev.target || ev.srcElement;
+
+					var isSelectable = (SMDom.HasClass(target, "SelectableElement") === true);
+
+					while (/*target !== null &&*/ isSelectable === false && target.tagName !== "HTML")
+					{
+						if (!target.parentElement)
+							return; // Happens if element clicked was removed (e.g. button in a dialog that closes)
+
+						isSelectable = (target.parentElement.getAttribute("data-selelmkey") !== null)
+						target = target.parentElement;
+					}
+
+					if (isSelectable === true)
+					{
+						var elmKey = target.getAttribute("data-selelmkey");
+						var accordionKey = null;
+
+						if (elmKey.indexOf(";") > -1)
+						{
+							var info = elmKey.split(";");
+
+							elmKey = info[0];
+							accordionKey = info[1];
+						}
+
+						lstSections.SetValue(elmKey);
+
+						if (accordionKey !== null)
+							document.querySelector("h3[data-title='" + accordionKey + "']").click();
+
+						if (ev.stopPropagation)
+							ev.stopPropagation();
+						ev.cancelBubble = true;
+					}
+				});
+			}
+
+			if (selectors !== null)
+			{
+				SMCore.ForEach(selectors, function(key)
+				{
+					var elms = parentWindow.document.querySelectorAll(selectors[key]);
+
+					SMCore.ForEach(elms, function(elm)
+					{
+						SMDom.RemoveClass(elm, "SelectableElement");
+						elm.removeAttribute("data-selelmkey");
+					});
+				});
+			}
+
+			selectors = [];
+
+			if (config.GetSelectors)
+			{
+				selectors = config.GetSelectors.call(config, getEventArgs());
+				selectors = ((selectors !== null) ? selectors : []); // Make sure initial configuration done above does not happen multiple times
+			}
 
 			var exclude = [];
 			if (config.GetExclusion)
@@ -550,16 +714,7 @@ SMDesigner =
 					if (elm !== parentWindow.document.body && elm !== parentWindow.document.body.parentNode)
 						SMDom.AddClass(elm, "SelectableElement");
 
-					SMEventHandler.AddEventHandler(elm, "click", function(e)
-					{
-						var ev = e || window.event;
-
-						lstSections.SetValue(key);
-
-						if (ev.stopPropagation)
-							ev.stopPropagation();
-						ev.cancelBubble = true;
-					});
+					elm.setAttribute("data-selelmkey", key);
 				});
 			});
 
@@ -583,6 +738,9 @@ SMDesigner =
 
 			setTimeout(function()
 			{
+				if (!window || !window.SMCore) // Window closed (window becomes null in Chrome while window.SMCore becomes undefined in other browsers)
+					return;
+
 				if (SMDom.HasClass(elm, "ActiveElement") === false)
 					SMDom.AddClass(elm, "ActiveElement");
 				else
@@ -660,11 +818,20 @@ SMDesigner =
 						if (accordionTabs[accordionTab][headlineSection][prop].Hidden === true)
 							return;
 
+						if (accordionTabs[accordionTab][headlineSection][prop].Selector && accordionTabs[accordionTab][headlineSection][prop].Selector.Hidden === true)
+						{
+							accordionTabs[accordionTab][headlineSection][prop].Selector.Control.GetElement().style.display = "none";
+						}
+						if (accordionTabs[accordionTab][headlineSection][prop].Slider && accordionTabs[accordionTab][headlineSection][prop].Slider.Hidden === true)
+						{
+							accordionTabs[accordionTab][headlineSection][prop].Slider.Control.GetElement().style.display = "none";
+						}
+
 						var p = accordionTabs[accordionTab][headlineSection][prop]._internal.Element;
 						h.Content.appendChild(p);
 					});
 				});
-			})
+			});
 
 			// Transform accordion element into visual accordion representation
 
@@ -727,6 +894,7 @@ SMDesigner =
 			var selectorCfg = {};
 			selectorCfg.AllowEmpty = false;
 			selectorCfg.Items = [];
+			selectorCfg.Sort = true;
 			selectorCfg.OnChange = function(sender, value)
 			{
 				if (!window.SMCore) // IE Bugfix - OnChange is fired when designer is closed, at which point page is disposed
@@ -742,8 +910,22 @@ SMDesigner =
 			SMCore.ForEach(editors, function(section)
 			{
 				if (SMCore.GetIndex(exclude, section) === -1)
-					selectorCfg.Items.push({ Value: section });
+				{
+					if (section.indexOf(";") > -1)
+					{
+						var info = section.split(";"); // 0 = Title, 1 = Unique ID
+						selectorCfg.Items.push({ Title: info[0], Value: section });
+					}
+					else
+					{
+						selectorCfg.Items.push({ Value: section });
+					}
+				}
 			});
+
+			var defaultSection = ((config.GetDefaultSection) ? config.GetDefaultSection.call(config, getEventArgs()) : null);
+			if (defaultSection !== null)
+				selectorCfg.Value = defaultSection;
 
 			lstSections = new SMDesigner.Controls.Selector(selectorCfg);
 			toolbar.appendChild(lstSections.GetElement());
@@ -803,6 +985,7 @@ SMDesigner =
 		function createTab(title)
 		{
 			var header = document.createElement("h3"); // h3 required by jQuery UI accordion
+			header.setAttribute("data-title", title);
 			header.innerHTML = title;
 
 			var content = document.createElement("div");
@@ -829,23 +1012,41 @@ SMDesigner =
 			if (!senderCfg.Sync || senderCfg.Sync.length === 0)
 				return;
 
-			if ((!senderCfg.Type || senderCfg.Type.toLowerCase() === "input") && senderCfg.Selector)
+			if ((!senderCfg.Type || senderCfg.Type.toLowerCase() === "input") && (senderCfg.Selector || senderCfg.Slider))
 			{
 				// Combined Input + Selector control:
 				// Synchronize value change from combined Input and Selector control (source/master) to target control(s) (slave(s)) of same type
 
 				var senderPreviousValue = senderCfg._internal.PreviousValue;
-				senderCfg._internal.PreviousValue = ((senderCfg.Control.GetValue() !== null) ? senderCfg.Control.GetValue() : "") + ((senderCfg.Selector.Control.GetValue() !== null) ? senderCfg.Selector.Control.GetValue() : "");
+				senderCfg._internal.PreviousValue = ((senderCfg.Control.GetValue() !== null) ? senderCfg.Control.GetValue() : "");
+				senderCfg._internal.PreviousValue += "|" + ((senderCfg.Selector && senderCfg.Selector.Control.GetValue() !== null) ? senderCfg.Selector.Control.GetValue() : "");
+				senderCfg._internal.PreviousValue += "|" + ((senderCfg.Slider && senderCfg.Slider.Control.GetValue() !== 0) ? senderCfg.Slider.Control.GetValue().toString() : "");
+
+				// Bidirectional: 0					- Keep both controls in sync. at all times
+				// UnidirectionalAlways: 1			- Always sync. value of Control1 to Control2
+				// UnidirectionalEqualsOrNull: 2	- Sync. value of Control1 to Control2 if its current value is either Null or equal to value of Control1
+				// UnidirectionalEquals: 3			- Sync. value of Control1 to Control2 if its current value is equal to value of Control1
 
 				SMCore.ForEach(senderCfg.Sync, function(sync)
 				{
-					var combinedCurrentValue = ((sync.Target.Control.GetValue() !== null) ? sync.Target.Control.GetValue() : "") + ((sync.Target.Selector.Control.GetValue() !== null) ? sync.Target.Selector.Control.GetValue() : "");
+					var combinedCurrentValue = ((sync.Target.Control.GetValue() !== null) ? sync.Target.Control.GetValue() : "");
+					combinedCurrentValue += "|" + ((senderCfg.Selector && sync.Target.Selector.Control.GetValue() !== null) ? sync.Target.Selector.Control.GetValue() : "");
+					combinedCurrentValue += "|" + ((senderCfg.Slider && sync.Target.Slider.Control.GetValue() !== 0) ? sync.Target.Slider.Control.GetValue().toString() : "");
 
-					if (sync.Type !== SMDesigner.Helpers.SyncType.UnidirectionalEqual // Bidirectional or UnidirectionalAlways = always update target
-						|| senderPreviousValue === combinedCurrentValue || combinedCurrentValue === "") // UnidirectionalEqual = update target if its value is equal to value of source control, or not set
+					var syncType = ((sync.Type === SMDesigner.Helpers.SyncType.UnidirectionalEqual) ? SMDesigner.Helpers.SyncType.UnidirectionalEqualsOrNull : sync.Type); // Backward compability
+
+					if (syncType === SMDesigner.Helpers.SyncType.Bidirectional || syncType === SMDesigner.Helpers.SyncType.UnidirectionalAlways // Bidirectional or UnidirectionalAlways
+						|| (syncType === SMDesigner.Helpers.SyncType.UnidirectionalEquals && senderPreviousValue === combinedCurrentValue) // UnidirectionalEquals
+						|| (syncType === SMDesigner.Helpers.SyncType.UnidirectionalEqualsOrNull && (senderPreviousValue === combinedCurrentValue || combinedCurrentValue === "||"))) // UnidirectionalEqualsOrNull
 					{
 						sync.Target.Control.SetValue(senderCfg.Control.GetValue());
-						sync.Target.Selector.Control.SetValue(senderCfg.Selector.Control.GetValue());
+
+						if (senderCfg.Selector)
+							sync.Target.Selector.Control.SetValue(senderCfg.Selector.Control.GetValue());
+
+						if (senderCfg.Slider)
+							sync.Target.Slider.Control.SetValue(senderCfg.Slider.Control.GetValue());
+
 						sync.Target._internal.PreviousValue = senderCfg._internal.PreviousValue;
 					}
 				});
@@ -860,9 +1061,11 @@ SMDesigner =
 
 				SMCore.ForEach(senderCfg.Sync, function(sync)
 				{
-					if (sync.Type !== SMDesigner.Helpers.SyncType.UnidirectionalEqual // Bidirectional or UnidirectionalAlways = always update target
-						|| sync.Target.Control.GetValue() === "" || sync.Target.Control.GetValue() === null // UnidirectionalEqual = update target if its value is equal to value of source control, or not set
-						|| SMCore.IsEqual(sync.Target.Control.GetValue(), senderPreviousValue) === true)	//  - Using IsEqual to compare since Color Picker returns a color object
+					var syncType = ((sync.Type === SMDesigner.Helpers.SyncType.UnidirectionalEqual) ? SMDesigner.Helpers.SyncType.UnidirectionalEqualsOrNull : sync.Type); // Backward compability
+
+					if (syncType === SMDesigner.Helpers.SyncType.Bidirectional || syncType === SMDesigner.Helpers.SyncType.UnidirectionalAlways // Bidirectional or UnidirectionalAlways
+						|| (syncType === SMDesigner.Helpers.SyncType.UnidirectionalEquals && SMCore.IsEqual(sync.Target.Control.GetValue(), senderPreviousValue) === true) // UnidirectionalEquals
+						|| (syncType === SMDesigner.Helpers.SyncType.UnidirectionalEqualsOrNull && (SMCore.IsEqual(sync.Target.Control.GetValue(), senderPreviousValue) === true || sync.Target.Control.GetValue() === "" || sync.Target.Control.GetValue() === null))) // UnidirectionalEqualsOrNull
 					{
 						sync.Target.Control.SetValue(((sync.Target.Type.toLowerCase() === "selector" && sync.Mapping && sync.Mapping[senderCfg.Control.GetValue()] !== undefined) ? sync.Mapping[senderCfg.Control.GetValue()] : senderCfg.Control.GetValue()));
 						sync.Target._internal.PreviousValue = senderCfg._internal.PreviousValue;
@@ -920,6 +1123,24 @@ SMDesigner =
 
 			if (previousOverride)
 				parentWindow.document.getElementsByTagName("head")[0].removeChild(previousOverride);
+
+			// Update selectable areas in case they change together with CSS settings.
+			// For instance a given area could become selectable if certain styling is applied, e.g. visibility.
+
+			if (selectorsThread !== -1)
+			{
+				clearTimeout(selectorsThread);
+				selectorsThread = -1;
+			}
+
+			// Schedule - updateCss(..) may be called very frequently while using e.g. Color Picker or Slider
+			selectorsThread = setTimeout(function()
+			{
+				if (!window || !window.SMCore) // Window closed (window becomes null in Chrome while window.SMCore becomes undefined in other browsers)
+					return;
+
+				createSelectableAreas();
+			}, 250);
 		}
 
 		// Data transport
@@ -938,7 +1159,7 @@ SMDesigner =
 
 			// Ask for new template name
 
-			var newTemplateName = templatePath.substring(templatePath.lastIndexOf("/") + 1);
+			var newTemplateName = "MyTemplate"; //templatePath.substring(templatePath.lastIndexOf("/") + 1);
 			var forceAsk = true;
 
 			while ((forceAsk === true) || (newTemplateName !== null && newTemplateName !== "" && /^[a-z0-9]+$/i.test(newTemplateName) === false))
@@ -996,7 +1217,7 @@ SMDesigner =
 							if (property.NoSave === true)
 								continue;
 
-							if (property.Control.IsDirty() === true || (property.Selector && property.Selector.Control.IsDirty() === true))
+							if (property.Control.IsDirty() === true || (property.Selector && property.Selector.Control.IsDirty() === true) || (property.Slider && property.Slider.NoSave !== true && property.Slider.Control.IsDirty() === true))
 							{
 								if (values[editorSection] === undefined)
 									values[editorSection] = {};
@@ -1011,7 +1232,42 @@ SMDesigner =
 									values[editorSection][accordionSection][headlineSection][prop] = { Value: property.Control.GetValue() };
 								if (property.Selector && property.Selector.Control.IsDirty() === true)
 									values[editorSection][accordionSection][headlineSection][prop].Selector = { Value: property.Selector.Control.GetValue() };
+								if (property.Slider && property.Slider.NoSave !== true && property.Slider.Control.IsDirty() === true) // Supporting NoSave in case Slider is used to set Input value
+									values[editorSection][accordionSection][headlineSection][prop].Slider = { Value: property.Slider.Control.GetValue() };
 							}
+						}
+					}
+				}
+			}
+
+			for (var editorSection in unrecognizedValues)
+			{
+				for (var accordionSection in unrecognizedValues[editorSection])
+				{
+					for (var headlineSection in unrecognizedValues[editorSection][accordionSection])
+					{
+						for (var prop in unrecognizedValues[editorSection][accordionSection][headlineSection])
+						{
+							var property = unrecognizedValues[editorSection][accordionSection][headlineSection][prop];
+
+							if (property.Preserve !== true)
+								continue;
+
+							if (values[editorSection] === undefined)
+								values[editorSection] = {};
+							if (values[editorSection][accordionSection] === undefined)
+								values[editorSection][accordionSection] = {};
+							if (values[editorSection][accordionSection][headlineSection] === undefined)
+								values[editorSection][accordionSection][headlineSection] = {};
+
+							values[editorSection][accordionSection][headlineSection][prop] = {};
+
+							if (property.Value !== undefined)
+								values[editorSection][accordionSection][headlineSection][prop].Value = property.Value;
+							if (property.Selector)
+								values[editorSection][accordionSection][headlineSection][prop].Selector = { Value: property.Selector.Value };
+							if (property.Slider)
+								values[editorSection][accordionSection][headlineSection][prop].Slider = { Value: property.Slider.Value };
 						}
 					}
 				}
@@ -1058,6 +1314,8 @@ SMDesigner =
 					var values = req.GetResponseJson();
 					values = ((values !== null) ? values : {});
 
+					unrecognizedValues = {};
+
 					for (var editorSection in values)
 					{
 						for (var accordionSection in values[editorSection])
@@ -1066,33 +1324,66 @@ SMDesigner =
 							{
 								for (var prop in values[editorSection][accordionSection][headlineSection])
 								{
-									// Make sure editor control still exists (in case it was removed in a more recent version of Designer Definition).
+									// Make sure editor control still exists (in case it was removed in a more recent version of Designer Definition,
+									// or the given element only exists on a particular page, in which case it may not always have controls created).
 									// Notice: We do not store control type information, so changing a control type may cause an error if the new control
 									// type does not support the value saved.
-									if (editors[editorSection] === undefined)
+
+									// If editor control no longer exists, the value is added to unrecognizedValues which is passed to Designer
+									// Definition, allowing it to either preserve the value, or simply discard it.
+
+									if (editors[editorSection] === undefined
+										|| editors[editorSection][accordionSection] === undefined
+										|| editors[editorSection][accordionSection][headlineSection] === undefined
+										|| editors[editorSection][accordionSection][headlineSection][prop] === undefined)
+									{
+										if (unrecognizedValues[editorSection] === undefined)
+											unrecognizedValues[editorSection] = {};
+										if (unrecognizedValues[editorSection][accordionSection] === undefined)
+											unrecognizedValues[editorSection][accordionSection] = {};
+										if (unrecognizedValues[editorSection][accordionSection][headlineSection] === undefined)
+											unrecognizedValues[editorSection][accordionSection][headlineSection] = {};
+
+										// Designer definition may switch Preserve property to true to force Designer to preserve the value even though it has no control associated at this point
+										unrecognizedValues[editorSection][accordionSection][headlineSection][prop] = { Preserve: false };
+
+										if (values[editorSection][accordionSection][headlineSection][prop].Value !== undefined)
+											unrecognizedValues[editorSection][accordionSection][headlineSection][prop].Value = values[editorSection][accordionSection][headlineSection][prop].Value;
+										if (values[editorSection][accordionSection][headlineSection][prop].Selector)
+											unrecognizedValues[editorSection][accordionSection][headlineSection][prop].Selector = { Value: values[editorSection][accordionSection][headlineSection][prop].Selector.Value };
+										if (values[editorSection][accordionSection][headlineSection][prop].Slider)
+											unrecognizedValues[editorSection][accordionSection][headlineSection][prop].Slider = { Value: values[editorSection][accordionSection][headlineSection][prop].Slider.Value };
+
 										continue;
-									if (editors[editorSection][accordionSection] === undefined)
-										continue;
-									if (editors[editorSection][accordionSection][headlineSection] === undefined)
-										continue;
-									if (editors[editorSection][accordionSection][headlineSection][prop] === undefined)
-										continue;
+									}
+
+									// Value has an associated control - assign value to control
 
 									if (values[editorSection][accordionSection][headlineSection][prop].Value !== undefined)
 										editors[editorSection][accordionSection][headlineSection][prop].Control.SetValue(values[editorSection][accordionSection][headlineSection][prop].Value);
 									if (values[editorSection][accordionSection][headlineSection][prop].Selector) // We assume control is still a combined Input and Selector control
 										editors[editorSection][accordionSection][headlineSection][prop].Selector.Control.SetValue(values[editorSection][accordionSection][headlineSection][prop].Selector.Value);
+									if (values[editorSection][accordionSection][headlineSection][prop].Slider) // We assume control is still a combined Input and Slider control
+										editors[editorSection][accordionSection][headlineSection][prop].Slider.Control.SetValue(values[editorSection][accordionSection][headlineSection][prop].Slider.Value);
 
-									// Make sure initial value is accessible when control value is changed
+									// Make sure initial value is accessible when control value is changed (used by updateLinkedControls(..))
+
 									editors[editorSection][accordionSection][headlineSection][prop]._internal.PreviousValue = editors[editorSection][accordionSection][headlineSection][prop].Control.GetValue();
-									if (editors[editorSection][accordionSection][headlineSection][prop].Selector) // Input controls may be combined with a Selector control
-										editors[editorSection][accordionSection][headlineSection][prop]._internal.PreviousValue += editors[editorSection][accordionSection][headlineSection][prop].Selector.Control.GetValue();
+
+									if (editors[editorSection][accordionSection][headlineSection][prop].Selector || editors[editorSection][accordionSection][headlineSection][prop].Slider)
+									{
+										editors[editorSection][accordionSection][headlineSection][prop]._internal.PreviousValue += "|" + ((editors[editorSection][accordionSection][headlineSection][prop].Selector && editors[editorSection][accordionSection][headlineSection][prop].Selector.Control.GetValue() !== null) ? editors[editorSection][accordionSection][headlineSection][prop].Selector.Control.GetValue() : "");
+										editors[editorSection][accordionSection][headlineSection][prop]._internal.PreviousValue += "|" + ((editors[editorSection][accordionSection][headlineSection][prop].Slider && editors[editorSection][accordionSection][headlineSection][prop].Slider.Control.GetValue() !== 0) ? editors[editorSection][accordionSection][headlineSection][prop].Slider.Control.GetValue().toString() : "");
+									}
 								}
 							}
 						}
 					}
 
 					suppressUpdate = false;
+
+					if (config.OnDataLoaded)
+						config.OnDataLoaded.call(config, getEventArgs());
 
 					// Update CSS - injects CSS from designer into actual design
 
@@ -1120,6 +1411,19 @@ SMDesigner =
 
 		function reset(preventDefaults) // Reset - revert design to settings defined in Designer Definition, and load override.defaults.js if found
 		{
+			// NOTICE: Pressing the Reset or Reload button will cause the original styles to be loaded.
+			// However, it will NOT result in editor controls being reloaded and selectable areas being
+			// re-calculated. This is a problem if Reset/Reload reverts to a completely different design
+			// (e.g. Hyperspace to Sunrise), and the Designer Definition's GetEditors(..) implementation
+			// relies on GetComputedStyle(..) to determining what editor controls to make available.
+			// Templates ought to ship with override.defaults.js to prevent this problem by making sure
+			// e.g. Hyperspace resets to a clean version of Hyperspace, and not to the Sunrise design.
+			// If the requirement for override.defaults.js proves to be a major problem, we need to fully
+			// reset the state of the Designer and the changes we made to the page being styled, and then
+			// rebuild the UI of the Designer.
+			// Be aware that this is probably only a problem for templates that does advanced things like
+			// positioning using custom CSS (e.g. under Advanced).
+
 			// Hide design while resetting to prevent too much flickering
 			var parentWindow = window.opener || window.top; // Support both Dialog Mode and Legacy Mode (SMWindow)
 			parentWindow.document.body.parentElement.style.display = "none";
@@ -1141,10 +1445,18 @@ SMDesigner =
 							if (editors[level1][level2][level3][prop].Selector)
 								editors[level1][level2][level3][prop].Selector.Control.Reset();
 
+							if (editors[level1][level2][level3][prop].Slider)
+								editors[level1][level2][level3][prop].Slider.Control.Reset();
+
 							// Make sure initial value is accessible when control value is changed
+
 							editors[level1][level2][level3][prop]._internal.PreviousValue = editors[level1][level2][level3][prop].Control.GetValue();
-							if (editors[level1][level2][level3][prop].Selector) // Input controls may be combined with a Selector control
-								editors[level1][level2][level3][prop]._internal.PreviousValue += editors[level1][level2][level3][prop].Selector.Control.GetValue();
+
+							if (editors[level1][level2][level3][prop].Selector || editors[level1][level2][level3][prop].Slider)
+							{
+								editors[level1][level2][level3][prop]._internal.PreviousValue += "|" + ((editors[level1][level2][level3][prop].Selector && editors[level1][level2][level3][prop].Selector.Control.GetValue() !== null) ? editors[level1][level2][level3][prop].Selector.Control.GetValue() : "");
+								editors[level1][level2][level3][prop]._internal.PreviousValue += "|" + ((editors[level1][level2][level3][prop].Slider && editors[level1][level2][level3][prop].Slider.Control.GetValue() !== 0) ? editors[level1][level2][level3][prop].Slider.Control.GetValue().toString() : "");
+							}
 						}
 					}
 				}
@@ -1169,20 +1481,25 @@ SMDesigner =
 				loadData("LoadDefaultOverrides=true", function() // Callback gets called, even if override.defaults.js does not exist - updateCss() is called from loadData(..)
 				{
 					parentWindow.document.body.parentElement.style.display = "";
+
+					if (config.OnReset)
+						config.OnReset.call(config, getEventArgs());
 				});
+			}
+			else
+			{
+				if (config.OnReset)
+					config.OnReset.call(config, getEventArgs());
 			}
 		}
 
 		function reload() // Undo - load previously saved design
 		{
-			// Hide design while reloading to prevent too much flickering
-			var parentWindow = window.opener || window.top; // Support both Dialog Mode and Legacy Mode (SMWindow)
-			parentWindow.document.body.parentElement.style.display = "none";
-
 			reset(true); // True = Reset controls without loading override.defaults.js, and by that also preventing updateCss() from being called
 
 			loadData(null, function() // Reload changes previously saved (updateCss() is called from loadData(..)) - code above reset controls to Designer Definition defaults
 			{
+				var parentWindow = window.opener || window.top; // Support both Dialog Mode and Legacy Mode (SMWindow)
 				parentWindow.document.body.parentElement.style.display = "";
 			});
 		}
@@ -1210,10 +1527,12 @@ SMDesigner =
 
 		function getEventArgs()
 		{
-			return { Designer: me, Editors: editors, Sender: null, Saving: false, TemplatePath: templatePath, Section: ((lstSections !== null) ? lstSections.GetValue() : null) };
+			return { Designer: me, Editors: editors, Sender: null, Saving: false, TemplatePath: templatePath, Section: ((lstSections !== null) ? lstSections.GetValue() : null), UnrecognizedValues: unrecognizedValues };
 		}
 
 		// Public API
+
+		this.Update = function() { updateCss(); }
 
 		this.Save = function() { saveData(); }
 
@@ -1357,6 +1676,21 @@ SMDesigner =
 
 				if (typeof(cfg.Items) === "object" && cfg.Items instanceof Array)
 				{
+					// Sort
+
+					if (cfg.Sort === true)
+					{
+						cfg.Items.sort(function(a, b)
+						{
+							var aTitle = ((typeof(a.Title) === "string") ? a.Title : a.Value);
+							var bTitle = ((typeof(b.Title) === "string") ? b.Title : b.Value);
+
+							return ((aTitle < bTitle) ? -1 : ((aTitle > bTitle) ? 1 : 0));
+						});
+					}
+
+					// Add
+
 					SMCore.ForEach(cfg.Items, function(item)
 					{
 						if (typeof(item) !== "object")
@@ -1501,14 +1835,19 @@ SMDesigner =
 					}
 				}
 
-				// Combine input and selector if selector control was set
+				// Combine input with selector and/or slider if set
 
-				if (cfg.Selector)
+				if (cfg.Selector || cfg.Slider)
 				{
 					container = document.createElement("div");
 					container.appendChild(input);
-					container.appendChild(cfg.Selector.GetElement());
 				}
+
+				if (cfg.Selector)
+					container.appendChild(cfg.Selector.GetElement());
+
+				if (cfg.Slider)
+					container.appendChild(cfg.Slider.GetElement());
 			}
 
 			// Public
@@ -1627,7 +1966,7 @@ SMDesigner =
 
 			this.SetValue = function(val)
 			{
-				if (typeof(val) === "number" && val !== value)
+				if (typeof(val) === "number" && isNaN(val) === false && val !== value)
 				{
 					value = val;
 					SMDesigner.Jquery(control).slider("option", "value", val); // Does not fire slide event (which in turn fires OnChange event) - manually handled below
@@ -2224,6 +2563,8 @@ SMDesigner =
 
 	Helpers:
 	{
+		DefaultDimensionUnit: "px",
+
 		// Value getters
 
 		GetControlValue: function(cfg, treatEmptyAsNotDirty)
@@ -2293,19 +2634,59 @@ SMDesigner =
 
 		// Dimension control and CSS getter
 
-		GetDimensionControl: function(val, unit)
+		GetDimensionControl: function(val, unit, sliderMin, sliderMax, sliderStep)
 		{
-			var cfg =
+			var cfg = null;
+
+			cfg =
 			{
 				Type: "Input",
 				Value: (val || val === 0 ? val.toString() : ""),
 				Selector:
 				{
-					Value: (unit ? unit : "px"),
+					Value: (unit ? unit : SMDesigner.Helpers.DefaultDimensionUnit),
 					AllowEmpty: false,
 					Items: [ { Value: "em" }, { Value: "in" }, { Value: "mm" }, { Value: "pc" }, { Value: "pt" }, { Value: "px" }, { Value: "%" } ]
 				}
 			};
+
+			if (sliderMin !== undefined && sliderMax !== undefined && sliderStep !== undefined)
+			{
+				var suppressChangeHandler = false;
+
+				cfg.OnChange = function(sender, value)
+				{
+					if (suppressChangeHandler === true)
+						return;
+
+					try
+					{
+						var numVal = ((value !== "") ? parseFloat(value) : 0.0);
+
+						suppressChangeHandler = true;
+						cfg.Slider.Control.SetValue(numVal);
+						suppressChangeHandler = false;
+					}
+					catch (err) {}
+				},
+				cfg.Slider =
+				{
+					Min: sliderMin,
+					Max: sliderMax,
+					Step: sliderStep,
+					Value: (val || val === 0 ? val : 0),
+					NoSave: true,
+					OnChange: function(sender, value)
+					{
+						if (suppressChangeHandler === true)
+							return;
+
+						suppressChangeHandler = true;
+						cfg.Control.SetValue(value.toString());
+						suppressChangeHandler = false;
+					}
+				}
+			}
 
 			return cfg;
 		},
@@ -2315,7 +2696,7 @@ SMDesigner =
 			// Returns Null if control is NOT dirty or if value is invalid
 
 			if (cfg.Control.IsDirty() === true && cfg.Control.GetValue() === "")
-				return (type ? type + ": 0;" : "0");
+				return (type ? type + ": 0px;" : "0px"); // Added px to make sure returned value works in calc(..) where a unit is required
 
 			if (cfg.Control.IsDirty() === true && /^-?[0-9]+([.][0-9]+)?$/.test(cfg.Control.GetValue()) === false)
 				return null;
@@ -2323,6 +2704,8 @@ SMDesigner =
 			var val = SMDesigner.Helpers.GetControlValue(cfg);
 
 			if (val === null)
+				return null;
+			if (/[0-9]+/.test(cfg.Control.GetValue()) === false)
 				return null;
 
 			return (type ? type + ": " + val + ";" : val);
@@ -2332,9 +2715,12 @@ SMDesigner =
 
 		GetIndentationControls: function(topVal, leftVal, rightVal, bottomVal, unit)
 		{
+			var max = ((unit === "em" || (!unit && SMDesigner.Helpers.DefaultDimensionUnit === "em")) ? 20 : 100);
+			var step = ((unit === "em" || (!unit && SMDesigner.Helpers.DefaultDimensionUnit === "em")) ? 0.1 : 1);
+
 			var cfg =
 			{
-				"All sides": { Type: "Slider", Min: 0, Max: 100, Step: 1, Value: 0, NoSave: true },
+				"All sides": { Type: "Slider", Min: 0, Max: max, Step: step, Value: 0, NoSave: true },
 				"Top": SMDesigner.Helpers.GetDimensionControl(topVal, unit),
 				"Left": SMDesigner.Helpers.GetDimensionControl(leftVal, unit),
 				"Right": SMDesigner.Helpers.GetDimensionControl(rightVal, unit),
@@ -2352,41 +2738,49 @@ SMDesigner =
 				if (cfg["Top"].Disabled !== true)
 				{
 					cfg["Top"].Control.SetValue(value.toString());
-					cfg["Top"].Selector.Control.SetValue("px");
+					cfg["Top"].Selector.Control.SetValue(unit);
 				}
 				if (cfg["Left"].Disabled !== true)
 				{
 					cfg["Left"].Control.SetValue(value.toString());
-					cfg["Left"].Selector.Control.SetValue("px");
+					cfg["Left"].Selector.Control.SetValue(unit);
 				}
 				if (cfg["Right"].Disabled !== true)
 				{
 					cfg["Right"].Control.SetValue(value.toString());
-					cfg["Right"].Selector.Control.SetValue("px");
+					cfg["Right"].Selector.Control.SetValue(unit);
 				}
 				if (cfg["Bottom"].Disabled !== true)
 				{
 					cfg["Bottom"].Control.SetValue(value.toString());
-					cfg["Bottom"].Selector.Control.SetValue("px");
+					cfg["Bottom"].Selector.Control.SetValue(unit);
 				}
 			}
 
 			return cfg;
 		},
 
-		GetIndentationCss: function(cfg, type)
+		GetIndentationCss: function(cfg, type, disableMarginCollapse)
 		{
 			// Returns Null if control is NOT dirty
 
 			var indent = "";
 			var val = null;
+			var noMarginCollapse = (disableMarginCollapse === true && type.toLowerCase() === "padding");
 
 			for (var prop in cfg)
 			{
 				if (prop === "All sides")
 					continue;
 
-				val = SMDesigner.Helpers.GetDimensionCss(cfg[prop], type.toLowerCase() + "-" + prop.toLowerCase());
+				if (noMarginCollapse === true && (prop === "Top" || prop === "Bottom") && parseFloat(SMDesigner.Helpers.GetDimensionCss(cfg[prop])) === 0)
+				{
+					val = "padding-" + prop.toLowerCase() + ": 0.1px;";
+				}
+				else
+				{
+					val = SMDesigner.Helpers.GetDimensionCss(cfg[prop], type.toLowerCase() + "-" + prop.toLowerCase());
+				}
 
 				if (val !== null)
 					indent += val;
@@ -2403,8 +2797,8 @@ SMDesigner =
 			{
 				"Color": { Type: "Color" },
 				"Style" : { Type: "Selector", Items: [{ Title: "Solid", Value: "solid" }, { Title: "Dashed", Value: "dashed" }, { Title: "Dotted", Value: "dotted" }, { Title: "Double", Value: "double" }] },
-				"Size": { Type: "Slider", Min: 0, Max: 50, Step: 1, Value: 1 },
-				"Rounded corners": { Type: "Slider", Min: 0, Max: 50, Step: 1, Value: 0 },
+				"Size": SMDesigner.Helpers.GetDimensionControl(1, "px", 0, 20, 1), //"Size": { Type: "Slider", Min: 0, Max: 50, Step: 1, Value: 1 },
+				"Rounded corners": SMDesigner.Helpers.GetDimensionControl(0, "px", 0, 20, 1), //{ Type: "Slider", Min: 0, Max: 50, Step: 1, Value: 0 },
 				"Apply to": { Type: "Selector", Items: [{ Title: "All", Value: "" }, { Title: "Top", Value: "top" }, { Title: "Left", Value: "left" }, { Title: "Right", Value: "right" }, { Title: "Bottom", Value: "bottom" }] }
 			};
 
@@ -2413,9 +2807,15 @@ SMDesigner =
 			if (style)
 				cfg["Style"].Value = style;
 			if (size || size === 0)
-				cfg["Size"].Value = size;
+			{
+				cfg["Size"].Value = size.toString();
+				cfg["Size"].Slider.Value = size;
+			}
 			if (radius || radius === 0)
-				cfg["Rounded corners"].Value = radius;
+			{
+				cfg["Rounded corners"].Value = radius.toString();
+				cfg["Rounded corners"].Slider.Value = radius;
+			}
 			if (applyTo)
 				cfg["Apply to"].Value = applyTo.toLowerCase();
 
@@ -2431,57 +2831,63 @@ SMDesigner =
 			// Border
 
 			if (cfg["Apply to"].Control.IsDirty() === true || cfg["Color"].Control.IsDirty() === true
-				|| cfg["Style"].Control.IsDirty() === true || cfg["Size"].Control.IsDirty() === true)
+				|| cfg["Size"].Control.IsDirty() === true || cfg["Size"].Selector.Control.IsDirty() === true
+				|| cfg["Style"].Control.IsDirty() === true)
 			{
 				var borderEdge = cfg["Apply to"].Control.GetValue();
-				var width = cfg["Size"].Control.GetValue();
+				var width = SMDesigner.Helpers.ExecuteWithoutDirtyCheck(cfg["Size"], function() { return SMDesigner.Helpers.GetDimensionCss(cfg["Size"]); });
 				var style = cfg["Style"].Control.GetValue();
 				var colorStr = SMDesigner.Helpers.GetColorString(cfg["Color"]);
 				var colorFallbackStr = ((colorStr.indexOf("rgba") > -1 && rgbaFallback === true) ? SMDesigner.Helpers.GetColorString(cfg["Color"], true) : "");
 
 				css += "border-style: none;";
 
-				if (width > 0 && colorStr !== "transparent") // Color became transparent if user removed a preset color value
+				if (parseFloat(width) > 0 && colorStr !== "transparent") // Color became transparent if user removed a preset color value
 				{
 					if (colorFallbackStr !== "")
-						css += "border" + ((borderEdge !== "") ? "-" + borderEdge : "") + ": " + width + "px " + style + " " + colorFallbackStr + ";";
-					css += "border" + ((borderEdge !== "") ? "-" + borderEdge : "") + ": " + width + "px " + style + " " + colorStr + ";";
+						css += "border" + ((borderEdge !== "") ? "-" + borderEdge : "") + ": " + width + " " + style + " " + colorFallbackStr + ";";
+					css += "border" + ((borderEdge !== "") ? "-" + borderEdge : "") + ": " + width + " " + style + " " + colorStr + ";";
 				}
 			}
 
 			// Rounded corners (radius)
 
-			if (cfg["Rounded corners"].Control.IsDirty() === true || cfg["Apply to"].Control.IsDirty() === true)
+			if (cfg["Rounded corners"].Control.IsDirty() === true || cfg["Rounded corners"].Selector.Control.IsDirty() === true || cfg["Apply to"].Control.IsDirty() === true)
 			{
 				var edge = cfg["Apply to"].Control.GetValue();
-				var radius = cfg["Rounded corners"].Control.GetValue();
+				var radius = SMDesigner.Helpers.GetDimensionCss(cfg["Rounded corners"]);
 
 				if (cfg["Apply to"].Control.IsDirty() === true)
+				{
 					css += "border-radius: 0px;";
+					radius = SMDesigner.Helpers.ExecuteWithoutDirtyCheck(cfg["Rounded corners"], function() { return SMDesigner.Helpers.GetDimensionCss(cfg["Rounded corners"]); });
+				}
+
+				radius = ((radius !== null) ? radius : "0px");
 
 				if (edge === "")
 				{
-					css += "border-radius: " + radius + "px;";
+					css += "border-radius: " + radius + ";";
 				}
 				else if (edge === "top")
 				{
-					css += "border-top-left-radius: " + radius + "px;";
-					css += "border-top-right-radius: " + radius + "px;";
+					css += "border-top-left-radius: " + radius + ";";
+					css += "border-top-right-radius: " + radius + ";";
 				}
 				else if (edge === "bottom")
 				{
-					css += "border-bottom-left-radius: " + radius + "px;";
-					css += "border-bottom-right-radius: " + radius + "px;";
+					css += "border-bottom-left-radius: " + radius + ";";
+					css += "border-bottom-right-radius: " + radius + ";";
 				}
 				else if (edge === "left")
 				{
-					css += "border-top-left-radius: " + radius + "px;";
-					css += "border-bottom-left-radius: " + radius + "px;";
+					css += "border-top-left-radius: " + radius + ";";
+					css += "border-bottom-left-radius: " + radius + ";";
 				}
 				else if (edge === "right")
 				{
-					css += "border-top-right-radius: " + radius + "px;";
-					css += "border-bottom-right-radius: " + radius + "px;";
+					css += "border-top-right-radius: " + radius + ";";
+					css += "border-bottom-right-radius: " + radius + ";";
 				}
 			}
 
@@ -2490,37 +2896,64 @@ SMDesigner =
 
 		// Shadow controls and CSS getter
 
+		GetTextShadowControls: function(color, size, blur, posX, posY)
+		{
+			return SMDesigner.Helpers.GetShadowControls(color, -1, blur, posX, posY);
+		},
+
 		GetShadowControls: function(color, size, blur, posX, posY)
 		{
 			var cfg =
 			{
 				"Color": { Type: "Color" },
-				"Size": { Type: "Slider", Min: 0, Max: 30, Step: 1, Value: 3 },
-				"Blur": { Type: "Slider", Min: 0, Max: 30, Step: 1, Value: 3 },
-				"Horizontal position": { Type: "Slider", Min: -50, Max: 50, Step: 1, Value: 0 },
-				"Vertical position": { Type: "Slider", Min: -50, Max: 50, Step: 1, Value: 0 }
+				"Size": SMDesigner.Helpers.GetDimensionControl(1, "px", 0, 20, 0.5),
+				"Blur": SMDesigner.Helpers.GetDimensionControl(3, "px", 0, 20, 0.5),
+				"Horizontal position": SMDesigner.Helpers.GetDimensionControl(0, "px", -20, 20, 0.5),
+				"Vertical position": SMDesigner.Helpers.GetDimensionControl(0, "px", -20, 20, 0.5)
 			};
 
 			if (color)
+			{
 				cfg["Color"].Value = color
-			if (size || size === 0)
-				cfg["Size"].Value = size;
+			}
+			if (size === -1)
+			{
+				delete cfg["Size"]; // Not used for text-shadow
+			}
+			else if (size || size === 0)
+			{
+				cfg["Size"].Value = size.toString();
+				cfg["Size"].Slider.Value = size;
+			}
 			if (blur || blur === 0)
-				cfg["Blur"].Value = blur;
+			{
+				cfg["Blur"].Value = blur.toString();
+				cfg["Blur"].Slider.Value = blur;
+			}
 			if (posX || posX === 0)
-				cfg["Horizontal position"].Value = posX;
+			{
+				cfg["Horizontal position"].Value = posX.toString();
+				cfg["Horizontal position"].Slider.Value = posX;
+			}
 			if (posY || posY === 0)
-				cfg["Vertical position"].Value = posY;
+			{
+				cfg["Vertical position"].Value = posY.toString();
+				cfg["Vertical position"].Slider.Value = posY;
+			}
 
 			return cfg;
 		},
 
-		GetShadowCss: function(cfg)
+		GetShadowCss: function(cfg, shadowType)
 		{
 			// Returns Null if control is NOT dirty
 
-			if (cfg["Color"].Control.IsDirty() === false && cfg["Size"].Control.IsDirty() === false && cfg["Blur"].Control.IsDirty() === false
-				&& cfg["Horizontal position"].Control.IsDirty() === false && cfg["Vertical position"].Control.IsDirty() === false)
+			var type = (shadowType ? shadowType : "box-shadow");
+
+			var sizeDirty = ((type !== "text-shadow") ? (cfg["Size"].Control.IsDirty() || cfg["Size"].Selector.Control.IsDirty()) : false);
+			if (cfg["Color"].Control.IsDirty() === false && sizeDirty === false && cfg["Blur"].Control.IsDirty() === false && cfg["Blur"].Selector.Control.IsDirty() === false
+				&& cfg["Horizontal position"].Control.IsDirty() === false && cfg["Horizontal position"].Selector.Control.IsDirty() === false
+				&& cfg["Vertical position"].Control.IsDirty() === false && cfg["Vertical position"].Selector.Control.IsDirty() === false)
 				return null;
 
 			var css = "";
@@ -2528,16 +2961,20 @@ SMDesigner =
 
 			if (color === "transparent")
 			{
-				css = "box-shadow: none;";
+				css = type + ": none;";
 			}
 			else
 			{
-				var size = cfg["Size"].Control.GetValue();
-				var blur = cfg["Blur"].Control.GetValue();
-				var posX = cfg["Horizontal position"].Control.GetValue();
-				var posY = cfg["Vertical position"].Control.GetValue();
+				var size = -1;
 
-				css = "box-shadow: " + posX + "px " + posY + "px " + blur + "px " + size + "px " + color + ";";
+				if (type !== "text-shadow")
+					size = SMDesigner.Helpers.ExecuteWithoutDirtyCheck(cfg["Size"], function() { return SMDesigner.Helpers.GetDimensionCss(cfg["Size"]); });
+
+				var blur = SMDesigner.Helpers.ExecuteWithoutDirtyCheck(cfg["Blur"], function() { return SMDesigner.Helpers.GetDimensionCss(cfg["Blur"]); });
+				var posX = SMDesigner.Helpers.ExecuteWithoutDirtyCheck(cfg["Horizontal position"], function() { return SMDesigner.Helpers.GetDimensionCss(cfg["Horizontal position"]); });
+				var posY = SMDesigner.Helpers.ExecuteWithoutDirtyCheck(cfg["Vertical position"], function() { return SMDesigner.Helpers.GetDimensionCss(cfg["Vertical position"]); });
+
+				css = type + ": " + posX + " " + posY + " " + blur + ((type !== "text-shadow") ? " " + size : "") + " " + color + ";"
 			}
 
 			// Make shadow compatible with older versions of Mozilla/Firefox and Safari/Chrome
@@ -2608,17 +3045,27 @@ SMDesigner =
 			return cfg;
 		},
 
-		GetFontControls: function(font, size, sizeUnit, color, style, align, lineHeight, lineHeightUnit)
+		GetFontControls: function(font, size, sizeUnit, color, style, align, lineHeight, lineHeightUnit, letterSpacing, letterSpacingUnit)
 		{
 			var cfg =
 			{
 				"Font": SMDesigner.Helpers.GetFontControl(font),
-				"Size": SMDesigner.Helpers.GetDimensionControl(size, sizeUnit),
+				"Size": SMDesigner.Helpers.GetDimensionControl(size, (sizeUnit ? sizeUnit : "em"), 0, 20, 0.1),
 				"Color": { Type: "Color", Value: color },
 				"Style": { Type: "Selector", Value: (style ? style.toLowerCase() : undefined), AllowEmpty: false, Items: [{Title: "Normal", Value: "normal"}, {Title: "Bold", Value: "bold"}, {Title: "Italic", Value: "italic"}, {Title: "Bold Italic", Value: "bold italic"}] },
 				"Alignment": { Type: "Selector", Value: (align ? align.toLowerCase() : undefined), AllowEmpty: false, Items: [{Title: "Left", Value: "left"}, {Title: "Center", Value: "center"}, {Title: "Right", Value: "right"}] },
-				"Line height": SMDesigner.Helpers.GetDimensionControl(lineHeight, (lineHeightUnit ? lineHeightUnit : "%") )
+				"Line height": SMDesigner.Helpers.GetDimensionControl(lineHeight, (lineHeightUnit ? lineHeightUnit : "em"), 1.2, 20, 0.1),
+				"Letter spacing": SMDesigner.Helpers.GetDimensionControl(letterSpacing, (letterSpacingUnit ? letterSpacingUnit : "em"), 0, 5, 0.01)
 			}
+
+			return cfg;
+		},
+
+		GetFontHeadingControls: function(font, size, sizeUnit, color, style, align, lineHeight, lineHeightUnit, letterSpacing, letterSpacingUnit, marginTop, marginTopUnit, marginBottom, marginBottomUnit)
+		{
+			var cfg = SMDesigner.Helpers.GetFontControls(font, size, sizeUnit, color, style, align, lineHeight, lineHeightUnit, letterSpacing, letterSpacingUnit);
+			cfg["Margin above"] = SMDesigner.Helpers.GetDimensionControl(marginTop, (marginTopUnit ? marginTopUnit : "em"), 0, 20, 0.1);
+			cfg["Margin below"] = SMDesigner.Helpers.GetDimensionControl(marginBottom, (marginBottomUnit ? marginBottomUnit : "em"), 0, 20, 0.1);
 
 			return cfg;
 		},
@@ -2635,6 +3082,9 @@ SMDesigner =
 			var style = SMDesigner.Helpers.GetControlValue(cfg["Style"]);
 			var align = SMDesigner.Helpers.GetControlValue(cfg["Alignment"]);
 			var lineHeight = SMDesigner.Helpers.GetDimensionCss(cfg["Line height"]);
+			var letterSpacing = SMDesigner.Helpers.GetDimensionCss(cfg["Letter spacing"]);
+			var marginTop = ((cfg["Margin above"] !== undefined) ? SMDesigner.Helpers.GetDimensionCss(cfg["Margin above"]) : null);
+			var marginBottom = ((cfg["Margin below"] !== undefined) ? SMDesigner.Helpers.GetDimensionCss(cfg["Margin below"]) : null);
 
 			css += ((font !== null) ? "font-family: " + font + ";" : "");
 			css += ((size !== null) ? "font-size: " + size + ";" : "");
@@ -2656,6 +3106,12 @@ SMDesigner =
 				css += "text-align: " + align + ";";
 			if (lineHeight !== null)
 				css += "line-height: " + lineHeight + ";";
+			if (letterSpacing !== null)
+				css += "letter-spacing: " + letterSpacing + ";";
+			if (marginTop !== null)
+				css += "margin-top: " + marginTop + ";";
+			if (marginBottom !== null)
+				css += "margin-bottom: " + marginBottom + ";";
 
 			return ((css !== "") ? css : null);
 		},
@@ -2680,6 +3136,51 @@ SMDesigner =
 				else
 					objArr[prop].Disabled = true;
 			}
+		},
+
+		SetAllAllowEmpty: function(obj) // Be careful when using SetAllAllowEmpty(..) with control configurations with default values! Changing controls with AllowEmpty to "empty" will cause the control to become Dirty, but most GetXyzCss helpers will produce something like "property: ;" (value missing)
+		{
+			if (typeof(obj.Type) === "string") // Control configuration
+			{
+				obj.AllowEmpty = true;
+			}
+			else // Object array
+			{
+				for (var prop in obj)
+				{
+					SMDesigner.Helpers.SetAllAllowEmpty(obj[prop]);
+				}
+			}
+
+			return obj; // Return to allow calls to SetAllAllowEmpty to wrap calls to other helper functions, e.g.: SetAllAllowEmpty(GetFontControl())
+		},
+
+		// Work around to allow CSS values to be retrived even when controls are not dirty.
+		// Consider refactoring all helpers - e.g. GetFontCss(..). Make them consistent
+		// and let them all accept a flag indicating whether to ignore dirty state or not.
+		ExecuteWithoutDirtyCheck: function(cfg, cb)
+		{
+			var dirtyFunc = cfg.Control.IsDirty;
+			var selectorDirtyFunc = null;
+
+			cfg.Control.IsDirty = function() { return true; };
+
+			if (cfg.Selector)
+			{
+				selectorDirtyFunc = cfg.Selector.Control.IsDirty;
+				cfg.Selector.Control.IsDirty = function() { return true; };
+			}
+
+			var res = cb();
+
+			cfg.Control.IsDirty = dirtyFunc;
+
+			if (cfg.Selector)
+			{
+				cfg.Selector.Control.IsDirty = selectorDirtyFunc;
+			}
+
+			return res;
 		},
 
 		// Control synchronization
@@ -2723,9 +3224,12 @@ SMDesigner =
 		// Enum used by LinkControls(..) function
 		SyncType:
 		{
-			Bidirectional: 0,			// Keep both controls in sync. at all times
-			UnidirectionalAlways: 1,	// Always sync. value of Control1 to Control2
-			UnidirectionalEqual: 2		// Sync. value of Control1 to Control2 if its current value is either Null or equal to value of Control1
+			Bidirectional: 0,				// Keep both controls in sync. at all times
+			UnidirectionalAlways: 1,		// Always sync. value of Control1 to Control2
+			UnidirectionalEqualsOrNull: 2,	// Sync. value of Control1 to Control2 if its current value is either Null or equal to value of Control1
+			UnidirectionalEquals: 3,		// Sync. value of Control1 to Control2 if its current value is equal to value of Control1
+
+			UnidirectionalEqual: 2			// OBSOLETE - same as UnidirectionalEqualsOrNull - kept for backward compatibility
 		}
 	}
 }

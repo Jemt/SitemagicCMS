@@ -157,6 +157,9 @@ class SMLanguageEditorFrmEditor implements SMIExtensionForm
 			$english = new SMLanguageHandler($ext, "en");
 			$translations = ((SMLanguageHandler::HasTranslations($ext, $lang) === true) ? new SMLanguageHandler($ext, $lang) : null);
 
+			if ($translations !== null)
+				$translations->SetFallbackEnabled(false);
+
 			foreach ($english->GetTranslationKeys() as $key)
 			{
 				$this->arrTranslations[$key] = new SMInput("SMLanguageEditorTranslation" . $key, SMInputType::$Text);
@@ -352,6 +355,7 @@ class SMLanguageEditorFrmEditor implements SMIExtensionForm
 
 					$langEnglish = new SMLanguageHandler($o->GetValue(), "en");
 					$langCurrent = new SMLanguageHandler($o->GetValue(), $langCode);
+					$langCurrent->SetFallbackEnabled(false);
 
 					foreach ($langEnglish->GetTranslationKeys() as $key)
 					{

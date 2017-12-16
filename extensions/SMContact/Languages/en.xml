@@ -5,7 +5,8 @@
 	<entry key="TextField" value="Text field" />
 	<entry key="TextBox" value="Textbox" />
 	<entry key="CheckBox" value="Checkbox" />
-	<entry key="Email" value="Email (reply to)" />
+	<!--entry key="Email" value="Email (reply to)" /-->
+	<entry key="EmailCopy" value="Email (receives copy)" />
 	<entry key="Attachment" value="File attachment" />
 	<entry key="FileSizeLimit" value="Unable to attach file - the maximum upload size allowed is 2048 KB in total" />
 	<entry key="Clear" value="Clear" />
@@ -29,7 +30,6 @@
 	<entry key="ErrorNoSelection" value="Please select a field" />
 	<entry key="ErrorMissing" value="The selected field no longer exist" />
 	<entry key="ErrorNoRecipients" value="No recpients have been specified in the settings" />
-	<entry key="ErrorInvalidFilename" value="Filename contains invalid characters" />
 	<entry key="ErrorSending" value="The message could not be delivered - an error occured" />
 	<entry key="FieldsNotDefined" value="No text fields have been defined for the contact form" />
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Log viewer" />
+	<entry key="Description" value="Displays potential warnings and error messages registered in the log" />
+
+	<entry key="Refresh" value="Refresh" />
+	<entry key="Clear" value="Clear" />
+
+	<entry key="ClearWarning" value="Delete all logged messages?" />
+	<entry key="NoEntries" value="No messages has been registered in the log" />
+</entries>

@@ -416,6 +416,12 @@ class SMExternalModulesFrmSettings implements SMIExtensionForm
 				match = str.match(/src=[\"'](.+?)[\"']/); // If matched: 0 = entire match, 1 = matched capture group (attribute value)
 				var src = ((match !== null) ? match[1] : \"\");
 
+				// Remove any HEX entities found in URL (e.g. for Google Maps where a company name
+				// such as Nelle's Coffee can be found in URL with single quote encoded as &#39;).
+				// We need to remove these to prevent problems with data since HEX entities are
+				// used for Unicode encoding in Sitemagic.
+				src = src.replace(/&#\d+;/, \"\");
+
 				if (src !== \"\")
 				{
 					document.getElementById(\"" . $this->txtUrl->GetClientId() . "\").value = src;
@@ -477,7 +483,7 @@ class SMExternalModulesFrmSettings implements SMIExtensionForm
 			// This is a simple solution that just works - no need to write browser specific code.
 			// The allowTransparency attribute it used by IE to make the iFrame adapt the
 			// background color of the website hosting the iFrame.
-			var module = \"<\" + \"iframe src='\" + txtUrl.value + \"' width='\" + txtWidth.value + widthUnit + \"' height='\" + txtHeight.value + heightUnit + \"' scrolling='\" + lstScroll.options[lstScroll.selectedIndex].value.toLowerCase() + \"' frameBorder='0' style='\" + ((lstFrameColor.options[lstFrameColor.selectedIndex].value !== \"\") ? \"border: 1px solid \" + lstFrameColor.options[lstFrameColor.selectedIndex].value : \"\") + \"' onload='\" + ((chkScrollTop.checked === true) ? \"window.scrollTo(0, 0)\" : \"\") + \"' allowTransparency='true'></\" + \"iframe>\";
+			var module = \"<\" + \"iframe src='\" + txtUrl.value + \"' width='\" + txtWidth.value + widthUnit + \"' height='\" + txtHeight.value + heightUnit + \"' scrolling='\" + lstScroll.options[lstScroll.selectedIndex].value.toLowerCase() + \"' frameBorder='0' style='\" + ((lstFrameColor.options[lstFrameColor.selectedIndex].value !== \"\") ? \"border: 1px solid \" + lstFrameColor.options[lstFrameColor.selectedIndex].value : \"\") + \"' onload='\" + ((chkScrollTop.checked === true) ? \"window.scrollTo(0, 0)\" : \"\") + \"' allowFullScreen='allowFullScreen' allowTransparency='true'></\" + \"iframe>\";
 
 			preview.innerHTML = module;
 

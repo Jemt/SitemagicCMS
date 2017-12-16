@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Logfremviser" />
+	<entry key="Description" value="Viser eventuelle advarsler og fejl registreret i loggen" />
+
+	<entry key="Refresh" value="Opdater" />
+	<entry key="Clear" value="Rens" />
+
+	<entry key="ClearWarning" value="Slet alle loggede meddelelser?" />
+	<entry key="NoEntries" value="Der er ikke blevet registreret beskeder i loggen" />
+</entries>

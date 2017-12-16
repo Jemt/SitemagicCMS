@@ -8,6 +8,7 @@
 	<entry key="Appearance" value="Udseende" />
 	<entry key="ImageTheme" value="Ikontema" />
 	<entry key="Template" value="Designskabelon" />
+	<entry key="InstallWebsiteData" value="Installer webside-data" />
 	<entry key="CopyTemplate" value="Kopier" />
 	<entry key="DeleteTemplate" value="Slet" />
 	<entry key="Language" value="Sprog" />
@@ -21,6 +22,7 @@
 	<entry key="Port" value="Port" />
 	<entry key="AuthType" value="Login type" />
 	<entry key="Encryption" value="Kryptering" />
+	<entry key="Sender" value="Afsender" />
 	<entry key="ExtensionsEnabled" value="Aktiverede udvidelser" />
 	<entry key="Save" value="Gem" />
 	<entry key="Cancel" value="Annuller" />
@@ -37,4 +39,5 @@
 	<entry key="WarningTemplateNotWritable" value="Mappen er skrivebeskyttet" />
 	<entry key="NotificationTemplateDeleteSucceeded" value="Skabelonen er blevet slettet" />
 	<entry key="WarningTemplateDeleteFailed" value="Der opstod en ukendt fejl ifm. sletning" />
+	<entry key="WarningInstallWebsiteData" value="Du er ved at installere webside-data tilknyttet den valgte design-skabelon (anbefales til nye websider). Dette kan dog overskrive den eksisterende webside. Ønsker du at fortsætte?" />
 </entries>

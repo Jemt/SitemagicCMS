@@ -1,0 +1,34 @@
+/* Remove indention set in page.css (cards have margins surrounding them) */
+html.SMPagesCardLayout.Normal div.SMExtension,
+html.SMPagesCardLayout.Basic.SMPagesViewer div.SMExtension
+{
+	margin: 0px;
+}
+html.SMPagesCardLayout.SMPagesEditor.SMPagesContentPage body
+{
+	padding-left: 0px;
+	padding-right: 0px;
+}
+html.SMPagesCardLayout.SMPagesEditor.SMPagesContentPage body:before,
+html.SMPagesCardLayout.SMPagesEditor.SMPagesContentPage body:after
+{
+	display: none;
+}
+html.SMPagesCardLayout.Basic.SMPagesViewer body,
+html.SMPagesCardLayout.SMPagesEditor.SMPagesContentPage body
+{
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+/* Fix: A paragraph could potentially be created (or left behind) outside of cards, causing extra
+   spacing above floating cards. Hide such paragraphs when Card Layout is enabled. Cards do not contain paragraphs. */
+html.SMPagesCardLayout div.TPLContent div.smPagesParagraph,
+html.SMPagesCardLayout.Basic.SMPagesViewer body div.smPagesParagraph
+{
+	display: none;
+}
+html.SMPagesCardLayout.SMPagesEditor body p
+{
+	opacity: 0.5;
+}

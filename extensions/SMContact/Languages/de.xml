@@ -5,7 +5,8 @@
 	<entry key="TextField" value="Textfeld" />
 	<entry key="TextBox" value="Textbox" />
 	<entry key="CheckBox" value="Checkbox" />
-	<entry key="Email" value="E-Mail (antworten)" />
+	<!--entry key="Email" value="E-Mail (antworten)" /-->
+	<entry key="EmailCopy" value="Email (receives copy)" />
 	<entry key="Attachment" value="Anhang" />
 	<entry key="FileSizeLimit" value="Die Datei konnte nicht angehängt werden - Die maximale Größe für Datei-uploads beträgt 2048 KB" />
 	<entry key="Clear" value="Löschen" />
@@ -29,7 +30,6 @@
 	<entry key="ErrorNoSelection" value="Bitte wähle ein Feld aus" />
 	<entry key="ErrorMissing" value="Das ausgewählte feld existiert nicht mehr" />
 	<entry key="ErrorNoRecipients" value="Keine Empfänger wurden in den Einstellungen aufgeführt" />
-	<entry key="ErrorInvalidFilename" value="Filename contains invalid characters" />
 	<entry key="ErrorSending" value="Diese Nachricht konnte nicht verschickt werden - Ein Fehler ist aufgetreten" />
 	<entry key="FieldsNotDefined" value="Es wurden keine Felder für dieses Kontaktformular angegeben" />
 

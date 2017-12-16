@@ -5,6 +5,8 @@
 	<entry key="SpeechBubbleButtonOk" value="Ok"/>
 	<entry key="SpeechBubbleButtonDisable" value="Désactiver conseils"/>
 	<entry key="SpeechBubbleDisableWarning" value="Certaines fonctionnalités dans Sitemagic CMS exige certaines explications. Souhaitez-vous vraiment désactiver conseils?o disable tips?"/>
+	<entry key="SMLoginTitle" value="Log in to administration"/>
+	<entry key="SMLoginDescription" value="Enter username (default: admin) and password (default: admin) to access the administration section. Remember to change the default username and password immediately after log in under Admin &gt; Settings!"/>
 	<entry key="SMAnnouncementsWelcomeTitle" value="Bienvenue chez Sitemagic CMS"/>
 	<entry key="SMAnnouncementsWelcomeThanks" value="Merci d'avoir choisi Sitemagic CMS pour votre nouveau site web."/>
 	<entry key="SMAnnouncementsWelcomeTips" value="Pour vous aider à démarrer avec Sitemagic CMS, trucs et astuces sera affiché la première fois que vous accédez à un module dans le panneau de commande."/>
@@ -41,8 +43,10 @@
 	<entry key="SMPagesEditorButtonImagesTitle" value="Insérer une image"/>
 	<entry key="SMPagesEditorButtonImagesDescription" value="Utilisez ce bouton pour insérer une image là où le curseur est actuellement placé."/>
 	<entry key="SMPagesEditorButtonImagesDialog" value="Utilisez ce menu pour sélectionner une image à insérer. Les images sont téléchargées sous Contenu &gt; des fichiers dans le dossier images."/>
-	<entry key="SMPagesEditorButtonCardsTitle" value="Cards Design"/>
-	<entry key="SMPagesEditorButtonCardsDescription" value="Utilisez ce menu pour basculer le modèle à cartes. Une fois que le modèle est modifié, vous pouvez appuyer sur ENTER pour créer de nouvelles cartes et utilisez ce menu pour modifier la taille de chaque carte. Pour créer des sauts de ligne, appuyez simplement sur la touche Maj+Entrée."/>
+	<!--entry key="SMPagesEditorButtonCardsTitle" value="Cards Design"/>
+	<entry key="SMPagesEditorButtonCardsDescription" value="Utilisez ce menu pour basculer le modèle à cartes. Une fois que le modèle est modifié, vous pouvez appuyer sur ENTER pour créer de nouvelles cartes et utilisez ce menu pour modifier la taille de chaque carte. Pour créer des sauts de ligne, appuyez simplement sur la touche Maj+Entrée."/-->
+	<entry key="SMPagesEditorButtonFluidGridsTitle" value="Insert Table or Grid"/>
+	<entry key="SMPagesEditorButtonFluidGridsDescription" value="Click here to add a responsive Data Table, Fluid Grid, or Fluid Grid Cards"/>
 	<entry key="SMPagesEditorButtonExtensionsTitle" value="Insérer la page Extension"/>
 	<entry key="SMPagesEditorButtonExtensionsDescription" value="Cliquez ici pour ajouter la page Extensions comme des formulaires de contact, les modules externes (p. ex. YouTube, cartes, ou de la musique.), zone de commentaire, Classements et bien plus encore. La page des extensions sont activées et désactivées sous Admin &gt; Paramètres."/>
 	<entry key="SMDesignerTitle" value="Décorateur"/>

@@ -29,4 +29,6 @@
 	<entry key="UploadSucceeded" value="Datei hochgeladen" />
 	<entry key="UploadError" value="Ein Fehler ist beim Versenden aufgetreten, bitte nochmal versuchen" />
 	<entry key="ValidFileTypes" value="Gültige Dateitypen" />
+	<entry key="NoValidFileTypes" value="Dateiübertragungen deaktiviert - keine Dateitypen zulässig" />
+	<entry key="MaxUploadSize" value="Max Dateigröße" />
 </entries>

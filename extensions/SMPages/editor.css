@@ -214,6 +214,12 @@ div.SMPagesTable[class*="SMPagesFluidGrid"] div.SMPagesTableCell
 		display: block;
 		width: auto !important; /* In case a fixed width is set */
 	}
+
+	.mceItemTable.SMPagesFluidGridStack900 td.SMPagesTableCellSpacing,
+	div.SMPagesTable.SMPagesFluidGridStack900 div.SMPagesTableCell.SMPagesTableCellSpacing
+	{
+		display: none;
+	}
 }
 @media (max-width: 700px) /* Stack below 700px */
 {
@@ -232,6 +238,12 @@ div.SMPagesTable[class*="SMPagesFluidGrid"] div.SMPagesTableCell
 	{
 		display: block;
 		width: auto !important; /* In case a fixed width is set */
+	}
+
+	.mceItemTable.SMPagesFluidGridStack700 td.SMPagesTableCellSpacing,
+	div.SMPagesTable.SMPagesFluidGridStack700 div.SMPagesTableCell.SMPagesTableCellSpacing
+	{
+		display: none;
 	}
 }
 
@@ -253,6 +265,12 @@ div.SMPagesTable[class*="SMPagesFluidGrid"] div.SMPagesTableCell
 		display: block;
 		width: auto !important; /* In case a fixed width is set */
 	}
+
+	.mceItemTable.SMPagesFluidGridStack500 td.SMPagesTableCellSpacing,
+	div.SMPagesTable.SMPagesFluidGridStack500 div.SMPagesTableCell.SMPagesTableCellSpacing
+	{
+		display: none;
+	}
 }
 
 /* Fluid Grid Cards */
@@ -261,12 +279,12 @@ div.SMPagesTable[class*="SMPagesFluidGrid"] div.SMPagesTableCell
 div.SMPagesTable.SMPagesGridCards
 {
 	border-collapse: separate;
-	border-spacing: 3em;
+	border-spacing: 2em;
 }
 .mceItemTable.SMPagesGridCards + .mceItemTable.SMPagesGridCards,
 div.SMPagesTable.SMPagesGridCards + div.SMPagesTable.SMPagesGridCards
 {
-	margin-top: -3em;
+	margin-top: -2em;
 }
 
 /* Allow use of original (old) Card Header/Footer within new Fluid Grid Cards */
@@ -285,21 +303,6 @@ div.SMPagesTable.SMPagesGridCards span.SMPagesCardFooter
 {
 	margin-bottom: -0.75em;
 	margin-top: 0.75em;
-}
-
-@media (max-width: 900px) /* Optimize spacing between cards when below 900px (also applies to 700px and 500px) */
-{
-	/* Reduce spacing between cards (applies to all stacking configurations below 900px) */
-	.mceItemTable.SMPagesGridCards,
-	div.SMPagesTable.SMPagesGridCards
-	{
-		border-spacing: 1em 2em;
-	}
-	.mceItemTable.SMPagesGridCards + .mceItemTable.SMPagesGridCards,
-	div.SMPagesTable.SMPagesGridCards + div.SMPagesTable.SMPagesGridCards
-	{
-		margin-top: -2em;
-	}
 }
 
 @media (max-width: 900px)
@@ -370,9 +373,10 @@ div.SMPagesTable.SMPagesGridCards span.SMPagesCardFooter
 .mceItemTable.SMPagesGridCards td,
 div.SMPagesTable.SMPagesGridCards div.SMPagesTableCell
 {
-	background: #FFFFFF;
-	box-shadow: 0px 0px 8px -1px #333333;
-	border-radius: 2px;
+	background: rgb(255, 255, 255); /* IE fallback */
+	background: rgba(255, 255, 255, 0.6);
+	/*box-shadow: 2px 2px 10px 0px #333333;
+	border-radius: 5px;*/
 }
 
 
@@ -396,4 +400,35 @@ div.SMPagesTable.SMPagesDataTable div.SMPagesTableCell
 {
 	border: 1px solid #333333;
 	padding: 0.75em;
+}
+
+
+/* Action buttons */
+
+a.SMPagesActionButton
+{
+	padding: 0.5em 1em 0.5em 1em;
+	display: inline-block;
+	margin: 0.5em 0em;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+a.SMPagesActionButton:hover
+{
+	text-decoration: none;
+}
+
+a.SMPagesActionButtonPrimary[class] /* Added class attribute selector to increase specificity - otherwise common rules such as this will take precedence: div.TPLContent a { ... } */
+{
+	border: 1px solid #35518D;
+	background-color: #3775B2;
+	color: #F5F5F5;
+}
+
+a.SMPagesActionButtonSecondary[class] /* Added class attribute selector to increase specificity - otherwise common rules such as this will take precedence: div.TPLContent a { ... } */
+{
+	border: 1px solid #4E8D21;
+	background-color: #5BA130;
+	color: #F5F5F5;
 }

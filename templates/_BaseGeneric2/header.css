@@ -1,0 +1,35 @@
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader
+{
+	/* Width set on HTML element to prevent padding on BODY element from
+	   increasing its width: http://jsfiddle.net/fu6hcdro/2 vs. http://jsfiddle.net/vk8tx4gw/1 */
+
+	margin: 0 auto; /* Editor content not centered in IE7-8 - too bad! */
+	width: 900px;
+}
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body
+{
+	margin: 20px 0px 20px 0px; /* Remove margin left/right set by editor which reduces page width and ensure spacing above and below editable area */
+	outline: 1px dashed silver;
+	*border: 1px dashed silver; /* IE7 alternative to outline which is not supported */
+}
+
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body,
+html.SMPagesCustomHeader div.TPLHeader
+{
+	/* Disable margin collapse.
+	   Make contained elements with top/bottom margins expand the header rather than
+	   causing spacing above and below it.
+	   Examples: https://jsfiddle.net/275z819u/ and http://jsfiddle.net/o1vkar7c/2/
+	   Also see https://stackoverflow.com/questions/13573653/css-margin-terror-margin-adds-space-outside-parent-element. */
+	/*overflow: auto;*/ /* Not working well - hides box-shadow on Cards on mobile and Fit.UI DropDown */
+	padding-top: 0.02px; /*1px*/
+	padding-bottom: 0.02px; /*1px*/
+	box-sizing: border-box; /* base.css applies this to all elements with TPL* classes, but it must also be applied to the editor */
+}
+
+/* Remove styling for links in header */
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body a:hover,
+html.SMPagesCustomHeader div.TPLHeader a:hover
+{
+	text-decoration: none;
+}

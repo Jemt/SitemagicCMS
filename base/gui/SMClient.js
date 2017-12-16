@@ -187,7 +187,27 @@ SMStringUtilities.UnicodeEncode = function(str) // Also works with Windows-1252 
 	// are found outside of code point 0 - 255 in Unicode.
 	// Unicode/UTF-8 is backward compatible with ASCII, meaning code point 128-159 is empty - so no
 	// Unicode specific characters in this space is left unhandled.
+	// Also be aware that JavaScript (ECMAScript prior to version 6) have problems dealing with Unicode Characters
+	// outside of Basic Multilingual Plane (BMP). Fortunately BMP covers all the popular character sets. However,
+	// popular symbols like Emojis may not work as expected. The following article describes it well:
+	// https://mathiasbynens.be/notes/javascript-unicode
+	// A really simple example of how JavaScript incorrectly handles symbols outside of BMP is to evaluate
+	// e.g. "x".length in a browser running ECMAScript 5. Replace "x" with the symbol "CLOSED LOCK WITH KEY":
+	// https://unicode-table.com/en/search/?q=CLOSED+LOCK+WITH+KEY
+	// Rather than returning a length of 1, it will return a length of 2.
+	// Because of this, the replace logic below will cause the callback to be invoked twice for symbols
+	// outside of BMP. "CLOSED LOCK WITH KEY" will produce &#55357;&#56594; (Surrogate pair). This will be turned
+	// back to the "CLOSED LOCK WITH KEY" symbol if injected into an Input field, but unfortunately not if injected
+	// into an ordinary DOM element such as a <span>. Instead it displays two question marks.
+	// The lock symbol can actually be represented by a HEX entity (&#128272;) that works when injected into
+	// the DOM, but that on the other hand will not work when injection into an Input field.
+	// Basically it's a problem that JS and DOM has different representations for the same thing. So supporting
+	// characters outside of BMP is not realistic when using HEX entities to represent Unicode characters - at
+	// least not with ECMAScript prior to version 6.
 	return str.replace(/[^\u0000-\u0100]/g, function(character) { /*console.log("Encoding: " + character);*/ return "&#" + character.charCodeAt(0) + ";" });
+
+	// The example below encodes all characters extending ASCII
+	//return str.replace(/[^\x00-\x7F]/g, function(character) { /*console.log("Encoding: " + character);*/ return "&#" + character.charCodeAt(0) + ";" });
 
 	// The example below encodes Windows-1252 specific characters only.
 	// The Unicode code points are found on the Windows-1252 character table on http://en.wikipedia.org/wiki/Windows-1252
@@ -804,9 +824,29 @@ SMEventHandler.Internal.PageLoaded = false;
 SMEventHandler.AddEventHandler = function(element, event, eventFunction)
 {
 	if (element.addEventListener) // W3C
+	{
 		element.addEventListener(event, eventFunction, false); // false = event bubbling (reverse of event capturing)
+	}
 	else if (element.attachEvent) // IE
-		element.attachEvent("on" + event, eventFunction);
+	{
+		if (event.toLowerCase() === "domcontentloaded" && SMBrowser.GetBrowser() === "MSIE" && SMBrowser.GetVersion() <= 8)
+		{
+			// DOMContentLoaded not supported on IE8.
+			// Using OnReadyStateChange to achieve similar behaviour.
+
+			element.attachEvent("onreadystatechange", function(e)
+			{
+				if (element.readyState === "complete")
+				{
+					eventFunction(e); // NOTICE: Event argument not identical to argument passed to modern browsers using the real DOMContentLoaded event!
+				}
+			});
+		}
+		else
+		{
+			element.attachEvent("on" + event, eventFunction);
+		}
+	}
 
 	// Fire event function for onload event if document in window/iframe has already been loaded.
 	// Notice that no event argument is passed to function since we don't have one.
@@ -1177,13 +1217,13 @@ SMMessageDialog.ShowPasswordDialog = function(callback, caption, description)
 
 /// <function container="client/SMWindow" name="SMWindow" access="public">
 /// 	<description> Constructor - creates instance of SMWindow </description>
-/// 	<param name="identifier" type="string"> Unique instance ID </param>
+/// 	<param name="identifier" type="string" default="undefined"> Unique instance ID </param>
 /// </function>
 function SMWindow(identifier)
 {
 	// Properties
 
-	this.id = identifier;
+	this.id = (identifier ? identifier : SMRandom.CreateGuid());
 	this.url = "";
 	this.content = "";
 	this.width = 320;
@@ -1197,6 +1237,7 @@ function SMWindow(identifier)
 	this.positionLeft = 0;
 	this.positionTop = 0;
 	this.centerWindow = true;
+	this.preferModal = false;
 
 	this.showCallback = null;
 	this.closeCallback = null;
@@ -1366,6 +1407,15 @@ function SMWindow(identifier)
 		this.centerWindow = value;
 	}
 
+	/// <function container="client/SMWindow" name="SetModal" access="public">
+	/// 	<description> Determines whether to make dialog modal or not - this is ignored in Legacy Mode </description>
+	/// 	<param name="value" type="boolean"> Set True to make dialog modal, False not to </param>
+	/// </function>
+	this.SetModal = function(value)
+	{
+		this.preferModal = value;
+	}
+
 	/// <function container="client/SMWindow" name="SetOnShowCallback" access="public">
 	/// 	<description> Set OnShow callback function to be executed when window is opened </description>
 	/// 	<param name="cb" type="delegate"> Event handler function to execute - takes no arguments </param>
@@ -1452,7 +1502,7 @@ function SMWindow(identifier)
 				{
 					dialogClass: "Sitemagic SMWindow", /* jQuery UI theme uses the Sitemagic class as a scope for styling */
 					autoOpen: false,
-					modal: false,
+					modal: (me.preferModal === true),
 					title: "",
 					width: me.width,
 					height: me.height + 28, // Add 28px which is the height of the title panel (not very flexibile - might be changed by custom CSS!)
@@ -3020,7 +3070,7 @@ SMForm.Internal.SetMaxLengthWarning = function(elm, enable)
 }
 
 // Wire it all up when page is ready
-SMEventHandler.AddEventHandler(window, "load", function()
+SMEventHandler.AddEventHandler(document, "DOMContentLoaded", function() // //SMEventHandler.AddEventHandler(window, "load", function()
 {
 	SMForm.Internal.TransformData(SMStringUtilities.UnicodeDecode, true);
 	SMForm.Internal.ConfigureMaxLength();

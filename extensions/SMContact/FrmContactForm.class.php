@@ -107,8 +107,9 @@ class SMContactFrmContactForm implements SMIExtensionForm
 		$contentSet = false;
 		$value = null;
 		$body = "";
-		$replyTo = "";
+		$copyTo = "";
 		$attachments = array();
+		$count = -1;
 
 		$body .= "<table cellspacing=\"0\" cellpadding=\"10\" border=\"0\" style=\"padding: 10px 5px 10px 5px;\">";
 
@@ -122,8 +123,17 @@ class SMContactFrmContactForm implements SMIExtensionForm
 			}
 			else if ($control["type"] === SMContactFieldTypes::$Email)
 			{
-				$replyTo .= (($replyTo !== "") ? ";" : "") . $control["control"]->GetValue();
-				$value = $control["control"]->GetValue();
+				$value = "";
+
+				if (SMStringUtilities::Validate($control["control"]->GetValue(), SMValueRestriction::$EmailAddress))
+				{
+					$copyTo .= (($copyTo !== "") ? "," : "") . $control["control"]->GetValue();
+					$value = $control["control"]->GetValue();
+				}
+				else if ($control["control"]->GetValue() !== "")
+				{
+					$value = $control["control"]->GetValue() . " (INVALID)";
+				}
 			}
 			else if ($control["type"] === SMContactFieldTypes::$Attachment)
 			{
@@ -133,18 +143,69 @@ class SMContactFrmContactForm implements SMIExtensionForm
 
 				// Control may return Null if File Uploads have been disabled (file_uploads = off).
 
-				if ($control["control"]->GetValue() !== null && SMStringUtilities::Validate($control["control"]->GetValue(), SMValueRestriction::$Filename) === false)
-				{
-					$this->message = $this->lang->GetTranslation("ErrorInvalidFilename");
-					return;
-				}
-
 				$value = "";
 
 				if ($control["control"]->GetValue() !== null && strlen($control["control"]->GetValue()) > 0) // IE10-11 fix: using strlen(..) to check value - IE10 and IE11 returns an empty string that is not comparable with ""
 				{
-					$attachments[$control["control"]->GetValue()] = SMFileSystem::GetUploadPath($control["control"]->GetClientId());
-					$value = $control["control"]->GetValue();
+					/*if (SMStringUtilities::Validate($control["control"]->GetValue(), SMValueRestriction::$Filename) === false)
+					{
+						$this->message = $this->lang->GetTranslation("ErrorInvalidFilename");
+						return;
+					}*/
+
+					$value = SMStringUtilities::RemoveInvalidCharacters($control["control"]->GetValue(), SMValueRestriction::$Filename);
+
+					// Remove multiple periods following each other. This may happen if
+					// filename contained multiple periods with no valid characters in between.
+					while (strpos($value, "..") !== false)
+						$value = str_replace("..", ".", $value);
+
+					if ($value === "") // Filename contained no valid characters and had no file extension
+					{
+						$value = "File"; // Multiple files with identical names are handled further down
+					}
+					else if (strpos($value, ".") !== false)
+					{
+						if ($value === ".")
+						{
+							// No valid characters in filename or extension
+							$value = "File"; // Multiple files with identical names are handled further down
+						}
+						else if (strpos($value, ".") === 0) //else if (substr($value, 0, strrpos($value, ".")) === "")
+						{
+							// Filename contained no valid characters but file extension is present (e.g. .txt).
+							// If filename contained multiple periods, it could also be something like: .my demo.txt.
+							// This will prevent filenames such as ".htaccess", but that is acceptable.
+							$value = "File" . $value; // Multiple files with identical names are handled further down
+						}
+						else if (strrpos($value, ".") === strlen($value) - 1)
+						{
+							// Filename contained no extension after period (e.g. Test.) - unlikely
+							$value = substr($value, 0, strrpos($value, ".")); // Remove period
+						}
+					}
+
+					// Make sure filenames are unique (multiple different files with identical filenames could have been added from different locations)
+
+					if (isset($attachments[$value]) === true)
+					{
+						$count = 2;
+						while (isset($attachments[$count . "-" . $value]) === true)
+						{
+							$count++;
+
+							if ($count === 100)
+								break; // Give up (unlikely)
+						}
+
+						if ($count < 100)
+							$value = $count . "-" . $value;
+						else
+							$value = ""; // Skip file (unlikely - this should not happen - see above)
+					}
+
+					if ($value !== "")
+						$attachments[$value] = SMFileSystem::GetUploadPath($control["control"]->GetClientId());
 				}
 			}
 			else
@@ -181,7 +242,7 @@ class SMContactFrmContactForm implements SMIExtensionForm
 
 			$mail = new SMMail(SMMailType::$Html);
 			$mail->SetRecipients(explode(",", $recipients));
-			$mail->SetSender($replyTo);
+			$mail->SetRecipients((($copyTo !== "") ? explode(",", $copyTo) : array()), SMMailRecipientType::$Cc);
 			$mail->SetSubject(SMContactSettings::GetSubject());
 			$mail->SetContent($body);
 

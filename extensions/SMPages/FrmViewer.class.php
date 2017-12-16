@@ -103,6 +103,7 @@ class SMPagesFrmViewer implements SMIExtensionForm
 			$this->context->GetTemplate()->AddHtmlClass("SMPagesClassicLayout");
 
 		$this->context->GetTemplate()->AddHtmlClass("SMPagesFilename" . str_replace("#", "", $page->GetFilename()));
+		$this->context->GetTemplate()->AddHtmlClass("SMPagesPageId" . $page->GetId());
 
 		return $page;
 	}
@@ -236,6 +237,11 @@ class SMPagesFrmViewer implements SMIExtensionForm
 	private function convertTableElements($html)
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "html", $html, SMTypeCheckType::$String);
+
+		$cfg = SMEnvironment::GetConfiguration();
+
+		if ($cfg->GetEntry("SMPagesLegacyTables") !== null && strtolower($cfg->GetEntry("SMPagesLegacyTables")) === "true")
+			return $html;
 
 		$html = str_replace("<table class=\"", "<div class=\"SMPagesTable ", $html);
 		$html = str_replace("<table", "<div class=\"SMPagesTable\" ", $html);

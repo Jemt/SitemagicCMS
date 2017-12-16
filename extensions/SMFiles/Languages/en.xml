@@ -29,4 +29,6 @@
 	<entry key="UploadSucceeded" value="File uploaded" />
 	<entry key="UploadError" value="An error occured during transfer, please try again" />
 	<entry key="ValidFileTypes" value="Valid file types" />
+	<entry key="NoValidFileTypes" value="File transfers disabled - no file types allowed" />
+	<entry key="MaxUploadSize" value="Max file size" />
 </entries>

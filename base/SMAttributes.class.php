@@ -156,13 +156,21 @@ class SMAttributes
 	/// 	<description> Reload attributes - uncommitted changes are discarded </description>
 	/// 	<param name="unlock" type="boolean" default="true"> True to release lock, false to keep lock </param>
 	/// </function>
-	public static function Reload($unlock = true)
+	public static function Reload($unlock = true, $force = false) // Keep force argument out of XML documentation - should only be used to reload data after replacing the SMAttributes file/table
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "unlock", $unlock, SMTypeCheckType::$Boolean);
+		SMTypeCheck::CheckObject(__METHOD__, "force", $force, SMTypeCheckType::$Boolean);
 		self::ensureResources();
 
 		if ($unlock === true)
-			self::Unloack();
+			self::Unlock();
+
+		if ($force === true)
+		{
+			self::$ds = null;
+			SMDataSourceCache::GetInstance()->RemoveDataSource("SMAttributes");
+			self::ensureResources();
+		}
 
 		self::$keyValueCollections = self::$ds->Select("*");
 		self::$changesMade = false;

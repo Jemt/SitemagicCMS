@@ -110,28 +110,28 @@ div.SMPagesCard span.SMPagesCardHeader + div.SMPagesExtension div[id^="SMExterna
 
 /* SMContact */
 
-div.SMContactContentPageExtension,
-div.SMContactContentPageExtension table
+div.SMContactContentPageExtension:not(#IE7IE8),
+div.SMContactContentPageExtension:not(#IE7IE8) table
 {
     width: 100%;
 }
 
-div.SMContactContentPageExtension td
+div.SMContactContentPageExtension:not(#IE7IE8) td
 {
 	display: block;
     width: 100% !important;
 	padding: 1px;
 }
 
-div.SMContactContentPageExtension input[type="text"],
-div.SMContactContentPageExtension input[type="file"],
-div.SMContactContentPageExtension textarea
+div.SMContactContentPageExtension:not(#IE7IE8) input[type="text"],
+div.SMContactContentPageExtension:not(#IE7IE8) input[type="file"],
+div.SMContactContentPageExtension:not(#IE7IE8) textarea
 {
     width: 100% !important;
     padding: 0.3em;
 }
 
-div.SMContactContentPageExtension tr:nth-last-child(2)
+div.SMContactContentPageExtension:not(#IE7IE8) tr:nth-last-child(2)
 {
 	display: none;
 }

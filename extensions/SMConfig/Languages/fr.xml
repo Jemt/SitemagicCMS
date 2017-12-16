@@ -8,6 +8,7 @@
 	<entry key="Appearance" value="Apparence"/>
 	<entry key="ImageTheme" value="Thème d'icône"/>
 	<entry key="Template" value="Modèle de conception"/>
+	<entry key="InstallWebsiteData" value="Install website data" />
 	<entry key="CopyTemplate" value="Copier"/>
 	<entry key="DeleteTemplate" value="Effacer"/>
 	<entry key="Language" value="Langue"/>
@@ -21,6 +22,7 @@
 	<entry key="Port" value="Port"/>
 	<entry key="AuthType" value="Type de connexion"/>
 	<entry key="Encryption" value="Chiffrement"/>
+	<entry key="Sender" value="Sender" />
 	<entry key="ExtensionsEnabled" value="Activation des extensions"/>
 	<entry key="Save" value="Sauvegarder"/>
 	<entry key="Cancel" value="Annuler"/>
@@ -36,4 +38,5 @@
 	<entry key="WarningTemplateNotWritable" value="Le dossier est protégé en écriture"/>
 	<entry key="NotificationTemplateDeleteSucceeded" value="Le modèle a été supprimé"/>
 	<entry key="WarningTemplateDeleteFailed" value="Une erreur inconnue s'est produite retrait de modèle"/>
+	<entry key="WarningInstallWebsiteData" value="You are about to install the website data associated with the selected design template (recommended for new websites). This may overwrite the existing website though. Do you want to continue?" />
 </entries>

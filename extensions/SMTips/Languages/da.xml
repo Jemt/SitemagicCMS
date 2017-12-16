@@ -5,6 +5,8 @@
 	<entry key="SpeechBubbleButtonOk" value="Ok"/>
 	<entry key="SpeechBubbleButtonDisable" value="Deaktiver tips"/>
 	<entry key="SpeechBubbleDisableWarning" value="Nogle funktioner i Sitemagic CMS kræver lidt forklaring. Er du fuldstændig sikker på at du vil slå tips fra?"/>
+	<entry key="SMLoginTitle" value="Log ind til administrationen"/>
+	<entry key="SMLoginDescription" value="Indtast brugernavn (standard: admin) og adgangskode (standard: admin) for at tilgå administrations-sektionen. Husk at ændre standard brugernavn og adgangskode straks efter log ind under Admin &gt; Indstillinger!"/>
 	<entry key="SMAnnouncementsWelcomeTitle" value="Velkommen til Sitemagic CMS"/>
 	<entry key="SMAnnouncementsWelcomeThanks" value="Tak fordi du valgte Sitemagic CMS til din nye webside."/>
 	<entry key="SMAnnouncementsWelcomeTips" value="For at hjælpe dig godt i gang med Sitemagic CMS, vises tips og tricks første gang du åbner et modul i kontrolpanelet."/>
@@ -41,8 +43,10 @@
 	<entry key="SMPagesEditorButtonImagesTitle" value="Indsæt billede"/>
 	<entry key="SMPagesEditorButtonImagesDescription" value="Brug denne knap for at indsætte et billede hvor markøren er placeret."/>
 	<entry key="SMPagesEditorButtonImagesDialog" value="Brug denne menu til at vælge et billede. Billeder uploades under Indhold &gt; Filer til mappen images."/>
-	<entry key="SMPagesEditorButtonCardsTitle" value="Kort-design"/>
-	<entry key="SMPagesEditorButtonCardsDescription" value="Brug denne menu til at ændre layoutet til Kort. Så snart layoutet er ændret, kan du trykke ENTER for at oprette nye kort og bruge denne menu til at ændre størrelsen på hvert kort. For at lave lineskift trykkes blot SHIFT+ENTER."/>
+	<!--entry key="SMPagesEditorButtonCardsTitle" value="Kort-design"/>
+	<entry key="SMPagesEditorButtonCardsDescription" value="Brug denne menu til at ændre layoutet til Kort. Så snart layoutet er ændret, kan du trykke ENTER for at oprette nye kort og bruge denne menu til at ændre størrelsen på hvert kort. For at lave lineskift trykkes blot SHIFT+ENTER."/-->
+	<entry key="SMPagesEditorButtonFluidGridsTitle" value="Indsæt Tabel eller Grid"/>
+	<entry key="SMPagesEditorButtonFluidGridsDescription" value="Klik her for at tilføje en responsiv data-tabel, et flydende gitter (Fluid Grid) eller flydende gitter-kort (Fluid Grid Cards)"/>
 	<entry key="SMPagesEditorButtonExtensionsTitle" value="Indsæt Side-udvidelse"/>
 	<entry key="SMPagesEditorButtonExtensionsDescription" value="Klik her for at tilføje Side-udvidelser som Kontaktformularer, Eksterne Moduler (fx YouTube, Kort eller Musik), kommentar-boks, Vurderings-stjerner og mere. Side-udvidelser aktiveres og deaktiveres under Admin &gt; Indstillinger."/>
 	<entry key="SMDesignerTitle" value="Designer"/>

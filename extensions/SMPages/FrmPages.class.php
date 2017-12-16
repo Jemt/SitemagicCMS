@@ -595,7 +595,8 @@ class SMPagesFrmPages implements SMIExtensionForm
 			return;
 		}
 
-		if (preg_match("/^[a-z0-9._-]+$/i", $filename) === 0)
+		//if (preg_match("/^[a-z0-9._-]+$/i", $filename) === 0)
+		if (SMStringUtilities::Validate($filename, SMValueRestriction::$AlphaNumeric, array(".", "-", "_")) === false)
 		{
 			$this->errorForm = $this->lang->GetTranslation("FilenameInvalid");
 			return;

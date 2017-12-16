@@ -95,7 +95,7 @@ class SMAutoSeoUrls extends SMExtension // Supplementary extension to SMPages an
 
 	private function installHtAccess() // Install .htaccess file
 	{
-		return SMFileSystem::Copy(SMEnvironment::GetExtensionsDirectory() . "/SMPages/htaccess", ".htaccess");
+		return SMFileSystem::Copy(SMEnvironment::GetExtensionsDirectory() . "/SMPages/htaccess", ".htaccess", true);
 	}
 
 	private function checkAccessUsingSeoUrl() // Check whether front page is accessible using SEO URL

@@ -27,7 +27,7 @@ class SMExternalModulesContentPageExtension extends SMPagesExtension
 
 			// Reason for registering iFrame as text instead of using DOM method: See FrmSettings.class.php
 			// iFrame is registered using JavaScript to allow Strict HTML to validate when using external modules.
-			var module = \"<\" + \"iframe src='" . $extmod->GetUrl() . "' width='" . (($extmod->GetWidthUnit() === SMExternalModulesUnit::$Percent) ? "100%" : $extmod->GetWidth()) . "' height='" . $extmod->GetHeight() . (($extmod->GetHeightUnit() === SMExternalModulesUnit::$Percent) ? "%" : "") . "' scrolling='" . strtolower($extmod->GetScroll()) . "' frameBorder='0' style='" . (($extmod->GetFrameColor() !== "") ? "border: 1px solid " . $extmod->GetFrameColor() : "") . "' onload='" . (($extmod->GetReloadToTop() === true) ? "window.scrollTo(0, 0)" : "") . "' allowTransparency='true'></\" + \"iframe>\";
+			var module = \"<\" + \"iframe src='" . $extmod->GetUrl() . "' width='" . (($extmod->GetWidthUnit() === SMExternalModulesUnit::$Percent) ? "100%" : $extmod->GetWidth()) . "' height='" . $extmod->GetHeight() . (($extmod->GetHeightUnit() === SMExternalModulesUnit::$Percent) ? "%" : "") . "' scrolling='" . strtolower($extmod->GetScroll()) . "' frameBorder='0' style='" . (($extmod->GetFrameColor() !== "") ? "border: 1px solid " . $extmod->GetFrameColor() : "") . "' onload='" . (($extmod->GetReloadToTop() === true) ? "window.scrollTo(0, 0)" : "") . "' allowFullScreen='allowFullScreen' allowTransparency='true'></\" + \"iframe>\";
 			moduleContainer.innerHTML = module;
 
 			if (moduleContainer.firstChild.width === '100%')

@@ -96,7 +96,7 @@ class SMContactFrmSettings implements SMIExtensionForm
 		$this->lstFieldTypes->AddOption(new SMOptionListItem("SMContactFieldTypeTextField", $this->lang->GetTranslation("TextField"), SMContactFieldTypes::$Textfield));
 		$this->lstFieldTypes->AddOption(new SMOptionListItem("SMContactFieldTypeTextBox", $this->lang->GetTranslation("TextBox"), SMContactFieldTypes::$Textbox));
 		$this->lstFieldTypes->AddOption(new SMOptionListItem("SMContactFieldTypeCheckBox", $this->lang->GetTranslation("CheckBox"), SMContactFieldTypes::$Checkbox));
-		$this->lstFieldTypes->AddOption(new SMOptionListItem("SMContactFieldTypeEmail", $this->lang->GetTranslation("Email"), SMContactFieldTypes::$Email));
+		$this->lstFieldTypes->AddOption(new SMOptionListItem("SMContactFieldTypeEmail", $this->lang->GetTranslation("EmailCopy"), SMContactFieldTypes::$Email));
 		$this->lstFieldTypes->AddOption(new SMOptionListItem("SMContactFieldTypeAttachment", $this->lang->GetTranslation("Attachment"), SMContactFieldTypes::$Attachment));
 
 		$this->cmdCreate = new SMLinkButton("SMContactCreate");
@@ -161,7 +161,9 @@ class SMContactFrmSettings implements SMIExtensionForm
 			else if ($field->GetType() === SMContactFieldTypes::$Checkbox)
 				$type = $this->lang->GetTranslation("CheckBox");
 			else if ($field->GetType() === SMContactFieldTypes::$Email)
-				$type = $this->lang->GetTranslation("Email");
+				$type = $this->lang->GetTranslation("EmailCopy");
+			else if ($field->GetType() === SMContactFieldTypes::$Attachment)
+				$type = $this->lang->GetTranslation("Attachment");
 
 			$data[md5($field->GetTitle())] = array(
 				$this->lang->GetTranslation("FieldTitle")	=> $field->GetTitle(),

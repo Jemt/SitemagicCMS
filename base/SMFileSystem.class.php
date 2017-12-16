@@ -497,7 +497,10 @@ class SMFileSystem
 	/// 	<description> Send specified file as a download to client. Function stops further code execution. </description>
 	/// 	<param name="filePath" type="string"> Path to file to send to client </param>
 	/// 	<param name="continueExecution" type="boolean" default="false">
-	/// 		Set True to continue normal execution when file has been served. This might cause errors like &quot;Headers already sent&quot;.
+	/// 		Set True to continue normal execution when file has been served.
+	/// 		This might cause errors like &quot;Headers already sent&quot; or file corruption
+	/// 		if additional data is sent to the client. Therefore, make sure to call exit; to
+	/// 		terminate the script once additional logic is done executing.
 	/// 	</param>
 	/// </function>
 	public static function DownloadFileToClient($filePath, $continueExecution = false)
@@ -508,7 +511,6 @@ class SMFileSystem
 		$pathInfo = explode("/", $filePath);
 		$filename = $pathInfo[count($pathInfo) - 1];
 
-		header("Cache-Control: public");
 		header("Content-Description: File Transfer");
 		header("Content-Disposition: attachment; filename=\"" . $filename . "\"");
 		header("Content-Type: application/unknown");
@@ -521,7 +523,7 @@ class SMFileSystem
 			throw new Exception("Unable to serve file '" . $filePath . "' to client - error occured");
 
 		if ($continueExecution === false)
-			exit; // Avoid further processing and potentially "Headers already sent" error
+			exit; // Avoid further processing and potentially "Headers already sent" error or file corruption
 	}
 
 	/// <function container="base/SMFileSystem" name="FolderExists" access="public" static="true" returns="boolean">

@@ -1,0 +1,81 @@
+/* Center page and set width */
+div.TPLPage,
+html.Basic.SMPagesViewer,
+html.SMPagesEditor.SMPagesContentPage
+{
+	/* Width set on HTML element to prevent padding on BODY element from
+	   increasing its width: http://jsfiddle.net/fu6hcdro/2 vs. http://jsfiddle.net/vk8tx4gw/1 */
+
+	margin: 0 auto; /* Editor content not centered in IE7-8 - too bad! */
+	width: 900px;
+}
+html.Basic.SMPagesViewer body
+{
+	margin: 0px; /* Remove margin set in base.css which reduces page width */
+}
+
+/* Indent content in Content Area */
+div.TPLContent,
+div.TPLBasicContent,
+html.SMPagesEditor.SMPagesContentPage body
+{
+	/* Disable margin collapse.
+	   Make contained elements with top/bottom margins expand the content area rather than
+	   causing spacing above and below it.
+	   Examples: https://jsfiddle.net/275z819u/ and http://jsfiddle.net/o1vkar7c/2/
+	   Also see https://stackoverflow.com/questions/13573653/css-margin-terror-margin-adds-space-outside-parent-element. */
+	/*overflow: auto;*/ /* Not working well - hides box-shadow on Cards on mobile and Fit.UI DropDown */
+	padding-top: 0.02px; /*1px*/
+	padding-bottom: 0.02px; /*1px*/
+}
+html.Normal div.SMExtension,
+html.Basic.SMPagesViewer div.SMExtension
+{
+	/* Padding using margin:
+	   Extensions may not render output in a paragraph which would normally
+	   indent the content. Adding margin to div.SMExtension to fix this.
+	   It will not cause extra spacing if output is indeed rendered in a
+	   paragraph since margins collapse. This is also the reason why
+	   padding is not used on content area - padding and margin does not collapse. */
+	margin: 1.5em;
+}
+/* Since div.SMExtension is not found in editable area in
+   page editor, we add indention using padding-left/right on body element.
+   Padding and margin does not collapse, but neither would margin-left
+   or margin-right - collapsing only occures vertically, so using
+   padding-left/right is fine in this case.
+   For indention in top and bottom we add a pseudo element with
+   margin-top/bottom, which does allow for margin collapse so that double
+   spacing does not occure if an element with margin-top/bottom is added. */
+html.SMPagesEditor.SMPagesContentPage body
+{
+	padding-left: 1.5em;
+	padding-right: 1.5em;
+	margin: 0px; /* Remove margin set by editor which reduces page width */
+
+	min-height: 200px;
+
+	/* Outline editable area */
+	outline: 1px dashed silver;
+	*border: 1px dashed silver; /* IE7 alternative to outline which is not supported */
+}
+html.SMPagesEditor.SMPagesContentPage body:before /* IE7 and below not supported */
+{
+	content: "";
+	display: block;
+	margin-bottom: 1.5em; /* Notice that margin collapse does not work with floated elements (images, Cards, etc.) */
+}
+html.SMPagesEditor.SMPagesContentPage body:after /* IE7 and below not supported */
+{
+	content: "";
+	display: block;
+	margin-top: 1.5em; /* Notice that margin collapse does not work with floated elements (images, Cards, etc.) */
+}
+
+/* Add spacing above and below content in preview and editor */
+html.Basic.SMPagesViewer body,
+html.SMPagesEditor.SMPagesContentPage body
+{
+	margin-top: 25px;
+	margin-bottom: 25px;
+}

@@ -15,7 +15,7 @@
 		<div class="tabs">
 			<ul>
 				<li id="general_tab" class="current" aria-controls="general_panel"><span><a href="javascript:mcTabs.displayTab('general_tab','general_panel');" onmousedown="return false;">{#table_dlg.general_tab}</a></span></li>
-				<li id="advanced_tab" aria-controls="advanced_panel" style="display: none"><!-- Hidden by Sitemagic --><span><a href="javascript:mcTabs.displayTab('advanced_tab','advanced_panel');" onmousedown="return false;">{#table_dlg.advanced_tab}</a></span></li>
+				<li id="advanced_tab" aria-controls="advanced_panel"><span><a href="javascript:mcTabs.displayTab('advanced_tab','advanced_panel');" onmousedown="return false;">{#table_dlg.advanced_tab}</a></span></li>
 			</ul>
 		</div>
 
@@ -25,7 +25,7 @@
 					<legend>{#table_dlg.general_props}</legend>
 
 					<table role="presentation" border="0" cellpadding="4" cellspacing="0">
-						<tr style="display: none"> <!-- Hidden by Sitemagic -->
+						<tr class="SMPagesEditorHiddenOption"> <!-- Hidden by Sitemagic -->
 							<td><label for="align">{#table_dlg.align}</label></td>
 							<td>
 								<select id="align" name="align" class="mceFocus">
@@ -45,7 +45,7 @@
 							</td>
 						</tr>
 
-						<tr style="display: none"> <!-- Hidden by Sitemagic -->
+						<tr class="SMPagesEditorHiddenOption"> <!-- Hidden by Sitemagic -->
 							<td><label for="valign">{#table_dlg.valign}</label></td>
 							<td>
 								<select id="valign" name="valign">
@@ -104,7 +104,7 @@
 							<td><input type="text" id="style" name="style" value="" style="width: 200px;" onchange="changedStyle();" /></td>
 						</tr>
 
-						<tr>
+						<tr class="SMPagesEditorHiddenOption"> <!-- Hidden by Sitemagic -->
 							<td class="column1"><label for="dir">{#table_dlg.langdir}</label></td>
 							<td>
 								<select id="dir" name="dir" style="width: 200px">
@@ -115,7 +115,7 @@
 							</td>
 						</tr>
 
-						<tr>
+						<tr class="SMPagesEditorHiddenOption"> <!-- Hidden by Sitemagic -->
 							<td class="column1"><label for="lang">{#table_dlg.langcode}</label></td>
 							<td>
 								<input id="lang" name="lang" type="text" value="" style="width: 200px" />

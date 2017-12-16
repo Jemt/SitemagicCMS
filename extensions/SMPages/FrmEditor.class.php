@@ -37,6 +37,8 @@ class SMPagesFrmEditor implements SMIExtensionForm
 	{
 		if ($this->context->GetForm()->PostBack() === true && SMEnvironment::GetPostValue("SMPagesDisableSave") === null)
 			$this->savePage();
+
+		$this->txtContent->SetValue(str_replace("{[", "{##[", str_replace("]}", "]##}", $this->txtContent->GetValue()))); // Preserve placeholders
 	}
 
 	private function savePage()
@@ -202,6 +204,9 @@ class SMPagesFrmEditor implements SMIExtensionForm
 		$language = ((SMFileSystem::FileExists(SMExtensionManager::GetExtensionPath($this->context->GetExtensionName()) . "/editor/langs/" . SMLanguageHandler::GetSystemLanguage() . ".js") === true) ? SMLanguageHandler::GetSystemLanguage() : "en");
 		$listdir = SMEnvironment::GetFilesDirectory() . "/editor";
 
+		$cfg = SMEnvironment::GetConfiguration();
+		$legacyTables = ($cfg->GetEntry("SMPagesLegacyTables") !== null && strtolower($cfg->GetEntry("SMPagesLegacyTables")) === "true");
+
 		$output = "";
 
 		if ($this->error !== "")
@@ -210,6 +215,9 @@ class SMPagesFrmEditor implements SMIExtensionForm
 		$output .= "
 		<script type=\"text/javascript\" src=\"" . SMExtensionManager::GetExtensionPath("SMPages") . "/editor/tiny_mce.js?ver=" . SMEnvironment::GetVersion() . "\"></script>
 		<script type=\"text/javascript\">
+		window.SMPagesLegacyTables = " . ($legacyTables ? "true" : "false") . ";
+		if (window.SMPagesLegacyTables) SMDom.AddClass(document.body.parentElement, \"SMPagesEditorEnableHiddenOptions\");
+
 		var smPagesResizeTimer = null;
 		var smPagesPageSize = SMBrowser.GetPageWidth() + \"x\" + SMBrowser.GetPageHeight();
 
@@ -271,6 +279,9 @@ class SMPagesFrmEditor implements SMIExtensionForm
 
 		document.body.style.display = \"none\"; // Hide editor until various CSS classes has been registered to avoid Flash of Unstyled Content (see OnInit event handler)
 
+		var txt = document.getElementById(\"" . $this->txtContent->GetClientId() . "\");
+		txt.value = txt.value.replace(/{##\[/g, \"{\" + \"[\").replace(/\]##}/g, \"]\" + \"}\"); // Restore placeholders
+
 		tinyMCE.init({
 			// General options
 			mode : \"exact\",
@@ -281,7 +292,7 @@ class SMPagesFrmEditor implements SMIExtensionForm
 			// Theme options
 			theme_advanced_buttons1 : \"save,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect\",
 			theme_advanced_buttons2 : \"smextensions,|,cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code,|,insertdate,inserttime,preview,|,forecolor,backcolor\",
-			theme_advanced_buttons3 : \"tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl\",
+			theme_advanced_buttons3 : \"table,delete_table,|,row_props,cell_props,|,delete_col,delete_row,col_before,col_after,row_before,row_after" . (($legacyTables === true) ? ",|,split_cells,merge_cells" : "") . ",|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl\",
 			theme_advanced_buttons4 : \"insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,pagebreak\",
 			theme_advanced_toolbar_location : \"top\",
 			theme_advanced_toolbar_align : \"left\",
@@ -289,9 +300,11 @@ class SMPagesFrmEditor implements SMIExtensionForm
 
 			// Clear lists with CSS classes (must have a value to prevent TinyMCE from detecting available classes)
 			theme_advanced_styles : \" \",
+			" . (($legacyTables === false) ? "
 			table_styles : \"Data table=SMPagesDataTable;-----= ;Fluid Grid=SMPagesFluidGrid;Fluid Grid (stack below 900px)=SMPagesFluidGridStack900;Fluid Grid (stack below 700px)=SMPagesFluidGridStack700;Fluid Grid (stack below 500px)=SMPagesFluidGridStack500;-----= ;Fluid Grid Cards=SMPagesFluidGrid SMPagesGridCards;Fluid Grid Cards (stack below 900px)=SMPagesFluidGridStack900 SMPagesGridCards;Fluid Grid Cards (stack below 700px)=SMPagesFluidGridStack700 SMPagesGridCards;Fluid Grid Cards (stack below 500px)=SMPagesFluidGridStack500 SMPagesGridCards\",
 			table_cell_styles : \"Spacing=SMPagesTableCellSpacing\",
-			table_row_styles : \" \",
+			table_row_styles : \" \"," : "") . "
+			advlink_styles: \"Action button (primary)=SMPagesActionButton SMPagesActionButtonPrimary;Action button (secondary)=SMPagesActionButton SMPagesActionButtonSecondary\",
 
 			content_css : \"" . SMEnvironment::GetExternalUrl() . "/" . SMExtensionManager::GetExtensionPath("SMPages") . "/editor.css?ver=" . SMEnvironment::GetVersion() . (($basicCssFile !== null) ? "," . SMEnvironment::GetExternalUrl() . "/" . $basicCssFile : "") . (($overrideCssFile !== null) ? "," . SMEnvironment::GetExternalUrl() . "/" . $overrideCssFile : "") . "\",
 
@@ -340,6 +353,7 @@ class SMPagesFrmEditor implements SMIExtensionForm
 					SMDom.AddClass(htmlElement, \"SMPagesEditor\");
 					SMDom.AddClass(htmlElement, \"SMPages" . ((strpos($this->page->GetFilename(), "#") === 0) ? "SystemPage" : "ContentPage") . "\");
 					SMDom.AddClass(htmlElement, \"SMPagesFilename" . str_replace("#", "", $this->page->GetFilename()) . "\");
+					SMDom.AddClass(htmlElement, \"SMPagesPageId" . $this->page->GetId() . "\");
 					smPagesSetPageLayout(ed, htmlElement); // Make sure page is initially set to correct Page Layout (Classic or Card)
 
 					document.body.style.display = \"\"; // Page is ready, make it visible again by removing display:none

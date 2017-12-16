@@ -5,7 +5,8 @@
 	<entry key="TextField" value="Tekstfelt" />
 	<entry key="TextBox" value="Tekstboks" />
 	<entry key="CheckBox" value="Afkrydsning" />
-	<entry key="Email" value="Email (svar til)" />
+	<!--entry key="Email" value="Email (svar til)" /-->
+	<entry key="EmailCopy" value="Email (modtager kopi)" />
 	<entry key="Attachment" value="Vedhæftet fil" />
 	<entry key="FileSizeLimit" value="Filen kunne ikke vedhæftes - den maksimale upload størrelse tilladt er 2048 KB i alt" />
 	<entry key="Clear" value="Rens" />
@@ -29,7 +30,6 @@
 	<entry key="ErrorNoSelection" value="Vælg venligst et felt" />
 	<entry key="ErrorMissing" value="Det valgte felt eksisterer ikke længere" />
 	<entry key="ErrorNoRecipients" value="Der er ikke angivet modtagere i indstillingerne" />
-	<entry key="ErrorInvalidFilename" value="Filnavn indeholder ugyldige tegn" />
 	<entry key="ErrorSending" value="Beskeden kunne ikke sendes - der opstod en fejl" />
 	<entry key="FieldsNotDefined" value="Der er ikke defineret tekstfelter til kontaktformularen" />
 

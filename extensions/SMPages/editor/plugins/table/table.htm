@@ -16,7 +16,7 @@
 		<div class="tabs">
 			<ul>
 				<li id="general_tab" aria-controls="general_panel" class="current"><span><a href="javascript:mcTabs.displayTab('general_tab','general_panel');" onmousedown="return false;">{#table_dlg.general_tab}</a></span></li>
-				<li id="advanced_tab" aria-controls="advanced_panel" style="display: none"><!-- Hidden by Sitemagic --><span><a href="javascript:mcTabs.displayTab('advanced_tab','advanced_panel');" onmousedown="return false;">{#table_dlg.advanced_tab}</a></span></li>
+				<li id="advanced_tab" aria-controls="advanced_panel" class="SMPagesEditorHiddenOption"><!-- Hidden by Sitemagic --><span><a href="javascript:mcTabs.displayTab('advanced_tab','advanced_panel');" onmousedown="return false;">{#table_dlg.advanced_tab}</a></span></li>
 			</ul>
 		</div>
 
@@ -31,13 +31,13 @@
 							<td><label id="rowslabel" for="rows">{#table_dlg.rows}</label></td>
 							<td><input id="rows" name="rows" type="text" value="" size="3" maxlength="3" class="required number min1" aria-required="true" /></td>
 						</tr>
-						<tr style="display: none"> <!-- Hidden by Sitemagic -->
+						<tr class="SMPagesEditorHiddenOption"> <!-- Hidden by Sitemagic -->
 							<td><label id="cellpaddinglabel" for="cellpadding">{#table_dlg.cellpadding}</label></td>
 							<td><input id="cellpadding" name="cellpadding" type="text" value="" size="3" maxlength="3" class="number" /></td>
 							<td><label id="cellspacinglabel" for="cellspacing">{#table_dlg.cellspacing}</label></td>
 							<td><input id="cellspacing" name="cellspacing" type="text" value="" size="3" maxlength="3" class="number" /></td>
 						</tr>
-						<tr style="display: none"> <!-- Hidden by Sitemagic -->
+						<tr class="SMPagesEditorHiddenOption"> <!-- Hidden by Sitemagic -->
 							<td><label id="alignlabel" for="align">{#table_dlg.align}</label></td>
 							<td><select id="align" name="align">
 								<option value="">{#not_set}</option>
@@ -61,7 +61,7 @@
 								<option value="" selected="selected">{#not_set}</option>
 							 </select></td>
 						</tr>
-						<tr style="display: none"> <!-- Hidden by Sitemagic -->
+						<tr class="SMPagesEditorHiddenOption"> <!-- Hidden by Sitemagic -->
 							<td class="column1" ><label for="caption">{#table_dlg.caption}</label></td>
 							<td><input id="caption" name="caption" type="checkbox" class="checkbox" value="true" /></td>
 						</tr>

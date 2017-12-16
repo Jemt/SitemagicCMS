@@ -5,7 +5,8 @@
 	<entry key="TextField" value="Champ de texte"/>
 	<entry key="TextBox" value="Zone de texte"/>
 	<entry key="CheckBox" value="Case à cocher"/>
-	<entry key="Email" value="Courrièl de réponse"/>
+	<!--entry key="Email" value="Courrièl de réponse"/-->
+	<entry key="EmailCopy" value="Email (receives copy)" />
 	<entry key="Attachment" value="Fichier attaché" />
 	<entry key="FileSizeLimit" value="Impossible d'attacher le fichier - la taille maximum de téléchargement permise est de 2048 Ko au total" />
 	<entry key="Clear" value="Effacement"/>
@@ -29,7 +30,6 @@
 	<entry key="ErrorNoSelection" value="Veuillez sélectionner un champ"/>
 	<entry key="ErrorMissing" value="Le champ sélectionné n'existent plus"/>
 	<entry key="ErrorNoRecipients" value="Aucun élément n'a été spécifiés dans les paramètres"/>
-	<entry key="ErrorInvalidFilename" value="Filename contains invalid characters" />
 	<entry key="ErrorSending" value="Le message n'a pas pu être délivré - Une erreur s'est produite"/>
 	<entry key="FieldsNotDefined" value="Aucun champ de texte n'a été définis pour le formulaire de contact"/>
 	<entry key="RequiredError" value="Veuillez remplir tous les champs obligatoires"/>

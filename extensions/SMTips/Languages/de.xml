@@ -5,6 +5,8 @@
 	<entry key="SpeechBubbleButtonOk" value="OK"/>
 	<entry key="SpeechBubbleButtonDisable" value="Tipps löschen."/>
 	<entry key="SpeechBubbleDisableWarning" value="Einige Features in Sitemagic CMS bedürfen einer Erkläring. Sind Sie sich sicher, dass Sie die Tipps löschen möchten?"/>
+	<entry key="SMLoginTitle" value="Log in to administration"/>
+	<entry key="SMLoginDescription" value="Enter username (default: admin) and password (default: admin) to access the administration section. Remember to change the default username and password immediately after log in under Admin &gt; Settings!"/>
 	<entry key="SMAnnouncementsWelcomeTitle" value="Willkommen zu Sitemagig CMS."/>
 	<entry key="SMAnnouncementsWelcomeThanks" value="Wir bedanken uns dafür, dass Sie sich für Sitemagic CMS für ihre neue Website entschieden haben."/>
 	<entry key="SMAnnouncementsWelcomeTips" value="Um Ihnen beim Start von Sitemagic CMS zu helfen, werden beim ersten Anklicken eines Moduls am Kontrollbalken Tipps und Tricks gezeigt."/>
@@ -41,8 +43,10 @@
 	<entry key="SMPagesEditorButtonImagesTitle" value="Bild hinzufügen"/>
 	<entry key="SMPagesEditorButtonImagesDescription" value="Benuzten Sie diesen Button, um ein Bild dort einzusetzen, wo der Cursor momentan plaziert ist."/>
 	<entry key="SMPagesEditorButtonImagesDialog" value="Benutzen Sie dieses Menü, um ein Bild zum Einsetzten zu wählen. Bilder werden in Inhalt &gt; Dateien zu dem Images-Ordner hochgeladen."/>
-	<entry key="SMPagesEditorButtonCardsTitle" value="Kartendesign "/>
-	<entry key="SMPagesEditorButtonCardsDescription" value="Benutzen Sie dieses Menü, um das Kartenlayout zu ändern. Wurde das Layout geändert, können Sie den ENTER-Button drücken, um neue Karten zu erstellen und das Menü zur Änderung der Größe jeder einzelnen Karte benuzten. Drücken Sie Shift+Enter, um Zeilenwechsel zu erstellen."/>
+	<!--entry key="SMPagesEditorButtonCardsTitle" value="Kartendesign "/>
+	<entry key="SMPagesEditorButtonCardsDescription" value="Benutzen Sie dieses Menü, um das Kartenlayout zu ändern. Wurde das Layout geändert, können Sie den ENTER-Button drücken, um neue Karten zu erstellen und das Menü zur Änderung der Größe jeder einzelnen Karte benuzten. Drücken Sie Shift+Enter, um Zeilenwechsel zu erstellen."/-->
+	<entry key="SMPagesEditorButtonFluidGridsTitle" value="Insert Table or Grid"/>
+	<entry key="SMPagesEditorButtonFluidGridsDescription" value="Click here to add a responsive Data Table, Fluid Grid, or Fluid Grid Cards"/>
 	<entry key="SMPagesEditorButtonExtensionsTitle" value="Seitenerweiterung hinzufügen"/>
 	<entry key="SMPagesEditorButtonExtensionsDescription" value="Clicken Sie hier, um Seitenergänzungen wie Kontaktformen, externe Module (z.B. YouTube, Maps, oder Musik.), Kommentarfelder, Ratings usw. hinzuzufügen. Seitenerweiterungen werden in Admin &gt; Einstellungen vorgenommen."/>
 	<entry key="SMDesignerTitle" value="Website designen "/>

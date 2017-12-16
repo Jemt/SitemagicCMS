@@ -403,12 +403,14 @@ class SMInput
 	/// </function>
 	public function GetValue()
 	{
-		if ($this->type === SMInputType::$File && isset($_FILES[$this->GetClientId()]) === true) // $this-value is returned if postback has not yet occured
+		if ($this->type === SMInputType::$File && isset($_FILES[$this->GetClientId()]) === true) // $this->value is returned if postback has not yet occurred or if file uploads have been disabled, in which case $this->value remains Null.
+		{
 			return $_FILES[$this->GetClientId()]["name"];
+		}
 
 		$maxLength = ((isset($this->attributes[SMInputAttribute::$MaxLength]) === true) ? $this->attributes[SMInputAttribute::$MaxLength] : null);
 
-		if ($maxLength !== null && SMStringUtilities::Validate($maxLength, SMValueRestriction::$Numeric) === true && strlen($this->value) > (int)$maxLength)
+		if ($this->value !== null && $maxLength !== null && SMStringUtilities::Validate($maxLength, SMValueRestriction::$Numeric) === true && strlen($this->value) > (int)$maxLength)
 		{
 			// Value is too long - substring to fit Max Length.
 			// Substringing may break unicode characters encoded into HEX entities - e.g. &#64000; gets substringed into &#640.

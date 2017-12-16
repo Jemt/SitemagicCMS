@@ -1,0 +1,8 @@
+<?php exit(); ?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<database>
+	<entry guid="9959cd74c60aa7079f2e0601db6b22d7" name="Music - Mike Mago &amp;amp; Dragonette - Outlines" url="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/163242589&amp;amp;color=ff5500&amp;amp;auto_play=false&amp;amp;hide_related=false&amp;amp;show_comments=true&amp;amp;show_user=true&amp;amp;show_reposts=false" width="520" widthunit="Pixels" height="125" heightunit="Pixels" scroll="No" reloadtotop="false" framecolor=""/>
+	<entry guid="7c067963dae1517c85257aaa4c1ce328" name="Facebook - Like Button" url="//www.facebook.com/plugins/like.php?href=https%3A%2F%2Fwww.facebook.com%2FSitemagicCMS&amp;amp;width=100&amp;amp;layout=button_count&amp;amp;action=like&amp;amp;show_faces=false&amp;amp;share=false&amp;amp;height=21" width="110" widthunit="Pixels" height="21" heightunit="Pixels" scroll="No" reloadtotop="false" framecolor=""/>
+	<entry guid="7cb82c0f43a4c69c34c4288130007a24" name="Video - Working with Sitemagic CMS" url="//www.youtube.com/embed/ovDbNiRSYQI" width="100" widthunit="Percent" height="482" heightunit="Pixels" scroll="No" reloadtotop="false" framecolor=""/>
+	<entry guid="265a4a1910f50d029ddb357e932a977a" name="Maps - Find us" url="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7053599.387270342!2d81.10050596257419!3d30.31852615290819!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3995b9ebef1235bd%3A0x3ae1297b70640201!2sHimalayas!5e0!3m2!1sen!2sdk!4v1499983867741" width="100" widthunit="Percent" height="400" heightunit="Pixels" scroll="No" reloadtotop="false" framecolor=""/>
+</database>

@@ -25,6 +25,9 @@
 class SMLanguageHandler
 {
 	private $lang;
+	private $fallbackPath;		// String:			Path to language file
+	private $fallbackLang;		// SMConfiguration:	Fallback language
+	private $fallbackEnabled;	// Bool:			Flag indicating whether fallback is enabled or not
 
 	/// <function container="base/SMLanguageHandler" name="__construct" access="public">
 	/// 	<description> Create instance of SMLanguageHandler </description>
@@ -47,10 +50,14 @@ class SMLanguageHandler
 		if ($langCode === "")
 			$langCode = self::GetDefaultSystemLanguage();
 
+		$this->fallbackPath = (($extension !== "") ? SMExtensionManager::GetExtensionPath($extension) : "base") . "/Languages/en.xml";
+		$this->fallbackLang = null;
+		$this->fallbackEnabled = (($langCode !== "en") ? true : false);
+
 		$langFile = (($extension !== "") ? SMExtensionManager::GetExtensionPath($extension) : "base") . "/Languages/" . $langCode . ".xml";
 
 		if (SMFileSystem::FileExists($langFile) === false && $writable === false) // Do not assume english if $writable is true
-			$langFile = (($extension !== "") ? SMExtensionManager::GetExtensionPath($extension) : "base") . "/Languages/en.xml";
+			$langFile = $this->fallbackPath;
 
 		$this->lang = new SMConfiguration($langFile, $writable);
 	}
@@ -76,6 +83,15 @@ class SMLanguageHandler
 		SMTypeCheck::CheckObject(__METHOD__, "escape", $escape, SMTypeCheckType::$Boolean);
 
 		$entry = $this->lang->GetEntry($key);
+
+		if ($entry === null && $this->fallbackEnabled === true)
+		{
+			if ($this->fallbackLang === null)
+				$this->fallbackLang = new SMConfiguration($this->fallbackPath);
+
+			$entry = $this->fallbackLang->GetEntry($key);
+		}
+
 		return (($entry !== null) ? (($escape === false) ? $entry : str_replace("'", "\'", str_replace("\"", "\\\"", $entry))) : "");
 	}
 
@@ -116,6 +132,24 @@ class SMLanguageHandler
 	public function GetTranslationKeys()
 	{
 		return $this->lang->GetEntries();
+	}
+
+	/// <function container="base/SMLanguageHandler" name="GetFallbackEnabled" access="public" returns="boolean">
+	/// 	<description> Get value indicating whether GetTranslation(..) should fall back to English if a given translation is missing </description>
+	/// </function>
+	public function GetFallbackEnabled()
+	{
+		return $this->fallbackEnabled;
+	}
+
+	/// <function container="base/SMLanguageHandler" name="SetFallbackEnabled" access="public">
+	/// 	<description> Set value indicating whether GetTranslation(..) should fall back to English if a given translation is missing </description>
+	/// 	<param name="val" type="boolean"> Set True to enable fallback, False to disable fallback </param>
+	/// </function>
+	public function SetFallbackEnabled($val)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "val", $val, SMTypeCheckType::$Boolean);
+		$this->fallbackEnabled = $val;
 	}
 
 	// Static members

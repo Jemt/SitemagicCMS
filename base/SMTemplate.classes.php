@@ -497,8 +497,12 @@ class SMTemplate
 
 				if (SMStringUtilities::EndsWith($path, "../_BaseGeneric/index.html") === true)
 					$path = SMEnvironment::GetTemplatesDirectory() . "/../../../" . $templatesFolderName . "/_BaseGeneric/index.html";
-				if (SMStringUtilities::EndsWith($path, "../_BaseGeneric/basic.html") === true)
+				else if (SMStringUtilities::EndsWith($path, "../_BaseGeneric2/index.html") === true)
+					$path = SMEnvironment::GetTemplatesDirectory() . "/../../../" . $templatesFolderName . "/_BaseGeneric2/index.html";
+				else if (SMStringUtilities::EndsWith($path, "../_BaseGeneric/basic.html") === true)
 					$path = SMEnvironment::GetTemplatesDirectory() . "/../../../" . $templatesFolderName . "/_BaseGeneric/basic.html";
+				else if (SMStringUtilities::EndsWith($path, "../_BaseGeneric2/basic.html") === true)
+					$path = SMEnvironment::GetTemplatesDirectory() . "/../../../" . $templatesFolderName . "/_BaseGeneric2/basic.html";
 			}
 
 			$fileReader = new SMTextFileReader($path);
@@ -548,8 +552,10 @@ class SMTemplateInfo
 		$templates = array();
 
 		foreach ($folders as $folder)
-			if (strpos($folder, "_") !== 0)
+		{
+			if (strpos($folder, "_") !== 0 && SMFileSystem::FolderIsReadable(dirname(__FILE__) . "/../" . SMEnvironment::GetTemplatesDirectory() . "/" . $folder) === true)
 				$templates[] = $folder;
+		}
 
 		return $templates;
 	}

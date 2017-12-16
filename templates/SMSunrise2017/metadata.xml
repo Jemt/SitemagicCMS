@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Sunrise 2017" />
+	<entry key="Description" value="A highly customizable design template. The design includes a demo website with example pages and data to get you started." />
+	<entry key="Author" value="Jimmy Thomsen" />
+	<entry key="Company" value="Sitemagic" />
+	<entry key="Website" value="http://sitemagic.org" />
+	<entry key="Email" value="dev@sitemagic.org" />
+	<entry key="Version" value="1.0" />
+	<entry key="Dependencies" value="SMPages;SMMenu;SMFiles;SMDesigner;SMContact;SMExternalModules;SMSearch" />
+	<entry key="Notes" value="For Sitemagic CMS 4.3 and newer" />
+</entries>

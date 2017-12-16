@@ -82,20 +82,47 @@ class SMEnvironment
 
 	/// <function container="base/SMEnvironment" name="GetJsonData" access="public" static="true" returns="array">
 	/// 	<description>
-	/// 		Get raw JSON data set to server via POST without a post collection key.
-	/// 		Data is returned as a multi dimentional array
+	/// 		Get raw JSON data sent to server via POST without a POST collection key.
+	/// 		Data is returned as a multi dimentional array. Unicode specific characters
+	/// 		are converted into HEX entities to represent data using ISO-8859-1 encoding.
+	/// 		SMStringUtilities::UnicodeEncode(..) and SMStringUtilities::UnicodeDecode(..)
+	/// 		can be used to transform data back and forth between ISO-8859-1 and Unicode.
 	/// 	</description>
 	/// </function>
 	public static function GetJsonData()
 	{
-		$data = file_get_contents("php://input"); // Read JSON data sent to server without a POST key
-		$jsonArray = json_decode($data, true); // XMLHttpRequest always sends UTF-8 which is also what json_decode(..) expects
-		$jsonArray = self::decodeArrayFromUtf8ToLatin1($jsonArray); // Convert data to ISO-8859-1
+		// NOTICE: The client sends data as UTF-8, but Sitemagic uses ISO-8859-1 due to limitations in earlier versions of PHP.
+		// Data is therefore transformed into ISO-8859-1. Unicode characters are converted into HEX entities.
+
+		// Read JSON data sent to server without a POST key
+		$data = file_get_contents("php://input");
+
+		// Prevent invalid byte sequences which may lead to Invalid Encoding Attacks
+		if (mb_check_encoding($data, "UTF-8") === false)
+			throw new Exception("Invalid byte sequence detected");
+
+		// Convert JSON to associative array.
+		// XMLHttpRequest always sends UTF-8 which is also what json_decode(..) expects.
+		$jsonArray = json_decode($data, true);
+
+		// Return null if no data, null, or invalid JSON was provided
+		if ($jsonArray === null)
+			return null;
+
+		// Mixed return types not supported even though json_decode(..) allows it
+		if (is_bool($jsonArray) === true)
+			return array("value" => $jsonArray);
+
+		// Convert data to ISO-8859-1 - unicode characters are turned into HEX entities
+		$jsonArray = self::decodeArrayFromUtf8ToLatin1($jsonArray);
+
 		return $jsonArray;
 	}
 
 	private static function decodeArrayFromUtf8ToLatin1($arr)
 	{
+		SMTypeCheck::CheckObject(__METHOD__, "arr", $arr, SMTypeCheckType::$Array);
+
 		foreach ($arr as $key => $value)
 		{
 			if (is_array($value) === true)
@@ -104,7 +131,7 @@ class SMEnvironment
 			}
 			else if (is_string($value) === true)
 			{
-				$arr[$key] = utf8_decode($value);
+				$arr[$key] = SMStringUtilities::UnicodeEncode($value); //utf8_decode($value);
 			}
 		}
 
@@ -315,8 +342,7 @@ class SMEnvironment
 		// Becomes:
 		// "Name" => "Sames Jackson"
 		// "ViewMode" => "Normal"
-
-		if (self::GetRequestPath() === "/") // Example: / OR /Sitemagic OR /Sitemagic/sites/demo
+		if (self::IsSubSite() === false)
 		{
 			$internalKeyPrefix = "SM#/#";
 
@@ -395,10 +421,10 @@ class SMEnvironment
 		$path = self::GetRequestPath();
 		$internalKey = $key;
 
-		if ($path === "/")
+		if (self::IsSubSite() === false)
 			$internalKey = "SM#/#" . $key; // Prevent conflicts with cookies on subsites - NOTICE: prefix MUST be identical to prefix used in SMClient.js client side!
 
-		if ($path !== "/") // e.g. /Sitemagic/sites/demo
+		if ($path !== "/") // e.g. /SitemagicDemo
 			$path .= "/";  // Must end with a slash to be compatible with path set by SMClient.js
 
 		// Set cookie client side (here we need the special internal key for cookies on root site to avoid conflicts with subsite cookies)
@@ -595,7 +621,7 @@ class SMEnvironment
 		return self::$version;
 	}
 
-	// <function container="base/SMEnvironment" name="GetClientCacheKey" access="public" static="true" returns="integer">
+	// <function container="base/SMEnvironment" name="GetClientCacheKey" access="public" static="true" returns="string">
 	/// 	<description>
 	/// 		Returns client cache key useful for forcing browser to reload CSS and JavaScript
 	/// 		when cache has been invalidated using SMEnvironment::UpdateClientCacheKey().
@@ -603,35 +629,32 @@ class SMEnvironment
 	/// 		$js = &quot;style.css?cacheKey=&quot; . SMEnvironment::GetClientCacheKey();
 	/// 	</description>
 	/// </function>
-	private static $cacheKey = -1;
+	private static $cacheKey = null;
 	public static function GetClientCacheKey()
 	{
-		if (self::$cacheKey === -1)
+		if (self::$cacheKey === null)
 		{
 			$ck = SMAttributes::GetAttribute("SMClientCacheKey");
 
 			if ($ck === null)
 			{
-				$ck = "1";
+				$ck = SMRandom::CreateGuid();
 				SMAttributes::SetAttribute("SMClientCacheKey", $ck);
 			}
 
-			self::$cacheKey = (int)$ck;
+			self::$cacheKey = $ck;
 		}
 
 		return self::$cacheKey;
 	}
 
 	// <function container="base/SMEnvironment" name="UpdateClientCacheKey" access="public" static="true">
-	/// 	<description> Update client cache key to force client resources to reload </description>
+	/// 	<description> Update client cache key to force client resources to load latest version </description>
 	/// </function>
 	public static function UpdateClientCacheKey()
 	{
-		$ck = self::GetClientCacheKey();
-		$ck++;
-
-		SMAttributes::SetAttribute("SMClientCacheKey", (string)$ck);
-
+		$ck = SMRandom::CreateGuid();
+		SMAttributes::SetAttribute("SMClientCacheKey", $ck);
 		self::$cacheKey = $ck;
 	}
 
@@ -834,8 +857,25 @@ class SMEnvironment
 		if ($val !== null && is_string($val) === true && SMStringUtilities::Validate($val, $restriction, $exceptions) === false)
 			throw new Exception("Security exception - value of " . $arrName . "['" . $key . "'] = '" . $val . "' is in conflict with value restriction '" . $restriction . "'" . ((count($exceptions) > 0) ? " and the following characters: " . implode("", $exceptions) : ""));
 
+		// Encode unicode characters into HEX entities for callbacks and make sure data is returned as ISO-8859-1
+
+		self::$isCallback = ((self::$isCallback !== -1) ? self::$isCallback : (isset($_GET["SMCallback"]) ? 1 : 0));
+
+		if ($val !== null && self::$isCallback) // Only callbacks pass data as Unicode - the code below would corrupt ISO-8859-1 strings
+		{
+			if (is_string($val) === true)
+			{
+				return SMStringUtilities::UnicodeEncode($val);
+			}
+			else if (is_array($val) === true)
+			{
+				return self::decodeArrayFromUtf8ToLatin1($val);
+			}
+		}
+
 		return $val;
 	}
+	private static $isCallback = -1; // -1 = Undetermined, 0 = No, 1 = Yes
 
 	private static function getSubSite()
 	{

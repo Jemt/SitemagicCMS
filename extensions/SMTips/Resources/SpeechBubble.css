@@ -17,7 +17,7 @@
 	content: '';
 	position: absolute;
 	border-style: solid;
-	border-width: 8px 12px 8px 0;
+	border-width: 8px 12px 8px 0; /* To point it to the right: 8px 0px 8px 12px */
 	border-color: transparent #FFFFFF;
 	display: block;
 	width: 0;

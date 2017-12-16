@@ -68,7 +68,7 @@ class SMMenuFrmLinkList implements SMIExtensionForm
 			var smwin = parentWindow.SMWindow.GetInstance(window.name);
 
 			parentWindow.SMDom.SetAttribute(\"" . (($receiverControl !== null) ? $receiverControl : "") . "\", \"value\", menu.options[menu.selectedIndex].value);
-			smwin.Close();
+			setTimeout(function() { smwin.Close(); }, 100); // Using setTimeout to prevent Chrome from crashing with 'aw, snap' (currently v. 59)
 		}
 		</script>
 

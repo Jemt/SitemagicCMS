@@ -22,6 +22,7 @@ class SMAnnouncements extends SMExtension
 
 		if (SMEnvironment::GetQueryValue("SMAnnouncementsFetch") === null)
 		{
+			$this->SetIsIntegrated(true);
 			return $this->renderScript();
 		}
 		else

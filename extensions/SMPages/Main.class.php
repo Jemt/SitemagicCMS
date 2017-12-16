@@ -104,9 +104,10 @@ class SMPages extends SMExtension
 
 		// Header and footer
 
+		$tpl = $this->context->GetTemplate();
+
 		if ($this->context->GetTemplateType() === SMTemplateType::$Normal)
 		{
-			$tpl = $this->context->GetTemplate();
 			$header = SMPagesPage::GetPersistentByFilename("#Header");
 			$footer = SMPagesPage::GetPersistentByFilename("#Footer");
 
@@ -123,6 +124,50 @@ class SMPages extends SMExtension
 				$tpl->AddHtmlClass("SMPagesCustomFooter");
 				$tpl->ReplaceTag(new SMKeyValue("Footer", $footerViewer->RenderPage($footer)));
 			}
+		}
+	}
+
+	public function TemplateUpdateComplete()
+	{
+		$tpl = $this->context->GetTemplate();
+
+		// Custom content place holders targeted at current page
+
+		$viewer = new SMPagesFrmViewer($this->context);
+		$page = SMPagesFrmViewer::GetCurrentPage(); // Returns "404 Page" if SMPages is not executing extension
+
+		if (SMExtensionManager::GetExecutingExtension() === "SMPages")
+		{
+			$targetPage = $page->GetFilename();
+			$pagePlaceHolderFilename = $tpl->GetTagsContent("{[@" . $targetPage . ":", "]}"); // E.g. {[@Index:ContactDetails]} - reads "On Index page insert content from ContactDetails page"
+
+			while ($pagePlaceHolderFilename !== null)
+			{
+				$page = SMPagesPage::GetPersistentByFilename($pagePlaceHolderFilename);
+
+				if ($page !== null && $page->GetContent() !== "")
+					$tpl->ReplaceTag(new SMKeyValue("@" . $targetPage . ":" . $pagePlaceHolderFilename, $viewer->RenderPage($page)));
+				else
+					$tpl->ReplaceTag(new SMKeyValue("@" . $targetPage . ":" . $pagePlaceHolderFilename, ""));
+
+				$pagePlaceHolderFilename = $tpl->GetTagsContent("{[@" . $targetPage . ":", "]}");
+			}
+		}
+
+		// Custom content place holders targeted at any page
+
+		$pagePlaceHolderFilename = $tpl->GetTagsContent("{[@", "]}"); // E.g. {[@ContactDetails]} - reads "Insert content from ContactDetails page"
+
+		while ($pagePlaceHolderFilename !== null)
+		{
+			$page = SMPagesPage::GetPersistentByFilename($pagePlaceHolderFilename);
+
+			if ($page !== null && $page->GetContent() !== "")
+				$tpl->ReplaceTag(new SMKeyValue("@" . $pagePlaceHolderFilename, $viewer->RenderPage($page)));
+			else
+				$tpl->ReplaceTag(new SMKeyValue("@" . $pagePlaceHolderFilename, ""));
+
+			$pagePlaceHolderFilename = $tpl->GetTagsContent("{[@", "]}");
 		}
 	}
 

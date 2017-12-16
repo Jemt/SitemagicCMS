@@ -2,36 +2,489 @@
 === Sitemagic Change Log ===============================================================================================
 ========================================================================================================================
 
+
+Changelog 2017-07-29 #4
+ - Installer
+    - Web install now ensures that all files are readable before creating backup.
+
+
+Changelog 2017-07-29 #3
+ - Installer
+    - Renamed to upgrade.php to prevent conflicts with web installer
+      downloaded from sitemagic.org, even though they are identical.
+      There is a good chance users will remove install.php after a
+      clean install leaving us with no mechanism for auto upgrades.
+
+
+Changelog 2017-07-29 #2
+ - Extensions
+    - SMConfig: Now reading template title from metadata.xml
+      if template folder is prefixed with SM.
+    - SMDesigner:
+       - Fixed caching problem with designer definitions.
+       - Fixed caching problem with Designer itself.
+       - Now always suggest "MyTemplate" as template name when downloading.
+ - Templates:
+    - All templates: All template folders have been prefixed with
+      SM to distinguish them from templates made by users/companies.
+ - Installer:
+    - Now capable of upgrading templates while preserving changes.
+    - Made sure installer is not cached client side.
+    - Added logging mechanism.
+    - Improved pre-flight to make sure upgrade and backup is possible.
+    - Various minor improvements.
+
+
+Changelog 2017-07-29 #1
+ - Base
+    - SMClient: Made ID argument in SMWindow constructor optional.
+ - Extensions
+    - SMConfig:
+       - Added unique ID to SMWindow instance (subsite form).
+       - Fixed JSON bug triggered by templates using
+         characters outside of A-Z and 0-9 in their folder names.
+ - Templates
+    - All templates: Fixed bug causing alternative font-size
+      for mobile and tablet to be applied within dialogs.
+
+
+Changelog 2017-07-27
+ - Installer
+    - Added new web installer that enables auto upgrades.
+ - Templates
+    - Minor fix to all templates: a header image now uses
+      background-size:cover to prevent spacing above/below image.
+
+
+Changelog 2017-07-26
+ - Templates
+    - BaseGeneric: Fixed missing box-sizing on header
+      and footer in page editor.
+    - All templates: Fixed bug preventing page padding
+      (left and right) from being removed by removing
+	  the values in the Designer.
+
+
+Changelog 2017-07-17
+ - Data
+    - New demo data
+ - Extensions
+    - SMConfig: Templates can now have demo data from alternative
+      template installed (TemplateData entry in metadata.xml).
+    - SMExternalModules: Added allowFullScreen attribute to iFrames
+      to support fullscreen video playback.
+ - Templates
+    - BaseGeneric2: Fixed background image which now stays in center
+      when resizing window (background-position: top center).
+    - CoffeeShop: Optimized demo data, made minor improvements, and
+      added new designer.js from Sunrise2.
+    - Company: Added new Company template.
+    - Fashion: Added new Fashion template.
+    - RealEstate: Minor improvements and added new designer.js from Sunrise2.
+    - Seasons: Added new Seasons template.
+    - Sunrise2: Added demo data and added spacing below footer.
+    - Sunset: Added new Sunset template.
+    - WorldPlayground: Added new WorldPlayground template.
+
+
+Changelog 2017-07-12
+ - Base:
+    - SMAttributes: Fixed typo causing an error when invoking Reload().
+ - Extensions
+    - SMAutoSeoUrls: Fixed bug preventing .htaccess from being upgraded.
+    - SMConfig:
+       - Template installation: Added support for extension activation
+         dependencies in templates (Dependencies entry in metadata.xml).
+       - Template installation: Old data is now purged from cache when
+         website demo data is installed.
+    - SMExternalModules: Fixed problem with Google Maps where URLs may contain
+      HEX entities which interferes with internal encoding in Sitemagic.
+ - Templates
+    - RealEstate: Added new RealEstate template based on Sunrise2.
+    - CoffeeShop: Added new CoffeeShop template based on Sunrise2.
+
+
+Changelog 2017-07-11
+ - Extensions
+    - SMMenu: Added fix preventing Chrome from crashing when
+	  using link picker.
+    - SMPages: Increased CSS specificity for action buttons
+	  to make sure styling overrules general link styling.
+ - Templates
+    - BaseGeneric2: Made images assume largest width possible on mobile.
+    - Sunrise2:
+       - Header image now always causes TPLMiddle to assume position:relative
+         to fix a problem with header image sticking on screen in Chrome, and
+         to make positioning of children consistent in case user toggles header
+		 position.
+       - Increased CSS specificity for action buttons
+         to make sure styling overrules general link styling.
+
+
+Changelog 2017-07-01 #3
+ - Templates
+    - Added _BaseGeneric from Sitemagic 4.2.3 for compatibility.
+      Old templates may still depend on it.
+
+
+Changelog 2017-07-01 #2
+ - Templates
+    - Renamed _BaseGeneric to _BaseGeneric2
+      and Sunrise to Sunrise2 to prevent compatibility
+      problems for users upgrading from older versions.
+    - Removed all remaining templates - some will be
+      recreated later with Sunrise2 as the foundation,
+      while others will be left out due to low quality.
+ - Base
+    - SMTemplate: Added support for _BaseGeneric2 (includes).
+
+
+Changelog 2017-07-01 #1
+ - Base
+    - SMTemplate: Fixed bug in GetTemplates() causing inaccessible
+      templates to be returned (insufficient folder permissions).
+ - Extensions
+    - SMLanguageHandler: Fixed bug that caused exception when one tried to
+      create translations for an extension where no translation file existed
+      the given language. Bug was introduced with language fallback mechanism.
+    - SMConfig:
+       - Added support for website data that can ship with templates
+         and be installed when switching between templates.
+       - Increased width of UI to accommodate wider labels.
+
+
+Changelog 2017-06-29
+ - Extensions
+    - SMDesigner: GetIndentationCss(..) helper function now has
+      an argument allowing for margin collapse to be disabled.
+ - Templates
+    - BaseGeneric
+       - All template elements implementing a class starting with TPL
+         now uses the border-box box sizing model.
+       - TPLHeader, TPLContent, and TPLFooter now uses padding with 0.02px
+         to disable margin collapse. This replaces overflow:auto which breaks
+         text shadows or padding-top/bottom:1px which affects the visual result
+		 on high-res displays supporting sub pixels.
+       - Support for moving up TPLBottom behind content area has been improved
+         so that TPLContent and TPLFooter no longer need to have position:relative set.
+    - Sunrise
+       - Removed styling no longer necessary.
+       - Made sure margin collapse cannot be disabled for TPLHeader and
+         TPLFooter by applying padding-top/bottom: 0px.
+       - Made adjustments necessary to support how margin collapse is now disabled.
+
+
+Changelog 2017-06-05
+ - Base
+    - SMClient: Made AddEventHandler handle compatibility problem
+      with DOMContentLoaded event on IE8.
+ - Extensions
+    - SMPages
+       - .htaccess no longer rewrites HTML requests to Sitemagic
+         if a matching HTML file is found in the file system.
+         The old behaviour prevented Google from loading their
+         Analytics verification file, making it difficult to
+         integrate Google Analytics.
+       - Fixed compatibility problem with image selection in TinyMCE
+         on Chrome 58+: https://bugs.chromium.org/p/chromium/issues/detail?id=732123
+       - Minor improvements to Fluid Grids.
+    - SMDesigner:
+       - Now allow Designer Definition to change the
+         default CSS unit for dimension controls using e.g.
+         SMDesigner.Helpers.DefaultDimensionUnit = "em";
+         in the GetEditors callback.
+       - Indentation Controls' Slider now assume the CSS unit passed
+         from the GetEditors callback, and automatically assumes
+         appropriate min/max/step-by values.
+       - Designer now exposes an Update function allowing Designer
+         Definition to programmatically trigger an update, forcing
+         GetCss(..) to be triggered.
+       - Combined controls (associated selector and slider) can now
+         individually be hidden.
+       - Fixed problem in GetDimensionCss(..) which returned "0" when no
+         value as entered, but that doesn't work properly with calc(..) which
+         requires a unit, so it now returns "0px" instead.
+ - Templates
+    - BaseGeneric
+       - Footer, Page, and Snippets now uses the em CSS unit.
+       - Snippet title switched from h1 tag to ordinary div
+         to prevent conflicts with ordinary headings on page.
+       - Moved responsiveness.normal.js from Sunrise to BaseGeneric.
+       - Made BaseGeneric itself load javascript enhancements.
+       - Improvements and bug fixes.
+    - Sunrise
+       - Added support for setting the base font size on
+         Desktop, Tablet, and Mobile under the General section.
+         This makes it much easier making the site adjust to
+         resolutions using the em CSS unit.
+       - Added support for stretching header, menu, and footer
+         across the entire page.
+       - Added support for styling headings (h1-h6).
+       - Added support for text shadows on menu and headings.
+       - Added support for page specific background image.
+       - Added support for page specific background color in content area.
+       - Added support for page specific header images within content area.
+       - Added support for styling extension pages separate from content pages.
+       - Added support for styling Fluid Grid Cards.
+         NOTICE: Traditional Cards are now obsolete.
+       - Added support for styling Action Buttons.
+       - Added support for styling custom elements defined in templates using e.g.:
+         <span class="SMDesignerElement" data-id="My element">Hello</span>
+         For elements found only on certain pages, we need to tell the designer
+         to always preserve styling, even when an element is not found on a given page.
+         This is done simply by adding the data-preserve attribute with a value of true:
+         <span class="SMDesignerElement" data-id="My element" data-preserve="true">Hello</span>
+       - Added CSS Editor dialog for advanced CSS editing.
+       - Replaced use of px unit with relative em unit almost everywhere.
+       - Rewrote footer JS enhancement.
+       - A lot of fixes and improvements.
+
+
+Changelog 2017-05-08
+ - Extensions
+    - SMDesigner: Fixed bug preventing user from downloading
+      active template - a whitespace corrupted the ZIP file.
+
+
+Changelog 2017-05-07 #2
+ - Templates
+    - Sunrise
+       - Default styles (style.css)
+          - CSS em unit now used for input fields, fieldset legends,
+            header, menu links, and card header and footer.
+          - Fixed problem with em unit on table cells and
+            fieldset legends causing size to increase incorrectly.
+          - Spacing between header and menu is now achieved using
+            padding rather than margin.
+          - Removed default padding left/right in menu.
+          - Removed default padding top/bottom on TPLPage container
+            making it difficult to position e.g. header or menu,
+            often requiring use of negative margins.
+          - Removed dublicate styling for table cells which today
+            obtain font styling properly on recent versions of IE.
+          - TPLContent and TPLFooter now has position:relative to make
+            sure TPLBottom can move up behind them using negative margin.
+
+
+Changelog 2017-05-07 #1
+ - Templates
+    - BaseGeneric:
+       - Properly fixed problem with spacing between menu items
+         that was previously fixed using CSS which unfortunately
+         prevented the use of em units when the menu was styled.
+    - Sunrise:
+       - Enhancements: Added JS enhancements that adds window size
+         break points as an alternative to media queries to better
+         support legacy IE, and an improvement to the footer allowing it
+         to stick to the bottom of the window when window is higher than
+         the content.
+
+
+Changelog 2017-05-06
+ - Base
+    - SMEnvironment: Fixed bug preventing cookie prefix on
+      primary website if installed to a subfolder on the
+      domain making it handle cookies like on subsites.
+    - SMLanguageHandler: Fixed Null Pointer Exception
+      when trying to fall back to English for missing
+      translations. Bug was introduced when a variable
+      was renamed.
+ - Extensions
+    - SMContact: Fixed bug preventing Email field from
+      being Required - flag was ignored when sending mail.
+    - SMLogViewer: Added new log viewer extension making
+      it easier to debug Sitemagic in case of errors.
+    - SMTips: Made sure Disable button is only visible
+      when authorized (logged in).
+
+
+Changelog 2017-04-24
+ - Base
+    - SMLanguageHandler: Added support for fallback allowing
+      for incomplete translation files to be used.
+    - SMMail
+       - Sender can now be configured using config.xml.php.
+       - Fixed bug where Reply-To was set as From and Sender.
+ - Extensions
+    - SMConfig: SMTP Sender can now be configured.
+    - SMContact: Re-introduced Email field which is now used to
+      allow website to send a copy of the e-mail to the user
+      (CC recipient).
+    - SMDesigner: Added support for OnReset event.
+    - SMLanguageEditor: Made minor adjustments necessary after
+      implementing support for translation fallback.
+
+
+Changelog 2017-04-11
+ - Base
+    - SMClient: SMWindow now supports Modal mode.
+    - SMStringUtilities: Added RemoveInvalidCharacters function.
+ - Extensions
+    - SMContact:
+        - Removed support for field type Reply To, which causes
+          Spam Assassin and other filters to consider e-mails sent from
+          contact forms to be spam.
+        - Removed filename restrictions. Invalid characters
+          are now simply removed from attachment filename.
+        - Fixed layout problems on legacy IE (common.css)
+    - SMDesigner:
+       - Added UnrecognizedValues to eventArgs which exposes
+         values saved that no longer has any associated controls.
+         Designer Definition may decide to keep these values by
+         assigning a Preserve flag to each value individually.
+         This may be used to support designer elements
+         not defined on all pages.
+    - SMPages:
+       - Placeholders can now be used within content pages.
+         Including another page (e.g. ContactDetails) can be achieved
+         using e.g. {[@ContactDetails]}.
+ - Templates
+    - BaseGeneric:
+       - Minor tweaks to External Modules in Fluid Grids.
+       - Fixed problem with em CSS unit in table cells and legends
+         causing text to assume twice the size specified in Designer.
+       - Improved base settings for headings.
+ - Misc.
+    - Removed line breaks within headings in demo pages to
+      ease styling using Designer.
+    - Various minor improvements.
+
+
+Changelog 2017-03-25
+ - Base
+    - SMMail: Now adds Text Body and surrounding HTML container to
+      satisfy Spam Assassin and other spam filters.
+ - Extensions
+    - SMDesigner:
+       - Added support for Page selector control.
+       - Increased width of controls.
+       - Designer definition: GetSelectors(..) is now invoked
+         AFTER data has been loaded and CSS applied, allowing
+         selectors to be adjusted based on changes made by the user.
+         It also gets invoked every time the design is changed.
+       - Designer definition: The label for editor controls
+         may now consist of both an internal value and a
+         display value separated by semicolon, allowing
+         multiple controls with the same display value to hold values
+         for multiple pages. Example:
+         Background;PageBackground046f8e2c3ade408eab20aacf10fe7c01
+         Background;PageBackground110cc0e318b045c5b613b03abd03b724.
+         The Designer allows us to hide controls, making it possible
+         to assicoate controls with specific pages, and hide all
+         controls not related to the current page being manipulated.
+       - Designer definition: GetEditors(..) may now return multiple
+         root entries with the same display value if a unique ID is
+         appended after a semicolon. Example:
+         { "Test;T1": { .. }, "Test;T2": { .. } }.
+       - Added support for combined Slider and Input control.
+       - Replaced SMDesigner.Helpers.SyncType.UnidirectionalEqual (singular)
+         with SMDesigner.Helpers.SyncType.UnidirectionalEquals (plural)
+         while ensuring backward compatibility.
+         Also introduced SMDesigner.Helpers.SyncType.UnidirectionalEqualsOrNull.
+       - It is now possible to have a selector deep linking to a specific accordion
+         by separating the section key from the accordion key using semicolon. Example:
+         GetSelectors: function(eventArgs) { return { "Headings;Heading 1": "h1" }; }
+       - Added support for sorting to Selector control. Top menu is now sorted.
+       - Added support for GetDefaultSection(..) which can be used to return the
+         initial section such as "Background" or "Menu", matching an index from an
+         entry returned from GetSelectors(..).
+       - Designer definition: Added support for OnDataLoaded(..) which fires
+         after data has been loaded, allowing control manipulation based on
+         saved values.
+       - Minor fixes and improvements.
+       - Dimension controls now consist of an input field,
+         a CSS unit selector, and a value slider.
+       - Added support for text shadows and letter spacing.
+       - Default CSS font unit is now "em" rather than "px".
+       - Added helper functions for handling headings (e.g. <h1>).
+
+
+Changelog 2017-02-19
+ - Base
+    - SMController:
+       - Caching is now disabled by default.
+       - Data exchanged between client and server using a callback
+         is now automatically encoded and decoded between Unicode
+         and Latin1. The client can now send Unicode which Sitemagic
+         converts to Latin1 for internal use, and finally converts
+         back to Unicode before returning data to client.
+         Unicode characters are represented by HEX entites in Latin1.
+       - Data obtained using GetQueryValue(..), GetPostValue(..),
+         GetRequestValue(..), GetSessionValue(..), and GetCookieValue(..)
+         now encodes Unicode characters into HEX entities when invoked
+         from a callback.
+       - An extension's Integrated state is now exposed to
+         the CSS engine using html.SMIntegratedExtension,
+         or html.SMExtension if not Integrated.
+    - SMEnvironment:
+       - GetJsonData() now returns data encoded as Latin1.
+       - CacheKey changed from Integer to String GUID - affects the
+         behaviour of GetClientCacheKey() and UpdateClientCacheKey().
+    - SMMail:
+       - No longer assumes no-reply@localhost as sender since it may
+         cause mail servers to refuse delivery due to sender spoofing.
+    - SMStringUtilities:
+       - Added UnicodeEncode(..) and UnicodeDecode(..).
+ - Extensions
+    - SMAnnouncements: Now registered as Integrated (look and feel).
+    - SMContact: Fixed missing translation for Attachment type in field list.
+    - SMFiles:
+       - Added explaination when no file types are allowed (upload).
+       - Added information about Max File Size to error message (upload).
+    - SMPages:
+       - Minor improvements to Fluid Grid Cards.
+       - Added Action Button styling for links.
+       - Made it possible to disable Fluid Grid features
+         to restore the old Table Plugin functionality.
+       - Now exposing unique Page ID to CSS engine to allow
+         page specific styling within page editor.
+       - Minor tweak to htaccess - caching for PHP files are now handled
+         by SMController.
+       - Added support for "page place holders" in templates allowing
+         content to be loaded from pages.
+         {[@Index:ContactDetails]} - On Index page insert content from ContactDetails page.
+         {[@ContactDetails]} - Insert content from ContactDetails page on any page.
+    - SMTips: Added tips for Login and Fluid Grids, and removed tips for legacy Cards.
+ - Misc.
+    - Various minor tweaks and improvements.
+
+
+Changelog 2017-01-14
+ - Extensions
+    - SMContacts: Fixed bug preventing forms with file
+      attachments to be sent when no file was selected.
+
+
 Changelog 2017-01-08
  - Base
     - PHPMailer: Upgraded due to security bug (CVE-2016-10033).
-	- SMEnvironment: Fixed bug in GetMaxUploadSize which caused
-	  errors if file uploads were disabled in php.ini.
+    - SMEnvironment: Fixed bug in GetMaxUploadSize which caused
+      errors if file uploads were disabled in php.ini.
  - Extensions
     - SMContacts: Now validating filenames for attachments
-	  to further strengthen security (related to PHPMailer).
+      to further strengthen security (related to PHPMailer).
 
 
 Changelog 2016-12-19
  - Extensions
     - SMContact: Fixed bug corrupting e-mails containing
-	  special characters.
+      special characters.
 
 
 Changelog 2016-10-23
  - Extensions
     - SMPages: Fixed stacking problem with Fluid Grids
-	  when a fixed cell width was applied.
-	- SMPages: Fixed problem with tables generated by
-	  extensions got replaced by new CSS based tables
-	  which was not the desired behaviour.
-	- SMContact: Labels are now stacked on top of
-	  input fields by default. This was previously
-	  the default behaviour on mobile devices, but
-	  now also applies to the desktop view.
+      when a fixed cell width was applied.
+    - SMPages: Fixed problem with tables generated by
+      extensions got replaced by new CSS based tables
+      which was not the desired behaviour.
+    - SMContact: Labels are now stacked on top of
+      input fields by default. This was previously
+      the default behaviour on mobile devices, but
+      now also applies to the desktop view.
  - Templates
     - BaseGeneric: Minor tweak to how margin is handled
-	  in mobile optimization CSS.
+      in mobile optimization CSS.
  - Data
     - Updated demo data.
 
@@ -39,32 +492,32 @@ Changelog 2016-10-23
 Changelog 2016-10-19
  - Extensions
     - SMPages: Page viewer now replaces old HTML tables
-	  with new CSS based tables.
-	- SMPages: Simplified the table plugin in TinyMCE
-	  and cleared all CSS classes automatically detected.
-	- SMPages: Added support for fluid table grids to TinyMCE.
+      with new CSS based tables.
+    - SMPages: Simplified the table plugin in TinyMCE
+      and cleared all CSS classes automatically detected.
+    - SMPages: Added support for fluid table grids to TinyMCE.
 
 
 Changelog 2016-10-18
  - Base
     - SMMail: HTML e-mails are now base64 encoded
-	  to prevent corruption with large amounts of data.
-	- SMTemplate: It is now possible to initialize
-	  the templating engine with an HTML string rather
-	  than requiring it to be initialized with an HTML file.
+      to prevent corruption with large amounts of data.
+    - SMTemplate: It is now possible to initialize
+      the templating engine with an HTML string rather
+      than requiring it to be initialized with an HTML file.
  - Extensions
-	- SMConfig: Corrected display value "SSl" to "SSL".
+    - SMConfig: Corrected display value "SSl" to "SSL".
  - Templates
     - All templates: Font-size for rem CSS unit ("base line")
-	  now equivalent to font-size set on body, allowing
-	  designer to "escape" font-size on a parent element
-	  by using rem rather than em, and by that revert to
-	  the original font size applied to the document.
-	  This is also the default behaviour for a blank page
-	  where a font size of 1rem is equivalent to 1em.
-	- All templates: Applied fix to all designer definitions
-	  to make sure changes to font-size is also applied
-	  to legend elements within fieldsets.
+      now equivalent to font-size set on body, allowing
+      designer to "escape" font-size on a parent element
+      by using rem rather than em, and by that revert to
+      the original font size applied to the document.
+      This is also the default behaviour for a blank page
+      where a font size of 1rem is equivalent to 1em.
+    - All templates: Applied fix to all designer definitions
+      to make sure changes to font-size is also applied
+      to legend elements within fieldsets.
  - Misc.
     - SMPages: Prepared htaccess for cloud subsites.
 
@@ -72,22 +525,22 @@ Changelog 2016-10-18
 Changelog 2016-10-06
  - Base
     - SMEnvironment: Fixed problem determining path to
-	  Sitemagic CMS when URL Rewriting was used, e.g.
-	  to map test.domain.com to domain.com/sites/test.
-	- SMEnvironment: GetInstallationPath() is now deprecated.
-	  Use GetRequestPath() instead which is more reliable
-	  when URL rewriting is in use.
-	- SMEnvironment: GetDocumentRoot() now returns
-	  path to Sitemagic installation rather than root
-	  of hosting account.
-	- SMController: Replaced use of GetInstallationPath()
-	  with new GetRequestPath() function.
+      Sitemagic CMS when URL Rewriting was used, e.g.
+      to map test.domain.com to domain.com/sites/test.
+    - SMEnvironment: GetInstallationPath() is now deprecated.
+      Use GetRequestPath() instead which is more reliable
+      when URL rewriting is in use.
+    - SMEnvironment: GetDocumentRoot() now returns
+      path to Sitemagic installation rather than root
+      of hosting account.
+    - SMController: Replaced use of GetInstallationPath()
+      with new GetRequestPath() function.
  - Extensions
     - SMPages and SMMenu: Replaced use of GetInstallationPath()
-	  with new GetRequestPath() function.
+      with new GetRequestPath() function.
  - Templates
     - BaseGeneric: Mobile optimization now only applied
-	  to content on main pages, not dialogs.
+      to content on main pages, not dialogs.
 
 
 Changelog 2016-09-17
@@ -100,23 +553,23 @@ Changelog 2016-09-17
 Changelog 2016-08-24
  - Base
     - SMClient: OnLoad handlers registered using SMEventHandler.AddEventHandler
-	  now fires immediately if registered after browser fired OnLoad event.
-	- SMInput: Encoded HTML was not double encoded when written to UI, causing
-	  a value such as "&nbsp;Hello world&nbsp;" to be replaced by " Hello world ".
-	  Bug fixed.
-	- SMDataSource (XML): Values stored are now double encoded to preserve HTML
-	  encoded values (e.g. <p>&lt;i&gt;Hello&lt;/i&gt;</p>).
-	- SMDataSource (SQL): Fixed problem with mixed column casing preventing
-	  some data entries from being properly escaped.
-	- SMEnvironment: Added GetJsonData function.
-	- SMStringUtilities: Added EscapeJson function and Email validation.
+      now fires immediately if registered after browser fired OnLoad event.
+    - SMInput: Encoded HTML was not double encoded when written to UI, causing
+      a value such as "&nbsp;Hello world&nbsp;" to be replaced by " Hello world ".
+      Bug fixed.
+    - SMDataSource (XML): Values stored are now double encoded to preserve HTML
+      encoded values (e.g. <p>&lt;i&gt;Hello&lt;/i&gt;</p>).
+    - SMDataSource (SQL): Fixed problem with mixed column casing preventing
+      some data entries from being properly escaped.
+    - SMEnvironment: Added GetJsonData function.
+    - SMStringUtilities: Added EscapeJson function and Email validation.
  - Extensions
     - SMMenu: Added support for tilde (~) in URLs which translate to absolute URL.
-	- SMPages: Added support for tilde (~) in links which translate to absolute URL.
-	- SMPages: Added support for URL Parameter SMPagesDialog exposed to CSS engine
-	  as html.SMPagesViewerDialog class.
-	- SMPages: Added Cache Control to htaccess (if Apache2 Headers module is installed).
-	- SMAutoUrl: Updated to make sure new htaccess file (SMPages) is installed.
+    - SMPages: Added support for tilde (~) in links which translate to absolute URL.
+    - SMPages: Added support for URL Parameter SMPagesDialog exposed to CSS engine
+      as html.SMPagesViewerDialog class.
+    - SMPages: Added Cache Control to htaccess (if Apache2 Headers module is installed).
+    - SMAutoUrl: Updated to make sure new htaccess file (SMPages) is installed.
  - Templates
     - BaseGeneric: Fixed minor problem with shadow effects.
  - Misc.
@@ -126,14 +579,14 @@ Changelog 2016-08-24
 Changelog 2016-04-28
  - Base
     - GUI: Fixed problem with Fieldset causing scroll when increasing
-	  font size (found on login page).
+      font size (found on login page).
  - Extensions
     - SMExternalModules: Fixed buggy support for width in percent,
-	  and removed the option to specify height in percent.
-	- SMPages: Now handles relative width for page extension place holder
-	  properly, making the place holder stretch the given number of percent.
-	- SMSearch: No longer allow user to search inaccessible or password
-	  protected pages.
+      and removed the option to specify height in percent.
+    - SMPages: Now handles relative width for page extension place holder
+      properly, making the place holder stretch the given number of percent.
+    - SMSearch: No longer allow user to search inaccessible or password
+      protected pages.
  - Templates
     - BaseGeneric: Added ID attribute to snippets
 
@@ -143,13 +596,13 @@ Changelog 2016-04-02
     - Upgraded FontAwesome to version 4.5.
  - Extensions
     - SMDesigner: Fixed problem with Download function which
-	  prevented users from canceling filename dialog on Safari
-	  which is not W3C complient in its implementation of the
-	  prompt(..) function.
+      prevented users from canceling filename dialog on Safari
+      which is not W3C complient in its implementation of the
+      prompt(..) function.
  - Misc.
     - .htaccess: Fixed compatibility problems with ISAPI_Rewrite.
-	- BaseGeneric template: Fixed problem with navigation menu
-	  on mobile which did not stay on top of Fit.UI input fields.
+    - BaseGeneric template: Fixed problem with navigation menu
+      on mobile which did not stay on top of Fit.UI input fields.
 
 
 Changelog 2016-03-23
@@ -157,8 +610,8 @@ Changelog 2016-03-23
     - Fixed problem with black background color in popups in Widescreen template
  - Misc.
     - Fixed broken subsite called "shop" (sites/shop) which conflicted
-	  with new virtual directory for the upcoming shop extension.
-	  Also applied varous fixes to make URL Rewriting rules more accurate.
+      with new virtual directory for the upcoming shop extension.
+      Also applied varous fixes to make URL Rewriting rules more accurate.
 
 
 Changelog 2016-03-12
@@ -169,22 +622,22 @@ Changelog 2016-03-12
 Changelog 2016-03-10
  - Base
     - SMLinkButton: Now supports Font Awesome icons.
-	- SMAttributes: Added Reload function.
-	- SMDataSource (XML): Fixed case sensitivity bug in Update function
-	  potentially causing a column specified with different casing
-	  to be added to XML file multiple times (e.g. xyx/XyZ/XYZ).
-	- SMDataSource (SQL): Fixed bug potentially exposing MySQL login
-	  on connectivity problems.
-	- SMLog: Exception handler now sets appropriate error header:
-	  500 Internal Server Error
-	- SMMail: Now defaults to HTML format to properly support unicode.
+    - SMAttributes: Added Reload function.
+    - SMDataSource (XML): Fixed case sensitivity bug in Update function
+      potentially causing a column specified with different casing
+      to be added to XML file multiple times (e.g. xyx/XyZ/XYZ).
+    - SMDataSource (SQL): Fixed bug potentially exposing MySQL login
+      on connectivity problems.
+    - SMLog: Exception handler now sets appropriate error header:
+      500 Internal Server Error
+    - SMMail: Now defaults to HTML format to properly support unicode.
  - Extensions
     - SMAutoSeoUrls: Now deploys new version of .htaccess file on upgrades.
-	- SMContact: Now sends out better looking HTML e-mails.
-	- SMContact: Fixed bug in IE10-11 causing an error to be thrown when
-	  sending e-mails with one or more empty file attachment fields.
-	- SMContact: Fixed JavaScript error in Legacy IE (file size calculation).
-	  files were selected in all file pickers.
+    - SMContact: Now sends out better looking HTML e-mails.
+    - SMContact: Fixed bug in IE10-11 causing an error to be thrown when
+      sending e-mails with one or more empty file attachment fields.
+    - SMContact: Fixed JavaScript error in Legacy IE (file size calculation).
+      files were selected in all file pickers.
  - Misc.
     - .htaccess: Removed unnecessary escaping of slashes
     - .htaccess: Added /shop virtual directory
@@ -193,9 +646,9 @@ Changelog 2016-03-10
 Changelog 2015-12-08
  - Misc.
     - Added support for e-mail file attachment to SMContact.
-	  This includes various additions to Base.
-	  SMMail no longer uses PHP mail(), but relies on PHPMailer.
-	- Various minor fixes
+      This includes various additions to Base.
+      SMMail no longer uses PHP mail(), but relies on PHPMailer.
+    - Various minor fixes
 
 
 Changelog 2015-11-29-3
