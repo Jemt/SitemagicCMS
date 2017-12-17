@@ -1,0 +1,29 @@
+{
+  "name": "sitemagic",
+  "version": "3.4.0",
+  "description": "User friendly, feature rich, extendable, and customizable Content Management System",
+  "main": "index.php",
+  "dependencies": {
+    "fit-ui": "^1.0.15"
+  },
+  "devDependencies": {
+    "fit-ui": "^1.0.15"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jemt/SitemagicCMS.git"
+  },
+  "keywords": [
+    "Sitemagic",
+    "CMS"
+  ],
+  "author": "Jimmy Thomsen",
+  "license": "SEE LICENSE IN license.txt",
+  "bugs": {
+    "url": "https://github.com/Jemt/SitemagicCMS/issues"
+  },
+  "homepage": "https://github.com/Jemt/SitemagicCMS#readme"
+}
