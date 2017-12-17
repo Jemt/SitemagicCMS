@@ -1,0 +1,13 @@
+{
+    // Indentation config (tabs)
+    "editor.tabSize": 4,
+    "editor.insertSpaces": false,
+    "editor.detectIndentation": true,
+
+    // Encoding
+    "files.encoding": "iso88591",
+
+    // Trimming
+    "files.trimTrailingWhitespace": true,
+    "diffEditor.ignoreTrimWhitespace": false
+}
