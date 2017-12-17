@@ -18,10 +18,4 @@
 	<entry key="SMImageMontageDisplayPicker" value="false"/>
 	<entry key="SMImageMontageShuffle" value="true"/>
 	<entry key="SMImageMontageSlideShowInterval" value="3000"/>
-	<entry key="SMEnvironmentSessionName/SitemagicCMS" value="SMSESSIONdf4de1f072338a2f"/>
-	<entry key="SMPagesAutoSeoUrlsVersion" value="20160828"/>
-	<entry key="SMAutoSeoUrlsCompleted" value="true"/>
-	<entry key="SMPagesSettingsUrlType" value="Filename"/>
-	<entry key="SMPagesSettingsSeoUrls" value="true"/>
-	<entry key="SMClientCacheKey" value="9fd6477cdbb7e0f4187b45baf3495c0c"/>
 </database>
