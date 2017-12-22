@@ -46,6 +46,16 @@
 	<entry key="SMTPPass" value="" />
 	<!-- optional, may be left out or empty -->
 	<entry key="SMTPSender" value="" />
+	<!-- optional, may be left out or empty - separate multiple headers by line break (\n) -->
+	<entry key="SMTPHeaders" value="" />
+	<!-- optional, may be left out or empty - e.g. my-domain.com -->
+	<entry key="SMTPDKIMDomain" value="" />
+	<!-- optional, may be left out or empty - e.g. keys/.privatekey -->
+	<entry key="SMTPDKIMPrivateKeyPath" value="" />
+	<!-- optional, may be left out or empty - e.g. phpmailer -->
+	<entry key="SMTPDKIMSelector" value="" />
+	<!-- optional, may be left out or empty - defaults to False -->
+	<entry key="SMTPAllowSelfSignedSSL" value="False" />
 	<!-- optional, may be left out or empty - defaults to False -->
 	<entry key="SMTPDebug" value="False" />
 </entries>

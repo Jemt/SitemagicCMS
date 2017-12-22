@@ -257,14 +257,19 @@ class SMMail
 
 		$cfg = SMEnvironment::GetConfiguration();
 
-		$host	= $cfg->GetEntry("SMTPHost");
-		$port	= $cfg->GetEntry("SMTPPort");
-		$atyp	= $cfg->GetEntry("SMTPAuthType");
-		$enc	= $cfg->GetEntry("SMTPEncryption");
-		$usr	= $cfg->GetEntry("SMTPUser");
-		$psw	= $cfg->GetEntry("SMTPPass");
-		$sender	= $cfg->GetEntry("SMTPSender");
-		$debug	= $cfg->GetEntry("SMTPDebug");
+		$host		= $cfg->GetEntry("SMTPHost");
+		$port		= $cfg->GetEntry("SMTPPort");
+		$atyp		= $cfg->GetEntry("SMTPAuthType");
+		$enc		= $cfg->GetEntry("SMTPEncryption");
+		$usr		= $cfg->GetEntry("SMTPUser");
+		$psw		= $cfg->GetEntry("SMTPPass");
+		$sender		= $cfg->GetEntry("SMTPSender");
+		$headers	= $cfg->GetEntry("SMTPHeaders");
+		$dkimDomain	= $cfg->GetEntry("SMTPDKIMDomain");
+		$dkimKey	= $cfg->GetEntry("SMTPDKIMPrivateKeyPath");
+		$dkimSel	= $cfg->GetEntry("SMTPDKIMSelector");
+		$selfSignOk	= $cfg->GetEntry("SMTPAllowSelfSignedSSL");
+		$debug		= $cfg->GetEntry("SMTPDebug");
 
 		// Send mail
 
@@ -301,6 +306,7 @@ class SMMail
 		else // Send mail through using PHPMailer
 		{
 			$mail = new PHPMailer(); // Debugging: Add True argument to have PHPMailer throw exceptions on errors
+			$options = array();
 
 			// Enable debugging
 
@@ -329,6 +335,47 @@ class SMMail
 					$mail->Username = $usr;
 				if ($psw !== null)
 					$mail->Password = $psw;
+			}
+
+			// Add custom headers
+
+			if ($headers !== null && $headers !== "")
+			{
+				// Example configuration - notice how special characters are encoded within the XML file.
+				// <entry key="SMTPHeaders" value="List-Unsubscribe:&lt;http://my-domain.com/?unsubscribe&gt;,&lt;mailto:unsubscribe@cms.company-domain.com&gt;&#xA;Another-header:value" />
+				// Less-than: < becomes &lt;
+				// Greater-than: > becomes &gt;
+				// Line break: \n becomes &#xA;
+				// The example above adds the following two headers:
+				// List-Unsubscribe:<http://my-domain.com/?unsubscribe>,<mailto:unsubscribe@cms.powerzone.dk>
+				// Another-header:value
+
+				$hds = explode("\n", str_replace("\r", "", $headers));
+
+				foreach ($hds as $h)
+				{
+					$mail->addCustomHeader($h); // Formatted as name:value
+				}
+			}
+
+			// DKIM configuration
+
+			if ($dkimDomain !== null && $dkimDomain !== "" && $dkimKey !== null && $dkimKey !== "" && $dkimSel !== null && $dkimSel !== "")
+			{
+				$mail->DKIM_domain = $dkimDomain;
+				$mail->DKIM_private = $dkimKey;
+				$mail->DKIM_selector = $dkimSel;
+			}
+
+			// Allow self-signed SSL certificate
+
+			if ($selfSignOk !== null && strtolower($selfSignOk) === "true")
+			{
+				$options["ssl"] = array(
+					"verify_peer"		=>	false,
+					"verify_peer_name"	=>	false,
+					"allow_self_signed"	=>	true
+				);
 			}
 
 			// Sender and reply-to
@@ -383,6 +430,11 @@ class SMMail
 
 			$mail->Subject = $this->subject;
 			$mail->Body = (($this->type === SMMailType::$Html && strpos(strtolower($this->content), "<html>") === false) ? "<html>" . $this->content . "</html>" : $this->content);
+
+			// Apply additional options
+
+			if (count($options) > 0)
+				$mail->SMTPOptions = $options;
 
 			// Send mail
 
