@@ -96,9 +96,15 @@ class SMController
 
 		$timezone = $this->config->GetEntry("DefaultTimeZoneOverride");
 		if ($timezone !== null && $timezone !== "")
+		{
 			date_default_timezone_set($timezone);
+		}
 		else
-			date_default_timezone_set(@date_default_timezone_get()); // Prevent annoying warning: Strict Standards: date() [function.date]: It is not safe to rely on the system's timezone settings
+		{
+			// Prevent annoying warning throughout Sitemagic:
+			// Strict Standards: date() [function.date]: It is not safe to rely on the system's timezone settings
+			date_default_timezone_set("UTC");
+		}
 	}
 
 	public function Execute()
