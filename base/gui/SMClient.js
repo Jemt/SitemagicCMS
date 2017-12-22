@@ -769,7 +769,7 @@ SMDom.ElementExists = function(id)
 }
 
 /// <function container="client/SMDom" name="GetElement" access="public" static="true" returns="DOMElement">
-/// 	<description> Returns specified DOM element if found, otherwise alerts error and returns Null </description>
+/// 	<description> Returns specified DOM element if found, otherwise returns Null </description>
 /// 	<param name="id" type="string"> Unique element ID </param>
 /// </function>
 SMDom.GetElement = function(id)
@@ -778,7 +778,7 @@ SMDom.GetElement = function(id)
 
 	if (elm === null)
 	{
-		alert("Unable to get element '" + id + "' - not found");
+		//alert("Unable to get element '" + id + "' - not found");
 		return null;
 	}
 
@@ -886,7 +886,7 @@ SMCookie.SetCookie = function(name, value, seconds)
 {
 	if (value.indexOf(';') > -1)
 	{
-		alert("Unable to set cookie - value contains illegal character: ';'");
+		//alert("Unable to set cookie - value contains illegal character: ';'");
 		return false;
 	}
 
@@ -1913,7 +1913,7 @@ function SMHttpRequest(url, async) // url, true|false
 			return new ActiveXObject("Microsoft.XMLHTTP");
 		else
 		{
-			alert("Http Request object not supported");
+			//alert("Http Request object not supported");
 			return null;
 		}
 	}
