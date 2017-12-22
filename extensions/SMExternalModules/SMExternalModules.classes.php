@@ -26,7 +26,7 @@ class SMExternalModulesModule
 	private $reloadToTop;	// Bool
 	private $frameColor;	// String (empty = display no frame)
 
-	public function SMExternalModulesModule($guid, $name, $url, $width, $widthUnit, $height, $heightUnit, $scroll, $reloadToTop = false, $frameColor = "")
+	public function __construct($guid, $name, $url, $width, $widthUnit, $height, $heightUnit, $scroll, $reloadToTop = false, $frameColor = "")
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "guid", $guid, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "name", $name, SMTypeCheckType::$String);
