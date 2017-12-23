@@ -139,7 +139,8 @@ SMDesigner =
 
 			// Prevent scroll on parent page if opened in Dialog Mode
 
-			document.body.onmousewheel = function(e)
+			var scroller = document.scrollingElement || document.body;
+			scroller.onmousewheel = function(e)
 			{
 				var ev = e || window.event;
 				var target = ev.srcElement || ev.target;
@@ -154,7 +155,7 @@ SMDesigner =
 				}
 				else
 				{
-					document.body.scrollTop -= ev.wheelDeltaY;
+					scroller.scrollTop -= ev.wheelDeltaY;
 				}
 
 				ev.preventDefault();
@@ -2775,7 +2776,7 @@ SMDesigner =
 
 				if (noMarginCollapse === true && (prop === "Top" || prop === "Bottom") && parseFloat(SMDesigner.Helpers.GetDimensionCss(cfg[prop])) === 0)
 				{
-					val = "padding-" + prop.toLowerCase() + ": 0.1px;";
+					val = "padding-" + prop.toLowerCase() + ": 0.03px;"; // 0.02 works on all supported browsers but will not be sufficient if zooming out in e.g. Chrome to 75%. A value of 0.03 allow us to zoom out to 67%
 				}
 				else
 				{
