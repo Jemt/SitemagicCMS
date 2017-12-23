@@ -54,7 +54,8 @@ class SMGoogleAnalytics extends SMExtension
 			return;
 
 		$template = $this->context->GetTemplate();
-		$body = $template->GetBodyContent();
+
+		/*$body = $template->GetBodyContent();
 
 		$body .= "
 		<script type=\"text/javascript\">
@@ -72,7 +73,19 @@ class SMGoogleAnalytics extends SMExtension
 		</script>
 		";
 
-		$template->SetBodyContent($body);
+		$template->SetBodyContent($body);*/
+
+		$script = "";
+		$script .= "\t<!-- Global Site Tag (gtag.js) - Google Analytics -->";
+		$script .= "\n\t<script async src=\"https://www.googletagmanager.com/gtag/js?id=" . $trackerId . "\"></script>";
+		$script .= "\n\t<script>";
+		$script .= "\n\t    window.dataLayer = window.dataLayer || [];";
+		$script .= "\n\t    function gtag(){dataLayer.push(arguments);}";
+		$script .= "\n\t    gtag('js', new Date());";
+		$script .= "\n\t    gtag('config', '" . $trackerId . "');";
+		$script .= "\n\t</script>\n";
+
+		$template->AddToHeadSection($script);
 	}
 
 	private function getTranslation($key)
