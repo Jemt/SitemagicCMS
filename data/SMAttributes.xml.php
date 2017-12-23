@@ -18,12 +18,4 @@
 	<entry key="SMImageMontageDisplayPicker" value="false"/>
 	<entry key="SMImageMontageShuffle" value="true"/>
 	<entry key="SMImageMontageSlideShowInterval" value="3000"/>
-	<entry key="SMEnvironmentSessionName/SitemagicCMS" value="SMSESSIONdac7c660478893e2"/>
-	<entry key="SMPagesAutoSeoUrlsVersion" value="20160828"/>
-	<entry key="SMAutoSeoUrlsCompleted" value="true"/>
-	<entry key="SMPagesSettingsUrlType" value="Filename"/>
-	<entry key="SMPagesSettingsSeoUrls" value="true"/>
-	<entry key="SMClientCacheKey" value="fd01819d21ca623344e5035fd8a0d740"/>
-	<entry key="SMGoogleAnalyticsTrackerId" value="HAPS"/>
-	<entry key="SMGoogleAnalyticsReportMode" value="ContentPages"/>
 </database>
