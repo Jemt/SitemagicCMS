@@ -1,0 +1,242 @@
+html{font-size: 11px;}body{font-size: 100%;}html.TplOnDesktop body, html.SMPagesEditor body {font-size: 120%;}@media (min-width: 1280px){html.Normal body, html.SMPagesEditor body {font-size: 130%;}}@media (min-width: 1600px){html.Normal body, html.SMPagesEditor body {font-size: 150%;}}@media (min-width: 1980px){html.Normal body, html.SMPagesEditor body {font-size: 180%;}}@media (min-width: 2560px){html.Normal body, html.SMPagesEditor body {font-size: 210%;}}@media (min-width: 2800px){html.Normal body, html.SMPagesEditor body {font-size: 240%;}}@media (min-width: 3440px){html.Normal body, html.SMPagesEditor body {font-size: 300%;}}@media (min-width: 4096px){html.Normal body, html.SMPagesEditor body {font-size: 360%;}}html.Normal,html.Basic.SMPagesViewer,html.SMPagesEditor.SMPagesContentPage,html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader,html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter{background-image: none;}html.SMPagesCustomHeader div.TPLHeader, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body{width: 100%;margin-top: 0px;padding-left: 0.5em;padding-right: 0.5em;border-style: none;border-bottom: 3px solid #FF7300;border-radius: 0px;border-bottom-left-radius: 0px;border-bottom-right-radius: 0px;background: #303030;text-align: center;line-height: 80px;}html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body{margin-top: 20px;outline: none;}html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader{width: 78%;}div.TPLMenu > ul{width: 22%;margin-top: 83px;margin-bottom: 90px;padding-top: 1.5em;padding-bottom: 3em;border-radius: 0px;background: #E9EDF0;font-size: 1em;}div.TPLMenu > ul > li:hover, div.TPLMenu > ul > li.TPLMenuHover{background: transparent;}div.TPLMenu > ul > li > a{font-weight: normal;font-style: normal;line-height: 2.25em;}div.TPLMenu li ul{padding-top: 0.5em;padding-bottom: 0.5em;margin-left: 1.5em;margin-right: 1.5em;margin-bottom: 0em;border-style: none;border-radius: 0px;border-radius: 5px;-moz-box-shadow: 0px 0px 5px 0px #808080;-webkit-box-shadow: 0px 0px 5px 0px #808080;box-shadow: 0px 0px 5px 0px #808080;background: #FFFFFF;background: rgba(255, 255, 255, 0.95);}div.TPLMenu li ul li{padding-left: 1em;padding-right: 1em;}div.TPLMenu li ul li:hover, div.TPLMenu li ul li.TPLMenuHover{background: transparent;}div.TPLMenu li ul li a{font-weight: normal;font-style: normal;}html.Normal div.TPLPage h1,html.Basic.SMPagesViewer.SMPagesClassicLayout body h1,html.SMPagesEditor.SMPagesContentPage.SMPagesClassicLayout body h1,html.SMPagesEditor.SMPagesFilenameHeader h1,html.SMPagesEditor.SMPagesFilenameFooter h1{margin-bottom: 1em;}html.Normal div.TPLPage h2,html.Basic.SMPagesViewer.SMPagesClassicLayout body h2,html.SMPagesEditor.SMPagesContentPage.SMPagesClassicLayout body h2,html.SMPagesEditor.SMPagesFilenameHeader h2,html.SMPagesEditor.SMPagesFilenameFooter h2{font-size: 1.15em;margin-bottom: 1.2em;}div.TPLPage, html.Basic.SMPagesViewer, html.SMPagesEditor.SMPagesContentPage{width: 78%;}html.SMPagesCardLayout div.TPLPage, html.Basic.SMPagesViewer.SMPagesCardLayout, html.SMPagesEditor.SMPagesContentPage.SMPagesCardLayout{width: 900px;}div.TPLContent, html.Basic.SMPagesViewer body, html.SMPagesEditor.SMPagesContentPage body{margin-top: 0px;}html.Basic.SMPagesViewer body, html.SMPagesEditor.SMPagesContentPage body{margin-top: 20px;margin-bottom: 20px;}html.SMPagesCardLayout div.TPLContent, html.Basic.SMPagesViewer.SMPagesCardLayout body, html.SMPagesEditor.SMPagesContentPage.SMPagesCardLayout body{margin: 0px;}html.SMPagesCardLayout div.TPLContent{margin-top: 20px;}html.SMPagesCardLayout div.TPLFooter{margin-bottom: 20px;}html.Normal div.SMExtension, html.Basic.SMPagesViewer div.SMExtension{margin-top: 125px;margin-left: 3.5em;margin-right: 3.5em;margin-bottom: 140px;}html.SMPagesEditor.SMPagesContentPage body:before{margin-bottom: 125px;}html.SMPagesEditor.SMPagesContentPage body:after{margin-top: 140px;}html.SMPagesEditor.SMPagesContentPage body{padding-left: 3.5em;padding-right: 3.5em;}div.TPLContent, html.Basic.SMPagesViewer.SMPagesClassicLayout body, html.SMPagesEditor.SMPagesContentPage.SMPagesClassicLayout body{background: #FFFFFF;border-radius: 0px;}html.SMPagesCardLayout div.TPLContent{border: none;}html.SMIntegratedExtension div.TPLContent{font-size: 0.9em;}html.SMPagesCustomFooter div.TPLFooter, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body{height: 90px;margin-bottom: 0px;border-style: none;border-top: 1px solid #BABABA;border-radius: 0px;border-top-left-radius: 0px;border-top-right-radius: 0px;background: #FAFAFA;}html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body{margin-bottom: 20px;}html.SMPagesCustomFooter div.TPLFooter, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body{font-size: 15px;color: #303030;}/* HEADER */
+
+html.SMPagesCustomHeader div.TPLHeader
+{
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    z-index: 1;
+}
+div.TPLLinks
+{
+    z-index: 1;
+}
+
+
+/* MENU */
+
+div.TPLMenu
+{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+
+    /* Let user set menu width relative to full screen width.
+        Overflowing content will be hidden behind TPLContent. */
+    width: 100%;
+}
+div.TPLMenu > ul
+{
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    overflow-y: auto;
+}
+div.TPLMenu a
+{
+    overflow-x: hidden;
+}
+div.TPLMenu > ul > li
+{
+    display: block;
+}
+div.TPLMenu li:hover > ul,
+div.TPLMenu li.TPLMenuHover > ul
+{
+    /* Stretch drop down menus within main menu */
+    left: 0px;
+    right: 0px;
+}
+div.TPLMenu ul.TPLMenuIsEmpty
+{
+    display: none;
+}
+div.TPLMenu > ul > li > a
+{
+    /* Indent links - will not affect hit zone or
+        highlight color like padding in Designer */
+    padding-left: 2em;
+    padding-right: 2em;
+}
+div.TPLMenu a:hover,
+div.TPLMenu li.TPLMenuIsCurrent > a,
+div.TPLMenu li.TPLMenuHasCurrent > a
+{
+    font-weight: bold;
+}
+/*div.TPLMenu > ul > li > a:after
+{
+    content: "";
+    display: block;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.25);
+}*/
+@media (min-width: 1px) { /* Prevent targeting IE8 which does not support gradients */
+/*div.TPLMenu > ul > li.TPLMenuHasCurrent > a:after,
+div.TPLMenu > ul > li.TPLMenuIsCurrent > a:after*/
+div.TPLMenu > ul > li.TPLMenuHasCurrent > ul:before,
+div.TPLMenu > ul > li.TPLMenuIsCurrent > ul:before,
+div.TPLMenu > ul > li.TPLMenuHasCurrent > ul:after,
+div.TPLMenu > ul > li.TPLMenuIsCurrent > ul:after
+{
+    content: "";
+    display: block;
+    height: 3px;
+    margin-bottom: 0.5em;
+    background-image: -moz-linear-gradient(to left, rgba(250,250,250, 0), rgba(250,250,250, 0.6));
+    background-image: -webkit-linear-gradient(to left, rgba(250,250,250, 0), rgba(250,250,250, 0.6));
+    background-image: -ms-linear-gradient(to left, rgba(250,250,250, 0), rgba(250,250,250, 0.6));
+    background-image: linear-gradient(to left, rgba(250,250,250, 0), rgba(250,250,250, 0.6));
+
+    /* Purple gradient override */
+    /*background-image: -moz-linear-gradient(to right, #5e42a6, #b74e91);
+    background-image: -webkit-linear-gradient(to right, #5e42a6, #b74e91);
+    background-image: -ms-linear-gradient(to right, #5e42a6, #b74e91);
+    background-image: linear-gradient(to right, #5e42a6, #b74e91);*/
+}
+div.TPLMenu > ul > li.TPLMenuHasCurrent > ul:after,
+div.TPLMenu > ul > li.TPLMenuIsCurrent > ul:after
+{
+    margin-top: 0.5em;
+}
+}
+div.TPLMenu li.TPLMenuHasCurrent ul,
+form[action*="?expand-menu"] div.TPLMenu li ul
+{
+    /* Show links from drop down underneath parent
+        if one of the links is currently being displayed. */
+    position: static;
+    border: none;
+    box-shadow: none;
+    text-align: inherit;
+    background: none;
+}
+
+
+/* PAGE */
+
+html.TplOnDesktop div.TPLContent
+{
+    position: absolute;
+    right: 0px;
+    min-height: 100%;
+    /*width: 100%;*/
+    width: inherit;
+}
+
+
+/* FOOTER */
+
+html.TplOnDesktop.SMPagesCustomFooter div.TPLFooter
+{
+    position: fixed !important;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 900px)
+{
+    html.SMPagesCustomHeader div.TPLHeader
+    {
+        margin: 0em !important;
+        width: auto; /* 100% */
+        text-align: left;
+    }
+    div.TPLContent
+    {
+        margin: 0em !important;
+    }
+    html.SMPagesCustomFooter div.TPLFooter
+    {
+        margin: 0em !important;
+        width: 100% !important;
+    }
+}
+
+
+/* PAGE EDITOR OPTIMIATIONS */
+
+html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameHeader body
+{
+    width: auto; /* Undo e.g. width:22%; */
+}
+html.SMPagesEditor.SMPagesContentPage body:before
+{
+    margin-bottom: 20px; /* Undo excessive indentation */
+}
+html.SMPagesEditor.SMPagesContentPage body:after
+{
+    margin-top: 20px; /* Undo excessive indentation */
+}
+html.SMPagesEditor.SMPagesContentPage body
+{
+    outline: 1px dashed #CCC;
+}
+
+/* Make Designer outline visible on hovered elements */
+.SelectableElement:hover
+{
+    outline-offset: -3px;
+}
+
+
+/* CUSTOM - Sitemagic CMS documentation */
+
+/* Disable hover menus */
+div.TPLMenu li:not(.SMMenuSMMenuContent):not(.SMMenuSMMenuAdmin):hover > ul
+{
+    left: -9999px !important;
+    right: auto !important;
+}
+
+div.TPLContent img:not([height]),
+div.TPLBasicContent img:not([height]),
+html.SMPagesEditor.SMPagesContentPage body img:not([height])
+{
+    max-width: 100%;
+}
+
+div.TPLContent img[src^='files/images'],
+div.TPLBasicContent img[src^='files/images'],
+html.SMPagesEditor.SMPagesContentPage body img[src^='files/images']
+{
+    box-shadow: 0px 0px 12px -2px #333;
+}
+
+a[href="javascript:void(0)"]
+{
+    opacity: 0.3;
+}
+
+/* "Show entire menu" link */
+div.TPLMenu li.SMMenuc8a001f4da962799ad252f0b640304f1
+{
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    text-align: center;
+    text-decoration: underline;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+div.TPLMenu li.SMMenuc8a001f4da962799ad252f0b640304f1.TPLMenuIsCurrent > a
+{
+    font-weight: normal;
+}
+div.TPLMenu > ul > li:first-child + li
+{
+    margin-top: 2em;
+}
+
+@media (max-width: 900px)
+{
+    .ExpandMenu
+    {
+        display: none;
+    }
+}
