@@ -45,20 +45,33 @@ div.TPLMenuMobile
 		margin: 0px;
 	}
 
+	/* Set small paddings/margins to reduce waste of space on small screens */
+	/* NOTICE: This reduces control over the design - we might want to get rid of this optimization at some point.
+	   Try adding a background color and borders to e.g. the header and resize the page to mobil size.
+	   It looks less than acceptable with header content being sqeezed up against the edge of the header.
+	   With the introduction of relative units (em, %) and more resolution breakpoints in SMCMS 4.4+,
+	   hardcoding smaller paddings/margins is no longer necessary. But naturally removing this optimization
+	   will force users to use relative units and resolution breakpoints to make their websites look
+	   properly on mobile - at least if their desktop version has large padding/margins.
+	   Also notice that removing the optimizations will be considered a breaking change, so consider moving
+	   this change to a new version of _BaseGeneric (e.g. _BaseGeneric3) and make sure all built-in templates
+	   look properly without the hardcoded optimization.
+	   All optmizations that should be considered for removal has been tagged with "TBD-Remove" */
+
 	div.TPLHeader,
 	div.TPLContent, /*html.Normal div.SMExtension,*/
 	div.TPLFooter
 	{
-		margin: 0px 0px 0px 0px !important;
-		padding: 0px 0px 0px 0px !important;
+		margin: 0px 0px 0px 0px !important;		/* TBD-Remove */
+		padding: 0px 0px 0px 0px !important;	/* TBD-Remove */
 
 		/* Disable margin collapse (padding with 0px above enabled it, but it's disabled by default in page.css, header.css, and footer.css).
 		   Make contained elements with top/bottom margins expand the content area rather than
 	       causing spacing above and below it.
 	       Examples: https://jsfiddle.net/275z819u/ and http://jsfiddle.net/o1vkar7c/2/
 	       Also see https://stackoverflow.com/questions/13573653/css-margin-terror-margin-adds-space-outside-parent-element. */
-		padding-top: 0.02px !important; /*1px*/
-		padding-bottom: 0.02px !important; /*1px*/
+		padding-top: 0.03px !important; 	/*1px*/		/* TBD-Remove - Added by Designer to Header/Footer (but not Content) when padding-top is set to 0! See SMDesigner/Designer.js > GetIndentationCss(..) */
+		padding-bottom: 0.03px !important;	/*1px*/		/* TBD-Remove - Added by Designer to Header/Footer (but not Content) when padding-bottom is set to 0! See SMDesigner/Designer.js > GetIndentationCss(..) */
 	}
 	div.TPLHeader
 	{
@@ -68,14 +81,14 @@ div.TPLMenuMobile
 	}
 	div.TPLContent
 	{
-		margin-top: 20px !important;
-		margin-bottom: 20px !important;
+		margin-top: 20px !important;		/* TBD-Remove */
+		margin-bottom: 20px !important;		/* TBD-Remove */
 	}
 	div.TPLFooter
 	{
 		margin-bottom: 20px !important;
-		padding-left: 1.5em !important;
-		padding-right: 1.5em !important;
+		padding-left: 1.5em !important;		/* TBD-Remove */
+		padding-right: 1.5em !important;	/* TBD-Remove */
 	}
 	div.TPLHeader,
 	div.TPLContent,
@@ -86,7 +99,7 @@ div.TPLMenuMobile
 	}
 	html.Normal div.SMExtension /* Indenting content in div.TPLContent */
 	{
-		margin: 1.5em 1.5em 1.5em 1.5em !important;
+		margin: 1.5em 1.5em 1.5em 1.5em !important; /* TBD-Remove */
 	}
 
 	html.SMPagesCardLayout div.SMExtension

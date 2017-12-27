@@ -2767,6 +2767,11 @@ SMDesigner =
 
 			var indent = "";
 			var val = null;
+
+			// Disable margin collapse to make contained elements with top/bottom margins
+			// expand the content area rather than causing spacing above and below it.
+			// Examples: https://jsfiddle.net/275z819u/ and http://jsfiddle.net/o1vkar7c/2/
+			// Also see https://stackoverflow.com/questions/13573653/css-margin-terror-margin-adds-space-outside-parent-element.
 			var noMarginCollapse = (disableMarginCollapse === true && type.toLowerCase() === "padding");
 
 			for (var prop in cfg)
