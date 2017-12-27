@@ -79,3 +79,19 @@ html.SMPagesEditor.SMPagesContentPage body
 	margin-top: 25px;
 	margin-bottom: 25px;
 }
+
+/* Support for responsive images.
+   This will make the image shrink when needed while still
+   allow an initial width to be set. A height cannot be set
+   since a dynamic width will cause an aspect ratio problem.
+   This will NOT work on IE8 and below due to the use of
+   :not(..), but that is acceptable. We really don't want
+   to enforce responsiveness onto an image that has both
+   a width and height set, since the user must be able to
+   remain in control. */
+div.TPLContent img:not([height]),
+div.TPLBasicContent img:not([height]),
+html.SMPagesEditor.SMPagesContentPage body img:not([height])
+{
+	max-width: 100%;
+}
