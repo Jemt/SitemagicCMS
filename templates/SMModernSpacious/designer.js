@@ -1341,7 +1341,7 @@
 
 			// High-res desktop break points
 
-			var curSet = false;
+			var curSet = null;
 
 			for (var prop in editors["General"]["Text"]["Device text size"])
 			{
@@ -3137,9 +3137,6 @@
 
 			// Extract CSS values
 
-			// Width (from Page)
-			var width = SMDesigner.Helpers.GetDimensionCss(editors["Page"]["Dimensions"]["Dimensions"]["Width"], "width");
-
 			// Display
 			var display = SMDesigner.Helpers.GetControlValue(editors["Footer"]["Positioning"]["Display"]["Type"]);
 			cssFooter += ((display !== null) ? ((display === "stretch") ? "position: absolute; left: 0px; right: 0px;" : "display: " + display + ";") : "");
@@ -3147,8 +3144,7 @@
 			// Dimensions
 			var width = SMDesigner.Helpers.GetDimensionCss(editors["Footer"]["Dimensions"]["Dimensions"]["Width"], "width");
 			var height = SMDesigner.Helpers.GetDimensionCss(editors["Footer"]["Dimensions"]["Dimensions"]["Height"], "height");
-			cssFooter += ((width !== null) ? width : "");
-			cssFooter += ((height !== null) ? height : "");
+			width = ((width !== null) ? width : SMDesigner.Helpers.GetDimensionCss(editors["Page"]["Dimensions"]["Dimensions"]["Width"], "width")); // Width from Page
 
 			// Indentation
 			var margin = SMDesigner.Helpers.GetIndentationCss(editors["Footer"]["Indentation"]["Margin"], "margin");
@@ -3183,9 +3179,18 @@
 
 			if (width !== null)
 			{
-				css += "html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter";
+				// Width is set on html element in page editor
+				css += "html.SMPagesCustomFooter div.TPLFooter, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter";
 				css += "{";
 				css += width;
+				css += "}";
+			}
+			if (height !== null)
+			{
+				// Height must be set on body element in page editor to work properly
+				css += "html.SMPagesCustomFooter div.TPLFooter, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body";
+				css += "{";
+				css += height
 				css += "}";
 			}
 

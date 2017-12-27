@@ -72,9 +72,17 @@
 					},
 					"Device text size":
 					{
-						"Desktop": SMDesigner.Helpers.GetDimensionControl(100, "%"),
-						"Tablet": SMDesigner.Helpers.GetDimensionControl(100, "%"),
-						"Mobile": SMDesigner.Helpers.GetDimensionControl(100, "%"),
+						"Mobile": SMDesigner.Helpers.GetDimensionControl(100, "%"),					// <= 500px
+						"Tablet": SMDesigner.Helpers.GetDimensionControl(100, "%"),					// <= 900px
+						"Desktop": SMDesigner.Helpers.GetDimensionControl(100, "%"),				//  > 900px
+						"Desktop 1280 HD": SMDesigner.Helpers.GetDimensionControl(null, "%"),		// >= 1280px
+						"Desktop 1600 UXGA": SMDesigner.Helpers.GetDimensionControl(null, "%"),		// >= 1600px
+						"Desktop 1980 FHD": SMDesigner.Helpers.GetDimensionControl(null, "%"),		// ... etc.
+						"Desktop 2560 UWHD": SMDesigner.Helpers.GetDimensionControl(null, "%"),
+						"Desktop 2800 QSXGA": SMDesigner.Helpers.GetDimensionControl(null, "%"),
+						"Desktop 2560 UWHD": SMDesigner.Helpers.GetDimensionControl(null, "%"),
+						"Desktop 3440 UWQHD": SMDesigner.Helpers.GetDimensionControl(null, "%"),
+						"Desktop 4096 4K": SMDesigner.Helpers.GetDimensionControl(null, "%")
 					}
 				}
 			},
@@ -535,6 +543,14 @@
 					"Border": SMDesigner.Helpers.GetBorderControls(null, null, null, 5, null),
 					"Shadow": SMDesigner.Helpers.GetShadowControls()
 				},
+				"Dimensions":
+				{
+					"Dimensions":
+					{
+						"Width": SMDesigner.Helpers.GetDimensionControl(null, "px"),
+						"Height": SMDesigner.Helpers.GetDimensionControl(null, "px")
+					}
+				},
 				"Indentation":
 				{
 					"Margin": SMDesigner.Helpers.GetIndentationControls(null, null, null, 2.5, "em"),
@@ -993,8 +1009,8 @@
 			"Headings;Heading 4 (h4)":		"div.TPLPage h4",
 			"Headings;Heading 5 (h5)":		"div.TPLPage h5",
 			"Headings;Heading 6 (h6)":		"div.TPLPage h6",
-			"Page":							"html.SMPagesViewer div.TPLContent",
-			"Extension page":				"html.SMIntegratedExtension div.TPLContent",
+			"Page":							"div.TPLContent", //"html.SMPagesViewer div.TPLContent",
+			//"Extension page":				"html.SMIntegratedExtension div.TPLContent",
 			"Cards page":					"html.SMPagesCardLayout div.TPLContent", // Obsolete - use Fluid Grid Cards instead
 			"Cards":						"div.SMPagesCard", // Obsolete - use Fluid Grid Cards instead
 			"Fluid Grid Cards":				"div.SMPagesTable.SMPagesGridCards div.SMPagesTableCell",
@@ -1320,14 +1336,36 @@
 				css += "body{" + txtDesktopSize + "}";
 				css += "}";*/
 
-				css += "html.TplOnDesktop body {" + txtDesktopSize + "}";
+				css += "html.TplOnDesktop body, html.SMPagesEditor body {" + txtDesktopSize + "}";
 			}
+
+			// High-res desktop break points
+
+			var curSet = null;
+
+			for (var prop in editors["General"]["Text"]["Device text size"])
+			{
+				if (prop.indexOf("Desktop ") === 0) // E.g. "Desktop 1600 UXGA"
+				{
+					curSet = SMDesigner.Helpers.GetDimensionCss(editors["General"]["Text"]["Device text size"][prop], "font-size");
+
+					if (curSet !== null)
+					{
+						css += "@media (min-width: " + prop.split(" ")[1] + "px)";
+						css += "{";
+						css += "html.Normal body, html.SMPagesEditor body {" + curSet + "}";
+						css += "}";
+					}
+				}
+			}
+
+			// Tablet and mobile
 
 			if (txtTabletSize !== null)
 			{
 				css += "@media (max-width: 900px)";
 				css += "{";
-				css += "html.Normal body{" + txtTabletSize + "}";
+				css += "html.Normal body, html.SMPagesEditor body {" + txtTabletSize + "}";
 				css += "}";
 			}
 
@@ -1335,7 +1373,7 @@
 			{
 				css += "@media (max-width: 500px)";
 				css += "{";
-				css += "html.Normal body{" + ((txtMobileSize !== null) ? txtMobileSize : "font-size: 100%;") + "}";
+				css += "html.Normal body, html.SMPagesEditor body {" + ((txtMobileSize !== null) ? txtMobileSize : "font-size: 100%;") + "}";
 				css += "}";
 			}
 
@@ -3099,12 +3137,14 @@
 
 			// Extract CSS values
 
-			// Width (from Page)
-			var width = SMDesigner.Helpers.GetDimensionCss(editors["Page"]["Dimensions"]["Dimensions"]["Width"], "width");
-
 			// Display
 			var display = SMDesigner.Helpers.GetControlValue(editors["Footer"]["Positioning"]["Display"]["Type"]);
 			cssFooter += ((display !== null) ? ((display === "stretch") ? "position: absolute; left: 0px; right: 0px;" : "display: " + display + ";") : "");
+
+			// Dimensions
+			var width = SMDesigner.Helpers.GetDimensionCss(editors["Footer"]["Dimensions"]["Dimensions"]["Width"], "width");
+			var height = SMDesigner.Helpers.GetDimensionCss(editors["Footer"]["Dimensions"]["Dimensions"]["Height"], "height");
+			width = ((width !== null) ? width : SMDesigner.Helpers.GetDimensionCss(editors["Page"]["Dimensions"]["Dimensions"]["Width"], "width")); // Width from Page
 
 			// Indentation
 			var margin = SMDesigner.Helpers.GetIndentationCss(editors["Footer"]["Indentation"]["Margin"], "margin");
@@ -3139,9 +3179,18 @@
 
 			if (width !== null)
 			{
-				css += "html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter";
+				// Width is set on html element in page editor
+				css += "html.SMPagesCustomFooter div.TPLFooter, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter";
 				css += "{";
 				css += width;
+				css += "}";
+			}
+			if (height !== null)
+			{
+				// Height must be set on body element in page editor to work properly
+				css += "html.SMPagesCustomFooter div.TPLFooter, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter body";
+				css += "{";
+				css += height
 				css += "}";
 			}
 
