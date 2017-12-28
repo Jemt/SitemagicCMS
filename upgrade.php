@@ -11,10 +11,18 @@ ini_set("memory_limit", "1024M");
 
 header("Cache-Control: max-age=0, no-cache, no-store, must-revalidate");
 
+clearstatcache();
+
+// Prevent annoying warning: Strict Standards: date() [function.date]: It is not safe to rely on the system's timezone settings
+date_default_timezone_set("UTC");
+
 function fail($msg)
 {
 	header("HTTP/1.1 500 Internal Server Error");
-	echo $msg;
+	echo $msg; // IIS server on Windows must be configured to display custom errors for this to be shown to the user
+
+	logMsg($msg);
+
 	exit;
 }
 
@@ -82,23 +90,20 @@ function ensurePermissions($dir, $permission)
 		{
 			if ($object !== "." && $object !== "..")
 			{
-				if (is_dir($dir . "/" . $object) === true)
-				{
-					ensurePermissions($dir . "/" . $object, $permission);
-				}
-				else
-				{
-					if ($permission === "writable" && is_writable($dir . "/" . $object) === false)
-						fail("All files and folders must be writable - file '" . $dir . "/" . $object . "' is not");
-					else if ($permission === "readable" && is_readable($dir . "/" . $object) === false)
-						fail("All files and folders must be readable - file '" . $dir . "/" . $object . "' is not");
-				}
+				ensurePermissions($dir . "/" . $object, $permission);
 			}
 		}
 	}
+	else if (is_file($dir) === true)
+	{
+		if ($permission === "writable" && is_writable($dir) === false)
+			fail("All files and folders must be writable - file '" . $dir . "' is not");
+		else if ($permission === "readable" && is_readable($dir) === false)
+			fail("All files and folders must be readable - file '" . $dir . "' is not");
+	}
 	else
 	{
-		fail("Error - '" . $dir . "' is not a directory");
+		fail("Error - '" . $dir . "' is not a file or directory or is not accessible");
 	}
 }
 
@@ -135,6 +140,9 @@ function removeDir($dir)
 
 function getConfig($key)
 {
+	if (file_exists("config.xml.php") === false)
+		return null;
+
 	$content = file_get_contents("config.xml.php");
 
 	preg_match('/key="' . $key . '" value="(.*)"/', $content, $matches, PREG_OFFSET_CAPTURE, 0);
@@ -150,6 +158,54 @@ function getDataSourceType()
 	$content = @file_get_contents("base/SMDataSource.classes.php");
 	preg_match('/return SMDataSourceType::\$Xml/', $content, $matches, PREG_OFFSET_CAPTURE, 0);
 	return (count($matches) > 0 ? "XML" : "MySQL");
+}
+
+function getUpgradeMode()
+{
+	$val = ((isset($_GET["UpgradeMode"]) === true) ? strtolower($_GET["UpgradeMode"]) : null);
+
+	if ($val === null)
+	{
+		$val = (getConfig("UpgradeMode") !== null && getConfig("UpgradeMode") !== "" ? strtolower(getConfig("UpgradeMode")) : "stable");
+	}
+
+	if ($val !== "stable" /*&& $val !== "beta"*/ && $val !== "dev")
+	{
+		fail("Unsupported Upgrade Mode '" . $val . "'");
+	}
+
+	return $val;
+}
+
+function removeExtrationDirectories()
+{
+	$objects = scandir(".");
+
+	foreach ($objects as $object)
+	{
+		if (is_dir($object) === true && strpos($object, "Jemt-SitemagicCMS-") === 0)
+		{
+			if (removeDir($object) === false)
+			{
+				fail("Unable to remove extraction directories");
+			}
+		}
+	}
+}
+
+function getExtrationDirectory()
+{
+	$objects = scandir(".");
+
+	foreach ($objects as $object)
+	{
+		if (is_dir($object) === true && strpos($object, "Jemt-SitemagicCMS-") === 0)
+		{
+			return $object;
+		}
+	}
+
+	return null;
 }
 
 function errorHandler($errNo, $errMsg, $errFile, $errLine)
@@ -171,37 +227,70 @@ $upgrade = (file_exists("config.xml.php") === true);
 
 if ($op === null) // Check on initial page load
 {
+	logMsg("Pre-flight initiated");
+	logMsg("Ensuring that required extensions are loaded");
+
 	// Fail immediately if ZIP extension is not available
 	if (extension_loaded("zip") === false)
 	{
 		fail("The ZIP extension for PHP is required but not loaded - please contact your hosting provider");
 	}
+
+	if (getUpgradeMode() === "dev" && extension_loaded("curl") === false)
+	{
+		fail("The CURL extension for PHP is required to upgrade to 'dev', but the extension was not loaded - please contact your hosting provider");
+	}
+
+	logMsg("Ensuring that allow_url_fopen is enabled");
+
+	$urlFopenAllowed = ini_get("allow_url_fopen");
+
+	if ($urlFopenAllowed !== "1" && $urlFopenAllowed !== "On" && $urlFopenAllowed !== "on")
+	{
+		fail("PHP must have allow_url_fopen enabled to allow automatic installations and upgrades - please contact your hosting provider");
+	}
 }
 
 if ($op === "start-install" || $op === "backup-init") // Clean install and backup - make sure current folder is writable on initial operation
 {
+	logMsg("Clean install OR backup");
+	logMsg("Ensuring that current folder is writable");
+
 	if (is_writable(".") === false)
 	{
 		fail("Current folder is not writable - unable to proceed");
 	}
 
 	if ($op === "backup-init")
+	{
+		logMsg("Ensuring that all files and folders are readable prior to backup");
 		ensurePermissions(".", "readable");
+	}
 }
 
 if ($op !== null && $upgrade === true) // Check on all operations when Sitemagic CMS is already installed
 {
 	// Always make sure user is authorized
 
+	logMsg("Pre-flight for all operations");
+	logMsg("Checking authentication");
+
 	if (getConfig("Password") !== (isset($_POST["p"]) ? $_POST["p"] : null))
 	{
 		fail("Authentication failed - please provide valid password");
 	}
 
-	// Make sure server process has sufficient permissions to overwrite all files
+	// Make sure server process has sufficient permissions to modify content of root folder
+
+	logMsg("Checking permissions to make sure root folder is writable");
 
 	if ($op === "start-install") // Only check this the first time during upgrading
-		ensurePermissions(".", "writable");
+	{
+		if (is_writable(".") === false)
+		{
+			fail("Current folder is not writable - unable to proceed");
+		}
+	}
 }
 
 // Operations
@@ -210,6 +299,8 @@ session_start();
 
 if ($op === "backup-init")
 {
+	logMsg("Current operation: backup-init");
+
 	$filename = "Backup-" . date("Y-m-d_H_i_s") . ".zip";
 	$_SESSION["SMCMSWebInstallBackup"] = $filename;
 
@@ -218,6 +309,8 @@ if ($op === "backup-init")
 }
 else if ($op === "backup-monitor")
 {
+	logMsg("Current operation: backup-monitor");
+
 	$filename = (isset($_POST["filename"]) ? $_POST["filename"] : null);
 	$progress = (file_exists($filename) === false ? "done" : "downloading");
 
@@ -226,31 +319,93 @@ else if ($op === "backup-monitor")
 }
 else if ($op === "backup")
 {
+	logMsg("Current operation: backup");
+
 	backup($_SESSION["SMCMSWebInstallBackup"]);
 	exit;
 }
 else if ($op === "start-install") // Download Sitemagic CMS to current directory
 {
-	if (file_exists("sitemagic-latest.zip") === true)
+	logMsg("Current operation: start-install");
+
+	$release = getUpgradeMode();
+
+	logMsg("Upgrade Mode: " . $release);
+	logMsg("Checking if existing release file is present");
+
+	if (file_exists("sitemagic-" . $release . ".zip") === true)
 	{
-		unlink("sitemagic-latest.zip");
+		logMsg("Release file found - removing file");
+		unlink("sitemagic-" . $release . ".zip");
 	}
 
-	$url = "http://sitemagic.org/files/downloads/sitemagic-latest.zip";
-	$data = file_get_contents($url);
-	file_put_contents("sitemagic-latest.zip", $data);
+	logMsg("Downloading Sitemagic CMS");
+
+	if ($release === "dev")
+	{
+		$fp = fopen("sitemagic-dev.zip", "w+");
+		$curl = curl_init("https://api.github.com/repos/Jemt/SitemagicCMS/zipball/master");
+		curl_setopt($curl, CURLOPT_TIMEOUT, 60);
+		curl_setopt($curl, CURLOPT_FILE, $fp);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($curl, CURLOPT_HTTPHEADER, array("User-Agent: Jemt"));
+		curl_exec($curl); // Returns boolean indicating success/failure
+		curl_close($curl);
+		fclose($fp);
+	}
+	else
+	{
+		//$url = "http://sitemagic.org/files/downloads/sitemagic-" . $release . ".zip";
+		$url = "http://sitemagic.org/files/downloads/sitemagic-" . (($release === "stable") ? "latest" : $release) . ".zip";
+		logMsg("Downloading new release file: " . $url);
+		$data = file_get_contents($url);
+		logMsg("Writing release file to: " . "sitemagic-" . $release . ".zip");
+		file_put_contents("sitemagic-" . $release . ".zip", $data);
+	}
 
 	exit;
 }
 else if ($op === "extract") // Extract Sitemagic CMS to current directory
 {
-	$zip = new ZipArchive();
+	logMsg("Current operation: extract");
 
+	$release = getUpgradeMode();
+	logMsg("Upgrade Mode: " . $release);
+
+	logMsg("Ensuring that previously used extraction directories are removed");
+	removeExtrationDirectories(); // No extraction directories will be found and removed if previous installs/upgrades went well
+
+	$zip = new ZipArchive();
 	$ts = time();
 	$dsType = null;
 
+	logMsg("Extracting ZIP file");
+
+	$zip->open("sitemagic-" . $release . ".zip");
+	$zip->extractTo( (($release === "dev") ? "." : "./Jemt-SitemagicCMS-release") ); // ZIP file from GitHub has a root folder called "Jemt-SitemagicCMS-SHA" (SHA is a variable value) while stable Sitemagic releases are contained in the root of the ZIP file
+	$zip->close();
+	$extDir = getExtrationDirectory(); // Returns first matching directory (Jemt-Sitemagic-XYZ)
+
+	logMsg("Making sure all source and destination files and folders are writable");
+
+	// Check permissions for new version
+	ensurePermissions($extDir, "writable");
+
+	// Check permissions for old files/folders to be overwritten
+	$objects = scandir($extDir);
+	foreach ($objects as $object)
+	{
+		if ($object !== "." && $object !== "..")
+		{
+			if (file_exists($object) === true) // Checks both folders and files
+				ensurePermissions($object, "writable"); // Make sure e.g. files/folders from new version is writable in old installation (current working directory)
+		}
+	}
+
 	if ($upgrade === true) // Preserve config, files, data, and active template(s)
 	{
+		logMsg("This is an upgrade - preserving configuration and data");
+
 		rename("config.xml.php", "config." . $ts . ".xml.php");
 		rename("files", "files." . $ts);
 		rename("data", "data." . $ts);
@@ -259,12 +414,32 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 		$dsType = getDataSourceType();
 	}
 
-	$zip->open("sitemagic-latest.zip");
-	$zip->extractTo(".");
-	$zip->close();
+	logMsg("Moving files from temporary folder '" . $extDir . "' to active Sitemagic installation path");
+
+	$objects = scandir($extDir);
+	foreach ($objects as $object)
+	{
+		if ($object !== "." && $object !== "..")
+		{
+			//if ($release === "dev" && (strpos($object, ".git") === 0 || strpos($object, ".vscode") === 0))
+			if (strpos($object, ".") === 0) // Skip hidden files such as .git, .gitignore, .vscode, etc.
+				continue;
+
+			if (is_dir($extDir . "/" . $object) === true && is_dir($object) === true)
+				removeDir($object); // Remove directories which cannot be overwritten when moved
+
+			rename($extDir . "/" . $object, $object);
+		}
+	}
+
+	logMsg("Removing temporary folder '" . $extDir . "'");
+
+	removeDir($extDir);
 
 	if ($upgrade === true)
 	{
+		logMsg("Restoring preserved configuration and data");
+
 		unlink("config.xml.php");
 		removeDir("files");
 		removeDir("data");
@@ -272,6 +447,8 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 		rename("config." . $ts . ".xml.php", "config.xml.php");
 		rename("files." . $ts, "files");
 		rename("data." . $ts, "data");
+
+		logMsg("Restoring changes made to built-in templates");
 
 		// Restore changes made to templates that ships with Sitemagic CMS
 		foreach (scandir("templates") as $tpl)
@@ -291,6 +468,8 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 			}
 		}
 
+		logMsg("Restoring custom made templates not part of the default package");
+
 		// Restore templates not part of Sitemagic CMS
 		foreach (scandir("templates." . $ts) as $tpl)
 		{
@@ -307,6 +486,8 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 
 		if ($dsType === "MySQL")
 		{
+			logMsg("Restoring MySQL database layer and unlinking XML based database layer");
+
 			if (file_exists("base/SMDataSourceXml.classes.php") === true)
 				unlink("base/SMDataSourceXml.classes.php"); // In case the file already exists due to multiple upgrades
 
@@ -315,7 +496,11 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 		}
 	}
 
-	unlink("sitemagic-latest.zip");
+	logMsg("Cleaning up - removing release file");
+
+	unlink("sitemagic-" . $release . ".zip");
+
+	logMsg("Upgrade complete - thank you!");
 
 	exit;
 }
@@ -381,7 +566,7 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 <body>
 
 <div id="box">
-	<b>This will install Sitemagic CMS into the current directory.</b>
+	<b>This will install Sitemagic CMS <?php echo (getUpgradeMode() !== "stable" ? "(<i style='color: red'>" . getUpgradeMode() . "</i>)" : ""); ?> into the current directory.</b>
 
 	<br><br><br>
 
@@ -432,7 +617,7 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 		txtPass.Focused(true)
 	}
 
-	var url = "<?php echo $_SERVER["PHP_SELF"]; ?>";
+	var url = "<?php echo $_SERVER["PHP_SELF"] . ((isset($_SERVER["QUERY_STRING"]) === true && $_SERVER["QUERY_STRING"] !== "") ? "?" . $_SERVER["QUERY_STRING"] : ""); ?>";
 	var upgrade = <?php echo (file_exists("config.xml.php") === true ? "true" : "false"); ?>;
 	var progress = document.querySelector("#progress");
 
