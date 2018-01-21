@@ -183,11 +183,14 @@ function removeExtrationDirectories()
 
 	foreach ($objects as $object)
 	{
-		if (is_dir($object) === true && strpos($object, "Jemt-SitemagicCMS-") === 0)
+		if ($object !== "." && $object !== "..")
 		{
-			if (removeDir($object) === false)
+			if (is_dir($object) === true && strpos($object, "Jemt-SitemagicCMS-") === 0)
 			{
-				fail("Unable to remove extraction directories");
+				if (removeDir($object) === false)
+				{
+					fail("Unable to remove extraction directories");
+				}
 			}
 		}
 	}
@@ -199,9 +202,12 @@ function getExtrationDirectory()
 
 	foreach ($objects as $object)
 	{
-		if (is_dir($object) === true && strpos($object, "Jemt-SitemagicCMS-") === 0)
+		if ($object !== "." && $object !== "..")
 		{
-			return $object;
+			if (is_dir($object) === true && strpos($object, "Jemt-SitemagicCMS-") === 0)
+			{
+				return $object;
+			}
 		}
 	}
 
@@ -349,7 +355,13 @@ else if ($op === "start-install") // Download Sitemagic CMS to current directory
 		curl_setopt($curl, CURLOPT_FILE, $fp);
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($curl, CURLOPT_HTTPHEADER, array("User-Agent: Jemt"));
-		curl_exec($curl); // Returns boolean indicating success/failure
+		$cRes = curl_exec($curl); // Returns boolean indicating success/failure
+
+		if ($cRes === false)
+		{
+			fail("CURL failed with error '" . curl_error($curl) . "'");
+		}
+
 		curl_close($curl);
 		fclose($fp);
 	}
