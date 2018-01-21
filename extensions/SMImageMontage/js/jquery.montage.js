@@ -300,6 +300,8 @@
 		_reload				: function() {
 			// container's width
 			var new_el_w = this.element.width();
+
+			new_el_w = ((new_el_w % 2 === 1) ? new_el_w - 1 : new_el_w); // Fixed by Sitemagic (also in _create function) - prevent messy layout if container has an odd width (e.g. 127px instead of 128px)
 			
 			// if different, something changed...
 			if( new_el_w !== this.cache.container_w ) {
@@ -321,6 +323,8 @@
 			
 			var instance 		= this,
 				el_w 			= instance.element.width();
+
+			el_w = ((el_w % 2 === 1) ? el_w - 1 : el_w); // Fixed by Sitemagic (also in _reload function) - prevent messy layout if container has an odd width (e.g. 127px instead of 128px)
 			
 			instance.$imgs		= instance.element.find('img');
 			instance.totalImages= instance.$imgs.length;
