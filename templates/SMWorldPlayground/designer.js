@@ -25,6 +25,9 @@
 //   using the designer (e.g. position:fixed), then the chance of problems is very small since
 //   the problem can only be triggered by manipulating styling under Advanced, which may be acceptable.
 
+// Make sure template designer definitions are identical:
+// for dir in templates/*/ ; do md5 $dir/designer.js ; done
+
 ({
 	/*GetTranslations: function(lang)
 	{
@@ -2353,7 +2356,37 @@
 
 			if (text !== null)
 			{
-				css += "div.TPLContent, html.Basic.SMPagesViewer.SMPagesClassicLayout body, html.SMPagesEditor.SMPagesContentPage.SMPagesClassicLayout body";
+				// Notice regarding use of resolution breakpoints and relative units in Page Editor:
+				// The base font size is set on <html>. Any adaption to resolution (resolution breakpoint) is set on <body>,
+				// and naturally any font-size override is set on specific elements such as TPLHeader, TPLContent, etc.
+				// Unfortunately we do not have the latter containers (TPLHeader, TPLContent, etc) in the Page Editor,
+				// so instead we apply the font-styling to ALL immediate children of <body> which gives us almost the same behaviour.
+				// However, this means that we can no longer have custom elements such as this
+				// <div class="SMDesignerElement" data-id="Customizable element" data-preserve="true">Hello</div>
+				// in the root of our document, and have it work reliably with a custom font-size, since it will first be applied
+				// the adaption related to resolution, and then have this overridden by any element specific font-size (see example further down).
+				// The solution to this problem is to wrap the element in another root element:
+				// <div><div class="SMDesignerElement" data-id="Customizable element" data-preserve="true">Hello</div></div>
+				// Obviously this is not ideal but it works when we need to apply different font-sizes for different resolutions,
+				// AND adjust the font-size for a given content area as well.
+
+				// To summarize, this is what happens on the website where everything works as expected:
+				// <html>		14px	= 14px
+				// <body>		120%	= 16.8px
+				// TPLContent	1.25em	= 21px (correct result)
+
+				// This is what happens if we do NOT apply resolution specific font-size changes to the root elements in
+				// <body> in the page editor, but incorrectly applies it to <body> instead (which we previously did):
+				// <html>		14px	= 14px
+				// <body>		120%	= 16.8px (adaption related to resolution breakpoint is overridden below and hence lost)
+				// <body>		1.25em	= 17.5px (overrides previously value set - no longer results in a value of 21px)
+
+				// This is what happens when we DO apply resolution specific font-size changes to the root elements in <body> in the page editor:
+				// <html>		14px	= 14px
+				// <body>		120%	= 16.8px
+				// <body> > *	1.25em	= 21px (correct result)
+
+				css += "div.TPLContent, html.Basic.SMPagesViewer.SMPagesClassicLayout body > *, html.SMPagesEditor.SMPagesContentPage.SMPagesClassicLayout body > *";
 				css += "{";
 				css += text;
 				css += "}";
