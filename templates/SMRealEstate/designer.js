@@ -2419,7 +2419,8 @@
 
 			if (linkColor !== null)
 			{
-				css += "div.TPLContent a";
+				css += "div.TPLContent a,";
+				css += "html.SMPagesEditor.SMPagesContentPage body a"
 				css += "{";
 				css += linkColor;
 				css += "}";
@@ -3646,7 +3647,8 @@
 
 				if (linkColor !== null)
 				{
-					css += ".SMDesignerElement[data-id='" + customs[i].getAttribute("data-id") + "'] a";
+					css += ".SMDesignerElement[data-id='" + customs[i].getAttribute("data-id") + "'] a,";
+					css += "html.SMPagesEditor body .SMDesignerElement[data-id='" + customs[i].getAttribute("data-id") + "'] a"; // Needed to obtain greater specificity in Page Editor to overrule styling for Page
 					css += "{";
 					css += linkColor;
 					css += "}";
