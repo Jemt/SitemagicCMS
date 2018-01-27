@@ -208,11 +208,13 @@ div.TPLMenuMobile
 		max-width: 100% !important;
 		width: auto !important;
 		height: auto !important;
+	}
+	html.SMPagesViewer.SMPagesClassicLayout div.TPLContent img[width][height][src^="files/images/"][style*="float"]
+	{
+		/* Disable image floating on mobile - place image on separate line, centered */
+
 		float: none !important;
 		display: block !important;
-	}
-	html.SMPagesViewer.SMPagesClassicLayout div.TPLContent img[width][height][src^="files/images/"][style*="margin"]
-	{
 		margin: 1em auto 1em auto !important;
 	}
 
