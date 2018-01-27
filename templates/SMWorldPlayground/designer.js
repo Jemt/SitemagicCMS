@@ -3177,7 +3177,6 @@
 			// Dimensions
 			var width = SMDesigner.Helpers.GetDimensionCss(editors["Footer"]["Dimensions"]["Dimensions"]["Width"], "width");
 			var height = SMDesigner.Helpers.GetDimensionCss(editors["Footer"]["Dimensions"]["Dimensions"]["Height"], "height");
-			width = ((width !== null) ? width : SMDesigner.Helpers.GetDimensionCss(editors["Page"]["Dimensions"]["Dimensions"]["Width"], "width")); // Width from Page
 
 			// Indentation
 			var margin = SMDesigner.Helpers.GetIndentationCss(editors["Footer"]["Indentation"]["Margin"], "margin");
@@ -3210,7 +3209,7 @@
 
 			var css = "";
 
-			if (width !== null)
+			if (width !== null && display !== "stretch")
 			{
 				// Width is set on html element in page editor
 				css += "html.SMPagesCustomFooter div.TPLFooter, html.SMPagesEditor.SMPagesSystemPage.SMPagesFilenameFooter";
