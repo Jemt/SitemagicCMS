@@ -32,7 +32,7 @@ class SMSearchFrmSearch implements SMIExtensionForm
 		$this->txtValue->SetAttribute(SMInputAttributeText::$Style, "width: 150px");
 
 		if ($this->context->GetForm()->PostBack() === false && $search !== null)
-			$this->txtValue->SetValue(htmlspecialchars($search));
+			$this->txtValue->SetValue(str_replace("&amp;", "&", htmlspecialchars($search))); // Notice that htmlspecialchars(..) replaces & with &amp; which breaks encoded characters (e.g. Euro Symbol => &#8364;) - restored here (&amp; => &)
 
 		$this->cmdSubmit = new SMLinkButton($this->name . "Submit" . $this->instanceId);
 		if (SMEnvironment::GetVersion() >= 20160123) // Not pretty, but this allows for extension to be installed on older versions of Sitemagic

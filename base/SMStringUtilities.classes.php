@@ -5,6 +5,48 @@
 /// </container>
 class SMStringUtilities
 {
+	/// <function container="base/SMStringUtilities" name="Search" access="public" static="true" returns="string[]">
+	/// 	<description> Search string and return matched portions with correct casing (relevant for case insensitive search) </description>
+	/// 	<param name="string" type="string"> String to search </param>
+	/// 	<param name="search" type="string"> Search value </param>
+	/// 	<param name="caseSensitive" type="boolean" default="true"> Value indicating whether search should be performed in a case sensitive manner </param>
+	/// </function>
+	public static function Search($string, $search, $caseSensitive = true)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "string", $string, SMTypeCheckType::$String);
+		SMTypeCheck::CheckObject(__METHOD__, "search", $search, SMTypeCheckType::$String);
+
+		// Turn string and search term into unicode (convert from HEX entities to real unicode).
+		// This allows us to perform case insensitive matching which is not possible with HEX entities.
+
+		$uStr = SMStringUtilities::UnicodeDecode($string);
+		$uSch = SMStringUtilities::UnicodeDecode($search);
+
+		// Handle case insensitivity
+
+		$str = $uStr; // Holds searchable value (case sensitive or insensitive) while $uStr holds original value from which matches must be extracted (both in Unicode)
+		$sch = $uSch; // Holds searchable value (case sensitive or insensitive) while $uSch holds original value from which matches must be extracted (both in Unicode)
+
+		if ($caseSensitive === false)
+		{
+			$str = mb_strtolower($str);
+			$sch = mb_strtolower($sch);
+		}
+
+		// Find search term in string
+
+		$matches = array();
+		$pos = mb_strpos($str, $sch);
+
+		while ($pos !== false)
+		{
+			$matches[] = SMStringUtilities::UnicodeEncode(mb_substr($uStr, $pos, mb_strlen($uSch))); // Turned back into ISO-8859-1 encoding with HEX entities representing unicode characters
+			$pos = mb_strpos($str, $sch, $pos + 1);
+		}
+
+		return $matches;
+	}
+
 	/// <function container="base/SMStringUtilities" name="StartsWith" access="public" static="true" returns="boolean">
 	/// 	<description> Returns True if specified string starts with search value, otherwise False </description>
 	/// 	<param name="str" type="string"> String to examine </param>
@@ -38,13 +80,17 @@ class SMStringUtilities
 		return ($end === $search);
 	}
 
-	/// <function container="base/SMStringUtilities" name="SplitCaseInsensitive" access="public" static="true" returns="string[]">
-	/// 	<description> Splits string with a split sequence that might occure with different casings </description>
-	/// 	<param name="str" type="string"> String to split </param>
-	/// 	<param name="splitter" type="string"> Split sequence </param>
-	/// </function>
+	// DEPRECATED - currently used by base/SMSqlCommon.classes.php.
+	// See deprecation comments for Search(..) function for more details.
+	// <function container="base/SMStringUtilities" name="SplitCaseInsensitive" access="public" static="true" returns="string[]">
+	// 	<description> Splits string with a split sequence that might occure with different casings </description>
+	// 	<param name="str" type="string"> String to split </param>
+	// 	<param name="splitter" type="string"> Split sequence </param>
+	// </function>
 	public static function SplitCaseInsensitive($str, $splitter)
 	{
+		// DEPRECATED! See comments above!
+
 		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "splitter", $splitter, SMTypeCheckType::$String);
 
@@ -129,16 +175,24 @@ class SMStringUtilities
 		return $res;
 	}
 
-	/// <function container="base/SMStringUtilities" name="Replace" access="public" static="true" returns="string">
-	/// 	<description> Replace search value within a string. Supports case insensitive search. A limit may be set to avoid replacement of all occurences. </description>
-	/// 	<param name="str" type="string"> String containing values to replace </param>
-	/// 	<param name="search" type="string"> Value to search for to replace </param>
-	/// 	<param name="replace" type="string"> Replacement value </param>
-	/// 	<param name="caseSensitive" type="boolean" default="true"> Perform case insensitive search </param>
-	/// 	<param name="limit" type="integer" default="-1"> Optionally limit number of replacements to specified value </param>
-	/// </function>
+	// DEPRECATED - DO NOT USE!
+	// The function uses strtolower(..) which only convert characters part of configured locale (http://php.net/manual/en/class.locale.php).
+	// We don't want to switch that since it may be shared between multiple threads (http://php.net/manual/en/function.setlocale.php - see warning section).
+	// Also, all characters extending ASCII is represented by HEX entities so they are not lower cased either as different casing is represented by different numeric values.
+	// See SMStringUtilities::Search(..) for possible solution if Replace needs to be re-implemented. Currently it is not being used by Sitemagic.
+	// ---
+	// <function container="base/SMStringUtilities" name="Replace" access="public" static="true" returns="string">
+	// 	<description> Replace search value within a string. Supports case insensitive search. A limit may be set to avoid replacement of all occurences. </description>
+	// 	<param name="str" type="string"> String containing values to replace </param>
+	// 	<param name="search" type="string"> Value to search for to replace </param>
+	// 	<param name="replace" type="string"> Replacement value </param>
+	// 	<param name="caseSensitive" type="boolean" default="true"> Perform case insensitive search </param>
+	// 	<param name="limit" type="integer" default="-1"> Optionally limit number of replacements to specified value </param>
+	// </function>
 	public static function Replace($str, $search, $replace, $caseSensitive = true, $limit = -1)
 	{
+		// DEPRECATED! See comments above!
+
 		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "search", $search, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "replace", $replace, SMTypeCheckType::$String);
@@ -332,6 +386,8 @@ class SMStringUtilities
 	/// </function>
 	public static function HtmlEntityDecode($str)
 	{
+		// WARNING: HTML entities outside of ISO-8859-1 will be corrupted!
+
 		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
 		return html_entity_decode($str, ENT_COMPAT, "ISO-8859-1"); // Notice: ENT_HTML401 undefined in PHP 5.2
 	}
@@ -378,13 +434,12 @@ class SMStringUtilities
 		// Encode characters that are not between code point 0 (Unicode HEX 0000) and code point 255 (Unicode HEX 0100).
 		// Behaviour must be identical to SMStringUtilities.UnicodeEncode(..) client side!
 		// Also passing data through utf8_decode(..) since remaining ISO-8859-1 characters are still encoded as UTF-8.
-		return utf8_decode(preg_replace_callback("/[^\x{0000}-\x{0100}]/u", "self::unicodeEncodeReplaceCallback", $unicodeStr));
-	}
+		//return utf8_decode(preg_replace_callback("/[^\x{0000}-\x{0100}]/u", "smStringUtilitiesUnicodeEncodeReplaceCallback", $unicodeStr));
 
-	private static function unicodeEncodeReplaceCallback($matchArray)
-	{
-		$res = mb_convert_encoding($matchArray[0], "UTF-32BE", "UTF-8");
-		return "&#" . hexdec(bin2hex($res)) . ";";
+		// Encode characters extending ASCII.
+		// Behaviour must be identical to SMStringUtilities.UnicodeEncode(..) client side!
+		// Also passing data through utf8_decode(..) since remaining ISO-8859-1 characters are still encoded as UTF-8.
+		return utf8_decode(preg_replace_callback("/[^\x{00}-\x{7F}]/u", "smStringUtilitiesUnicodeEncodeReplaceCallback", $unicodeStr));
 	}
 
 	/// <function container="base/SMStringUtilities" name="UnicodeDecode" access="public" static="true" returns="string">
@@ -398,12 +453,7 @@ class SMStringUtilities
 		SMTypeCheck::CheckObject(__METHOD__, "isUnicode", $isUnicode, SMTypeCheckType::$Boolean);
 
 		$str = ($isUnicode === false ? utf8_encode($str) : $str); // Make sure an ISO-8859-1 string is transformed into UTF-8 - however, calling utf8_encode(..) on a string already unicode encoded will cause characters such as "זרו" to be corrupted
-		return preg_replace_callback("/&#\d+;/", "self::unicodeDecodeReplaceCallback", $str);
-	}
-
-	private static function unicodeDecodeReplaceCallback($matchArray)
-	{
-		return html_entity_decode($matchArray[0], ENT_COMPAT, "UTF-8"); // Notice: ENT_HTML401 undefined in PHP 5.2
+		return preg_replace_callback("/&#\d+;/", "smStringUtilitiesUnicodeDecodeReplaceCallback", $str);
 	}
 
 	/// <function container="base/SMStringUtilities" name="EscapeJson" access="public" static="true" returns="string">
@@ -508,6 +558,17 @@ class SMValueRestriction
 	/// 	<description> Value must be a valid e-mail address containing only ASCII compatible characters </description>
 	/// </member>
 	public static $EmailAddress = "EmailAddress";
+}
+
+function smStringUtilitiesUnicodeDecodeReplaceCallback($matchArray)
+{
+	return html_entity_decode($matchArray[0], ENT_COMPAT, "UTF-8"); // Notice: ENT_HTML401 undefined in PHP 5.2
+}
+
+function smStringUtilitiesUnicodeEncodeReplaceCallback($matchArray)
+{
+	$res = mb_convert_encoding($matchArray[0], "UTF-32BE", "UTF-8");
+	return "&#" . hexdec(bin2hex($res)) . ";";
 }
 
 ?>

@@ -45,8 +45,7 @@ class SMSearchFrmResults implements SMIExtensionForm
 
 		if ($search !== null && $search !== "")
 		{
-			// Notice that htmlspecialchars(..) replaces & with &amp; which breaks
-			// encoded characters (e.g. Euro Symbol => &#8364;) - restored below (&amp; => &).
+			// Notice that htmlspecialchars(..) replaces & with &amp; which breaks encoded characters (e.g. Euro Symbol => &#8364;) - restored below (&amp; => &).
 
 			$heading = $this->lang->GetTranslation("SearchResults") . ": ";
 			$heading .= str_replace("&amp;", "&", htmlspecialchars($search));
@@ -67,14 +66,13 @@ class SMSearchFrmResults implements SMIExtensionForm
 			return $output;
 
 		// Perform search
-
-		$searchOrg = $search;
-		$search = strtolower($search);
 		$pages = SMPagesLoader::GetPages(true);
 
 		$results = "";
 		$title = "";
 		$content = "";
+		$titleMatches = array();
+		$contentMatches = array();
 		$cIdx = -1;
 		$posStart = -1;
 		$length = -1;
@@ -106,20 +104,27 @@ class SMSearchFrmResults implements SMIExtensionForm
 
 			// Search
 
-			if (strpos(strtolower($title), $search) === false && strpos(strtolower($content), $search) === false)
-				continue; // Skip, search value not found in title or content
+			// NOTICE: The use of SMStringUtilities::Search(..) is not 100% perfect. The page editor (TinyMCE) seems to turn some ASCII compatible characters into numeric HEX
+			// entities (e.g. ~ which becomes &#126;). These characters will not be returned as HEX entities from SMStringUtilities::Search(..) as only characters extending ASCII is
+			// turned back into HEX entities (matches returned). Fortunately, these situations seems rare - rarely will someone search for such odd characters.
+			// However, the result being that a match on one of these characters will not result in the match being highlighted.
+
+			$titleMatches = SMStringUtilities::Search($title, $search, false);
+			$contentMatches = SMStringUtilities::Search($content, $search, false);
+
+			if (count($titleMatches) === 0 && count($contentMatches) === 0)
+				continue;
 
 			// Extract content 400 characters before and 400 characters after first matching word
 
-			$cIdx = strpos(strtolower($content), $search);
+			$cIdx = ((count($contentMatches) > 0) ? strpos($content, $contentMatches[0]) : false);
 			$posStart = 0;
 			$length = 400 + strlen($search) + 400;
 
-			if ($cIdx !== false && $cIdx > 400) // $cIdx is False if match was found in page title
+			if ($cIdx !== false && $cIdx > 400) // $cIdx is False if match was found in page title only
 				$posStart = $cIdx - 400;
 
 			$content = trim(substr($content, $posStart, $length));
-			$content = (($cIdx > 400) ? "..." : "") . $content;
 
 			// Fix broken HTML entities at beginning or end (e.g. &#10084; or &quot; may have been corrupted by substr(..) above)
 
@@ -128,14 +133,18 @@ class SMSearchFrmResults implements SMIExtensionForm
 
 			// Highlight matching words
 
-			$title = SMStringUtilities::Replace($title, $search, "<span class=\"SMSearchMatch\">" . $searchOrg . "</span>", false); // Case-insensitive replace
-			$content = SMStringUtilities::Replace($content, $search, "<span class=\"SMSearchMatch\">" . $searchOrg . "</span>", false); // Case-insensitive replace
+			foreach ($titleMatches as $titleMatch)
+				$title = str_replace($titleMatch, "<span class=\"SMSearchMatch\">" . $titleMatch . "</span>", $title);
+			foreach ($contentMatches as $contentMatch)
+				$content = str_replace($contentMatch, "<span class=\"SMSearchMatch\">" . $contentMatch . "</span>", $content);
 
 			// Add "read more" link
 
 			$content = $content . "... <a href=\"" . $page->GetUrl() . "\">" . $this->lang->GetTranslation("ReadMore") . "</a>";
 
 			// Add to result output
+
+			$content = (($cIdx !== false && $cIdx > 400) ? "..." : "") . $content; // Prefix with "..." if start of string was cut off
 
 			$results .= (($results !== "") ? "<br><br>" : "");
 			$results .= "<b>" . $title . "</b><br>";

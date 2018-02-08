@@ -322,6 +322,7 @@ class SMPagesFrmEditor implements SMIExtensionForm
 
 			language : \"" . $language . "\",
 			element_format : \"html\",
+			entity_encoding : \"numeric\",
 			doctype : \"<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN' 'http://www.w3.org/TR/html4/strict.dtd'>\",
 			/*oninit : function() { tinyMCE.get(\"" . $this->txtContent->GetClientId() . "\").execCommand(\"mceFullScreen\"); },*/
 			width: \"100%\",

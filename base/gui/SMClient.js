@@ -204,10 +204,10 @@ SMStringUtilities.UnicodeEncode = function(str) // Also works with Windows-1252 
 	// Basically it's a problem that JS and DOM has different representations for the same thing. So supporting
 	// characters outside of BMP is not realistic when using HEX entities to represent Unicode characters - at
 	// least not with ECMAScript prior to version 6.
-	return str.replace(/[^\u0000-\u0100]/g, function(character) { /*console.log("Encoding: " + character);*/ return "&#" + character.charCodeAt(0) + ";" });
+	//return str.replace(/[^\u0000-\u0100]/g, function(character) { /*console.log("Encoding: " + character);*/ return "&#" + character.charCodeAt(0) + ";" });
 
-	// The example below encodes all characters extending ASCII
-	//return str.replace(/[^\x00-\x7F]/g, function(character) { /*console.log("Encoding: " + character);*/ return "&#" + character.charCodeAt(0) + ";" });
+	// Encodes all characters extending ASCII - ASCII is compatible with UTF-8, ISO-8859-1 is not.
+	return str.replace(/[^\x00-\x7F]/g, function(character) { /*console.log("Encoding: " + character);*/ return "&#" + character.charCodeAt(0) + ";" });
 
 	// The example below encodes Windows-1252 specific characters only.
 	// The Unicode code points are found on the Windows-1252 character table on http://en.wikipedia.org/wiki/Windows-1252
