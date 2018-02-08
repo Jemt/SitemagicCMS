@@ -442,10 +442,10 @@ class SMDataSource implements SMIDataSource
 
 		// Connect to database server and select database
 
-		if (ini_get("mysql.safe_mode") === "1")
-			throw new Exception("MySQL Safe Mode not supported (mysql.safe_mode)");
+		if (ini_get("mysql.safe_mode") === "1" || ini_get("sql.safe_mode") === "1")
+			throw new Exception("MySQL Safe Mode not supported (mysql.safe_mode or sql.safe_mode)");
 
-		if (ini_get("mysql.max_links") !== "-1")
+		if (ini_get("mysql.max_links") !== false && ini_get("mysql.max_links") !== "-1")
 			throw new Exception("The number of MySQL connections allowed cannot be restricted (mysql.max_links)");
 
 		$serverInfo = explode(":", $connectionInfo[0]);
