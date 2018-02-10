@@ -414,14 +414,15 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 		}
 	}
 
-	if ($upgrade === true) // Preserve config, files, data, and active template(s)
+	if ($upgrade === true) // Preserve config, files, data, active template(s), and extensions (3rd party extensions may have been installed)
 	{
-		logMsg("This is an upgrade - preserving configuration and data");
+		logMsg("This is an upgrade - preserving configuration, data, and extensions");
 
 		rename("config.xml.php", "config." . $ts . ".xml.php");
 		rename("files", "files." . $ts);
 		rename("data", "data." . $ts);
 		rename("templates", "templates." . $ts);
+		rename("extensions", "extensions." . $ts);
 
 		$dsType = getDataSourceType();
 	}
@@ -495,6 +496,21 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 		}
 
 		removeDir("templates." . $ts);
+
+		logMsg("Restoring extensions not part of the default package");
+
+		foreach (scandir("extensions." . $ts) as $ext)
+		{
+			if ($ext === "." || $ext === "..")
+				continue;
+
+			if (is_dir("extensions/" . $ext) === false)
+			{
+				rename("extensions." . $ts . "/" . $ext, "extensions/" . $ext);
+			}
+		}
+
+		removeDir("extensions." . $ts);
 
 		if ($dsType === "MySQL")
 		{
