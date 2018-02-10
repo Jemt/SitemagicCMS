@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContentPages" value="Stranice"/>
+	<entry key="ContentPageDetails" value="Svojstva"/>
+	<entry key="Filename" value="Ime fajla"/>
+	<entry key="PageTitle" value="Naslov"/>
+	<entry key="Accessible" value="Dostupnost"/>
+	<entry key="Template" value="&amp;#352;ablon"/>
+	<entry key="CopyTemplate" value="Kopiraj"/>
+	<entry key="DeleteTemplate" value="Izbri&amp;#353;i"/>
+	<entry key="Keywords" value="Klju&amp;#269;ne re&amp;#269;i"/>
+	<entry key="Description" value="Opis"/>
+	<entry key="AllowIndexing" value="Dozvoli indeksiranje"/>
+	<entry key="Password" value="Lozinka"/>
+	<entry key="MaskPassword" value="Sakrij lozinku"/>
+	<entry key="AllOptions" value="Vi&amp;#353;e opcija"/>
+	<entry key="Create" value="Kreiraj"/>
+	<entry key="Clear" value="O&amp;#269;isti"/>
+	<entry key="Save" value="Sa&amp;#269;uvaj"/>
+	<entry key="Settings" value="Pode&amp;#353;avanje"/>
+	<entry key="UrlType" value="URL tip"/>
+	<entry key="SeoUrls" value="SEO URL-ovi"/>
+	<entry key="UrlTypeFilename" value="Ime fajla"/>
+	<entry key="UrlTypeUniqueId" value="Jedinstven ID"/>
+	<entry key="Edit" value="Svojstva"/>
+	<entry key="EditContent" value="Izmeni sadr&amp;#382;aj"/>
+	<entry key="Display" value="Prikaz"/>
+	<entry key="Delete" value="Izbri&amp;#353;i"/>
+	<entry key="Modified" value="Prilago&amp;#273;eno"/>
+	<entry key="FilenameMissing" value="Molimo vas odredite ime fajla"/>
+	<entry key="FilenameInvalid" value="Ne va&amp;#382;e&amp;#263;e ime fajla - dozvoljeni karakteri su: A-Z, 0-9, ta&amp;#269;ka (.), crta (-), i donja linija (_)"/>
+	<entry key="FilenameExists" value="Ime fajla je ve&amp;#263; u upotrebi"/>
+	<entry key="SelectPage" value="Odaberite stranu"/>
+	<entry key="PageMissing" value="Odabrana strana ne postoji vi&amp;#353;e"/>
+	<entry key="DeleteWarning" value="Molimo potvrdite brisanje"/>
+	<entry key="Yes" value="Da "/>
+	<entry key="No" value="Ne"/>
+	<entry key="DateTimeFormat" value="Y-m-d H:i:s"/>
+	<entry key="CopyTemplateDialog" value="Unesite novo ime &amp;#353;ablona (samo A-Z, 0-9 je dozvoljeno)"/>
+	<entry key="DeleteTemplateDialog" value="Da li ste sigurni da &amp;#382;elite da uklonite ozna&amp;#269;eni &amp;#353;ablon?"/>
+	<entry key="WarningTemplateNoSelection" value="Molimo ozna&amp;#269;ite &amp;#353;ablon"/>
+	<entry key="WarningTemplateNameInvalid" value="Une&amp;#353;eno ime je ne va&amp;#382;e&amp;#263;e"/>
+	<entry key="WarningTemplatesNotWritable" value="Folder &amp;#353;ablona je za&amp;#353;ti&amp;#263;en od upisivanja"/>
+	<entry key="WarningTemplateAlreadyExists" value="&amp;#352;ablon sa une&amp;#353;enim imenom ve&amp;#263; postoji"/>
+	<entry key="NotificationTemplateCopySucceeded" value="&amp;#352;ablon je kopiran uspe&amp;#353;no i sada je spreman za kori&amp;#353;&amp;#263;enje"/>
+	<entry key="WarningTemplateCopyFailed" value="Ne poznata gre&amp;#353;ka prilikom kopiranja &amp;#353;ablona"/>
+	<entry key="WarningTemplateDeleteInUse" value="&amp;#352;ablon se ne mo&amp;#382;e ukloniti, jer je trenutno u upotrebi"/>
+	<entry key="WarningTemplateDeleteNotWritable" value="Folder je za&amp;#353;ti&amp;#263;en od upisivanja"/>
+	<entry key="NotificationTemplateDeleteSucceeded" value="&amp;#352;ablon je uklonjen"/>
+	<entry key="WarningTemplateDeleteFailed" value="Ne poznata gre&amp;#353;ka prilikom uklanjanja &amp;#353;ablona"/>
+	<entry key="HeaderFooter" value="Zaglavlje i podno&amp;#382;je"/>
+	<entry key="AddHeader" value="Dodaj zaglavlje"/>
+	<entry key="EditHeader" value="Izmenite zaglavlje"/>
+	<entry key="RemoveHeader" value="Ukloni"/>
+	<entry key="AddFooter" value="Dodaj podno&amp;#382;je"/>
+	<entry key="EditFooter" value="Izmeni podno&amp;#382;je"/>
+	<entry key="RemoveFooter" value="Ukloni"/>
+	<entry key="PageNotFound" value="Odabrana strana ne postoji vi&amp;#353;e"/>
+	<entry key="NoIndexPage" value="Nema naslovne strane kreirane u sistemu - kreirajte stranu sa imenom index"/>
+	<entry key="NotAccessible" value="Odabrana stranica je za&amp;#353;ti&amp;#263;ena od pregledanja"/>
+	<entry key="SettingsSaved" value="Sa&amp;#269;uvana pode&amp;#353;avanja"/>
+	<entry key="NoIndexingOnPassword" value="Indeksiranje nije dostupno kada je stranica za&amp;#353;ti&amp;#263;ena lozinkom"/>
+	<entry key="PasswordProtected" value="Za&amp;#353;ti&amp;#263;eno lozinkom"/>
+	<entry key="Unauthorized" value="Ova stranica je za&amp;#353;ti&amp;#263;ena lozinkom"/>
+	<entry key="PageLogin" value="Kliknite ovde da se prijavite"/>
+	<entry key="IncorrectPassword" value="Ne va&amp;#382;e&amp;#263;a lozinka je une&amp;#353;ena, molimo poku&amp;#353;ajte ponovo."/>
+	<entry key="CardSmall" value="Kartica (mala)"/>
+	<entry key="CardMedium" value="Kartica (srednja)"/>
+	<entry key="CardLarge" value="Kartica (velika)"/>
+	<entry key="CardHidden" value="Kartica (skrivena)"/>
+	<entry key="CardHeader" value="Kartica zaglavlja"/>
+	<entry key="CardFooter" value="Kartica podno&amp;#382;ja"/>
+	<entry key="Resizing" value="Promena veli&amp;#269;ine prozora"/>
+	<entry key="ResizingDescription" value="Prilago&amp;#273;avanje sadr&amp;#382;aja za nove veli&amp;#269;ine prozora"/>
+	<entry key="Saving" value="&amp;#268;uvanje"/>
+	<entry key="SavingDescription" value="Sadr&amp;#382;aj se &amp;#269;uva"/>
+</entries>

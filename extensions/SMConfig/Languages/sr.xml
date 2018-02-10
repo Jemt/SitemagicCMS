@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Pode&amp;#353;avanja"/>
+	<entry key="Login" value="Prijava"/>
+	<entry key="Username" value="Korisni&amp;#269;ko ime"/>
+	<entry key="Password" value="Lozinka"/>
+	<entry key="HidePassword" value="Sakrij lozinku"/>
+	<entry key="Appearance" value="Izgled"/>
+	<entry key="ImageTheme" value="Tema ikone"/>
+	<entry key="Template" value="Dizajniraj &amp;#353;ablon"/>
+	<entry key="CopyTemplate" value="Kopiraj"/>
+	<entry key="DeleteTemplate" value="Izbri&amp;#353;i"/>
+	<entry key="Language" value="Jezik"/>
+	<entry key="TimeZone" value="Vremenska zona"/>
+	<entry key="License" value="Licenca"/>
+	<entry key="LicenseKey" value="Licencni klju&amp;#269;"/>
+	<entry key="DatabaseTitle" value="MySQL baza podataka (opcionalno)"/>
+	<entry key="Server" value="Server"/>
+	<entry key="Database" value="Baza podataka"/>
+	<entry key="SmtpTitle" value="SMTP Server (opcionalno)"/>
+	<entry key="Port" value="Port"/>
+	<entry key="AuthType" value="Tip prijave"/>
+	<entry key="Encryption" value="Enkripcija"/>
+	<entry key="ExtensionsEnabled" value="Omogu&amp;#263;ene ekstenzije"/>
+	<entry key="Save" value="Sa&amp;#269;uvaj"/>
+	<entry key="Cancel" value="Otka&amp;#382;i"/>
+	<entry key="SettingsSaved" value="Pode&amp;#353;avanja sa&amp;#269;uvana"/>
+	<entry key="CopyTemplateDialog" value="Unesite ime novog &amp;#353;ablona (A-Z, 0-9 dozvoljeno)"/>
+	<entry key="DeleteTemplateDialog" value="Da li ste sigurni da &amp;#382;elite da uklonite odabrani &amp;#353;ablon?"/>
+	<entry key="WarningTemplateNameInvalid" value="Une&amp;#353;eno ime je ne va&amp;#382;e&amp;#263;e"/>
+	<entry key="WarningTemplatesNotWritable" value="Folder &amp;#353;ablona je za&amp;#353;ti&amp;#263;en od upisivanja"/>
+	<entry key="WarningTemplateAlreadyExists" value="Une&amp;#353;eno ime &amp;#353;ablone ve&amp;#263; je u upotrebi"/>
+	<entry key="NotificationTemplateCopySucceeded" value="&amp;#352;ablon je kopiran i ve&amp;#263; je spreman za upotrebu"/>
+	<entry key="WarningTemplateCopyFailed" value="Nepoznata gre&amp;#353;ka prilikom kopiranja &amp;#353;ablona"/>
+	<entry key="WarningTemplateDeleteInUse" value="&amp;#352;ablon se ne mo&amp;#382;e ukloniti, jer se trenutno koristi"/>
+	<entry key="WarningTemplateNotWritable" value="Folder je za&amp;#353;ti&amp;#263;en od upisivanja"/>
+	<entry key="NotificationTemplateDeleteSucceeded" value="&amp;#352;ablon je uklonjen"/>
+	<entry key="WarningTemplateDeleteFailed" value="Ne poznata gre&amp;#353;ka prilikom uklanjanje &amp;#353;ablona"/>
+</entries>

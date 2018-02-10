@@ -8,7 +8,7 @@
 	<!-- optional, may be left out or empty - defaults to 'en' -->
 	<entry key="Language" value="en" />
 	<!-- optional, may be left out or empty - defaults to empty collection -->
-	<entry key="Languages" value="en;da;de;el;fr" />
+	<entry key="Languages" value="en;da;de;el;fr;sr" />
 	<!-- optional, may be left out or empty - defaults to 'Default' -->
 	<entry key="TemplatePublic" value="SMSunrise2017" />
 	<!-- optional, may be left out or empty - defaults to 'Default' -->

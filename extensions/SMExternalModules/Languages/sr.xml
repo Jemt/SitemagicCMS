@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Spolja&amp;#353;nji moduli"/>
+	<entry key="Settings" value="Pode&amp;#353;avanja"/>
+	<entry key="Modules" value="Sa&amp;#269;uvani moduli"/>
+	<entry key="Name" value="Ime modula"/>
+	<entry key="Url" value="URL adresa / iFrame kod"/>
+	<entry key="Width" value="&amp;#352;irina"/>
+	<entry key="Height" value="Visina"/>
+	<entry key="Pixels" value="Pikseli"/>
+	<entry key="Percent" value="Procenti"/>
+	<entry key="Scroll" value="Koristi skrolovanje"/>
+	<entry key="ScrollNo" value="Ne"/>
+	<entry key="ScrollYes" value="Da"/>
+	<entry key="ScrollAuto" value="Automatsko prilago&amp;#273;avanje"/>
+	<entry key="ShowFrame" value="Poka&amp;#382;i ram"/>
+	<entry key="NoFrame" value="Bez rama"/>
+	<entry key="FrameColorBlack" value="Crno"/>
+	<entry key="FrameColorWhite" value="Belo"/>
+	<entry key="FrameColorGray" value="Sivo"/>
+	<entry key="FrameColorSilver" value="Srebrno"/>
+	<entry key="FrameColorMaroon" value="Bordo"/>
+	<entry key="FrameColorRed" value="Crvena"/>
+	<entry key="FrameColorPurple" value="Ljubi&amp;#269;asta"/>
+	<entry key="FrameColorFuchsia" value="Pink"/>
+	<entry key="FrameColorGreen" value="Zelena"/>
+	<entry key="FrameColorLime" value="Limeta"/>
+	<entry key="FrameColorOlive" value="Maslina"/>
+	<entry key="FrameColorYellow" value="&amp;#381;uta"/>
+	<entry key="FrameColorNavy" value="Mornarska"/>
+	<entry key="FrameColorBlue" value="Plava"/>
+	<entry key="FrameColorTeal" value="Tirkizna"/>
+	<entry key="FrameColorAqua" value="Vodena"/>
+	<entry key="ReloadToTop" value="Ponovo u&amp;#269;itaj skrolovanje na gore"/>
+	<entry key="Create" value="Kreiraj"/>
+	<entry key="Clear" value="O&amp;#269;isti"/>
+	<entry key="Save" value="Sa&amp;#269;uvaj"/>
+	<entry key="Delete" value="izbri&amp;#353;i"/>
+	<entry key="Preview" value="Pregledaj"/>
+	<entry key="ModuleCreated" value="Modul kreiran"/>
+	<entry key="SettingsSaved" value="Sa&amp;#269;uvana pode&amp;#353;avanja"/>
+	<entry key="ModuleDeleted" value="Modul izbrisan"/>
+	<entry key="DeleteWarning" value="Molimo potvrdite brisanje"/>
+	<entry key="MissingFields" value="Popunite sva potrebna polja"/>
+	<entry key="AlreadyExists" value="Modul sa unetim imenom ve&amp;#263; postoji"/>
+	<entry key="ModuleNotFound" value="Pode&amp;#353;avanja za polja&amp;#353;nji modul vi&amp;#353;e ne postoje"/>
+	<entry key="InvalidWidthHeight" value="PMolimo vas unesite vrednost u brojevima za &amp;#352;irinu i Visinu"/>
+	<entry key="CreationError" value="Ne mogu kreirati modul (ne poznata gre&amp;#353;ka)"/>
+	<entry key="UpdateError" value="Ne mogu da nadogradim modul (ne poznata gre&amp;#353;ka)"/>
+	<entry key="DeleteError" value="Ne mogu da izbri&amp;#353;em modul (ne poznata gre&amp;#353;ka)"/>
+	<entry key="Description" value="Lako podesite spolja&amp;#353;nje module kao &amp;#353;to su kalendari ili forum i dodajte u va&amp;#353;u stranicu (koriste&amp;#263;i WYSIWYG editor)"/>
+</entries>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Montiranje slika"/>
+	<entry key="Description" value="Kreiraj prelepe i dinami&amp;#269;e slike (galerije) koriste&amp;#263;i ovo pro&amp;#353;irenje"/>
+	<entry key="SelectGallery" value="Odaberi galeriju"/>
+	<entry key="NoGalleries" value="Nije prona&amp;#273;en folder galerije pod files/gallery"/>
+	<entry key="Settings" value="Pode&amp;#353;avanja"/>
+	<entry key="MinHeight" value="Minimalna visina slike"/>
+	<entry key="MaxHeight" value="Maksimalna visina slike"/>
+	<entry key="Margin" value="Margina slike"/>
+	<entry key="DisplayTitle" value="Prikaz naslova galerije"/>
+	<entry key="DisplayImageTitle" value="Prika&amp;#382;i ime fajla kao naslov"/>
+	<entry key="DisplayImageExif" value="Prika&amp;#382;i EXIF podatke slike"/>
+	<entry key="DisplayPicker" value="Prika&amp;#382;i piker galerije"/>
+	<entry key="Shuffle" value="Me&amp;#353;anje slika"/>
+	<entry key="SlideShowInterval" value="Interval slajdova slika"/>
+	<entry key="Second" value="Sekunda"/>
+	<entry key="Seconds" value="Sekunde"/>
+	<entry key="Minute" value="Munut"/>
+	<entry key="Minutes" value="Minuta"/>
+	<entry key="Save" value="Sa&amp;#269;uvaj"/>
+	<entry key="Open" value="Idi na montiranje"/>
+</entries>

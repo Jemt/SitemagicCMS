@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContactForms" value="Kontakt formular"/>
+	<entry key="Save" value="Sa&amp;#269;uvaj"/>
+	<entry key="TextField" value="Tekst polje"/>
+	<entry key="TextBox" value="Tekst kutija"/>
+	<entry key="CheckBox" value="&amp;#352;tiklir"/>
+	<entry key="Email" value="Email (odgovori na)"/>
+	<entry key="Attachment" value="Zaka&amp;#269;i fajlove"/>
+	<entry key="FileSizeLimit" value="Ne mogu da zaka&amp;#269;im fajlove - veli&amp;#269;ina fajla ne sme da pre&amp;#273;e 2048 KB"/>
+	<entry key="Clear" value="O&amp;#269;isti"/>
+	<entry key="Create" value="Kreiraj"/>
+	<entry key="Edit" value="Izmeni"/>
+	<entry key="Delete" value="Izbri&amp;#353;i"/>
+	<entry key="DeleteWarning" value="Potvrdite brisanje"/>
+	<entry key="ChangeForm" value="Promeni formu"/>
+	<entry key="Form" value="Forma"/>
+	<entry key="Recipients" value="Primalac"/>
+	<entry key="Subject" value="E-mail predmet"/>
+	<entry key="FieldTitle" value="Polje naslova"/>
+	<entry key="FieldType" value="Tip polja"/>
+	<entry key="FieldsetSettings" value="Pode&amp;#353;avanja"/>
+	<entry key="FieldsetFieldForm" value="Svojstva"/>
+	<entry key="FieldsetFieldList" value="Polja"/>
+	<entry key="SuccessMessage" value="Uspe&amp;#353;na poruka"/>
+	<entry key="SettingsSaved" value="Pode&amp;#353;avanja su sa&amp;#269;uvana"/>
+	<entry key="ErrorFillOutAll" value="Molimo popunite sva polja"/>
+	<entry key="ErrorTitleAlreadyExists" value="Polje sa une&amp;#353;enim naslovom ve&amp;#263; postoji"/>
+	<entry key="ErrorNoSelection" value="Molimo vas odaberite polje"/>
+	<entry key="ErrorMissing" value="Ozna&amp;#269;eno polje ne postoji vi&amp;#353;e"/>
+	<entry key="ErrorNoRecipients" value="Primalac nije pode&amp;#353;en u pode&amp;#353;avanjima"/>
+	<entry key="ErrorInvalidFilename" value="Ime fajla sadr&amp;#382;i ne va&amp;#382;e&amp;#263;e karaktere"/>
+	<entry key="ErrorSending" value="Poruka ne mo&amp;#382;e biti poslata - postoji gre&amp;#353;ka"/>
+	<entry key="FieldsNotDefined" value="Tekst polje nije definisano za kontakt formular"/>
+	<entry key="RequiredError" value="Molimo vas popunite sve potrebna polja"/>
+	<entry key="Send" value="Po&amp;#353;alji"/>
+	<entry key="Description" value="Dopustite posetiocima da vas kontakriraju preko ovog pro&amp;#353;irenja na kontakt strani (koriste&amp;#263;i WYSIWYG editor) - kontakt formular mo&amp;#382;e biti lako priolago&amp;#273;en u kontrolnoj tabli"/>
+</entries>

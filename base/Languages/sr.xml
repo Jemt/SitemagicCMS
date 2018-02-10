@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="SMClientEnterPassword" value="Unesite lozinku"/>
+	<entry key="SMClientOk" value="Uredu"/>
+	<entry key="SMClientCancel" value="Otka&amp;#382;i"/>
+	<entry key="SMClientMaxLengthExceededWarning" value="Unesena vrednost je puno duga&amp;#269;ka molimo skratite je"/>
+</entries>

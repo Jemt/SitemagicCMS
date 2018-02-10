@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Komentari"/>
+	<entry key="CommentBox" value="Kutija komentara"/>
+	<entry key="Name" value="Ime"/>
+	<entry key="Comment" value="Komentar"/>
+	<entry key="Submit" value="Po&amp;#353;alji"/>
+	<entry key="Delete" value="Izbri&amp;#353;i"/>
+	<entry key="DeleteWarning" value="Molimo potvrdite brisanje"/>
+	<entry key="DateTimeFormat" value="Y-m-d H:i:s"/>
+	<entry key="MissingData" value="Molimo popunite sva polja"/>
+	<entry key="NameLengthExceeded" value="Ime mo&amp;#382;e sadr&amp;#382;adi maksimum 30 karaktera"/>
+	<entry key="CommentLengthExceeded" value="Komentar mo&amp;#382;e sadr&amp;#382;ati maksimum 1000 karaktera"/>
+	<entry key="UnknownError" value="Nepoznata gre&amp;#353;ka"/>
+	<entry key="CommentSaved" value="Komentar sa&amp;#269;uvan"/>
+	<entry key="Description" value="Dopusti korisnicima da komentari&amp;#353;u tako &amp;#353;to &amp;#263;ete ubaciti ovo pro&amp;#353;irenje u va&amp;#353;u stranivu (koriste&amp;#263;i WYSIWYG editor)"/>
+</entries>

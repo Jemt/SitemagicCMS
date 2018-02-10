@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="FileManagerTitle" value="Fajlovi"/>
+	<entry key="Folders" value="Folderi"/>
+	<entry key="Files" value="Fajlovi"/>
+	<entry key="Create" value="Kreiraj"/>
+	<entry key="Rename" value="Promeni ime"/>
+	<entry key="Delete" value="Izbri&amp;#353;i"/>
+	<entry key="Upload" value="Dodaj"/>
+	<entry key="Download" value="Preuzmi"/>
+	<entry key="Confirm" value="Molimo potvrdite akciju"/>
+	<entry key="Foldername" value="Molimo odredite ime foldera"/>
+	<entry key="Filename" value="Molimo odredite ime fajla"/>
+	<entry key="RootFolder" value="Root folder"/>
+	<entry key="ColFilename" value="Ime fajla"/>
+	<entry key="ColSize" value="Veli&amp;#269;ina"/>
+	<entry key="ColModified" value="Modifikovan"/>
+	<entry key="ValidCharacters" value="Dozvoljeni karakteri su: A-Z, 0-9, Ta&amp;#269;ka (.), Crte (-), i donje crte (_)"/>
+	<entry key="InvalidCharacters" value="Ne va&amp;#382;e&amp;#263;i karakteri u upotrebi"/>
+	<entry key="FilesystemError" value="Ne poznata gre&amp;#353;ka, molimo poku&amp;#353;ajte ponovo"/>
+	<entry key="FolderMissing" value="Odabrani folder vi&amp;#353;e ne postoji"/>
+	<entry key="FileMissing" value="Odabrani fajl vi&amp;#353;e ne postoji"/>
+	<entry key="SelectFolder" value="Molimo odaberite folder"/>
+	<entry key="SelectFile" value="Molimo odaberite fajl"/>
+	<entry key="DateTimeFormat" value="Y-m-d H:i:s"/>
+	<entry key="UploadTitle" value="Fajl transfer"/>
+	<entry key="UploadWait" value="Postavljam, molim sa&amp;#269;ekajte.."/>
+	<entry key="UploadSucceeded" value="Fajl je postavljen"/>
+	<entry key="UploadError" value="Desila se gre&amp;#353;ka prilikom transfera, molimo poku&amp;#353;ajte ponovo"/>
+	<entry key="ValidFileTypes" value="Va&amp;#382;e&amp;#263;i tipovi fajla"/>
+</entries>

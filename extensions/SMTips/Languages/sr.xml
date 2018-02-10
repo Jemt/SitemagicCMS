@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Saveti i trikovi"/>
+	<entry key="Description" value="Prika&amp;#382;i korisne savete koji daju korisinicima upustva prilikom kori&amp;#353;&amp;#263;enja novih karakteristika u Sitemagic CMS"/>
+	<entry key="SpeechBubbleButtonOk" value="Uredu"/>
+	<entry key="SpeechBubbleButtonDisable" value="Isklju&amp;#269;i savet"/>
+	<entry key="SpeechBubbleDisableWarning" value="Neke mogu&amp;#263;nosti u Sitemagic CMS-u zahtevaju neka obja&amp;#353;njenja. Da li ste sigurni da &amp;#382;elite da isklju&amp;#269;ite savete?"/>
+	<entry key="SMAnnouncementsWelcomeTitle" value="Dobro dosli u Sitemagic CMS"/>
+	<entry key="SMAnnouncementsWelcomeThanks" value="Hvala vam za kori&amp;#353;&amp;#263;enje Sitemagic CMS za va&amp;#353; novi web sajt."/>
+	<entry key="SMAnnouncementsWelcomeTips" value="Da bi dobili pomo&amp;#263; prilikom kori&amp;#353;&amp;#263;enja Sitemagic CMS-a, saveti i trikovi &amp;#263;e se prikazivati prvi put dok istra&amp;#382;ujete i koristite modul u kontrolnoj tabli."/>
+	<entry key="SMAnnouncementsWelcomeNotice" value="Neke mogu&amp;#263;nosti zahtevaju obja&amp;#353;njenje. Preporu&amp;#269;ujemo da dr&amp;#382;ite Savete i Trikove uklju&amp;#269;enim. "/>
+	<entry key="SMAnnouncementsWelcomeButtonClose" value="Kliknite na mali X u gornjem desnom uglu da bi privremeno zatvorili."/>
+	<entry key="SMAnnouncementsWelcomeButtonOk" value="Kliknite na zeleno dugme Uredu da bi trajno zatvorili savet - ne&amp;#263;e se vi&amp;#353;e pokazivati."/>
+	<entry key="SMAnnouncementsWelcomeButtonDisable" value="Kliknite na crveno dugme Isklju&amp;#269;i savet da bi izklju&amp;#269;io sve savete"/>
+	<entry key="SMAnnouncementsWelcomeEnjoy" value="U&amp;#382;ivajte u va&amp;#353;em novom web sajtu :-)"/>
+	<entry key="SMAnnouncementsContentMenuTitle" value="Meni sadr&amp;#382;ine"/>
+	<entry key="SMAnnouncementsContentMenuDescription" value="Koristite ovaj meni da bi promenili Dizajn, a&amp;#382;urirali Meni i izmenili Stranice ili upravljali va&amp;#353;im Fajlovima."/>
+	<entry key="SMAnnouncementsAdminMenuTitle" value="Admin meni"/>
+	<entry key="SMAnnouncementsAdminMenuDescription" value="Ve&amp;#263;ina pode&amp;#353;avanja se zavr&amp;#353;ava iz ovog menija. Idite u Admin &gt; Pode&amp;#353;avanja da bi uklju&amp;#269;ili vi&amp;#353;e funkcionalnosti."/>
+	<entry key="SMFilesFoldersTitle" value="Folderi"/>
+	<entry key="SMFilesFoldersDescription" value="Odaberite folder da bi pretra&amp;#382;ivali fajlove u njemu. Koristite dugme Kreiraj, Promeni ime ili Izbri&amp;#353;i da bi foldere."/>
+	<entry key="SMFilesFilesTitle" value="Fajlovi"/>
+	<entry key="SMFilesFilesDescription" value="Fajlovi sadr&amp;#382;ani u ozna&amp;#269;enom folderu su prikazani ovde. Odaberite fajl i koristite dugme Preuzmi, Promeni ime ili Izbri&amp;#353;i. Koristi dugme Postavljanje da bi postavio nove fajlove u odabran folder."/>
+	<entry key="SMMenuFormTitle" value="Formular veze"/>
+	<entry key="SMMenuFormDescription" value="Koristite ovaj formular da bi kreirao nove veze, ili menjao postoje&amp;#263;e veze"/>
+	<entry key="SMMenuSelectTitle" value="Odabir veze"/>
+	<entry key="SMMenuSelectDescription" value="Ovo dugme ti omogu&amp;#263;ava lako da odabere&amp;#353; stranicu ili pro&amp;#353;irenje da bi ga povezao."/>
+	<entry key="SMMenuStructureTitle" value="Struktura menija"/>
+	<entry key="SMMenuStructureDescription" value="Klikni na vezu da bi je ozna&amp;#269;io. Koristi dugme Izmeni da bi izmenio vezu, ili dugme Izbri&amp;#353;i da bi ga izbrisao,  ili dugme Pomeri gore da bi ga pomerio gore u hijerarhiji. Ako je veza ozna&amp;#269;ena nove veze &amp;#263;e automacki biti dodate u padaju&amp;#263;i meni pod njim."/>
+	<entry key="SMPagesFormTitle" value="Svojstva"/>
+	<entry key="SMPagesFormDescription" value="Koristi ovu formu da bi kreirao nove stranice ili izmenio njihova svojstva. Kliknite na vi&amp;#353;e opcija da bi podesili obi&amp;#269;an dizajn &amp;#353;ablona, Radite sa meta podacima ili postavite lozinku."/>
+	<entry key="SMPagesListTitle" value="Stranice"/>
+	<entry key="SMPagesListDescription" value="Trenutne stranice su pokazane ovde. Odaberite stranicu i kliknite na Izmeni sadr&amp;#382;aj da bi otvorili Ure&amp;#273;iva&amp;#269; stranice."/>
+	<entry key="SMPagesHeaderFooterTitle" value="Zaglavlje i podno&amp;#382;je"/>
+	<entry key="SMPagesHeaderFooterDescription" value="Kliknite izmeni da bi prilagodili sadr&amp;#382;aj zaglavlja i podna&amp;#382;ja sekcije."/>
+	<entry key="SMPagesEditorButtonSaveTitle" value="Sa&amp;#269;uvaj stranu"/>
+	<entry key="SMPagesEditorButtonSaveDescription" value="Koristite dugme Sa&amp;#269;uvaj da bi sa&amp;#269;uvao promene. Ako je ovo nova strana vi mo&amp;#382;ete je dodati ne meniju pod Sadr&amp;#382;aj &gt; Meni."/>
+	<entry key="SMPagesEditorButtonLinksTitle" value="Ubaci vezu"/>
+	<entry key="SMPagesEditorButtonLinksDescription" value="Odaberite neki tekst ili sliku kliknite na ovo dugme da bi ga pretvorili u vezu ka drugoj strani ili fajlu ili drugom web sajtu."/>
+	<entry key="SMPagesEditorButtonLinksDialog" value="Koristite ovaj meni da bi odabrali stranicu, fajl ili pro&amp;#353;irenje da bi ga povezali."/>
+	<entry key="SMPagesEditorButtonImagesTitle" value="Ubacite sliku"/>
+	<entry key="SMPagesEditorButtonImagesDescription" value="Koristite ovo dugme da bi ubacili sliku tamo gde je kursor trenutno postavljen."/>
+	<entry key="SMPagesEditorButtonImagesDialog" value="Koristi ovaj meni da bi odabrao sliku za ubacivanje. Slike se postavljaju pod Sadr&amp;#382;aj &gt; Fajl u folder slika."/>
+	<entry key="SMPagesEditorButtonCardsTitle" value="Dizajn kartica"/>
+	<entry key="SMPagesEditorButtonCardsDescription" value="Koristite ovaj meni da bi promenio raspored u kartice. Jednom kada je raspored promenjen vi mo&amp;#382;ete koristiti ENTER da kreirate nove kartice i koristite ovaj meni da vbi promenili veli&amp;#269;inu svake kartice. Da kreirate novu praznu liniju pritisnite SHIFT+ENTER."/>
+	<entry key="SMPagesEditorButtonExtensionsTitle" value="Ubacite pro&amp;#353;irenja stranice"/>
+	<entry key="SMPagesEditorButtonExtensionsDescription" value="Kliknite ovde da bi dodali pro&amp;#353;irenja stranice kao &amp;#353;to su Kontakt formulari, Spolja&amp;#353;nji moduli (npr. Youtube, Mape, Video ili muzika i drugo), Kutije komentara, Ocene i jo&amp;#353; mnogo toga. Stranica pro&amp;#353;irenja se mo&amp;#382;e uklju&amp;#269;ivati ili isklju&amp;#269;ivati pod menijem Admin &gt; Pode&amp;#353;avanja."/>
+	<entry key="SMDesignerTitle" value="Dizajner"/>
+	<entry key="SMDesignerDescription" value="Pomerajte mi&amp;#353; okolo da bi menjali elemente koji se mogu promeniti. Kliknite na taj element da bi podesili Izgled i Ose&amp;#263;aj u dizajneru. Kliknite Sa&amp;#269;uvaj dugme da bi uneta pode&amp;#353;avanja sa&amp;#269;uvali."/>
+	<entry key="SMContactIntroTitle" value="Kontakt formulari"/>
+	<entry key="SMContactIntroDescription" value="Kontakr formulari su pro&amp;#353;irenja za stranice koji se dodaju u stranice preko Ure&amp;#273;iva&amp;#269;a stranice pod menijem Sadr&amp;#382;aj &gt; Stranice."/>
+	<entry key="SMContactExistingTitle" value="Izmeni kontakt formular"/>
+	<entry key="SMContactExistingDescription" value="Da bi izmenio kontakt formular, jednostavno klikni ovde."/>
+	<entry key="SMContactBasicConfigTitle" value="Osnovna konfiguracija"/>
+	<entry key="SMContactBasicConfigDescription" value="Konfiguri&amp;#353;i Kontakt formular za va&amp;#353;u E-Mail adresu, subjekat za koji dobijete poruke i poruka koja se pojavljuje nakon &amp;#353;to korisnik po&amp;#353;alje poruku."/>
+	<entry key="SMContactFormTitle" value="Svojstva"/>
+	<entry key="SMContactFormDescription" value="Koristite ovaj formular da bi kreirali ili izmenili polja za unos u kontakt formularu."/>
+	<entry key="SMContactFieldsTitle" value="Polja za unos"/>
+	<entry key="SMContactFieldsDescription" value="Ovo je lista polja za unos u kontakt formularima. Odaberite ovo polje da bi prilagodili, uklonili ili pomerili polje."/>
+	<entry key="SMExternalModulesIntroTitle" value="Spolja&amp;#353;nji moduli"/>
+	<entry key="SMExternalModulesIntroDescription" value="Spolja&amp;#353;nji moduli se mogu koristiti a bi se dodao sadr&amp;#382;aj ili funkcionalnost sa drugog web sajta na primer: Youtube video, Google Mape ili SoundCloud muzika i druge. Koristite ovo pro&amp;#353;irenje u izmenjiva&amp;#269; stranice da bi ubacili modul u stranicu."/>
+	<entry key="SMExternalModulesListTitle" value="Postoje&amp;#263;i moduli"/>
+	<entry key="SMExternalModulesListDescription" value="Da bi izmenili postoje&amp;#263;e modulem jednostavno kliknite ovde."/>
+	<entry key="SMExternalModulesConfigTitle" value="Kreirajte ili izmenite"/>
+	<entry key="SMExternalModulesConfigDescription" value="UKoristite ovaj formular da bi kreirali ili izmenili Spolja&amp;#353;nje module. Da bi ubacili Youtube video pratite ove korake:"/>
+	<entry key="SMExternalModulesConfigStep1" value="Na&amp;#273;ite video na Youtube i kopirajte URL sa adresne linije."/>
+	<entry key="SMExternalModulesConfigStep2" value="Unesite ime za modul u Ime modula na primer Moj Video."/>
+	<entry key="SMExternalModulesConfigStep3" value="Nalepite URL iz prvog koraka u Polje URL adrese."/>
+	<entry key="SMExternalModulesConfigStep4" value="Kliknite dugme Kreiraj."/>
+	<entry key="SMExternalModulesConfigStep5" value="Idite na Sadr&amp;#382;aj &gt; Stranice otvorite stranicu koju &amp;#382;elite da izmenite."/>
+	<entry key="SMExternalModulesConfigStep6" value="Kliknite na dugme Pro&amp;#353;irenje nalazi se pod Sa&amp;#269;uvaj dugmetom i ubaci modul"/>
+	<entry key="SMImageMontageTitle" value="Album slika"/>
+	<entry key="SMImageMontageDescription" value="Koristite ovaj formular da bi izmenili kako se slike montiraju prilikom prikazivanja. Da bi kreirali Album slika pratite ove korake:"/>
+	<entry key="SMImageMontageStep1" value="Idite u Sadr&amp;#382;aj &gt; Fajlovi i kreirajte novi folder unutar folder &quot;gallery&quot;. "/>
+	<entry key="SMImageMontageStep2" value="Kliknite na skoro kreiran folder i u&amp;#273;ite u njega. Koristite dugme Postavi da bi postavili slike."/>
+	<entry key="SMImageMontageStep3" value="Idite u meni Sadr&amp;#382;aj &gt; Meni i koristite Ozna&amp;#269;i dugme da bi ih povazali sa novim albumom u meniju. "/>
+	<entry key="SMConfigLoginTitle" value="Promena prijave"/>
+	<entry key="SMConfigLoginDescription" value="Promenite va&amp;#353;e korisni&amp;#269;ko ime i lozinku ovde (veoma preporu&amp;#269;ljivo)"/>
+	<entry key="SMConfigLookTitle" value="Izgled i ose&amp;#263;aj"/>
+	<entry key="SMConfigLookDescription" value="Promenite izgled i ose&amp;#263;aj od va&amp;#353;eg web sajta primenite novi &amp;#353;ablon dizajna ili druge ikonice. Kopiraj ili izbri&amp;#353;i dugme se koristi da bi upravljao kopijom Dizajn &amp;#353;ablona."/>
+	<entry key="SMConfigExtensionsTitle" value="Pro&amp;#353;irenja"/>
+	<entry key="SMConfigExtensionsDescription" value="Odaberite pro&amp;#353;irenja koja &amp;#263;e se koristiti.Kako da aktivirate i koristite razlike. Neka pro&amp;#353;irenja se dodaju ulaskom u admin meni a neka se prave preko Izmenjiva&amp;#269;a Strane. dok se neka druga mogu dodati direktno iz menija. Pro&amp;#353;irenja se mogu korstiti na sva tri mogu&amp;#263;a na&amp;#269;ina.  "/>
+</entries>

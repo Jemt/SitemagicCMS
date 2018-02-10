@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Administration" value="Administracija"/>
+	<entry key="Username" value="Korisni&amp;#269;ko ime"/>
+	<entry key="Password" value="Lozinka"/>
+	<entry key="Language" value="Jezik"/>
+	<entry key="Error" value="Pogre&amp;#353;no korisni&amp;#269;ko ime ili lozinka"/>
+	<entry key="Login" value="Prijava"/>
+	<entry key="Logout" value="Odjava"/>
+	<entry key="LoginForm" value="Formular prijave"/>
+</entries>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="ContentMenu" value="Sadr&amp;#382;aj"/>
+	<entry key="AdminMenu" value="Admin"/>
+	<entry key="MenuTitle" value="Meni"/>
+	<entry key="LinkDetails" value="Svojstva"/>
+	<entry key="MenuStructure" value="Struktura menija"/>
+	<entry key="CmdSelect" value="Ozna&amp;#269;i"/>
+	<entry key="CmdCreate" value="Kreiraj"/>
+	<entry key="CmdClear" value="O&amp;#269;isti"/>
+	<entry key="CmdSave" value="Sa&amp;#269;uvaj"/>
+	<entry key="CmdEdit" value="Izmeni"/>
+	<entry key="CmdDelete" value="Ukloni"/>
+	<entry key="DeleteWarning" value="Molimo potvrdite brisanje"/>
+	<entry key="SelectedMissing" value="Ozna&amp;#269;eni meni vi&amp;#353;e ne postoji"/>
+	<entry key="MakeSelection" value="Molimo odaberite stavku menija"/>
+	<entry key="RootItemError" value="Gornji meni ne mo&amp;#382;e biti prilago&amp;#273;en"/>
+	<entry key="SetTitle" value="Molimo odredite naslov za stavku menija"/>
+	<entry key="Title" value="Naslov"/>
+	<entry key="Url" value="URL adresa"/>
+	<entry key="Root" value="Gornji meni"/>
+	<entry key="Links" value="Veze"/>
+</entries>

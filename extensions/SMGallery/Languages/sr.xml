@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Galerija"/>
+	<entry key="Choose" value="Odaberite galeriju"/>
+	<entry key="Page" value="Stranica {x} od {y}"/>
+	<entry key="SettingsTitle" value="Pode&amp;#353;avanje galerije"/>
+	<entry key="Settings" value="Pode&amp;#353;avanje"/>
+	<entry key="SettingColumns" value="Broj kolona"/>
+	<entry key="SettingRows" value="Broj redova"/>
+	<entry key="SettingWidth" value="&amp;#352;irina slika (u pixelima)"/>
+	<entry key="SettingHeight" value="Visina slika (u pixelima)"/>
+	<entry key="SettingPadding" value="Padding (u pixelima)"/>
+	<entry key="SaveSettings" value="Sa&amp;#269;uvaj"/>
+	<entry key="SettingsSaved" value="Pode&amp;#353;avanja Sa&amp;#269;uvana"/>
+	<entry key="SettingsTypeError" value="Molimo vas unesite samo pozitivne cele brojeve"/>
+	<entry key="EntireGallery" value="Cela galerija"/>
+	<entry key="Description" value="Dodajte slike u va&amp;#353; novi folder u galerija folder i ubacite novo kreirane slike u sadr&amp;#382;aj strane (koristite WYSIWYG editor)"/>
+</entries>
