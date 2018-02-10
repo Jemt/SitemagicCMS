@@ -308,6 +308,7 @@ class SMPagesFrmViewer implements SMIExtensionForm
 
 		// Replace tilde (~) in links with actual path to website (https://regex101.com/r/jV3cB6/4)
 		$content = preg_replace_callback("/(<a.*?href=([\"']))~(\\S*?\\2.*?>)/", "smPagesPregReplaceTildeCallback", $content);
+		$content = preg_replace_callback("/(<a.*?href=([\"']))&#126;(\\S*?\\2.*?>)/", "smPagesPregReplaceTildeCallback", $content); // SMCMS 4.4 has enabled numeric encoding for TinyMCE which for some reason encodes tilde even though it's an ASCII character
 
 		return $content;
 	}
