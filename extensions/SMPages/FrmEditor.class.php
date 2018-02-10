@@ -352,9 +352,9 @@ class SMPagesFrmEditor implements SMIExtensionForm
 
 					// Set classes on html element within editable iFrame
 					SMDom.AddClass(htmlElement, \"SMPagesEditor\");
-					SMDom.AddClass(htmlElement, \"SMPages" . ((strpos($this->page->GetFilename(), "#") === 0) ? "SystemPage" : "ContentPage") . "\");
-					SMDom.AddClass(htmlElement, \"SMPagesFilename" . str_replace("#", "", $this->page->GetFilename()) . "\");
-					SMDom.AddClass(htmlElement, \"SMPagesPageId" . $this->page->GetId() . "\");
+					SMDom.AddClass(htmlElement, \"SMPages" . (($this->page !== null && strpos($this->page->GetFilename(), "#") === 0) ? "SystemPage" : "ContentPage") . "\");
+					SMDom.AddClass(htmlElement, \"SMPagesFilename" . (($this->page !== null) ? str_replace("#", "", $this->page->GetFilename()) : "_NOT_FOUND") . "\");
+					SMDom.AddClass(htmlElement, \"SMPagesPageId" . (($this->page !== null) ? $this->page->GetId() : "_NOT_FOUND") . "\");
 					smPagesSetPageLayout(ed, htmlElement); // Make sure page is initially set to correct Page Layout (Classic or Card)
 
 					document.body.style.display = \"\"; // Page is ready, make it visible again by removing display:none
