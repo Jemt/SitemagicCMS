@@ -15,7 +15,7 @@ function SMErrorHandler($errNo, $errMsg, $errFile, $errLine)
 	return true; // Tell PHP that the error has been handled - execution will proceed
 }
 
-function SMExceptionHandler(Exception $exception)
+function SMExceptionHandler($exception) // The $exception argument may be of type Exception or Error on PHP 7 (both implements Throwable) while only of type Exception prior to PHP 7 (http://php.net/manual/en/function.set-exception-handler.php)
 {
 	header("HTTP/1.1 500 Internal Server Error");
 	header("Content-Type: text/html; charset=ISO-8859-1");
