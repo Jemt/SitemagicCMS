@@ -224,6 +224,12 @@ function errorHandler($errNo, $errMsg, $errFile, $errLine)
 }
 set_error_handler("errorHandler");
 
+function exceptionHandler($exception)
+{
+	fail("Exception occurred:<br>" . $exception->getMessage()); // $exception->getTraceAsString()
+}
+set_exception_handler("exceptionHandler");
+
 // Parameters
 
 $op = (isset($_POST["op"]) ? $_POST["op"] : null);
@@ -416,15 +422,16 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 
 	if ($upgrade === true) // Preserve config, files, data, active template(s), and extensions (3rd party extensions may have been installed)
 	{
-		logMsg("This is an upgrade - preserving configuration, data, and extensions");
+		logMsg("This is an upgrade - preserving translations, configuration, data, and extensions");
+
+		$dsType = getDataSourceType();
 
 		rename("config.xml.php", "config." . $ts . ".xml.php");
+		rename("base", "base." . $ts);
 		rename("files", "files." . $ts);
 		rename("data", "data." . $ts);
 		rename("templates", "templates." . $ts);
 		rename("extensions", "extensions." . $ts);
-
-		$dsType = getDataSourceType();
 	}
 
 	logMsg("Moving files from temporary folder '" . $extDir . "' to active Sitemagic installation path");
@@ -495,8 +502,6 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 			}
 		}
 
-		removeDir("templates." . $ts);
-
 		logMsg("Restoring extensions not part of the default package");
 
 		foreach (scandir("extensions." . $ts) as $ext)
@@ -510,6 +515,44 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 			}
 		}
 
+		logMsg("Restoring translations not part of the default package");
+
+		if (is_dir("base." . $ts . "/Languages") === true) // Older versions did not have translations for base
+		{
+			foreach (scandir("base." . $ts . "/Languages") as $lang)
+			{
+				if ($lang === "." || $lang === "..")
+					continue;
+
+				if (is_file("base/Languages/" . $lang) === false)
+				{
+					rename("base." . $ts . "/Languages/" . $lang, "base/Languages/" . $lang);
+				}
+			}
+		}
+
+		foreach (scandir("extensions." . $ts) as $ext)
+		{
+			if ($ext === "." || $ext === "..")
+				continue;
+
+			if (is_dir("extensions." . $ts . "/" . $ext . "/Languages") === true && is_dir("extensions/" . $ext . "/Languages") === true)
+			{
+				foreach (scandir("extensions." . $ts . "/" . $ext . "/Languages") as $lang)
+				{
+					if ($lang === "." || $lang === "..")
+						continue;
+
+					if (is_file("extensions/" . $ext . "/Languages/" . $lang) === false)
+					{
+						rename("extensions." . $ts . "/" . $ext . "/Languages/" . $lang, "extensions/" . $ext . "/Languages/" . $lang);
+					}
+				}
+			}
+		}
+
+		removeDir("base." . $ts);
+		removeDir("templates." . $ts);
 		removeDir("extensions." . $ts);
 
 		if ($dsType === "MySQL")
