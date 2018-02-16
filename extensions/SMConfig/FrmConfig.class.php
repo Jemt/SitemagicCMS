@@ -754,7 +754,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 			$sessionToRestore = null;
 			if (SMFileSystem::FileExists($path . "/data/SMAttributes.xml.php") === true)
 			{
-				$sessionToRestore = SMAttributes::GetAttribute("SMEnvironmentSessionName" . SMEnvironment::GetRequestPath());
+				$sessionToRestore = SMAttributes::GetAttribute("SMEnvironmentSessionName" . md5(SMEnvironment::GetDocumentRoot()));
 			}
 
 			// Copy folders - will merge with existing folders but overwrite existing files
@@ -787,7 +787,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 			if ($sessionToRestore !== null)
 			{
-				$sessionToRestore = SMAttributes::SetAttribute("SMEnvironmentSessionName" . SMEnvironment::GetRequestPath(), $sessionToRestore);
+				$sessionToRestore = SMAttributes::SetAttribute("SMEnvironmentSessionName" . md5(SMEnvironment::GetDocumentRoot()), $sessionToRestore);
 			}
 		}
 
