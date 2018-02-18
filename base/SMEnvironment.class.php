@@ -462,9 +462,11 @@ class SMEnvironment
 		$url .= "http";
 		$url .= ((isset($_SERVER["HTTPS"]) === true && $_SERVER["HTTPS"] !== "off") ? "s://" : "://");
 		$url .= $_SERVER["SERVER_NAME"];
-		$url .= (($_SERVER["SERVER_PORT"] !== "80") ? ":" . $_SERVER["SERVER_PORT"] : "");
-		$url .= substr($_SERVER["REQUEST_URI"], 0, strrpos($_SERVER["REQUEST_URI"], "/"));
-		//$url .= substr($_SERVER["PHP_SELF"], 0, strrpos($_SERVER["PHP_SELF"], "/")); // Not reliable when URL Rewriting is used (e.g. sub.domain.com => domain.com/sites/sub)
+		$url .= (($_SERVER["SERVER_PORT"] !== "80" && $_SERVER["SERVER_PORT"] !== "443") ? ":" . $_SERVER["SERVER_PORT"] : "");
+		$url .= $_SERVER["REQUEST_URI"];
+
+		$url = ((strpos($url, "?") !== false) ? substr($url, 0, strpos($url, "?")) : $url); // Remove query string parameters in case they contain a slash (e.g. http://domain.com/index.php?SMExt=MyExtension&SMCallback=Callbacks/ProcessData)
+		$url = substr($url, 0, strrpos($url, "/")); // Remove filename portion (e.g. /index.php)
 
 		return $url; // e.g. http://www.domain.com/demo/cms
 	}
