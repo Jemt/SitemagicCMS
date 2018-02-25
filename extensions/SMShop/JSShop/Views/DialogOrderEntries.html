@@ -1,0 +1,36 @@
+<table class="JSShopOrderEntries">
+
+	<tr class="JSShopOrderEntriesHeader">
+		<td>{[HeaderProduct]}</td>
+		<td style="text-align: right">{[HeaderUnitPrice]}</td>
+		<td style="text-align: right">{[HeaderUnits]}</td>
+		<td style="text-align: right">{[HeaderPrice]}</td>
+	</tr>
+
+	<!-- REPEAT Items -->
+	<tr>
+		<td>
+			{[Title]}
+			<div class="JSShopOrderEntryDiscount">{[DiscountMessage]}</div>
+		</td>
+		<td style="text-align: right">{[UnitPrice]}</td>
+		<td style="text-align: right">{[Units]}</td>
+		<td style="text-align: right">
+			{[Price]}
+			<div class="JSShopOrderEntryDiscount">{[Discount]}</span>
+		</td>
+	</tr>
+	<!-- /REPEAT Items -->
+
+	<tr class="JSShopOrderEntriesTotals">
+		<td colspan="2" style="text-align: right">{[HeaderTotalVat]}</td>
+		<td style="text-align: right">{[Currency]}</td>
+		<td style="text-align: right">{[TotalVat]}</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="text-align: right">{[HeaderTotalPrice]}</td>
+		<td style="text-align: right">{[Currency]}</td>
+		<td style="text-align: right">{[TotalPrice]}</td>
+	</tr>
+
+</table>

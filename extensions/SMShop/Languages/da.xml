@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Webshop" />
+	<entry key="Description" value="Promover og sælg dine produkter på nettet" />
+	<entry key="Products" value="Produkter" />
+
+	<!-- Shop (buy products) -->
+	<entry key="Overview" value="Overblik" />
+	<entry key="NoProducts" value="Ingen produkter" />
+	<entry key="Buy" value="Køb" />
+	<entry key="ReadMore" value="Læs mere" />
+
+	<!-- Basket -->
+	<entry key="Basket" value="Indkøbskurv" />
+	<entry key="BasketEmpty" value="Indkøbskurven er tom" />
+	<entry key="BasketUpdated" value="Indkøbskurven blev opdateret" />
+
+	<!-- Confirmation and Invoice mail -->
+	<entry key="DecimalSeparator" value="," />
+	<entry key="Shipping" value="Forsendelse" />
+
+	<!-- Confirmation mail -->
+	<entry key="ConfirmationTitle" value="Købsbekræftelse" />
+
+	<!-- Invoice mail -->
+	<entry key="InvoiceTitle" value="Faktura" />
+
+	<!-- Config -->
+	<entry key="ConfigTitle" value="WebShop indstillinger" />
+</entries>

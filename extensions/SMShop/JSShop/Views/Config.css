@@ -1,0 +1,36 @@
+div.JSShopConfig
+{
+	position: relative;
+}
+
+div.JSShopConfigSections
+{
+	position: absolute;
+	right: 0px;
+}
+
+div.JSShopProperties
+{
+}
+
+div.JSShopProperties:after
+{
+	clear: both;
+}
+
+div.JSShopProperties h1
+{
+	font-size: 1.25em;
+	margin: 0px;
+}
+
+div.JSShopPropertyName
+{
+	font-weight: bold;
+	margin-top: 2em;
+}
+
+div.JSShopPropertyName:empty /* IE9+ */
+{
+	display: none;
+}

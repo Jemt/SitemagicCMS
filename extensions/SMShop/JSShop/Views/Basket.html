@@ -1,0 +1,36 @@
+<table class="JSShopBasket">
+
+	<tr class="JSShopBasketHeader">
+		<td>{[HeaderProduct]}</td>
+		<td style="text-align: right">{[HeaderUnitPrice]}</td>
+		<td style="text-align: right">{[HeaderUnits]}</td>
+		<td style="text-align: right">{[HeaderPrice]}</td>
+	</tr>
+
+	<!-- REPEAT Items -->
+	<tr class="JSShopBasketItem">
+		<td data-title="{[HeaderProduct]}">
+			{[Title]}
+			<span class="JSShopBasketDiscountMessage" data-discount="{[Discount]}">{[DiscountMessage]}</span>
+		</td>
+		<td data-title="{[HeaderUnitPrice]}" style="text-align: right">{[UnitPrice]}</td>
+		<td data-title="{[HeaderUnits]}" style="text-align: right">{[Units]}</td>
+		<td data-title="{[HeaderPrice]}" style="text-align: right">
+			{[Price]}
+			<span class="JSShopBasketDiscount" data-message="{[DiscountMessage]}" data-discount="{[Discount]}">{[Discount]}</span>
+		</td>
+	</tr>
+	<!-- /REPEAT Items -->
+
+	<tr class="JSShopBasketTotal JSShopBasketTotalVat">
+		<td colspan="2" style="text-align: right">{[HeaderTotalVat]}</td>
+		<td style="text-align: right">{[Currency]}</td>
+		<td style="text-align: right">{[TotalVat]}</td>
+	</tr>
+	<tr class="JSShopBasketTotal JSShopBasketTotalPrice">
+		<td colspan="2" style="text-align: right">{[HeaderTotalPrice]}</td>
+		<td style="text-align: right">{[Currency]}</td>
+		<td style="text-align: right"><span class="JSShopBasketGrandTotal">{[TotalPrice]}</span></td>
+	</tr>
+
+</table>

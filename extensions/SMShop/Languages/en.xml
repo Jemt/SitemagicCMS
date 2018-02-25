@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Webshop" />
+	<entry key="Description" value="Promote and sell your products online" />
+	<entry key="Products" value="Products" />
+
+	<!-- Shop (buy products) -->
+	<entry key="Overview" value="Overview" />
+	<entry key="NoProducts" value="No products" />
+	<entry key="Buy" value="Buy" />
+	<entry key="ReadMore" value="Read more" />
+
+	<!-- Basket -->
+	<entry key="Basket" value="Basket" />
+	<entry key="BasketEmpty" value="The shopping basket is empty" />
+	<entry key="BasketUpdated" value="Basket was updated" />
+
+	<!-- Confirmation and Invoice mail -->
+	<entry key="DecimalSeparator" value="." />
+	<entry key="Shipping" value="Shipping" />
+
+	<!-- Confirmation mail -->
+	<entry key="ConfirmationTitle" value="Confirmation of purchase" />
+
+	<!-- Invoice mail -->
+	<entry key="InvoiceTitle" value="Invoice" />
+
+	<!-- Config -->
+	<entry key="ConfigTitle" value="Webshop settings" />
+</entries>

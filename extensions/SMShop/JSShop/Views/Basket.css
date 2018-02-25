@@ -1,0 +1,157 @@
+table.JSShopBasket
+{
+	width: 100%;
+	border-spacing: 0px;
+}
+
+table.JSShopBasket td
+{
+	padding: 0.3em 0.5em 0.3em 0.5em;
+	vertical-align: top;
+}
+
+tr.JSShopBasketHeader td
+{
+	font-weight: bold;
+	border-bottom: 1px solid #8A8A8A;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+	white-space: nowrap;
+}
+
+span.JSShopBasketDiscount,
+span.JSShopBasketDiscountMessage
+{
+	display: block; /* As block element to wrap to new line */
+	font-size: 0.9em;
+}
+span.JSShopBasketDiscount[data-discount="0.00"],
+span.JSShopBasketDiscount[data-discount="0,00"],
+span.JSShopBasketDiscountMessage[data-discount="0.00"],
+span.JSShopBasketDiscountMessage[data-discount="0,00"]
+{
+	display: none;
+}
+
+tr.JSShopBasketTotalVat td
+{
+	padding-top: 0.75em;
+	border-top: 1px solid #8A8A8A;
+	border-top: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+tr.JSShopBasketTotalPrice td
+{
+	padding-bottom: 0.75em;
+	border-bottom: 1px solid #8A8A8A;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+span.JSShopBasketGrandTotal
+{
+	border-bottom: 4px double #8A8A8A;
+	border-bottom: 4px double rgba(0, 0, 0, 0.3);
+}
+
+/* Mobile view */
+
+@media (max-width: 500px)
+{
+	/* Turn table elements into block elements */
+	table.JSShopBasket, table.JSShopBasket thead, table.JSShopBasket tbody, table.JSShopBasket th, table.JSShopBasket tr, table.JSShopBasket td
+	{
+		display: block;
+	}
+
+	/* Hide table header (avoiding display:none for accessibility) */
+	tr.JSShopBasketHeader
+	{
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+
+	table.JSShopBasket td
+	{
+		padding: 0.3em 0em 0.3em 0em;
+	}
+	tr.JSShopBasketTotalPrice td
+	{
+		padding-bottom: 0.75em;
+	}
+
+	/* Item labels */
+	tr.JSShopBasketItem td
+	{
+		position: relative;
+	}
+	tr.JSShopBasketItem td:before
+	{
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		width: 60%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		padding-top: 0.3em;
+	}
+
+	/* Label values */
+	tr.JSShopBasketItem td:nth-of-type(1) /* Product title */
+	{
+		font-weight: bold;
+	}
+	tr.JSShopBasketItem td:nth-of-type(2):before, /* Unit price */
+	tr.JSShopBasketItem td:nth-of-type(3):before, /* Units */
+	tr.JSShopBasketItem td:nth-of-type(4):before  /* Price */
+	{
+		text-align: left;
+		content: attr(data-title);
+	}
+
+	/* Spacing between items */
+	tr.JSShopBasketItem
+	{
+		padding: 0.5em 0em 0.5em 0em;
+		border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+	}
+
+	/* Totals */
+	tr.JSShopBasketTotal
+	{
+		display: table-row;
+	}
+	tr.JSShopBasketTotal td
+	{
+		display: table-cell;
+		border-top: none;
+		text-align: left !important;
+		width: 100%;
+	}
+	tr.JSShopBasketTotal td:nth-of-type(1)
+	{
+		padding-right: 1em;
+	}
+	tr.JSShopBasketTotal td:nth-of-type(3)
+	{
+		text-align: right !important;
+		padding-left: 1em;
+	}
+
+	/* Discount */
+	span.JSShopBasketDiscount:before
+	{
+		content: attr(data-message);
+		position: absolute;
+		left: 0px;
+		width: 70%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		text-align: left;
+	}
+	span.JSShopBasketDiscountMessage
+	{
+		display: none;
+	}
+}
