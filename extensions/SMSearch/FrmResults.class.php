@@ -109,8 +109,8 @@ class SMSearchFrmResults implements SMIExtensionForm
 			// turned back into HEX entities (matches returned). Fortunately, these situations seems rare - rarely will someone search for such odd characters.
 			// However, the result being that a match on one of these characters will not result in the match being highlighted.
 
-			$titleMatches = SMStringUtilities::Search($title, $search, false);
-			$contentMatches = SMStringUtilities::Search($content, $search, false);
+			$titleMatches = SMStringUtilities::Search($title, $search, true);
+			$contentMatches = SMStringUtilities::Search($content, $search, true);
 
 			if (count($titleMatches) === 0 && count($contentMatches) === 0)
 				continue;
