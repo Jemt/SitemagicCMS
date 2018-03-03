@@ -422,7 +422,7 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 
 	if ($upgrade === true) // Preserve config, files, data, active template(s), and extensions (3rd party extensions may have been installed)
 	{
-		logMsg("This is an upgrade - preserving translations, configuration, data, and extensions");
+		logMsg("This is an upgrade - preserving translations, configuration, data, extensions, and subsites");
 
 		$dsType = getDataSourceType();
 
@@ -432,6 +432,7 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 		rename("data", "data." . $ts);
 		rename("templates", "templates." . $ts);
 		rename("extensions", "extensions." . $ts);
+		rename("sites", "sites." . $ts);
 	}
 
 	logMsg("Moving files from temporary folder '" . $extDir . "' to active Sitemagic installation path");
@@ -515,6 +516,26 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 			}
 		}
 
+		logMsg("Restoring subsites");
+
+		foreach (scandir("sites." . $ts) as $site)
+		{
+			if ($site === "." || $site === "..")
+				continue;
+
+			if (is_dir("sites." . $ts . "/" . $site) === true)
+			{
+				rename("sites." . $ts . "/" . $site, "sites/" . $site);
+
+				copy("index.php", "sites/" . $site . "/index.php");
+
+				if (is_file("sites/" . $site . "/files/.htaccess") === true)
+					copy("sites/htaccess.fls", "sites/" . $site . "/files/.htaccess");
+				if (is_file("sites/" . $site . "/templates/.htaccess") === true)
+					copy("sites/htaccess.tpls", "sites/" . $site . "/templates/.htaccess");
+			}
+		}
+
 		logMsg("Restoring translations not part of the default package");
 
 		if (is_dir("base." . $ts . "/Languages") === true) // Older versions did not have translations for base
@@ -554,6 +575,7 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 		removeDir("base." . $ts);
 		removeDir("templates." . $ts);
 		removeDir("extensions." . $ts);
+		removeDir("sites." . $ts);
 
 		if ($dsType === "MySQL")
 		{
