@@ -9,12 +9,13 @@ class SMStringUtilities
 	/// 	<description> Search string and return matched portions with correct casing (relevant for case insensitive search) </description>
 	/// 	<param name="string" type="string"> String to search </param>
 	/// 	<param name="search" type="string"> Search value </param>
-	/// 	<param name="caseSensitive" type="boolean" default="true"> Value indicating whether search should be performed in a case sensitive manner </param>
+	/// 	<param name="caseInsensitive" type="boolean" default="false"> Value indicating whether search should be performed in a case insensitive manner </param>
 	/// </function>
-	public static function Search($string, $search, $caseSensitive = true)
+	public static function Search($string, $search, $caseInsensitive = false)
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "string", $string, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "search", $search, SMTypeCheckType::$String);
+		SMTypeCheck::CheckObject(__METHOD__, "caseInsensitive", $caseInsensitive, SMTypeCheckType::$Boolean);
 
 		// Turn string and search term into unicode (convert from HEX entities to real unicode).
 		// This allows us to perform case insensitive matching which is not possible with HEX entities.
@@ -27,7 +28,7 @@ class SMStringUtilities
 		$str = $uStr; // Holds searchable value (case sensitive or insensitive) while $uStr holds original value from which matches must be extracted (both in Unicode)
 		$sch = $uSch; // Holds searchable value (case sensitive or insensitive) while $uSch holds original value from which matches must be extracted (both in Unicode)
 
-		if ($caseSensitive === false)
+		if ($caseInsensitive === true)
 		{
 			$str = mb_strtolower($str);
 			$sch = mb_strtolower($sch);
