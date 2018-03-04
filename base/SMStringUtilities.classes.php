@@ -5,6 +5,20 @@
 /// </container>
 class SMStringUtilities
 {
+	/// <function container="base/SMStringUtilities" name="NewLineToHtmlLineBreak" access="public" static="true" returns="string">
+	/// 	<description> Replace text line breaks with HTML line breaks </description>
+	/// 	<param name="str" type="string"> String from which new lines are replaced by HTML line breaks </param>
+	/// </function>
+	public static function NewLineToHtmlLineBreak($str)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
+
+		// PHP's native nl2br function always inserts <br /> on PHP prior to version 5.3,
+		// and the optional is_xhtml argument introduced in 5.3 results in an error on earlier versions:
+		// Wrong parameter count for nl2br().
+		return str_replace(array("\r\n", "\n"), "<br>", $str);
+	}
+
 	/// <function container="base/SMStringUtilities" name="Search" access="public" static="true" returns="string[]">
 	/// 	<description> Search string and return matched portions with correct casing (relevant for case insensitive search) </description>
 	/// 	<param name="string" type="string"> String to search </param>

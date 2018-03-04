@@ -190,7 +190,7 @@ class SMCommentsContentPageExtension extends SMPagesExtension
 			" . (($comment["cmdDelete"] !== null) ? $comment["cmdDelete"]->Render() . "&nbsp;&nbsp;" : "") . "
 			<b>" . SMStringUtilities::HtmlEncode($comment["comment"]->GetName()) . "</b> (" . date($this->lang->GetTranslation("DateTimeFormat"), $comment["comment"]->GetTimeStamp()) . ")
 			<hr style=\"height: 1px; border-bottom-style: none\">
-			" . nl2br(SMStringUtilities::HtmlEncode($comment["comment"]->GetComment())) . "
+			" . SMStringUtilities::NewLineToHtmlLineBreak(SMStringUtilities::HtmlEncode($comment["comment"]->GetComment())) . "
 			<br>
 			";
 		}

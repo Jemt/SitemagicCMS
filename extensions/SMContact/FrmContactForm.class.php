@@ -228,7 +228,7 @@ class SMContactFrmContactForm implements SMIExtensionForm
 
 			$body .= "<tr>";
 			$body .= "<td style=\"white-space: nowrap; padding-right: 25px; vertical-align: top; border-bottom: 1px solid silver;\">" . $control["title"] . "</td>";
-			$body .= "<td style=\"border-bottom: 1px solid silver;\">" . nl2br(str_replace("&amp;#", "&#", SMStringUtilities::HtmlEncode($value))) . "</td>"; // Using str_replace(..) to fix HTML HEX entities after htmlspecialchars(..) - Unicode support
+			$body .= "<td style=\"border-bottom: 1px solid silver;\">" . SMStringUtilities::NewLineToHtmlLineBreak(str_replace("&amp;#", "&#", SMStringUtilities::HtmlEncode($value))) . "</td>"; // Using str_replace(..) to fix HTML HEX entities after htmlspecialchars(..) - Unicode support
 			$body .= "</tr>";
 		}
 
