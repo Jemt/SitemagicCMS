@@ -554,7 +554,7 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 	$content = str_replace("{City}", $order["City"], $content);
 	$content = str_replace("{Phone}", $order["Phone"], $content);
 	$content = str_replace("{Email}", $order["Email"], $content);
-	$content = str_replace("{Message}", nl2br($order["Message"], false), $content);
+	$content = str_replace("{Message}", SMStringUtilities::NewLineToHtmlLineBreak($order["Message"]), $content);
 	$content = str_replace("{AltCompany}", $order["AltCompany"], $content);
 	$content = str_replace("{AltFirstName}", $order["AltFirstName"], $content);
 	$content = str_replace("{AltLastName}", $order["AltLastName"], $content);

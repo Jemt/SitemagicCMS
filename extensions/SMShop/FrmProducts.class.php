@@ -52,7 +52,7 @@ class SMShopFrmProducts implements SMIExtensionForm
 
 			// number_format(((int)$entry["Units"] * $unitPriceInclVat) - $discountInclVat, 2, $lang->GetTranslation("DecimalSeparator"), "")
 
-			$prod["description"] = nl2br($prod["description"], false); // TODO: Search all instances of nl2br(..) and make sure false is passed to $is_xhtml (2nd arg)
+			$prod["description"] = SMStringUtilities::NewLineToHtmlLineBreak($prod["description"]);
 
 			//if ($prod["Vat"] === "" || (float)$prod["Vat"] === 0.0)
 			if ((float)$prod["Vat"] === 0.0)

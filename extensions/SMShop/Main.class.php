@@ -177,22 +177,13 @@ class SMShop extends SMExtension
 
 		JSShop.Events.OnRequest = function(request, models, operation)
 		{
-			// Unicode encode data
-			// TODO: Most likely not necessary anymore - newer versions of Sitemagic does this automatically IF - and ONLY if - GetJsonData(..) is used to obtain data
-
-			var data = request.GetData();
-			var properties = data.Properties;
-
-			Fit.Array.ForEach(properties, function(prop)
-			{
-				if (typeof(properties[prop]) === \"string\")
-					properties[prop] = SMStringUtilities.UnicodeEncode(properties[prop]);
-			});
-
 			// Product model: Create URL friendly category name
 
 			if ((operation === \"Create\" || operation === \"Update\") && Fit.Core.InstanceOf(models[0], JSShop.Models.Product) === true)
 			{
+				var data = request.GetData();
+				var properties = data.Properties;
+
 				var category = properties[\"Category\"];
 				var catId = category;
 
@@ -220,31 +211,11 @@ class SMShop extends SMExtension
 				}
 
 				properties[\"CategoryId\"] = catId; // NOTICE: CategoryId is NOT defined in Product model, only here in JSON data
-			}
 
-			request.SetData(data);
-		};
-
-		JSShop.Events.OnSuccess = function(request, models, operation)
-		{
-			if (operation === \"Retrieve\" || operation === \"RetrieveAll\")
-			{
-				// Decode unicode encoded data
-				// TODO: Most likely not relevant anymore if data is returned using Sitemagic's
-				// Callback mechanism which returns true UTF-8 (HEX entities are transformed into real unicode characters)
-
-				Fit.Array.ForEach(models, function(model)
-				{
-					var properties = model.GetProperties();
-
-					Fit.Array.ForEach(properties, function(prop)
-					{
-						if (typeof(properties[prop]) === \"string\")
-							model[prop](SMStringUtilities.UnicodeDecode(model[prop]())); // Never manipulate properties directly - using Setter function
-					});
-				});
+				request.SetData(data);
 			}
 		};
+
 		JSShop.Events.OnError = function(request, models, operation)
 		{
 			Fit.Controls.Dialog.Alert('WebService communication failed (' + operation + '):<br><br>' + request.GetResponseText().replace(\"<pre>\", \"<pre style='overflow: auto'>\"));
