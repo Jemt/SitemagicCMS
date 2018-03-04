@@ -110,7 +110,7 @@ function SMShopGetConfiguration()
 	"CostCorrections": [ ' . $costCorrections . ' ],
 	"PriceIndex": "' . (($configuration->GetEntry("PriceIndex") !== null) ? SMStringUtilities::JsonEncode($configuration->GetEntry("PriceIndex")) : "") . '"';
 
-	return utf8_encode("{" . $json . "\n}");
+	return "{" . $json . "\n}";
 }
 
 function SMShopSetConfiguration($data)

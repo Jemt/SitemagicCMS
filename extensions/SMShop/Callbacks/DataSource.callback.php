@@ -161,38 +161,6 @@ $dataSourcesAllowed = array
 
 // Functions
 
-// Important:
-// XMLHttpRequest communicates in UTF-8, always!
-// UTF-8 comes in, UTF-8 must come out.
-// Whenever data is passed to parts of Sitemagic,
-// make sure data is transformed to ISO-8859-1!
-
-/*function SMShopGetJsonData()
-{
-	$data = file_get_contents("php://input"); // Read JSON data sent to server without a POST key
-	$jsonArray = json_decode($data, true); // XMLHttpRequest always sends UTF-8 which is also what json_decode(..) expects
-	$jsonArray = SMShopDecodeArrayFromUtf8ToLatin1($jsonArray); // Convert data to ISO-8859-1
-	return $jsonArray;
-}
-
-function SMShopDecodeArrayFromUtf8ToLatin1($arr)
-{
-	foreach ($arr as $key => $value)
-	{
-		if (is_array($value) === true)
-		{
-			$arr[$key] = SMShopDecodeArrayFromUtf8ToLatin1($value);
-		}
-		else if (is_string($value) === true)
-		{
-			$arr[$key] = utf8_decode($value);
-			//$arr[$key] = str_replace("\\n", "\n", $arr[$key]);
-		}
-	}
-
-	return $arr;
-}*/
-
 function SMShopDataItemToJson($dsDef, $props, SMKeyValueCollection $item)
 {
 	$res = "";
@@ -219,7 +187,7 @@ function SMShopDataItemToJson($dsDef, $props, SMKeyValueCollection $item)
 		}*/
 	}
 
-	return utf8_encode("{" . $res . "}");
+	return "{" . $res . "}";
 }
 
 function SMShopValidateField($dsDef, $fieldName, $fieldValue)
@@ -392,7 +360,7 @@ if ($command === "Create")
 		$dsDef["Callbacks"]["Functions"]["CreateCompleted"]($item);
 	}
 
-	echo SMShopDataItemToJson($dsDef, $props, $item); // Return updated data to client (UTF8 encoded)
+	echo SMShopDataItemToJson($dsDef, $props, $item); // Return updated data to client
 }
 else if ($command === "Retrieve")
 {
@@ -408,7 +376,7 @@ else if ($command === "Retrieve")
 			$dsDef["Callbacks"]["Functions"]["Retrieve"]($item);
 		}
 
-		echo SMShopDataItemToJson($dsDef, $props, $item); // Data returned is UTF8 encoded
+		echo SMShopDataItemToJson($dsDef, $props, $item);
 	}
 }
 else if ($command === "RetrieveAll")
@@ -436,7 +404,7 @@ else if ($command === "RetrieveAll")
 
 	foreach ($items as $item)
 	{
-		$jsonItem = SMShopDataItemToJson($dsDef, $props, $item); // Data returned is UTF8 encoded
+		$jsonItem = SMShopDataItemToJson($dsDef, $props, $item);
 		$jsonItems .= (($jsonItems !== "") ? ", " : "") . $jsonItem;
 	}
 
@@ -463,7 +431,7 @@ else if ($command === "Update")
 		$dsDef["Callbacks"]["Functions"]["UpdateCompleted"]($item);
 	}
 
-	SMShopDataItemToJson($dsDef, $props, $item); // Return updated data to client (UTF8 encoded)
+	SMShopDataItemToJson($dsDef, $props, $item); // Return updated data to client
 }
 else if ($command === "Delete")
 {
