@@ -14,7 +14,6 @@ JSShop.Models.Config = function(id)
 		{
 			TermsPage: "Terms.html",
 			ReceiptPage: "Receipt.html",
-			ShopEmail: "shop@domain.com",
 			ShopBccEmail: "copy@domain.com"
 		},
 		MailTemplates:

@@ -121,10 +121,6 @@ JSShop.Presenters.Config = function()
 		}
 
 		itm = tpl.Content.Properties.AddItem();
-		itm.PropertyName = "Shop e-mail address (sender/from address) - TODO: REMOVE THIS OPTION! Always use SMTPSender!";
-		itm.PropertyValue = createInput(config.Basic.ShopEmail, function(sender, val) { config.Basic.ShopEmail = val; });
-
-		itm = tpl.Content.Properties.AddItem();
 		itm.PropertyName = "BCC e-mail address (receive copies of all e-mails sent)";
 		itm.PropertyValue = createInput(config.Basic.ShopBccEmail, function(sender, val) { config.Basic.ShopBccEmail = val; });
 
@@ -495,14 +491,14 @@ JSShop.Presenters.Config = function()
 		],
 		function(cfgs)
 		{
-			Fit.Array.ForEach(document.querySelectorAll("div#SMShopConfig textarea:first-child"), function(txtArea)
+			Fit.Array.ForEach(document.querySelectorAll("div.FitUiControlInput[data-multiline='true']"), function(txtElm)
 			{
-				var ctl = Fit.Controls.Find(txtArea.name);
+				var ctl = Fit.Controls.Find(txtElm.id);
 
 				ctl.Maximizable(false);
 				ctl.Height(-1);
 
-				var codeEditor = CodeMirror.fromTextArea(txtArea,
+				var codeEditor = CodeMirror.fromTextArea(txtElm.querySelector("textarea"),
 				{
 					lineNumbers: true,
 					mode: "javascript", // "htmlmixed", "css", "javascript"

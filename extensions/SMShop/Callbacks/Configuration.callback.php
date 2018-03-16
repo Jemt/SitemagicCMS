@@ -99,7 +99,7 @@ function SMShopGetConfiguration()
 	// Return data as JSON
 
 	$json = '
-	"Basic": { "TermsPage": "' . $configuration->GetEntry("TermsPage") . '", "ReceiptPage": "' . $configuration->GetEntry("ReceiptPage") . '", "ShopEmail": "' . $configuration->GetEntry("ShopEmail") . '", "ShopBccEmail": "' . $configuration->GetEntry("ShopBccEmail") . '" },
+	"Basic": { "TermsPage": "' . $configuration->GetEntry("TermsPage") . '", "ReceiptPage": "' . $configuration->GetEntry("ReceiptPage") . '", "ShopBccEmail": "' . $configuration->GetEntry("ShopBccEmail") . '" },
 	"MailTemplates":
 	{
 		"Confirmation": ' . (($configuration->GetEntry("ConfirmationMailTemplateExpression") !== null) ? '"' . SMStringUtilities::JsonEncode($configuration->GetEntry("ConfirmationMailTemplateExpression")) . '"' : "null") . ',
@@ -130,11 +130,6 @@ function SMShopSetConfiguration($data)
 		if (isset($data["Basic"]["ReceiptPage"]) === true)
 		{
 			$configuration->SetEntry("ReceiptPage", $data["Basic"]["ReceiptPage"]);
-		}
-
-		if (isset($data["Basic"]["ShopEmail"]) === true)
-		{
-			$configuration->SetEntry("ShopEmail", $data["Basic"]["ShopEmail"]);
 		}
 
 		if (isset($data["Basic"]["ShopBccEmail"]) === true)

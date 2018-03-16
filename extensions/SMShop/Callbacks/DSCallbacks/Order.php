@@ -400,8 +400,6 @@ function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyVa
 	$mail->SetSubject((($title !== null && $title !== "") ? $title : $lang->GetTranslation((($asInvoice === false) ? "Confirmation" : "Invoice") . "Title")));
 	$mail->SetContent($content);
 
-	if ($config->GetEntry("ShopEmail") !== "" && SMStringUtilities::Validate($config->GetEntry("ShopEmail"), SMValueRestriction::$EmailAddress) === true)
-		$mail->SetSender($config->GetEntry("ShopEmail"));
 	if ($config->GetEntry("ShopBccEmail") !== "" && SMStringUtilities::Validate($config->GetEntry("ShopBccEmail"), SMValueRestriction::$EmailAddress) === true)
 		$mail->AddRecipient($config->GetEntry("ShopBccEmail"), SMMailRecipientType::$Bcc);
 
