@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS SMShopProducts
 	`title`					text								DEFAULT NULL,
 	`description`			text								DEFAULT NULL,
 	`images`				text								DEFAULT NULL,
-	`price`					decimal(15,5)						DEFAULT NULL,
+	`price`					decimal(15,5)						DEFAULT NULL, /* Max value 9999999999.99999 - always with 5 decimal precision (e.g. 100.00000) */
 	`vat`					decimal(15,5)						DEFAULT NULL,
 	`currency`				varchar(3)							DEFAULT NULL,
 	`weight`				decimal(15,5)						DEFAULT NULL,
@@ -55,11 +55,11 @@ CREATE TABLE IF NOT EXISTS SMShopOrders
 	`paymentmethod`			varchar(50)							DEFAULT NULL,
 	`transactionid`			varchar(100)						DEFAULT NULL,
 	`state`					varchar(20)							DEFAULT NULL,
-	`promocode`				text								DEFAULT NULL,
+	`promocode`				varchar(240)						DEFAULT NULL,
 	`custdata1`				text								DEFAULT NULL,
 	`custdata2`				text								DEFAULT NULL,
 	`custdata3`				text								DEFAULT NULL,
-	`invoiceid`				varchar(50)							DEFAULT NULL, /* Why not int ?? */
+	`invoiceid`				varchar(50)							DEFAULT NULL,
 	`invoicetime`			bigint								DEFAULT NULL
 ) ENGINE = InnoDB CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS SMShopOrderEntries
 	`unitprice`				decimal(15,5)						DEFAULT NULL,
 	`vat`					decimal(15,5)						DEFAULT NULL,
 	`currency`				varchar(3)							DEFAULT NULL,
-	`units`					bigint								DEFAULT NULL, /* Why not int ?? */
+	`units`					int unsigned						DEFAULT NULL,
 	`discount`				decimal(15,5)						DEFAULT NULL,
 	`discountmessage`		text								DEFAULT NULL
 ) ENGINE = InnoDB CHARACTER SET latin1 COLLATE latin1_swedish_ci;

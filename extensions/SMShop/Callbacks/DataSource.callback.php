@@ -14,8 +14,6 @@ $ip = (($ip !== null) ? $ip : "");
 // DataSource definitions.
 // NOTICE: Some fields have MaxLength multiplied by 8 to support the length of encoded Unicode characters.
 
-// IMPORTANT (regarding above): tables.sql does NOT support x8 characters !!! Many fields are varchar(250) !!!
-
 $dataSourcesAllowed = array
 (
 	/*"SMShopExample" => array
@@ -63,10 +61,10 @@ $dataSourcesAllowed = array
 			"Title"					=> array("DataType" => "string", "MaxLength" => 250*8),
 			"Description"			=> array("DataType" => "string", "MaxLength" => 1000*8),
 			"Images"				=> array("DataType" => "string", "MaxLength" => 1000),
-			"Price"					=> array("DataType" => "number", "MaxLength" => 100),
-			"Vat"					=> array("DataType" => "number", "MaxLength" => 100),
+			"Price"					=> array("DataType" => "number", "MaxLength" => 15),
+			"Vat"					=> array("DataType" => "number", "MaxLength" => 15),
 			"Currency"				=> array("DataType" => "string", "MaxLength" => 3),
-			"Weight"				=> array("DataType" => "number", "MaxLength" => 100),
+			"Weight"				=> array("DataType" => "number", "MaxLength" => 15),
 			"WeightUnit"			=> array("DataType" => "string", "MaxLength" => 3),
 			"DeliveryTime"			=> array("DataType" => "string", "MaxLength" => 50*8),
 			"DiscountExpression"	=> array("DataType" => "string", "MaxLength" => 250),
@@ -100,19 +98,19 @@ $dataSourcesAllowed = array
 			"AltAddress"			=> array("DataType" => "string", "MaxLength" => 50*8),
 			"AltZipCode"			=> array("DataType" => "string", "MaxLength" => 20),
 			"AltCity"				=> array("DataType" => "string", "MaxLength" => 50*8),
-			"Price"					=> array("DataType" => "number", "MaxLength" => 100),
-			"Vat"					=> array("DataType" => "number", "MaxLength" => 100),
+			"Price"					=> array("DataType" => "number", "MaxLength" => 15),
+			"Vat"					=> array("DataType" => "number", "MaxLength" => 15),
 			"Currency"				=> array("DataType" => "string", "MaxLength" => 3),
-			"Weight"				=> array("DataType" => "number", "MaxLength" => 100),
+			"Weight"				=> array("DataType" => "number", "MaxLength" => 15),
 			"WeightUnit"			=> array("DataType" => "string", "MaxLength" => 3),
-			"CostCorrection1"		=> array("DataType" => "number", "MaxLength" => 100),
-			"CostCorrectionVat1"	=> array("DataType" => "number", "MaxLength" => 100),
+			"CostCorrection1"		=> array("DataType" => "number", "MaxLength" => 15),
+			"CostCorrectionVat1"	=> array("DataType" => "number", "MaxLength" => 15),
 			"CostCorrectionMessage1"=> array("DataType" => "string", "MaxLength" => 250*8),
-			"CostCorrection2"		=> array("DataType" => "number", "MaxLength" => 100),
-			"CostCorrectionVat2"	=> array("DataType" => "number", "MaxLength" => 100),
+			"CostCorrection2"		=> array("DataType" => "number", "MaxLength" => 15),
+			"CostCorrectionVat2"	=> array("DataType" => "number", "MaxLength" => 15),
 			"CostCorrectionMessage2"=> array("DataType" => "string", "MaxLength" => 250*8),
-			"CostCorrection3"		=> array("DataType" => "number", "MaxLength" => 100),
-			"CostCorrectionVat3"	=> array("DataType" => "number", "MaxLength" => 100),
+			"CostCorrection3"		=> array("DataType" => "number", "MaxLength" => 15),
+			"CostCorrectionVat3"	=> array("DataType" => "number", "MaxLength" => 15),
 			"CostCorrectionMessage3"=> array("DataType" => "string", "MaxLength" => 250*8),
 			"PaymentMethod"			=> array("DataType" => "string", "MaxLength" => 50),
 			"TransactionId"			=> array("DataType" => "string", "MaxLength" => 100),
@@ -121,7 +119,7 @@ $dataSourcesAllowed = array
 			"CustData1"				=> array("DataType" => "string", "MaxLength" => 250*8),
 			"CustData2"				=> array("DataType" => "string", "MaxLength" => 250*8),
 			"CustData3"				=> array("DataType" => "string", "MaxLength" => 250*8),
-/* Why string and not number/int ?? */			"InvoiceId"				=> array("DataType" => "string", "MaxLength" => 50, "ForceInitialValue" => ""), // Set initial value to prevent client from assigning value
+			"InvoiceId"				=> array("DataType" => "string", "MaxLength" => 50, "ForceInitialValue" => ""), // Set initial value to prevent client from assigning value
 			"InvoiceTime"			=> array("DataType" => "number", "MaxLength" => 15)
 		),
 		"Callbacks"				=> array(
@@ -149,11 +147,11 @@ $dataSourcesAllowed = array
 			"Id"					=> array("DataType" => "string", "MaxLength" => 50),
 			"OrderId"				=> array("DataType" => "string", "MaxLength" => 50),
 			"ProductId"				=> array("DataType" => "string", "MaxLength" => 30*8),
-			"UnitPrice"				=> array("DataType" => "number", "MaxLength" => 100),
-			"Vat"					=> array("DataType" => "number", "MaxLength" => 100),
+			"UnitPrice"				=> array("DataType" => "number", "MaxLength" => 15),
+			"Vat"					=> array("DataType" => "number", "MaxLength" => 15),
 			"Currency"				=> array("DataType" => "string", "MaxLength" => 3),
-			"Units"					=> array("DataType" => "number", "MaxLength" => 100), /* Why a number with 100 digits ? 10-20 should suffice */
-			"Discount"				=> array("DataType" => "number", "MaxLength" => 100),
+			"Units"					=> array("DataType" => "number", "MaxLength" => 10),
+			"Discount"				=> array("DataType" => "number", "MaxLength" => 15),
 			"DiscountMessage"		=> array("DataType" => "string", "MaxLength" => 250*8)
 		)
 	)
