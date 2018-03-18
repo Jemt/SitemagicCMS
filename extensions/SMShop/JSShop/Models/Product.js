@@ -201,6 +201,6 @@ JSShop.Models.Product.RetrieveAll = function(category, cbSuccess, cbFailure)
 	Fit.Validation.ExpectFunction(cbSuccess);
 	Fit.Validation.ExpectFunction(cbFailure, true);
 
-	var match = ((category !== "") ? [{ Field: "Category", Operator: "=", Value: category }] : []);
+	var match = ((category !== "") ? [[{ Field: "Category", Operator: "=", Value: category }]] : []); // Multi dimensional: [ [match1 AND match2] OR [matchA AND matchB] OR ... ]
 	JSShop.Models.Base.RetrieveAll(JSShop.Models.Product, "Id", match, cbSuccess, cbFailure);
 }

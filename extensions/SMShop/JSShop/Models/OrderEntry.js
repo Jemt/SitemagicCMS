@@ -58,6 +58,6 @@ JSShop.Models.OrderEntry.RetrieveAll = function(orderId, cbSuccess, cbFailure)
 	Fit.Validation.ExpectFunction(cbSuccess);
 	Fit.Validation.ExpectFunction(cbFailure, true);
 
-	var match = [{ Field: "OrderId", Operator: "=", Value: orderId }];
+	var match = [[{ Field: "OrderId", Operator: "=", Value: orderId }]]; // Multi dimensional: [ [match1 AND match2] OR [matchA AND matchB] OR ... ]
 	JSShop.Models.Base.RetrieveAll(JSShop.Models.OrderEntry, "Id", match, cbSuccess, cbFailure);
 }

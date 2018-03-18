@@ -272,18 +272,36 @@ JSShop.Models.Order = function(orderId)
 
 	init();
 }
-JSShop.Models.Order.RetrieveAll = function(fromTimestamp, toTimestamp, cbSuccess, cbFailure)
+JSShop.Models.Order.RetrieveAll = function(search, fromTimestamp, toTimestamp, cbSuccess, cbFailure)
 {
+	Fit.Validation.ExpectString(search);
 	Fit.Validation.ExpectInteger(fromTimestamp);
 	Fit.Validation.ExpectInteger(toTimestamp);
 	Fit.Validation.ExpectFunction(cbSuccess);
 	Fit.Validation.ExpectFunction(cbFailure, true);
 
-	var match = [];
-	Fit.Array.Add(match, { Field: "Time", Operator: ">=", Value: fromTimestamp });
-	Fit.Array.Add(match, { Field: "Time", Operator: "<=", Value: toTimestamp });
+	var or = []; // Multi dimensional: [ [match1 AND match2] OR [matchA AND matchB] OR ... ]
 
-	JSShop.Models.Base.RetrieveAll(JSShop.Models.Order, "Id", match, cbSuccess, cbFailure);
+	if (search !== "")
+	{
+		Fit.Array.ForEach(["FirstName", "LastName", "Address", "City", "ZipCode", "Email", "Phone", "Message", "AltFirstName", "AltLastName", "AltAddress", "AltCity", "AltZipCode"], function(field)
+		{
+			var and = [];
+			Fit.Array.Add(and, { Field: "Time", Operator: ">=", Value: fromTimestamp });
+			Fit.Array.Add(and, { Field: "Time", Operator: "<=", Value: toTimestamp });
+			Fit.Array.Add(and, { Field: field, Operator: "CONTAINS", Value: search });
+			Fit.Array.Add(or, and);
+		});
+	}
+	else
+	{
+		var and = [];
+		Fit.Array.Add(and, { Field: "Time", Operator: ">=", Value: fromTimestamp });
+		Fit.Array.Add(and, { Field: "Time", Operator: "<=", Value: toTimestamp });
+		Fit.Array.Add(or, and);
+	}
+
+	JSShop.Models.Base.RetrieveAll(JSShop.Models.Order, "Id", or, cbSuccess, cbFailure);
 }
 JSShop.Models.Order.CalculateExpression = function(price, vat, currency, weight, weightUnit, zipCode, paymentMethod, promoCode, custData1, custData2, custData3, expression, returnType/*, resultValidationCallback*/)
 {

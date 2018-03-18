@@ -262,15 +262,25 @@ foreach ($props as $prop => $val)
 		$props[$prop] = strip_tags($val);
 }
 
-foreach ((($match !== null) ? $match : array()) as $m)
+foreach ((($match !== null) ? $match : array()) as $or)
 {
-	SMShopValidateField($dsDef, $m["Field"], $m["Value"]);
-
-	if ($m["Operator"] !== "=" && $m["Operator"] !== "!=" && $m["Operator"] !== "<" && $m["Operator"] !== "<=" && $m["Operator"] !== ">" && $m["Operator"] !== ">=")
+	foreach ($or as $m)
 	{
-		header("HTTP/1.1 500 Internal Server Error");
-		echo "Match operator '" . $m["Operator"] . "' is not supported";
-		exit;
+		if (isset($m["Field"]) === false || isset($m["Operator"]) === false || isset($m["Value"]) === false)
+		{
+			header("HTTP/1.1 500 Internal Server Error");
+			echo "Filtering (Match) requires a Field, an Operator, and a Value";
+			exit;
+		}
+
+		SMShopValidateField($dsDef, $m["Field"], $m["Value"]);
+
+		if ($m["Operator"] !== "CONTAINS" && $m["Operator"] !== "=" && $m["Operator"] !== "!=" && $m["Operator"] !== "<" && $m["Operator"] !== "<=" && $m["Operator"] !== ">" && $m["Operator"] !== ">=")
+		{
+			header("HTTP/1.1 500 Internal Server Error");
+			echo "Match operator '" . $m["Operator"] . "' is not supported";
+			exit;
+		}
 	}
 }
 
@@ -362,7 +372,7 @@ if ($command === "Create")
 }
 else if ($command === "Retrieve")
 {
-	$items = $ds->Select("*", "Id = '" . $ds->Escape($props["Id"]) . "'", "", 500); // Notice: Hardcoded limit
+	$items = $ds->Select("*", "Id = '" . $ds->Escape($props["Id"]) . "'", "");
 
 	if (count($items) > 0)
 	{
@@ -383,13 +393,27 @@ else if ($command === "RetrieveAll")
 
 	if ($match !== null)
 	{
-		foreach ($match as $m)
+		$nextOr = false;
+		$nextAnd = false;
+
+		foreach ($match as $or)
 		{
-			$where .= (($where !== "") ? " AND " : "") . $m["Field"] . " " . $m["Operator"] . " " . ((SMShopGetJsType($m["Value"]) === "string") ? "'" . $ds->Escape($m["Value"]) . "'" : $m["Value"]);
+			if ($nextOr === true)
+				$where .= " OR ";
+
+			$nextAnd = false;
+
+			foreach ($or as $m)
+			{
+				$where .= (($nextAnd === true) ? " AND " : "") . $m["Field"] . " " . (($m["Operator"] === "CONTAINS") ? "LIKE" : $m["Operator"]) . " " . ((SMShopGetJsType($m["Value"]) === "string") ? "'" . (($m["Operator"] === "CONTAINS") ? "%" : "") . $ds->Escape($m["Value"]) . (($m["Operator"] === "CONTAINS") ? "%" : "") . "'" : $m["Value"]);
+				$nextAnd = true;
+			}
+
+			$nextOr = true;
 		}
 	}
 
-	$items = $ds->Select("*", $where, $dsDef["OrderBy"], 500); // Notice: Hardcoded limit
+	$items = $ds->Select("*", $where, $dsDef["OrderBy"]);
 
 	if (isset($dsDef["Callbacks"]) === true && isset($dsDef["Callbacks"]["Functions"]["RetrieveAll"]) === true)
 	{

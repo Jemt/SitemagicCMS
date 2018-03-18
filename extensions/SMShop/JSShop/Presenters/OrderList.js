@@ -15,7 +15,6 @@ JSShop.Presenters.OrderList = function()
 
 	// TODO: Hide buttons if features are not supported !!!
 
-	var lstSearchType = null;
 	var txtSearch = null;
 	var txtFrom = null;
 	var txtTo = null;
@@ -64,11 +63,10 @@ JSShop.Presenters.OrderList = function()
 				{
 					view.innerHTML = req.GetResponseText();
 
-					lstSearchType.Render(view.querySelector("#JSShopOrderListButtons"));
-					txtSearch.Render(view.querySelector("#JSShopOrderListButtons"));
 					txtFrom.Render(view.querySelector("#JSShopOrderListButtons"));
 					//Fit.Dom.Add(view.querySelector("#JSShopOrderListButtons"), Fit.Dom.CreateElement("<span>-</span>"));
 					txtTo.Render(view.querySelector("#JSShopOrderListButtons"));
+					txtSearch.Render(view.querySelector("#JSShopOrderListButtons"));
 					cmdUpdate.Render(view.querySelector("#JSShopOrderListButtons"));
 
 					cmdExport.Render(view.querySelector("#JSShopOrderListButtons"));
@@ -109,7 +107,7 @@ JSShop.Presenters.OrderList = function()
 				//var from = (new Date(txtFrom.Value() + " 00:00:00")).getTime(); //(new Date()).setDate(-30);
 				//var to = (new Date(txtTo.Value() + " 23:59:59")).getTime(); //(new Date()).getTime();
 
-				JSShop.Models.Order.RetrieveAll(from, to, function(request, mdls)
+				JSShop.Models.Order.RetrieveAll(txtSearch.Value(), from, to, function(request, mdls)
 				{
 					models = mdls;
 
@@ -207,8 +205,6 @@ JSShop.Presenters.OrderList = function()
 						model._internal.DomElement = entry;
 					});
 
-					filterOrders();
-
 					if (cb)
 						cb();
 
@@ -218,28 +214,10 @@ JSShop.Presenters.OrderList = function()
 			req.Start();
 		}
 
-		lstSearchType = new Fit.Controls.DropDown("JSShopSearchType");
-		lstSearchType.SetPicker(new Fit.Controls.ListView());
-		lstSearchType.GetPicker().AddItem("Eksakt match", "Exact");
-		lstSearchType.GetPicker().AddItem("Alle ord", "ContainsAll");
-		lstSearchType.GetPicker().AddItem("Ethvert ord", "ContainsAny");
-		lstSearchType.OnChange(function(sender)
-		{
-			if (lstSearchType.GetSelections().length === 1)
-				filterOrders();
-		});
-		lstSearchType.OnBlur(function(sender)
-		{
-			if (lstSearchType.GetSelections().length === 0)
-				lstSearchType.AddSelection("Eksakt match", "Exact");
-		});
-		lstSearchType.Width(150);
-		lstSearchType.AddSelection("Eksakt match", "Exact");
-
 		txtSearch = new Fit.Controls.Input("JSShopSearch");
-		txtSearch.OnChange(function(sender) { filterOrders(); });
 		txtSearch.Width(120);
-		txtSearch.title = "Search";
+		txtSearch.GetDomElement().title = "Search";
+		txtSearch.Placeholder("Search..");
 
 		var now = new Date();
 		var yesterday = new Date(((new Date()).setDate(now.getDate() - 1)));
@@ -277,7 +255,7 @@ JSShop.Presenters.OrderList = function()
 		});
 		txtFrom.Width(120);
 		txtFrom.Value(Fit.Date.Format(new Date(), JSShop.Language.Translations.Locale.DateFormat));
-		txtFrom.title = "Display orders from this date";
+		txtFrom.GetDomElement().title = "Display orders from this date";
 
 		txtTo = new Fit.Controls.Input("JSShopToDate");
 		txtTo.Required(true);
@@ -312,7 +290,7 @@ JSShop.Presenters.OrderList = function()
 		});
 		txtTo.Width(120);
 		txtTo.Value(Fit.Date.Format(new Date(), JSShop.Language.Translations.Locale.DateFormat));
-		txtTo.title = "Display orders to this date";
+		txtTo.GetDomElement().title = "Display orders to this date";
 
 		cmdUpdate = new Fit.Controls.Button("JSShopUpdateButton");
 		//cmdUpdate.Title("Update");
@@ -1426,100 +1404,6 @@ JSShop.Presenters.OrderList = function()
 					Fit.Controls.Dialog.Alert(lang.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
 			});
 		});*/
-	}
-
-	var searchTimeout = -1;
-	function filterOrders()
-	{
-		if (searchTimeout !== -1)
-			clearTimeout(searchTimeout);
-
-		searchTimeout = setTimeout(function()
-		{
-			chkSelectAll.Checked(false);
-
-			Fit.Array.ForEach(models, function(model)
-			{
-				model._internal.CheckBox.Checked(false);
-			});
-
-			var searchType = lstSearchType.GetSelections()[0].Value;
-			var searchString = txtSearch.Value().toLowerCase();
-
-			if (searchType === "Exact")
-			{
-				searchString = searchString.replace(" ", " "); // Replace spaces with non-breaking spaces (ALT+Space on Mac)
-			}
-			else
-			{
-				searchString = searchString.replace(/["|'].*?["|']/g, function(match, offset, str)
-				{
-					return match.replace(/"|'/g, "").replace(" ", " "); // Remove quotes and replace spaces with non-breaking spaces (ALT+Space on Mac)
-				});
-			}
-
-			var searches = ((searchType === "Exact") ? [ searchString ] : searchString.split(" "));
-			var firstSearch = true;
-
-			Fit.Array.ForEach(searches, function(search)
-			{
-				if (firstSearch === false && search === "")
-					return;
-
-				/*var exactMatch = false;
-
-				if (search.indexOf("=") === 0)
-				{
-					search = search.substring(1);
-					exactMatch = true;
-				}*/
-
-				chkSelectAll.Checked(false);
-
-				Fit.Array.ForEach(models, function(model)
-				{
-					if (firstSearch === false && searchType === "ContainsAll" && model._internal.Match === false)
-						return;
-
-					if (firstSearch === false && searchType === "ContainsAny" && model._internal.Match === true)
-						return;
-
-					var exclude = [ "Time", "ClientIp", "Price", "Vat", "Weight", "CostCorrection1", "CostCorrectionVat1", "CostCorrection2", "CostCorrectionVat2", "CostCorrection3", "CostCorrectionVat3", "TransactionId" ];
-					var match = false;
-
-					Fit.Array.ForEach(model.GetProperties(), function(prop)
-					{
-						if (Fit.Array.Contains(exclude, prop) === true)
-							return;
-
-						var val = model[prop]().toString().toLowerCase();
-
-						if (prop === "State")
-							val = getStateTitle(model[prop]()).toLowerCase();
-
-						val = val.replace(" ", " "); // Replace spaces with non-breaking spaces (ALT+Space on Mac)
-
-						if ((searchType === "Exact" && val === search) || (searchType !== "Exact" && val.indexOf(search) > -1))
-						{
-							match = true;
-							return false; // Break loop
-						}
-					});
-
-					model._internal.Match = match;
-					model._internal.DomElement.style.display = ((match === true) ? "" : "none");
-				});
-
-				firstSearch = false;
-			});
-
-			Fit.Array.ForEach(models, function(model)
-			{
-				delete model._internal.Match;
-			});
-
-			searchTimeout = -1;
-		}, 250);
 	}
 
 	function NANANANNAdisplayOrder(model)
