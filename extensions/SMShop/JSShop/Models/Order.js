@@ -308,7 +308,7 @@ JSShop.Models.Order.CalculateExpression = function(price, vat, currency, weight,
 
 	ex = ex.replace(/\r|\n|\t/g, ""); // Allow use of line breaks and tabs
 	ex = ex.replace(/\/\*.*?\*\//g, ""); // Allow use of /*..*/ comments - ? after quantifier makes the match non-greedy
-	ex = ex.replace(/index|price|vat|currency|weightunit|weight|zipcodeval|zipcode|paymentmethod|promocode|custdata1|custdata2|custdata3/g, ""); // Allow use of predefined variables
+	ex = ex.replace(/price|vat|currency|weightunit|weight|zipcodeval|zipcode|paymentmethod|promocode|custdata1|custdata2|custdata3|data/g, ""); // Allow use of predefined variables
 	ex = ex.replace(/JSShop.Floor|JSShop.Ceil|JSShop.Round/g, ""); // Allow use of functions
 	ex = ex.replace(/ |[0-9]|\*|\+|\-|\/|%|=|&|\||!|\.|:|\(|\)|\[|\]|>|<|\?|true|false/g, ""); // Allow various math/comparison/logical operations
 	ex = ex.replace(/(["']).*?\1/g, ""); // Allow use of double quoted and single quoted strings - ? after quantifiers makes the match non-greedy
@@ -337,7 +337,7 @@ JSShop.Models.Order.CalculateExpression = function(price, vat, currency, weight,
 	expr += "var custdata1 = \"" + custData1 + "\";";
 	expr += "var custdata2 = \"" + custData2 + "\";";
 	expr += "var custdata3 = \"" + custData3 + "\";";
-	expr += "var index = " + ((JSShop.Settings.PriceIndex !== null) ? JSON.stringify(JSShop.Settings.PriceIndex) : {}) + ";";
+	expr += "var data = " + ((JSShop.Settings.AdditionalData !== null) ? JSON.stringify(JSShop.Settings.AdditionalData) : {}) + ";";
 	expr += "(" + expression.replace(/JSShop\.Floor/g, "Math.floor").replace(/JSShop\.Ceil/g, "Math.ceil").replace(/JSShop\.Round/g, "Math.round") + ");";
 
 	// Evaluate, validate, and return

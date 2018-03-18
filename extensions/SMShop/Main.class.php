@@ -128,13 +128,13 @@ class SMShop extends SMExtension
 		<script type=\"text/javascript\">
 		JSShop.Settings.CostCorrection1 = \"" . $this->escapeJson($config->GetEntry("CostCorrection1")) . "\";
 		JSShop.Settings.CostCorrectionVat1 = \"" . $this->escapeJson($config->GetEntry("CostCorrectionVat1")) . "\";
-		JSShop.Settings.CostCorrectionMessage1 = \"" . $this->escapeJson($config->GetEntry("CostCorrectionMessage1")) . "\";
+		JSShop.Settings.CostCorrectionMessage1 = SMStringUtilities.UnicodeDecode(\"" . $this->escapeJson($config->GetEntry("CostCorrectionMessage1")) . "\");
 		JSShop.Settings.CostCorrection2 = \"" . $this->escapeJson($config->GetEntry("CostCorrection2")) . "\";
 		JSShop.Settings.CostCorrectionVat2 = \"" . $this->escapeJson($config->GetEntry("CostCorrectionVat2")) . "\";
-		JSShop.Settings.CostCorrectionMessage2 = \"" . $this->escapeJson($config->GetEntry("CostCorrectionMessage2")) . "\";
+		JSShop.Settings.CostCorrectionMessage2 = SMStringUtilities.UnicodeDecode(\"" . $this->escapeJson($config->GetEntry("CostCorrectionMessage2")) . "\");
 		JSShop.Settings.CostCorrection3 = \"" . $this->escapeJson($config->GetEntry("CostCorrection3")) . "\";
 		JSShop.Settings.CostCorrectionVat3 = \"" . $this->escapeJson($config->GetEntry("CostCorrectionVat3")) . "\";
-		JSShop.Settings.CostCorrectionMessage3 = \"" . $this->escapeJson($config->GetEntry("CostCorrectionMessage3")) . "\";
+		JSShop.Settings.CostCorrectionMessage3 = SMStringUtilities.UnicodeDecode(\"" . $this->escapeJson($config->GetEntry("CostCorrectionMessage3")) . "\");
 		JSShop.Settings.ConfigUrl = \"" . SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopConfig" . "\";
 		JSShop.Settings.BasketUrl = \"" . SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopBasket" . "\";
 		JSShop.Settings.TermsUrl = \"" . $config->GetEntry("TermsPage") . (($config->GetEntry("TermsPage") !== "") ? "?SMTemplateType=Basic&SMPagesDialog" : "") . "\";
@@ -143,7 +143,7 @@ class SMShop extends SMExtension
 		JSShop.Settings.PaymentCaptureUrl = \"" . $payCallback . "&PaymentOperation=Capture\";
 		JSShop.Settings.PaymentCancelUrl = \"" . $payCallback . "&PaymentOperation=Cancel\";
 		JSShop.Settings.SendInvoiceUrl = \"" . $payCallback . "&PaymentOperation=Invoice\";
-		JSShop.Settings.PriceIndex = " . (($config->GetEntry("PriceIndex") !== null && $config->GetEntry("PriceIndex") !== "") ? $config->GetEntry("PriceIndex") : "{}") . ";
+		JSShop.Settings.AdditionalData = " . (($config->GetEntry("AdditionalData") !== null && $config->GetEntry("AdditionalData") !== "") ? $config->GetEntry("AdditionalData") : "{}") . ";
 		JSShop.Settings.Pages = [ " . $pages . "];
 
 		JSShop.Language.Name = \"" . $shopLang . "\";

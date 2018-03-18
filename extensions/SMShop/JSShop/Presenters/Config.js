@@ -295,7 +295,7 @@ JSShop.Presenters.Config = function()
 
 	function showAdvanced(btn)
 	{
-		var options = [ "Choose e-mail templates", "Cost correction 1", "Cost correction 2", "Cost correction 3", "Price index" ];
+		var options = [ "Choose e-mail templates", "Cost correction 1", "Cost correction 2", "Cost correction 3", "Additional data" ];
 
 		showOptions(btn, options, function(selectedValue)
 		{
@@ -340,14 +340,30 @@ JSShop.Presenters.Config = function()
 			itm.PropertyName = "Message expression";
 			itm.PropertyValue = createExpressionInput(cc.Message, "string", function(sender, val) { cc.Message = val; });
 		}
-		else if (section === "Price index")
+		else if (section === "Additional data")
 		{
 			itm = tpl.Content.Properties.AddItem();
-			itm.PropertyName = "Price Index (JSON)";
-			itm.PropertyValue = createInput("", function(sender, val) { config.PriceIndex = val; });
+			itm.PropertyName = "Additional data (JSON)";
+			itm.PropertyValue = createInput("", function(sender, val) { config.AdditionalData = val; });
 			itm.PropertyValue.FitControl.MultiLine(true);
 			itm.PropertyValue.FitControl.Maximizable(true);
-			itm.PropertyValue.FitControl.Value(config.PriceIndex); // Set value after MultiLine is enabled to preserve line breaks
+			itm.PropertyValue.FitControl.Value(config.AdditionalData); // Set value after MultiLine is enabled to preserve line breaks
+			itm.PropertyValue.FitControl.SetValidationCallback(function(val)
+			{
+				if (val === "")
+					return true;
+
+				try
+				{
+					JSON.parse(val);
+				}
+				catch (err)
+				{
+					return false;
+				}
+
+				return true;
+			}, "Invalid JSON");
 		}
 
 		tpl.Update();
@@ -402,7 +418,7 @@ JSShop.Presenters.Config = function()
 			try
 			{
 				JSShop.Models.Order.CalculateExpression(100, 0.10, "USD", 0.5, "kg", "5000", "DIBS", "TvCampaign", "A", "B", "C", val, valueType);
-				JSShop.Models.Order.CalculateExpression(1, 0.25, "DKK", 25, "lbs", "", "", "", "", "", "", val, valueType);
+				JSShop.Models.Order.CalculateExpression(1, 0.25, "DKK", 25, "lbs", "9850", "QuickPay", "Spring", "X", "Y", "Z", val, valueType);
 			}
 			catch (err)
 			{

@@ -773,7 +773,7 @@ function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weigh
 	$expr = $expression;
 	$expr = preg_replace("/\r|\n|\t/", "", $expr);
 	$expr = preg_replace("/\/\*.*?\*\//", "", $expr);
-	$expr = preg_replace("/index|units|price|vat|currency|weightunit|weight|zipcodeval|zipcode|paymentmethod|promocode|custdata1|custdata2|custdata3/", "", $expr);
+	$expr = preg_replace("/units|price|vat|currency|weightunit|weight|zipcodeval|zipcode|paymentmethod|promocode|custdata1|custdata2|custdata3|data/", "", $expr);
 	$expr = preg_replace("/JSShop.Floor|JSShop.Ceil|JSShop.Round/", "", $expr);
 	$expr = preg_replace("/ |[0-9]|\\*|\\+|\\-|\\/|%|=|&|\\||!|\\.|:|\\(|\\)|\\[|\\]|>|<|\\?|true|false/", "", $expr);
 	$expr = preg_replace("/([\"']).*?\\1/", "", $expr);
@@ -793,7 +793,7 @@ function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weigh
 	$expression = preg_replace("/([\"'])\\s*\\+/", "$1 .", $expression); // https://regex101.com/r/tS6yR4/1 - replace "+ or '+ with ". and '.
 	$expression = preg_replace("/\\+\\s*([\"'])/", ". $1", $expression); // https://regex101.com/r/uC3tO9/1 - replace +" or +' with ." and .'
 
-	// Make variables available to discount expression
+	// Make variables available to expression
 
 	$zipCodeVal = -1;
 
@@ -817,8 +817,22 @@ function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weigh
 	$expr .= "\ncustdata1 = \"" . (($custData1 !== null) ? $custData1 : "") . "\";";
 	$expr .= "\ncustdata2 = \"" . (($custData2 !== null) ? $custData2 : "") . "\";";
 	$expr .= "\ncustdata3 = \"" . (($custData3 !== null) ? $custData3 : "") . "\";";
-	$expr .= "\nindex = json_decode('" . (($config !== null && $config->GetEntry("PriceIndex") !== "") ? str_replace("'", "\"", $config->GetEntry("PriceIndex")) : "{}") . "', true);";
+	$expr .= "\ndata = json_decode('" . (($config !== null && $config->GetEntry("AdditionalData") !== "") ? str_replace("'", "\"", $config->GetEntry("AdditionalData")) : "{}") . "', true);";
 	$expr .= "\nreturn (" . str_replace("JSShop.Floor", "floor", str_replace("JSShop.Ceil", "ceil", str_replace("JSShop.Round", "round", $expression))) . ");";
+
+	// Temporarily remove non-empty strings from expression to prevent changes to these
+	// (e.g. if a string contains the word 'price' which is also the name of a variable which will be replaced by $price prior to evaluation)
+
+	$matches = null;
+	$found = array();
+
+	preg_match_all('/([\"\']).+?\1/', $expr, $matches, PREG_SET_ORDER, 0);
+
+	for ($i = 0 ; $i < count($matches) ; $i++)
+	{
+		$found[$i] = $matches[$i][0];
+		$expr = str_replace($found[$i], "__STRING__" . $i . "__", $expr);
+	}
 
 	// Turn JS variables into PHP compliant variables
 
@@ -830,8 +844,16 @@ function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weigh
 	$expr = str_replace("zipcode", "\$zipcode", $expr); // $zipcode AND $zipcodeval (both starts with "zipcode")
 	$expr = str_replace("paymentmethod", "\$paymentmethod", $expr);
 	$expr = str_replace("promocode", "\$promocode", $expr);
+	$expr = str_replace("data", "\$data", $expr); // Additional data - unfortunately also affects custdata variables causing them to become e.g. cust$data1 - fixed below
+	$expr = str_replace("cust\$data", "custdata", $expr); // Fix for replacement done above
 	$expr = str_replace("custdata", "\$custdata", $expr); // $custdata1 AND $custdata2 AND $custdata3
-	$expr = str_replace("index", "\$index", $expr);
+
+	// Restore strings
+
+	for ($i = 0 ; $i < count($found) ; $i++)
+	{
+		$expr = str_replace("__STRING__" . $i . "__", $found[$i], $expr);
+	}
 
 	// Evaluate expression
 

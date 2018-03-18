@@ -108,7 +108,7 @@ function SMShopGetConfiguration()
 	},
 	"PaymentMethods": [' . $paymentModulesStr . '],
 	"CostCorrections": [ ' . $costCorrections . ' ],
-	"PriceIndex": "' . (($configuration->GetEntry("PriceIndex") !== null) ? SMStringUtilities::JsonEncode($configuration->GetEntry("PriceIndex")) : "") . '"';
+	"AdditionalData": "' . (($configuration->GetEntry("AdditionalData") !== null) ? SMStringUtilities::JsonEncode($configuration->GetEntry("AdditionalData")) : "") . '"';
 
 	return "{" . $json . "\n}";
 }
@@ -221,11 +221,11 @@ function SMShopSetConfiguration($data)
 		}
 	}
 
-	// Price index
+	// Additional data
 
-	if (isset($data["PriceIndex"]) === true)
+	if (isset($data["AdditionalData"]) === true)
 	{
-		$configuration->SetEntry("PriceIndex", $data["PriceIndex"]);
+		$configuration->SetEntry("AdditionalData", $data["AdditionalData"]);
 	}
 
 	$configuration->Commit();

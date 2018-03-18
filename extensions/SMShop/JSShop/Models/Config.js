@@ -57,7 +57,7 @@ JSShop.Models.Config = function(id)
 				Message: ""
 			}
 		],
-		PriceIndex: "{}" // Value exposed as JSON object to expression enabled fields as the 'index' variable
+		AdditionalData: "{}" // Value exposed as JSON object to expression enabled fields as the 'data' variable
 	};
 
 	function init()
