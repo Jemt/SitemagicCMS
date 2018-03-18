@@ -69,8 +69,15 @@ class SMShop extends SMExtension
 
 		// Prepare callbacks
 
-		$basePath = SMEnvironment::GetInstallationPath(); // Use full path to prevent problems when calling WebServices under /shop/XYZ which would be redirected to / without preserving POST data (htaccess)
+		$basePath = SMEnvironment::GetRequestPath();
 		$basePath .= (($basePath !== "/") ? "/" : "");
+
+		if (SMEnvironment::GetQueryValue("SMShopCategory") !== null) // Product view - e.g. /shop/Overview or /shop/MyCategory
+		{
+			// Remove /shop suffix from basePath - it's not the real path of the web application.
+			// Use the real path to prevent problems when calling WebServices under /shop/XYZ which would be redirected to / without preserving POST data (htaccess).
+			$basePath = substr($basePath, 0, -5);
+		}
 
 		$dsCallback = $basePath . SMExtensionManager::GetCallbackUrl($this->name, "Callbacks/DataSource");
 		$fsCallback = $basePath . SMExtensionManager::GetCallbackUrl($this->name, "Callbacks/Files");
@@ -257,7 +264,7 @@ class SMShop extends SMExtension
 			$frm = new SMShopFrmConfig($this->context);
 			return $frm->Render();
 		}
-		else
+		else // SMShopCategory
 		{
 			$frm = new SMShopFrmProducts($this->context);
 			return $frm->Render();
