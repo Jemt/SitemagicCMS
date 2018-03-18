@@ -3,11 +3,9 @@
   "version": "3.4.0",
   "description": "User friendly, feature rich, extendable, and customizable Content Management System",
   "main": "index.php",
-  "dependencies": {
-    "fit-ui": "^1.0.15"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "fit-ui": "^1.0.15"
+    "fit-ui": "^1.0.20"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

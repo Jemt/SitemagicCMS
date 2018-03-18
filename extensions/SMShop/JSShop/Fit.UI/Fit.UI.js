@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 0, Patch: 19 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 0, Patch: 20 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -14143,6 +14143,22 @@ Fit.Controls.Input = function(ctlId)
 	// ============================================
 	// Public
 	// ============================================
+
+	/// <function container="Fit.Controls.Input" name="Placeholder" access="public" returns="string">
+	/// 	<description> Get/set value used as a placeholder to indicate expected input on supported browsers </description>
+	/// 	<param name="val" type="string" default="undefined"> If defined, value is set as placeholder </param>
+	/// </function>
+	this.Placeholder = function(val)
+	{
+		Fit.Validation.ExpectString(val, true);
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			input.placeholder = val;
+		}
+
+		return (input.placeholder ? input.placeholder : "");
+	}
 
 	/// <function container="Fit.Controls.Input" name="CheckSpelling" access="public" returns="boolean">
 	/// 	<description> Get/set value indicating whether control should have spell checking enabled (default) or disabled </description>
