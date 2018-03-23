@@ -83,6 +83,7 @@
 			ContinueWithout:	"Fortsæt uden",
 			AddPhoneNumber:		"Tilføj telefonnummer",
 			EnterValidEmail:	"Indtast en gyldig e-mail adresse",
+			EnterValidZipCode:	"Indtast et gyldigt postnummer (tal)",
 			PartialAltAddress:	"Du har kun delvist udfyldt felterne under Alternativ Leveringsadresse - udfyld venligst resten, eller slå Alternativ Leveringsadresse fra"
 		},
 

@@ -215,6 +215,13 @@ JSShop.Presenters.OrderForm = function()
 		txtZipCode.OnBlur(cleanUp);
 		txtZipCode.Width(100, "%");
 
+		if (isContainedInCostCorrections("zipcodeval") === true)
+		{
+			// Make sure zipcode can be parsed to a number (integer) if zipcodeval
+			// is used in cost corrections. Same rule has been applied to txtAltZipCode.
+			txtZipCode.SetValidationExpression(/^\d*$/, lang.EnterValidZipCode);
+		}
+
 		txtCity = new Fit.Controls.Input("JSShopCity");
 		txtCity.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
 		txtCity.Required(true);
@@ -317,6 +324,13 @@ JSShop.Presenters.OrderForm = function()
 		txtAltZipCode.OnBlur(cleanUp);
 		txtAltZipCode.Width(100, "%");
 
+		if (isContainedInCostCorrections("zipcodeval") === true)
+		{
+			// Make sure zipcode can be parsed to a number (integer) if zipcodeval
+			// is used in cost corrections. Same rule has been applied to txtZipCode.
+			txtAltZipCode.SetValidationExpression(/^\d*$/, lang.EnterValidZipCode);
+		}
+
 		txtAltCity = new Fit.Controls.Input("JSShopAltCity");
 		txtAltCity.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
 		txtAltCity.Scope("JSShopOrderForm");
@@ -325,9 +339,7 @@ JSShop.Presenters.OrderForm = function()
 		txtAltCity.OnBlur(cleanUp);
 		txtAltCity.Width(100, "%");
 
-		if ((JSShop.Settings.CostCorrection1 !== null && JSShop.Settings.CostCorrection1.indexOf("promocode") > -1)
-			|| (JSShop.Settings.CostCorrection2 !== null && JSShop.Settings.CostCorrection2.indexOf("promocode") > -1)
-			|| (JSShop.Settings.CostCorrection3 !== null && JSShop.Settings.CostCorrection3.indexOf("promocode") > -1))
+		if (isContainedInCostCorrections("promocode") === true)
 		{
 			txtPromoCode = new Fit.Controls.Input("JSShopPromoCode");
 			txtPromoCode.SetValidationCallback(function(val) { return (val.length <= 30); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
@@ -440,6 +452,25 @@ JSShop.Presenters.OrderForm = function()
 	}
 
 	// Private
+
+	function isContainedInCostCorrections(val)
+	{
+		Fit.Validation.ExpectString(val);
+
+		return (
+			(JSShop.Settings.CostCorrection1 !== null && JSShop.Settings.CostCorrection1.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrection2 !== null && JSShop.Settings.CostCorrection2.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrection3 !== null && JSShop.Settings.CostCorrection3.indexOf(val) > -1) ||
+
+			(JSShop.Settings.CostCorrectionVat1 !== null && JSShop.Settings.CostCorrectionVat1.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrectionVat2 !== null && JSShop.Settings.CostCorrectionVat2.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrectionVat3 !== null && JSShop.Settings.CostCorrectionVat3.indexOf(val) > -1) ||
+
+			(JSShop.Settings.CostCorrectionMessage1 !== null && JSShop.Settings.CostCorrectionMessage1.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrectionMessage2 !== null && JSShop.Settings.CostCorrectionMessage2.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrectionMessage3 !== null && JSShop.Settings.CostCorrectionMessage3.indexOf(val) > -1)
+		);
+	}
 
 	function cleanUp(sender)
 	{

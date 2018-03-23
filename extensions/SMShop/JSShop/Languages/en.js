@@ -83,6 +83,7 @@
 			ContinueWithout:	"Continue without",
 			AddPhoneNumber:		"Add phone number",
 			EnterValidEmail:	"Enter a valid e-mail address",
+			EnterValidZipCode:	"Enter a valid zipcode (number)",
 			PartialAltAddress:	"You have only partially filled out the fields under Alternative Delivery Address - please fill out the remaining fields, or turn off Alternative Delivery Address"
 		},
 
