@@ -59,7 +59,7 @@ class SMStringUtilities
 			$pos = mb_strpos($str, $sch, $pos + 1);
 		}
 
-		return $matches;
+		return array_unique($matches); // Remove dublicates and return
 	}
 
 	/// <function container="base/SMStringUtilities" name="StartsWith" access="public" static="true" returns="boolean">
