@@ -39,16 +39,26 @@ class SMSearchFrmResults implements SMIExtensionForm
 		$search = SMEnvironment::GetQueryValue($this->name . "Value");
 		$output = "";
 
+		// Adjust search value to make it compatible with encoding applied by TinyMCE - otherwise
+		// some characters won't be searchable, and ampersand (&) will match HTML entities (e.g. &lt;)
+
+		$searchTitle = $search;
+		$searchContent = $search;
+		$searchContent = str_replace("&", "&amp;", $searchContent); // TinyMCE encodes & into &amp; - unfortunately this fix breaks HEX entities representing unicode (e.g. &#12345; becomes &amp;#12345;) - fixed below
+		$searchContent = preg_replace('/&amp;(#\d+;)/', "&$1", $searchContent); // Fix HEX entities broken on line above
+		$searchContent = str_replace("<", "&lt;", $searchContent);
+		$searchContent = str_replace(">", "&gt;", $searchContent);
+
 		// Heading
 
 		$heading = null;
 
 		if ($search !== null && $search !== "")
 		{
-			// Notice that htmlspecialchars(..) replaces & with &amp; which breaks encoded characters (e.g. Euro Symbol => &#8364;) - restored below (&amp; => &).
+			// Notice that SMStringUtilities::HtmlEncode(..) replaces & with &amp; which breaks encoded characters (e.g. Euro Symbol => &#8364;) - restored below (&amp; => &).
 
 			$heading = $this->lang->GetTranslation("SearchResults") . ": ";
-			$heading .= str_replace("&amp;", "&", htmlspecialchars($search));
+			$heading .= preg_replace('/&amp;(#\d+;)/', "&$1", SMStringUtilities::HtmlEncode($search));
 		}
 		else
 		{
@@ -70,7 +80,9 @@ class SMSearchFrmResults implements SMIExtensionForm
 
 		$results = "";
 		$title = "";
+		$fallbackTitle = "";
 		$content = "";
+		$fallbackContent = "";
 		$titleMatches = array();
 		$contentMatches = array();
 		$cIdx = -1;
@@ -98,19 +110,16 @@ class SMSearchFrmResults implements SMIExtensionForm
 			$content = str_replace("\n", " ", $content); // Remove normal line breaks - required by RegEx used further down which expects one single line (no /m flag set)
 			$content = str_replace(" ", " ", $content);  // NOTICE: Replacing non-breaking whitespaces (e.g. ALT+Space on Mac) with normal whitespaces
 			$content = str_replace("&nbsp;", " ", $content);
+			$content = str_replace("&#160;", " ", $content); // Since SMCMS 4.4 numeric HTML entities have been used instead of e.g. &nbsp;
+			$content = str_replace("&#126;", "~", $content); // Make sure we can highlight tilde which in SMStringUtilities::Search(..) becomes decoded but remains encoded in original value hence preventing highlighting further down - fixed here
 
 			while (strpos($content, "  ") !== false)
 				$content = str_replace("  ", " ", $content);
 
 			// Search
 
-			// NOTICE: The use of SMStringUtilities::Search(..) is not 100% perfect. The page editor (TinyMCE) seems to turn some ASCII compatible characters into numeric HEX
-			// entities (e.g. ~ which becomes &#126;). These characters will not be returned as HEX entities from SMStringUtilities::Search(..) as only characters extending ASCII is
-			// turned back into HEX entities (matches returned). Fortunately, these situations seems rare - rarely will someone search for such odd characters.
-			// However, the result being that a match on one of these characters will not result in the match being highlighted.
-
-			$titleMatches = SMStringUtilities::Search($title, $search, true);
-			$contentMatches = SMStringUtilities::Search($content, $search, true);
+			$titleMatches = SMStringUtilities::Search($title, $searchTitle, true);
+			$contentMatches = SMStringUtilities::Search($content, $searchContent, true);
 
 			if (count($titleMatches) === 0 && count($contentMatches) === 0)
 				continue;
@@ -133,10 +142,36 @@ class SMSearchFrmResults implements SMIExtensionForm
 
 			// Highlight matching words
 
+			$fallbackTitle = $title;
+
 			foreach ($titleMatches as $titleMatch)
 				$title = str_replace($titleMatch, "<span class=\"SMSearchMatch\">" . $titleMatch . "</span>", $title);
+
+			$fallbackContent = $content;
+
 			foreach ($contentMatches as $contentMatch)
 				$content = str_replace($contentMatch, "<span class=\"SMSearchMatch\">" . $contentMatch . "</span>", $content);
+
+			// If the page contains e.g. an ampersand (&), a hash (#), or a number (e.g 23490) in content or title, then those same values
+			// may be present in HTML or HEX entities and therefore highlighted (replaced above) which will break the entities.
+			// Example page		: About amplifiers &amp; other things
+			// Example search	: amp
+			// Example result	: About <span class="SMSearchMatch">amp</span>lifiers &<span class="SMSearchMatch">amp</span>; other things
+			// Notice how the ampersand is broken because 'amp' was highlighted.
+			// If a broken HEX entity is detected, then don't highlight anything for simplicity. Fortunately this will rarely happen.
+
+			// https://regex101.com/r/DO3vwv/9/
+			$re = '/(&)<span class="SMSearchMatch">([a-z]+;)<\/span>|(&)<span class="SMSearchMatch">([a-z]+)<\/span>([a-z]*;)|(&[a-z]+)<span class="SMSearchMatch">([a-z]*;)<\/span>|(&[a-z]+)<span class="SMSearchMatch">([a-z]*)<\/span>;|<span class="SMSearchMatch">(&)<\/span>([a-z]+;)|<span class="SMSearchMatch">(&[a-z]+)<\/span>([a-z]*;)|<span class="SMSearchMatch">(&#\d+)<\/span>(\d*;)|<span class="SMSearchMatch">(&#)<\/span>(\d+;)|<span class="SMSearchMatch">(&)<\/span>(#\d+;)|(&)<span class="SMSearchMatch">(#\d+;)<\/span>|(&)<span class="SMSearchMatch">(#\d+)<\/span>(\d*;)|(&)<span class="SMSearchMatch">(#)<\/span>(\d+;)|(&#)<span class="SMSearchMatch">(\d+;)<\/span>|(&#)<span class="SMSearchMatch">(\d+)<\/span>(\d*;)|(&#\d+)<span class="SMSearchMatch">(\d*;)<\/span>|(&#\d+)<span class="SMSearchMatch">(\d*)<\/span>(\d*;)/i';
+
+			if (preg_match($re, $title) === 1)
+			{
+				$title = $fallbackTitle;
+			}
+
+			if (preg_match($re, $content) === 1)
+			{
+				$content = $fallbackContent;
+			}
 
 			// Add "read more" link
 
