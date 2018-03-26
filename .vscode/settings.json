@@ -9,5 +9,9 @@
 
     // Trimming
     "files.trimTrailingWhitespace": true,
-    "diffEditor.ignoreTrimWhitespace": false
+    "diffEditor.ignoreTrimWhitespace": false,
+
+    "[javascript]": {
+		"files.encoding": "utf8",
+	}
 }
