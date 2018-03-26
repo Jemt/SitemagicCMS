@@ -90,9 +90,16 @@ class SMShop extends SMExtension
 		$shopLang = ((SMFileSystem::FileExists(dirname(__FILE__) . "/JSShop/Languages/" . $langCode . ".js") === true) ? $langCode : "en");
 
 		// Prepare cookie store
+		// NOTICE: Cookies are separated between the main site (e.g. /Sitemagic) and subsites (e.g. /Sitemagic/sites/test). But if an installation of
+		// Sitemagic (e.g. /Sitemagic) contains another full installation of Sitemagic in a subfolder (e.g. /Sitemagic/AnotherSitemagic), then any cookie
+		// set on the main site (/Sitemagic) will be accessible to the nested Sitemagic installation (/Sitemagic/AnotherSitemagic) - cookies are inherited from top to bottom.
+		// So adding a product to the basket on /Sitemagic will result in the same product being found in the basket for /Sitemagic/AnotherSitemagic. If the product databases
+		// are identical, then the product will show up just fine on the nested site, otherwise an error will be shown because the product details cannot be loaded.
+		// If the nested site defines the basket cookie first, then the main site's basket cookie won't affect the nested site since it's own cookies take precedence.
+		// Obviously this problem could be solved if each Sitemagic installation had unique cookie prefixes rather than just "SMRoot", but we don't want to waste additional characters since cookie storage is limited.
 
 		$cookiePrefix = ((SMEnvironment::IsSubSite() === false) ? "SMRoot" : ""); // Prevent cookies on root site from causing naming conflicts with cookies on subsites
-		$cookiePath = SMEnvironment::GetInstallationPath(); // Prevent /shop virtual directory from being used as cookie path when adding products to basket by forcing cookie path
+		$cookiePath = $basePath; // Used to prevent /shop virtual directory from being used as cookie path when adding products to basket - forcing cookie path to Sitemagic installation path
 
 		// Prepare payment modules
 
