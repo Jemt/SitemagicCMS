@@ -1,6 +1,6 @@
 {
   "name": "sitemagic",
-  "version": "3.4.0",
+  "version": "4.4.0",
   "description": "User friendly, feature rich, extendable, and customizable Content Management System",
   "main": "index.php",
   "dependencies": {},
@@ -23,5 +23,5 @@
   "bugs": {
     "url": "https://github.com/Jemt/SitemagicCMS/issues"
   },
-  "homepage": "https://github.com/Jemt/SitemagicCMS#readme"
+  "homepage": "https://sitemagic.org"
 }
