@@ -22,11 +22,6 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 {
 	Fit.Validation.ExpectDomElement(productList);
 
-	// Load CSS
-
-	if (document.querySelector("link[href*='/Views/ProductList.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
-		Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/ProductList.css");
-
 	// Create Buy buttons
 
 	var buyButtons = document.querySelectorAll(".JSShopBuyButton");
