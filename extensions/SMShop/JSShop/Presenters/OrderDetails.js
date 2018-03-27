@@ -5,6 +5,8 @@ JSShop.Presenters.OrderDetails = function(model)
 {
 	Fit.Validation.ExpectInstance(model, JSShop.Models.Order);
 
+	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
+
 	var view = null;
 	var lang = JSShop.Language.Translations.OrderDetails;
 
@@ -97,19 +99,9 @@ JSShop.Presenters.OrderDetails = function(model)
 		req.Start();*/
 	}
 
-	this.Render = function(toElement)
+	this.GetDomElement = function()
 	{
-		Fit.Validation.ExpectDomElement(toElement, true);
-
-		if (Fit.Validation.IsSet(toElement) === true)
-		{
-			Fit.Dom.Add(toElement, view);
-		}
-		else
-		{
-			var script = document.scripts[document.scripts.length - 1];
-			Fit.Dom.InsertBefore(script, view);
-		}
+		return view;
 	}
 
 	init();

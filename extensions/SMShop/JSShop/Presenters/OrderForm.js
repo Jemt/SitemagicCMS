@@ -3,6 +3,8 @@ if (!window.JSShop)
 
 JSShop.Presenters.OrderForm = function()
 {
+	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
+
 	var view = null;
 	var lang = JSShop.Language.Translations.OrderForm;
 
@@ -437,19 +439,9 @@ JSShop.Presenters.OrderForm = function()
 			lstPaymentMethod.AddSelection(JSShop.Settings.PaymentMethods[0].Title, JSShop.Settings.PaymentMethods[0].Module);*/
 	}
 
-	this.Render = function(toElement)
+	this.GetDomElement = function()
 	{
-		Fit.Validation.ExpectDomElement(toElement, true);
-
-		if (Fit.Validation.IsSet(toElement) === true)
-		{
-			Fit.Dom.Add(toElement, view);
-		}
-		else
-		{
-			var script = document.scripts[document.scripts.length - 1];
-			Fit.Dom.InsertBefore(script, view);
-		}
+		return view;
 	}
 
 	// Private

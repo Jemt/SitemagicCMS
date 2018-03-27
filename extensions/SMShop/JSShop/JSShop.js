@@ -217,6 +217,7 @@ JSShop.Initialize = function(cb)
 			{ source: JSShop.GetPath() + "/Models/OrderEntry.js?CacheKey=" + cacheKey },
 
 			// Load presenters
+			{ source: JSShop.GetPath() + "/Presenters/Base.js?CacheKey=" + cacheKey },
 			{ source: JSShop.GetPath() + "/Presenters/ProductForm.js?CacheKey=" + cacheKey },
 			{ source: JSShop.GetPath() + "/Presenters/ProductList.js?CacheKey=" + cacheKey },
 			{ source: JSShop.GetPath() + "/Presenters/Basket.js?CacheKey=" + cacheKey },

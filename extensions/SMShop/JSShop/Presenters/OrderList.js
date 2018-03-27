@@ -3,6 +3,8 @@ if (!window.JSShop)
 
 JSShop.Presenters.OrderList = function()
 {
+	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
+
 	var view = null;
 	var models = [];
 	var lang = JSShop.Language.Translations.OrderList;
@@ -445,19 +447,9 @@ JSShop.Presenters.OrderList = function()
 		loadData();
 	}
 
-	this.Render = function(toElement)
+	this.GetDomElement = function()
 	{
-		Fit.Validation.ExpectDomElement(toElement, true);
-
-		if (Fit.Validation.IsSet(toElement) === true)
-		{
-			Fit.Dom.Add(toElement, view);
-		}
-		else
-		{
-			var script = document.scripts[document.scripts.length - 1];
-			Fit.Dom.InsertBefore(script, view);
-		}
+		return view;
 	}
 
 	function getStateTitle(state)

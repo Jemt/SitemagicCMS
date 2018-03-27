@@ -3,6 +3,8 @@ if (!window.JSShop)
 
 JSShop.Presenters.ProductForm = function()
 {
+	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
+
 	// MVC
 	var view = null;			// View (ProductForm.html)
 	var models = {};			// All models (products) loaded - associative object array
@@ -522,19 +524,9 @@ JSShop.Presenters.ProductForm = function()
 		});
 	}
 
-	this.Render = function(toElement)
+	this.GetDomElement = function()
 	{
-		Fit.Validation.ExpectDomElement(toElement, true);
-
-		if (Fit.Validation.IsSet(toElement) === true)
-		{
-			Fit.Dom.Add(toElement, view);
-		}
-		else
-		{
-			var script = document.scripts[document.scripts.length - 1];
-			Fit.Dom.InsertBefore(script, view);
-		}
+		return view;
 	}
 
 	// Private

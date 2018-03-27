@@ -3,6 +3,8 @@ if (!window.JSShop)
 
 JSShop.Presenters.Basket = function()
 {
+	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
+
 	var me = this;
 
 	var view = null;
@@ -28,7 +30,7 @@ JSShop.Presenters.Basket = function()
 
 		// Fire OnRender
 
-		Fit.Array.ForEach(onRenderHandlers, function(handler)
+		Fit.Array.ForEach(onRenderHandlers, function(handler) // No handlers set when instance of Basket is created - handlers fire when init() is invoked later when interacting with UI
 		{
 			handler(me);
 		});
@@ -413,7 +415,7 @@ JSShop.Presenters.Basket = function()
 
 							// Fire OnRendered
 
-							Fit.Array.ForEach(onRenderedHandlers, function(handler)
+							Fit.Array.ForEach(onRenderedHandlers, function(handler) // No handlers set when instance of Basket is created - handlers fire when init() is invoked later when interacting with UI
 							{
 								handler(me);
 							});
@@ -528,19 +530,9 @@ JSShop.Presenters.Basket = function()
 		return result;
 	}
 
-	this.Render = function(toElement)
+	this.GetDomElement = function()
 	{
-		Fit.Validation.ExpectDomElement(toElement, true);
-
-		if (Fit.Validation.IsSet(toElement) === true)
-		{
-			Fit.Dom.Add(toElement, view);
-		}
-		else
-		{
-			var script = document.scripts[document.scripts.length - 1];
-			Fit.Dom.InsertBefore(script, view);
-		}
+		return view;
 	}
 
 	this.Update = function()
@@ -551,13 +543,13 @@ JSShop.Presenters.Basket = function()
 		}
 	}
 
-	this.OnRender = function(cb)
+	this.OnRender = function(cb) // Rename! Has nothing to do with rendering! Rename to OnUpdating or something..
 	{
 		Fit.Validation.ExpectFunction(cb);
 		Fit.Array.Add(onRenderHandlers, cb);
 	}
 
-	this.OnRendered = function(cb)
+	this.OnRendered = function(cb) // Rename! Has nothing to do with rendering! Rename to OnUpdated or something..
 	{
 		Fit.Validation.ExpectFunction(cb);
 		Fit.Array.Add(onRenderedHandlers, cb);

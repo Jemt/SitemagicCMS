@@ -3,6 +3,9 @@ if (!window.JSShop)
 
 JSShop.Presenters.Config = function()
 {
+	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
+
+	var view = null;
 	var tpl = null;
 	var config = null;
 	var lang = JSShop.Language.Translations.Config;
@@ -14,7 +17,10 @@ JSShop.Presenters.Config = function()
 		if (document.querySelector("link[href*='/Views/Config.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/Config.css");
 
+		view = document.createElement("div");
+
 		tpl = new Fit.Template(true);
+		tpl.Render(view);
 
 		JSShop.Models.Config.Current.Retrieve(function(sender)
 		{
@@ -64,10 +70,9 @@ JSShop.Presenters.Config = function()
 		});
 	}
 
-	this.Render = function(toElement)
+	this.GetDomElement = function()
 	{
-		Fit.Validation.ExpectDomElement(toElement, true);
-		tpl.Render(toElement);
+		return view;
 	}
 
 	function createTabButton(title, cb)
