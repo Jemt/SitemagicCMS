@@ -63,9 +63,9 @@ class SMShop extends SMExtension
 
 		// Load JS and CSS resources
 
-		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$JavaScript, SMExtensionManager::GetExtensionPath($this->name) . "/JSShop/JSShop.js?version=2" /* Increment version in JSShop.js too */, true);
-		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$JavaScript, SMExtensionManager::GetExtensionPath($this->name) . "/JSShop/Fit.UI/Fit.UI.js", true);
-		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$StyleSheet, SMExtensionManager::GetExtensionPath($this->name) . "/JSShop/Fit.UI/Fit.UI.css", true);
+		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$JavaScript, SMExtensionManager::GetExtensionPath($this->name) . "/JSShop/JSShop.js?CacheKey=" . SMEnvironment::GetVersion() . "&Debug=" . ((SMEnvironment::GetDebugEnabled() === true) ? "true" : "false"), true);
+		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$JavaScript, SMExtensionManager::GetExtensionPath($this->name) . "/JSShop/Fit.UI/Fit.UI" . ((SMEnvironment::GetDebugEnabled() === false) ? ".min" : "") . ".js?Fit&CacheKey=" . SMEnvironment::GetVersion(), true);
+		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$StyleSheet, SMExtensionManager::GetExtensionPath($this->name) . "/JSShop/Fit.UI/Fit.UI" . ((SMEnvironment::GetDebugEnabled() === false) ? ".min" : "") . ".css?CacheKey=" . SMEnvironment::GetVersion(), true);
 
 		// Prepare callbacks
 

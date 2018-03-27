@@ -1,0 +1,32 @@
+#!/bin/bash
+
+if [[ $(pwd) != $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd ) ]] ; then
+	echo "Bash script must be executing within the JSShop folder"
+	exit
+fi
+
+# Bundle Models and Presenters
+
+echo "" > JSShopBundle.temp.js
+
+for file in `ls Models/*.js`
+do
+	cat $file >> JSShopBundle.temp.js
+done
+
+for file in `ls Presenters/*.js`
+do
+	cat $file >> JSShopBundle.temp.js
+done
+
+# Minify
+
+curl -X POST -s --data-urlencode "input@JSShopBundle.temp.js" https://javascript-minifier.com/raw > JSShopBundle.js
+rm JSShopBundle.temp.js
+
+jssize=$(du -k JSShopBundle.js | cut -f 1)	# Usually about 90-100 KB
+if [[ $jssize -lt 50 ]] ; then
+		echo "Minified JSShopBundle seems too small. Please verify content before proceeding!"
+		echo "Press ENTER to continue."
+		read
+fi

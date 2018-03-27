@@ -6,7 +6,7 @@ if (!window.Fit)
 // ======================================================
 
 JSShop = {};
-JSShop._internal = {};
+JSShop._internal = { CacheKey: null, Debug: false };
 
 // Settings
 
@@ -94,8 +94,22 @@ JSShop.Events.OnError = null;
 
 (function()
 {
-	// Find Base URL - e.g. http://server.com/libs/jsshop
+	// Get URL to this script file (e.g. http://server.com/libs/jsshop/JSShop.js?CacheKey=3910)
+	// NOTICE: This will not work if loaded dynamically using a script loader since loading is async,
+	// resulting in the last script reference on the page being fetched which may not be this file.
 	var src = document.scripts[document.scripts.length - 1].src;
+
+	var qs = Fit.Browser.GetQueryString(src);
+
+	// Get CacheKey from script URL if defined
+	var cacheKey = qs.Parameters["CacheKey"];
+	JSShop._internal.CacheKey = (cacheKey ? cacheKey : null);
+
+	// Get Debug flag from script URL if defined
+	var debug = qs.Parameters["Debug"];
+	JSShop._internal.Debug = (debug === "true" ? true : false);
+
+	// Extract Base URL - e.g. http://server.com/libs/jsshop
 	JSShop._internal.BaseUrl = src.substring(0, src.lastIndexOf("/"));
 
 	// Calculate Base Path - e.g. /libs/jsshop
@@ -184,31 +198,46 @@ JSShop.Initialize = function(cb)
 		return;
 	}
 
-	Fit.Events.OnReady(function() // Postpone - dynamic script loader seems to break IEs ability to determine current script block
+	var cacheKey = (JSShop._internal.CacheKey !== null ? JSShop._internal.CacheKey : "0");
+	var resources = null;
+
+	if (JSShop._internal.Debug === true)
 	{
-	var version = "2"; // Increment version in reference to JSShop.js too!
-	Fit.Loader.LoadScripts(
-	[
-		// Load language
-		{ source: JSShop.GetPath() + "/Languages/" + JSShop.Language.Name.toLowerCase() + ".js?version=" + version },
+		resources =
+		[
+			// Load language
+			{ source: JSShop.GetPath() + "/Languages/" + JSShop.Language.Name.toLowerCase() + ".js?CacheKey=" + cacheKey },
 
-		// Load models
-		{ source: JSShop.GetPath() + "/Models/Base.js?version=" + version },
-		{ source: JSShop.GetPath() + "/Models/Config.js?version=" + version },
-		{ source: JSShop.GetPath() + "/Models/Product.js?version=" + version },
-		{ source: JSShop.GetPath() + "/Models/Basket.js?version=" + version },
-		{ source: JSShop.GetPath() + "/Models/Order.js?version=" + version },
-		{ source: JSShop.GetPath() + "/Models/OrderEntry.js?version=" + version },
+			// Load models
+			{ source: JSShop.GetPath() + "/Models/Base.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Models/Config.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Models/Product.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Models/Basket.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Models/Order.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Models/OrderEntry.js?CacheKey=" + cacheKey },
 
-		// Load presenters
-		{ source: JSShop.GetPath() + "/Presenters/ProductForm.js?version=" + version },
-		{ source: JSShop.GetPath() + "/Presenters/ProductList.js?version=" + version },
-		{ source: JSShop.GetPath() + "/Presenters/Basket.js?version=" + version },
-		{ source: JSShop.GetPath() + "/Presenters/OrderForm.js?version=" + version },
-		{ source: JSShop.GetPath() + "/Presenters/OrderList.js?version=" + version },
-		{ source: JSShop.GetPath() + "/Presenters/Config.js?version=" + version }
-	],
-	function(cfgs)
+			// Load presenters
+			{ source: JSShop.GetPath() + "/Presenters/ProductForm.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Presenters/ProductList.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Presenters/Basket.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Presenters/OrderForm.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Presenters/OrderList.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Presenters/Config.js?CacheKey=" + cacheKey }
+		]
+	}
+	else
+	{
+		resources =
+		[
+			// Load language
+			{ source: JSShop.GetPath() + "/Languages/" + JSShop.Language.Name.toLowerCase() + ".js?CacheKey=" + cacheKey },
+
+			// Load bundle including all models and presenters
+			{ source: JSShop.GetPath() + "/JSShopBundle.js?CacheKey=" + cacheKey }
+		]
+	}
+
+	Fit.Loader.LoadScripts(resources, function(cfgs)
 	{
 		JSShop._internal.Initialized = true;
 
@@ -217,6 +246,5 @@ JSShop.Initialize = function(cb)
 		Fit.Language.Translations.Cancel = JSShop.Language.Translations.Common.Cancel;
 
 		cb();
-	});
 	});
 }
