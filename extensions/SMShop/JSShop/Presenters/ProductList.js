@@ -1,5 +1,23 @@
-JSShop.Presenters.ProductList = {};
+if (!window.JSShop)
+	Fit.Validation.ThrowError("JSShop.js must be loaded");
 
+// This is not a real Presenter - it is not extending JSShop.Presenters.Base !
+// Invoking JSShop.Presenters.ProductList.Initialize(domElm) will create Buy and Info buttons in domElm.
+
+// Buy Button example: <span class="JSShopBuyButton" data-ProductId="1003">Buy</span>
+// The DOM element above will be populated with a Buy button and a Unit input field.
+// A Buy Button will add the product to the basket when clicked and ask the user whether to
+// navigate to the basket or continue shopping.
+
+// Info Button example: <span class="JSShopInfoButton" onclick="ShowProductInfo('1003');">Read more</span>
+// The DOM element above will be populated with an Info Button which visually is similar to a Buy Button,
+// but it has no predefined behaviour.
+
+// It's important to understand that JSShop.Presenters.ProductList.Initialize(domElm) only add
+// buttons to make it possible to add products to the basket. The page on which the function is called should
+// already contain all the product information and images necessary for the user to find and buy relevant products.
+
+JSShop.Presenters.ProductList = {};
 JSShop.Presenters.ProductList.Initialize = function(productList)
 {
 	Fit.Validation.ExpectDomElement(productList);
@@ -101,7 +119,7 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 			});
 		});
 
-		// Make button and input the same height
+		// Make button and input align properly on Internet Explorer 11
 		var container = document.createElement("span");
 		b.GetDomElement().style.verticalAlign = "top";
 		i.GetDomElement().style.verticalAlign = "top";
@@ -115,7 +133,7 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 
 	// Create ordinary buttons
 
-	var buttons = document.querySelectorAll(".JSShopButton");
+	var buttons = document.querySelectorAll(".JSShopInfoButton");
 	Fit.Array.ForEach(buttons, function(btn)
 	{
 		var b = new Fit.Controls.Button("SMShopButton" + Fit.Data.CreateGuid());
