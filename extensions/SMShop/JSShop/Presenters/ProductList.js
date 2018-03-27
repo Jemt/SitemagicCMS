@@ -68,7 +68,7 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 				if (JSShop.Settings.BasketUrl !== null)
 				{
 					var cmdOpenBasket = new Fit.Controls.Button("JSShopBasketButton" + Fit.Data.CreateGuid());
-					cmdOpenBasket.Type(Fit.Controls.Button.Type.Info);
+					cmdOpenBasket.Type(Fit.Controls.Button.Type.Default);
 					cmdOpenBasket.Icon("shopping-basket"); // credit-card-alt
 					cmdOpenBasket.Title(JSShop.Language.Translations.ProductList.OpenBasket);
 					cmdOpenBasket.OnClick(function(sender)
@@ -81,7 +81,7 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 				}
 
 				var cmdContinue = new Fit.Controls.Button("JSShopContinueButton" + Fit.Data.CreateGuid());
-				cmdContinue.Type(Fit.Controls.Button.Type.Primary);
+				cmdContinue.Type(Fit.Controls.Button.Type.Default);
 				cmdContinue.Icon("shopping-cart");
 				cmdContinue.Title(JSShop.Language.Translations.ProductList.ContinueShopping);
 				cmdContinue.OnClick(function(sender)
@@ -92,6 +92,7 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 				dialog.AddButton(cmdContinue);
 
 				dialog.Open();
+				cmdContinue.Focused(true);
 			},
 			function()
 			{

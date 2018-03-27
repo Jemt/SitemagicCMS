@@ -347,12 +347,13 @@ JSShop.Presenters.OrderList = function()
 			});
 
 			var dia = new Fit.Controls.Dialog();
-			dia.Content("Vælg venligst format");
+			dia.Content("VÃ¦lg venligst format");
 			dia.Modal(true);
 			dia.AddButton(cmdCsv);
 			dia.AddButton(cmdPdf);
 			dia.AddButton(cmdCancel);
 			dia.Open();
+			cmdCsv.Focused(true);
 		});
 		cmdExport.GetDomElement().title = lang.Export;
 
@@ -657,6 +658,7 @@ JSShop.Presenters.OrderList = function()
 
 		var dia = new Fit.Controls.Dialog();
 		dia.Modal(true);
+		dia.Content("Working on it..");
 		dia.Open();
 
 		var cmdOk = new Fit.Controls.Button("JSShopOrderDetailsOkButton");
@@ -668,6 +670,7 @@ JSShop.Presenters.OrderList = function()
 			dia.Dispose();
 		});
 		dia.AddButton(cmdOk);
+		cmdOk.Focused(true);
 
 		if (document.querySelector("link[href*='/Views/DialogCustomerDetails.css']") === null)
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/DialogCustomerDetails.css");
@@ -732,6 +735,7 @@ JSShop.Presenters.OrderList = function()
 			dia.Dispose();
 		});
 		dia.AddButton(cmdOk);
+		cmdOk.Focused(true);
 
 		if (document.querySelector("link[href*='/Views/DialogOrderEntries.css']") === null)
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/DialogOrderEntries.css");

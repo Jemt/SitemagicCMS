@@ -372,7 +372,7 @@ JSShop.Presenters.OrderForm = function()
 		}
 
 		cmdContinue = new Fit.Controls.Button("JSShopContinue");
-		cmdContinue.Type(Fit.Controls.Button.Type.Success);
+		cmdContinue.Type(Fit.Controls.Button.Type.Primary);
 		cmdContinue.Title(lang.Continue);
 		cmdContinue.OnClick(function(sender)
 		{
@@ -391,7 +391,7 @@ JSShop.Presenters.OrderForm = function()
 				var cmdContinueWithout = new Fit.Controls.Button("JSShopContinueWithoutButton");
 				var cmdGoBack = new Fit.Controls.Button("JSShopGoBackButton");
 
-				cmdContinueWithout.Type(Fit.Controls.Button.Type.Success);
+				cmdContinueWithout.Type(Fit.Controls.Button.Type.Default);
 				cmdContinueWithout.Title(lang.ContinueWithout);
 				cmdContinueWithout.OnClick(function(sender)
 				{
@@ -411,7 +411,7 @@ JSShop.Presenters.OrderForm = function()
 				});
 				dialog.AddButton(cmdContinueWithout);
 
-				cmdGoBack.Type(Fit.Controls.Button.Type.Primary);
+				cmdGoBack.Type(Fit.Controls.Button.Type.Default);
 				cmdGoBack.Title(lang.AddPhoneNumber);
 				cmdGoBack.OnClick(function(sender)
 				{
@@ -422,6 +422,7 @@ JSShop.Presenters.OrderForm = function()
 				dialog.AddButton(cmdGoBack);
 
 				dialog.Open();
+				cmdGoBack.Focused(true);
 				return;
 			}
 
@@ -475,7 +476,7 @@ JSShop.Presenters.OrderForm = function()
 	function cleanUp(sender)
 	{
 		var val = sender.Value();
-		var trimmed = Fit.String.Trim(val.replace(" ", " ")); // Replace non-breaking spaces with spaces (Mac: Alt + Space), and trim value
+		var trimmed = Fit.String.Trim(val.replace("Â ", " ")); // Replace non-breaking spaces with spaces (Mac: Alt + Space), and trim value
 
 		if (trimmed !== sender.Value())
 			sender.Value(trimmed);
