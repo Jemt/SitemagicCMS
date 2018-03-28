@@ -79,7 +79,7 @@ else if ($operation === "Auth") // Step 2: Handle response from PSP - Callback i
 
 	if (SMAttributes::GetAttribute("SMShopSendConfirmationMail") !== null && strtolower(SMAttributes::GetAttribute("SMShopSendConfirmationMail")) === "onpaymentauthorized")
 	{
-		SMShopSendMail($order); // Alternatively called from Callbacks/DSCallbacks/Order.php in case SMShopSendConfirmationMail is set to Immediately
+		SMShopSendMail($order); // Alternatively called from Callbacks/DSCallbacks/Order.php in case SMShopSendConfirmationMail option is set to Immediately
 	}
 }
 else if ($operation === "Capture") // Called from JSShop

@@ -316,7 +316,7 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 
 	if (SMAttributes::GetAttribute("SMShopSendConfirmationMail") === null || strtolower(SMAttributes::GetAttribute("SMShopSendConfirmationMail")) === "immediately")
 	{
-		SMShopSendMail($order); // Alternatively called Callbacks/Payment.callback.php in case SMShopSendConfirmationMail is set to OnPaymentAuthorized
+		SMShopSendMail($order); // Alternatively called from Callbacks/Payment.callback.php in case SMShopSendConfirmationMail option is set to OnPaymentAuthorized
 	}
 }
 
