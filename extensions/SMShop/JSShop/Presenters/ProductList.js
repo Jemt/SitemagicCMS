@@ -13,6 +13,9 @@ if (!window.JSShop)
 // The DOM element above will be populated with an Info Button which visually is similar to a Buy Button,
 // but it has no predefined behaviour.
 
+// Furthermore the class JSShopLocalizedNumber can be used to localize numbers (decimal separator).
+// Example: <span class="JSShopLocalizedNumber">100.25</span>
+
 // It's important to understand that JSShop.Presenters.ProductList.Initialize(domElm) only add
 // buttons to make it possible to add products to the basket. The page on which the function is called should
 // already contain all the product information and images necessary for the user to find and buy relevant products.

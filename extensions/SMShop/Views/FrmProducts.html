@@ -1,32 +1,32 @@
-<div id="JSShopProductList" class="JSShopProductList">
+<div id="SMShopProductList" class="SMShopProductList">
 	<!-- REPEAT Products -->
-	<div class="JSShopProduct" id="JSShopProduct{[Id]}">
-		<div class="JSShopProductHeader">
-			<i class="JSShopCloseDialogButton fa fa-times-circle" onclick="JSShopCloseProductDialog();"></i>
-			<span class="JSShopProductTitle">{[Title]}</span>
+	<div class="SMShopProduct" id="SMShopProduct{[Id]}">
+		<div class="SMShopProductHeader">
+			<i class="SMShopCloseDialogButton fa fa-times-circle"></i>
+			<span class="SMShopProductTitle">{[Title]}</span>
 		</div>
-		<div class="JSShopProductImages">
+		<div class="SMShopProductImages">
 			<!-- REPEAT Images{[Id]} -->
 			<img src="{[Image]}" alt="">
 			<!-- /REPEAT Images{[Id]} -->
-			<i class="JSShopPrevImageButton fa fa-chevron-circle-left" onclick="JSShopSwitchImage(this.parentElement, 'prev');"></i>
-			<i class="JSShopNextImageButton fa fa-chevron-circle-right" onclick="JSShopSwitchImage(this.parentElement, 'next');"></i>
-			<span class="JSShopProductImagePlaceHolder fa-stack fa-lg">
+			<i class="SMShopPrevImageButton fa fa-chevron-circle-left" onclick="SMShopSwitchImage(this.parentElement, 'prev');"></i>
+			<i class="SMShopNextImageButton fa fa-chevron-circle-right" onclick="SMShopSwitchImage(this.parentElement, 'next');"></i>
+			<span class="SMShopProductImagePlaceHolder fa-stack fa-lg">
 				<i class="fa fa-camera fa-stack-1x"></i>
 				<i class="fa fa-circle-thin fa-stack-2x"></i>
 			</span>
 		</div>
-		<div class="JSShopProductBody">
-			<span class="JSShopProductDescription">{[Description]}</span>
+		<div class="SMShopProductBody">
+			<span class="SMShopProductDescription">{[Description]}</span>
 		</div>
-		<div class="JSShopProductFooter">
-			<span class="JSShopProductWeight" data-weight="{[Weight]}" data-unit="{[WeightUnit]}"><span class="JSShopLocalizedNumber">{[Weight]}</span> {[WeightUnit]}.</span>
-			<span class="JSShopProductDeliveryTime" data-delivery="{[DeliveryTime]}">{[DeliveryTime]}</span>
-			<span class="JSShopProductFullPrice" data-currency="{[Currency]}" data-fullprice="{[FullPrice]}">{[Currency]} <span class="JSShopLocalizedNumber">{[FullPrice]}</span></span>
-			<span class="JSShopProductPriceInfo" data-price="{[Price]}" data-vat="{[Vat]}">({[Currency]} <span class="JSShopLocalizedNumber">{[Price]}</span> + <span class="JSShopLocalizedNumber">{[Vat]}</span>%)</span>
-			<div class="JSShopProductButtons">
-				<span class="JSShopButton JSShopInfoButton" onclick="JSShopOpenProductDialog(this.parentElement.parentElement.parentElement);">{[ReadMore]}</span>
-				<span class="JSShopButton JSShopBuyButton" data-ProductId="{[Id]}">{[Buy]}</span>
+		<div class="SMShopProductFooter">
+			<span class="SMShopProductWeight" data-weight="{[Weight]}" data-unit="{[WeightUnit]}"><span class="JSShopLocalizedNumber">{[Weight]}</span> {[WeightUnit]}.</span>
+			<span class="SMShopProductDeliveryTime" data-delivery="{[DeliveryTime]}">{[DeliveryTime]}</span>
+			<span class="SMShopProductFullPrice" data-currency="{[Currency]}" data-fullprice="{[FullPrice]}">{[Currency]} <span class="JSShopLocalizedNumber">{[FullPrice]}</span></span>
+			<span class="SMShopProductPriceInfo" data-price="{[Price]}" data-vat="{[Vat]}">({[Currency]} <span class="JSShopLocalizedNumber">{[Price]}</span> + <span class="JSShopLocalizedNumber">{[Vat]}</span>%)</span>
+			<div class="SMShopProductButtons">
+				<span class="SMShopButton JSShopInfoButton" onclick="SMShopOpenProductDialog(this.parentElement.parentElement.parentElement);">{[ReadMore]}</span>
+				<span class="SMShopButton JSShopBuyButton" data-ProductId="{[Id]}">{[Buy]}</span>
 			</div>
 		</div>
 
@@ -41,64 +41,73 @@
 </div>
 
 <script type="text/javascript">
-function JSShopOpenProductDialog(prod)
+function SMShopOpenProductDialog(prod)
 {
-	if (prod.style.cssText !== "")
-		return; // Already open
-
 	// Add placeholder - product is to be taken out of flow
 
 	var placeholder = Fit.Dom.CreateElement(prod.outerHTML);
 	Fit.Dom.InsertBefore(prod, placeholder);
 
-	// Flow product on top of product list
-
-	Fit.Dom.AddClass(prod, "JSShopProductDialog");
-	prod.style.cssText = "top: " + (Fit.Browser.GetScrollPosition().Y + 30) + "px";
-
 	// Background layer
 
-	var layer = Fit.Dom.CreateElement("<div id='JSShopBackgroundLayer' class='JSShopBackgroundLayer'></div>");
-	Fit.Events.AddHandler(layer, "click", function()
+	var layer = Fit.Dom.CreateElement("<div id='SMShopBackgroundLayer' class='SMShopBackgroundLayer'></div>");
+	Fit.Events.AddHandler(layer, "click", function(e)
 	{
+		var target = Fit.Events.GetTarget(e);
+
+		if (target !== layer && Fit.Dom.HasClass(target, "SMShopCloseDialogButton") === false)
+			return; // Cancel - only close if user clicked on layer or close button
+
+		document.body.style.overflow = "";
+		document.documentElement.style.overflow = "";
+
+		Fit.Dom.InsertAfter(placeholder, prod);
 		Fit.Dom.Remove(placeholder);
 		Fit.Dom.Remove(layer);
 
 		Fit.Array.ForEach(prod.getElementsByTagName("img"), function(img)
 		{
-			img.style.display = ""; // Set by JSShopSwitchImage function - reset to return control to CSS
+			img.style.display = ""; // Set by SMShopSwitchImage function - reset to return control to CSS
 		});
 
-		Fit.Dom.RemoveClass(prod, "JSShopProductDialog");
-		prod.style.cssText = "";
+		Fit.Dom.RemoveClass(prod, "SMShopProductDialog");
 
 		var qs = Fit.Browser.GetQueryString();
 		if (qs.Anchor !== null)
-			location.href = qs.Url.replace("#" + qs.Anchor, "#");
+			location.href = qs.Url.replace("#" + qs.Anchor, "#_"); // Using #_ rather than # to prevent page from scrolling to top
 	});
 	Fit.Dom.Add(document.body, layer);
+
+	// Transform product card into product dialog
+
+	Fit.Dom.AddClass(prod, "SMShopProductDialog");
+
+	// Move product inside scrollable background layer and disable scrolling on page to prevent having multiple scrollbars visible
+
+	Fit.Dom.Add(layer, prod);
+
+	// Scrolling can be enabled for both the <html> and <body>.
+	// Unfortunately this will make the content move slightly to the right when the scrollbar disappears.
+	// But it also have the advantage that the user only scrolls the product dialog, not the entire page.
+	// So when the dialog is closed, the user is returned to the exact same scroll position as before.
+	document.body.style.overflow = "hidden";
+	document.documentElement.style.overflow = "hidden";
 
 	// Add Product ID to URL
 
 	var qs = Fit.Browser.GetQueryString();
 	var url = ((qs.Anchor !== null) ? qs.Url.replace("#" + qs.Anchor, "") : qs.Url);
-	url += "#" + prod.id.replace("JSShopProduct", "");
+	url += "#" + prod.id.replace("SMShopProduct", "");
 
 	location.href = url;
 }
 
-function JSShopCloseProductDialog()
-{
-	var layer = document.getElementById("JSShopBackgroundLayer");
-	layer.click();
-}
-
-function JSShopSwitchImage(imageContainer, direction)
+function SMShopSwitchImage(imageContainer, direction)
 {
 	var images = imageContainer.getElementsByTagName("img");
 
 	var visible = null;
-	var next = null;
+	var nextImage = null;
 
 	for (var i = 0 ; i < images.length ; i++)
 	{
@@ -126,10 +135,10 @@ function JSShopSwitchImage(imageContainer, direction)
 
 	if (qs.Anchor !== null)
 	{
-		var prod = document.getElementById("JSShopProduct" + qs.Anchor);
+		var prod = document.getElementById("SMShopProduct" + qs.Anchor);
 
 		if (prod !== null)
-			JSShopOpenProductDialog(prod);
+			SMShopOpenProductDialog(prod);
 	}
 })();
 </script>

@@ -94,9 +94,9 @@ class SMShopFrmProducts implements SMIExtensionForm
 
 		$extPath = SMExtensionManager::GetExtensionPath($this->context->GetExtensionName());
 
-		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$StyleSheet, $extPath . "/JSShop/Views/ProductList.css", true);
+		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$StyleSheet, $extPath . "/Views/FrmProducts.css", true);
 
-		$view = new SMTemplate($extPath . "/JSShop/Views/ProductList.html");
+		$view = new SMTemplate($extPath . "/Views/FrmProducts.html");
 		$this->lowerCasePlaceHolders($view); // Data in DataSource uses lowercase keys, so place holders must use the same casing
 		$view->ReplaceTagsRepeated("Products", $products);
 
@@ -127,7 +127,7 @@ class SMShopFrmProducts implements SMIExtensionForm
 
 		JSShop.Initialize(function()
 		{
-			JSShop.Presenters.ProductList.Initialize(document.getElementById('JSShopProductList'));
+			JSShop.Presenters.ProductList.Initialize(document.getElementById('SMShopProductList'));
 		});
 
 		</script>
