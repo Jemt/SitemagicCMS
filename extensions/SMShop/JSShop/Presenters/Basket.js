@@ -17,8 +17,8 @@ JSShop.Presenters.Basket = function()
 	var custData1 = "";
 	var custData2 = "";
 	var custData3 = "";
-	var onRenderHandlers = [];
-	var onRenderedHandlers = [];
+	var onUpdateHandlers = [];
+	var onUpdatedHandlers = [];
 
 	var result = { Price: -1, Vat: -1 };
 
@@ -28,9 +28,9 @@ JSShop.Presenters.Basket = function()
 	{
 		var items = basket.GetItems();
 
-		// Fire OnRender
+		// Fire OnUpdate
 
-		Fit.Array.ForEach(onRenderHandlers, function(handler) // No handlers set when instance of Basket is created - handlers fire when init() is invoked later when interacting with UI
+		Fit.Array.ForEach(onUpdateHandlers, function(handler) // No handlers set when instance of Basket is created - handlers fire when init() is invoked later when interacting with UI
 		{
 			handler(me);
 		});
@@ -413,9 +413,9 @@ JSShop.Presenters.Basket = function()
 							if (weightUnitError === true)
 								Fit.Controls.Dialog.Alert("Error - buying products with different weight units is not supported!");
 
-							// Fire OnRendered
+							// Fire OnUpdated
 
-							Fit.Array.ForEach(onRenderedHandlers, function(handler) // No handlers set when instance of Basket is created - handlers fire when init() is invoked later when interacting with UI
+							Fit.Array.ForEach(onUpdatedHandlers, function(handler) // No handlers set when instance of Basket is created - handlers fire when init() is invoked later when interacting with UI
 							{
 								handler(me);
 							});
@@ -543,16 +543,16 @@ JSShop.Presenters.Basket = function()
 		}
 	}
 
-	this.OnRender = function(cb) // Rename! Has nothing to do with rendering! Rename to OnUpdating or something..
+	this.OnUpdate = function(cb)
 	{
 		Fit.Validation.ExpectFunction(cb);
-		Fit.Array.Add(onRenderHandlers, cb);
+		Fit.Array.Add(onUpdateHandlers, cb);
 	}
 
-	this.OnRendered = function(cb) // Rename! Has nothing to do with rendering! Rename to OnUpdated or something..
+	this.OnUpdated = function(cb)
 	{
 		Fit.Validation.ExpectFunction(cb);
-		Fit.Array.Add(onRenderedHandlers, cb);
+		Fit.Array.Add(onUpdatedHandlers, cb);
 	}
 
 	function expressionsContain(str)

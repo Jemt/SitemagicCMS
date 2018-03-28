@@ -82,11 +82,11 @@ class SMShopFrmBasket implements SMIExtensionForm
 
 			var prevPricing = null;
 
-			b.OnRender(function(sender)
+			b.OnUpdate(function(sender)
 			{
 				cmdContinue.Enabled(false);
 			});
-			b.OnRendered(function(sender)
+			b.OnUpdated(function(sender)
 			{
 				if (prevPricing !== null && Fit.Core.IsEqual(prevPricing, b.GetPricing()) === false)
 					Fit.Controls.Dialog.Alert('" . $this->lang->GetTranslation("BasketUpdated") . "');
