@@ -191,27 +191,27 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 	(
 		array
 		(
-			"Expression"			=> $config->GetEntry("CostCorrection1"),
-			"Vat"					=> $config->GetEntry("CostCorrectionVat1"),
-			"Msg"					=> $config->GetEntry("CostCorrectionMessage1"),
+			"Expression"			=> $config->GetEntryOrEmpty("CostCorrection1"),
+			"Vat"					=> $config->GetEntryOrEmpty("CostCorrectionVat1"),
+			"Msg"					=> $config->GetEntryOrEmpty("CostCorrectionMessage1"),
 			"CostCorrectionExVat"	=> 0,
 			"CostCorrectionVat"		=> 0,
 			"CostCorrectionMsg"		=> ""
 		),
 		array
 		(
-			"Expression"			=> $config->GetEntry("CostCorrection2"),
-			"Vat"					=> $config->GetEntry("CostCorrectionVat2"),
-			"Msg"					=> $config->GetEntry("CostCorrectionMessage2"),
+			"Expression"			=> $config->GetEntryOrEmpty("CostCorrection2"),
+			"Vat"					=> $config->GetEntryOrEmpty("CostCorrectionVat2"),
+			"Msg"					=> $config->GetEntryOrEmpty("CostCorrectionMessage2"),
 			"CostCorrectionExVat"	=> 0,
 			"CostCorrectionVat"		=> 0,
 			"CostCorrectionMsg"		=> ""
 		),
 		array
 		(
-			"Expression"			=> $config->GetEntry("CostCorrection3"),
-			"Vat"					=> $config->GetEntry("CostCorrectionVat3"),
-			"Msg"					=> $config->GetEntry("CostCorrectionMessage3"),
+			"Expression"			=> $config->GetEntryOrEmpty("CostCorrection3"),
+			"Vat"					=> $config->GetEntryOrEmpty("CostCorrectionVat3"),
+			"Msg"					=> $config->GetEntryOrEmpty("CostCorrectionMessage3"),
 			"CostCorrectionExVat"	=> 0,
 			"CostCorrectionVat"		=> 0,
 			"CostCorrectionMsg"		=> ""

@@ -93,7 +93,7 @@ function SMShopGetConfiguration()
 	for ($i = 1 ; $i <= 3 ; $i++)
 	{
 		$costCorrections .= (($costCorrections !== "") ? ", " : "");
-		$costCorrections .= '{ "CostCorrection": "' . SMStringUtilities::JsonEncode($configuration->GetEntry("CostCorrection" . $i)) . '", "Vat": "' . SMStringUtilities::JsonEncode($configuration->GetEntry("CostCorrectionVat" . $i)) . '", "Message": "' . SMStringUtilities::JsonEncode($configuration->GetEntry("CostCorrectionMessage" . $i)) . '" }';
+		$costCorrections .= '{ "CostCorrection": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("CostCorrection" . $i)) . '", "Vat": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("CostCorrectionVat" . $i)) . '", "Message": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("CostCorrectionMessage" . $i)) . '" }';
 	}
 
 	// Return data as JSON
