@@ -81,7 +81,7 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 				dialog.Modal(true);
 				dialog.Content("<b>" + JSShop.Language.Translations.ProductList.ProductAdded + "</b><br><br>" + i.Value() + " x " + p.Title());
 
-				if (JSShop.Settings.BasketUrl !== null)
+				if (JSShop.Settings.BasketUrl)
 				{
 					var cmdOpenBasket = new Fit.Controls.Button("JSShopBasketButton" + Fit.Data.CreateGuid());
 					cmdOpenBasket.Type(Fit.Controls.Button.Type.Default);

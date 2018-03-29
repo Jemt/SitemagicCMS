@@ -367,7 +367,7 @@ JSShop.Presenters.OrderForm = function()
 			});
 		}
 
-		if (JSShop.Settings.TermsUrl !== null && JSShop.Settings.TermsUrl !== "")
+		if (JSShop.Settings.TermsUrl)
 		{
 			chkAcceptTerms = new Fit.Controls.CheckBox("JSShopAcceptTerms");
 			chkAcceptTerms.Label(lang.AcceptTerms);
@@ -535,7 +535,7 @@ JSShop.Presenters.OrderForm = function()
 		{
 			JSShop.Models.Basket.Clear();
 
-			if (JSShop.Settings.PaymentUrl !== null && JSShop.Settings.PaymentUrl !== "")
+			if (JSShop.Settings.PaymentUrl)
 			{
 				location.href = JSShop.Settings.PaymentUrl + ((JSShop.Settings.PaymentUrl.indexOf("?") === -1) ? "?" : "&") + "OrderId=" + order.Id();
 			}

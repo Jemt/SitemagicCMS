@@ -169,7 +169,7 @@ JSShop.Models.Order = function(orderId)
 		Fit.Validation.ExpectFunction(cbSuccess);
 		Fit.Validation.ExpectFunction(cbFailure, true);
 
-		if (JSShop.Settings.PaymentCaptureUrl === null || JSShop.Settings.PaymentCaptureUrl === "")
+		if (!JSShop.Settings.PaymentCaptureUrl)
 		{
 			if (Fit.Validation.IsSet(cbFailure) === true)
 				cbFailure(me);
@@ -200,7 +200,7 @@ JSShop.Models.Order = function(orderId)
 		Fit.Validation.ExpectFunction(cbSuccess);
 		Fit.Validation.ExpectFunction(cbFailure, true);
 
-		if (JSShop.Settings.PaymentCancelUrl === null || JSShop.Settings.PaymentCancelUrl === "")
+		if (!JSShop.Settings.PaymentCancelUrl)
 		{
 			if (Fit.Validation.IsSet(cbFailure) === true)
 				cbFailure(null, me);
@@ -231,7 +231,7 @@ JSShop.Models.Order = function(orderId)
 		Fit.Validation.ExpectFunction(cbSuccess);
 		Fit.Validation.ExpectFunction(cbFailure, true);
 
-		if (JSShop.Settings.SendInvoiceUrl === null || JSShop.Settings.SendInvoiceUrl === "")
+		if (!JSShop.Settings.SendInvoiceUrl)
 		{
 			if (Fit.Validation.IsSet(cbFailure) === true)
 				cbFailure(null, me);

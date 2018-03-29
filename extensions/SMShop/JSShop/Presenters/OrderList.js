@@ -417,7 +417,7 @@ JSShop.Presenters.OrderList = function()
 		});
 		cmdReject.GetDomElement().title = lang.Reject;
 
-		if (JSShop.Settings.ConfigUrl !== null)
+		if (JSShop.Settings.ConfigUrl)
 		{
 			cmdConfig = new Fit.Controls.Button("JSShopConfigButton");
 			cmdConfig.Icon("fa-cog");
