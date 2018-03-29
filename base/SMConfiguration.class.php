@@ -90,6 +90,18 @@ class SMConfiguration
 		return $this->getValue($entry);
 	}
 
+	/// <function container="base/SMConfiguration" name="GetEntryOrEmpty" access="public" returns="string">
+	/// 	<description> Get configuration value. Returns value if found, otherwise an empty string. </description>
+	/// 	<param name="entry" type="string"> Configuration entry name </param>
+	/// </function>
+	public function GetEntryOrEmpty($entry)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "entry", $entry, SMTypeCheckType::$String);
+
+		$val = $this->getValue($entry);
+		return (($val !== null) ? $val : "");
+	}
+
 	/// <function container="base/SMConfiguration" name="GetEntries" access="public" returns="string[]">
 	/// 	<description> Get all configuration entry keys </description>
 	/// </function>

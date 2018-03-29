@@ -451,17 +451,17 @@ JSShop.Presenters.OrderForm = function()
 		Fit.Validation.ExpectString(val);
 
 		return (
-			(JSShop.Settings.CostCorrection1 !== null && JSShop.Settings.CostCorrection1.indexOf(val) > -1) ||
-			(JSShop.Settings.CostCorrection2 !== null && JSShop.Settings.CostCorrection2.indexOf(val) > -1) ||
-			(JSShop.Settings.CostCorrection3 !== null && JSShop.Settings.CostCorrection3.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrection1 && JSShop.Settings.CostCorrection1.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrection2 && JSShop.Settings.CostCorrection2.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrection3 && JSShop.Settings.CostCorrection3.indexOf(val) > -1) ||
 
-			(JSShop.Settings.CostCorrectionVat1 !== null && JSShop.Settings.CostCorrectionVat1.indexOf(val) > -1) ||
-			(JSShop.Settings.CostCorrectionVat2 !== null && JSShop.Settings.CostCorrectionVat2.indexOf(val) > -1) ||
-			(JSShop.Settings.CostCorrectionVat3 !== null && JSShop.Settings.CostCorrectionVat3.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrectionVat1 && JSShop.Settings.CostCorrectionVat1.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrectionVat2 && JSShop.Settings.CostCorrectionVat2.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrectionVat3 && JSShop.Settings.CostCorrectionVat3.indexOf(val) > -1) ||
 
-			(JSShop.Settings.CostCorrectionMessage1 !== null && JSShop.Settings.CostCorrectionMessage1.indexOf(val) > -1) ||
-			(JSShop.Settings.CostCorrectionMessage2 !== null && JSShop.Settings.CostCorrectionMessage2.indexOf(val) > -1) ||
-			(JSShop.Settings.CostCorrectionMessage3 !== null && JSShop.Settings.CostCorrectionMessage3.indexOf(val) > -1)
+			(JSShop.Settings.CostCorrectionMessage1 && JSShop.Settings.CostCorrectionMessage1.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrectionMessage2 && JSShop.Settings.CostCorrectionMessage2.indexOf(val) > -1) ||
+			(JSShop.Settings.CostCorrectionMessage3 && JSShop.Settings.CostCorrectionMessage3.indexOf(val) > -1)
 		);
 	}
 

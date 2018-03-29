@@ -112,11 +112,7 @@ JSShop.Models.Product = function(itemId)
 		if (me.DiscountExpression() === "")
 			return 0.0;
 
-		var result = calculateExpression(units, me.DiscountExpression(), function(res)
-		{
-			var isNumber = /^\-?([0-9]+(\.[0-9]+)?)$/.test(res.toString()); // Both positive and negative values are allowed
-			return (isNumber === true && typeof(res) === "number");
-		});
+		var result = calculateExpression(units, me.DiscountExpression(), "number");
 
 		return result;
 	}
@@ -128,19 +124,34 @@ JSShop.Models.Product = function(itemId)
 		if (me.DiscountMessage() === "")
 			return "";
 
-		var result = calculateExpression(units, me.DiscountMessage(), function(res)
-		{
-			return (typeof(res) === "string" && Fit.String.StripHtml(res) === res);
-		});
+		var result = calculateExpression(units, me.DiscountMessage(), "string");
 
 		return result;
 	}
 
-	function calculateExpression(units, expression, resultValidationCallback)
+	function calculateExpression(units, expression, returnType)
 	{
 		Fit.Validation.ExpectInteger(units);
-		Fit.Validation.ExpectStringValue(expression);
-		Fit.Validation.ExpectFunction(resultValidationCallback);
+		Fit.Validation.ExpectString(expression);
+		Fit.Validation.ExpectStringValue(returnType);
+
+		// Allow empty expression string
+
+		if (expression === "")
+		{
+			if (returnType === "number")
+			{
+				return 0.0; //expression = "0.0";
+			}
+			else if (returnType === "string")
+			{
+				return ""; //expression = "''";
+			}
+			else
+			{
+				throw "InvalidReturnType: Return type must be either 'string' or 'number'";
+			}
+		}
 
 		var ex = expression;
 
@@ -187,8 +198,24 @@ JSShop.Models.Product = function(itemId)
 		if (typeof(result) === "string")
 			result = Fit.String.EncodeHtml(result);
 
-		if (resultValidationCallback(result) === false)
-			throw "InvalidExpressionResult: Expression did not produce a valid value";
+		var isValid = false;
+
+		if (returnType === "number")
+		{
+			isValid = /^\-?([0-9]+(\.[0-9]+)?)$/.test(result.toString()); // Prevent values such as 3.1580800726582476e-21 - both positive and negative values are allowed
+			isValid = (isValid === true && typeof(result) === "number");
+		}
+		else if (returnType === "string")
+		{
+			isValid = (typeof(result) === "string");
+		}
+		else
+		{
+			throw "InvalidReturnType: Return type must be either 'string' or 'number'";
+		}
+
+		if (isValid === false)
+			throw "InvalidExpressionResult: Expression did not produce a valid value of type '" + returnType + "'";
 
 		return result;
 	}

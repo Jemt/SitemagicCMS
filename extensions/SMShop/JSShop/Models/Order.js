@@ -106,76 +106,59 @@ JSShop.Models.Order = function(orderId)
 		return urls;
 	}
 
-	function calculateNumber(expr) // Used ?
+	function calculateNumber(expr)
 	{
-		//return JSShop.Models.Order.CalculateCostCorrection(me.Price(), me.Vat(), me.Currency(), me.Weight(), me.WeightUnit(), ((me.AltZipCode() !== "") ? me.AltZipCode() : me.ZipCode()), me.PaymentMethod(), me.CustData1(), me.CustData2(), me.CustData3(), expr, "number");
 		return JSShop.Models.Order.CalculateExpression(me.Price(), me.Vat(), me.Currency(), me.Weight(), me.WeightUnit(), ((me.AltZipCode() !== "") ? me.AltZipCode() : me.ZipCode()), me.PaymentMethod(), me.PromoCode(), me.CustData1(), me.CustData2(), me.CustData3(), expr, "number");
-
-		/*var result = JSShop.Models.Order.CalculateCostCorrection(me.Price(), me.Vat(), me.Currency(), me.Weight(), me.WeightUnit(), ((me.AltZipCode() !== "") ? me.AltZipCode() : me.ZipCode()), me.PaymentMethod(), me.CustData1(), me.CustData2(), me.CustData3(), expr, function(res)
-		{
-			var isNumber = /^\-?([0-9]+(\.[0-9]+)?)$/.test(res.toString()); // Prevent values such as 3.1580800726582476e-21 - both positive and negative values are allowed
-			return (isNumber === true && typeof(res) === "number");
-		});
-
-		return result;*/
 	}
 
-	function calculateString(expr) // Used ?
+	function calculateString(expr)
 	{
-		//return JSShop.Models.Order.CalculateCostCorrection(me.Price(), me.Vat(), me.Currency(), me.Weight(), me.WeightUnit(), ((me.AltZipCode() !== "") ? me.AltZipCode() : me.ZipCode()), me.PaymentMethod(), me.CustData1(), me.CustData2(), me.CustData3(), expr, "string");
 		return JSShop.Models.Order.CalculateExpression(me.Price(), me.Vat(), me.Currency(), me.Weight(), me.WeightUnit(), ((me.AltZipCode() !== "") ? me.AltZipCode() : me.ZipCode()), me.PaymentMethod(), me.PromoCode(), me.CustData1(), me.CustData2(), me.CustData3(), expr, "string");
-
-		/*var result = JSShop.Models.Order.CalculateCostCorrection(me.Price(), me.Vat(), me.Currency(), me.Weight(), me.WeightUnit(), ((me.AltZipCode() !== "") ? me.AltZipCode() : me.ZipCode()), me.PaymentMethod(), me.CustData1(), me.CustData2(), me.CustData3(), expr, function(res)
-		{
-			return (typeof(res) === "string");
-		});
-
-		return result;*/
 	}
 
 	this.CalculateCostCorrection1 = function()
 	{
-		return calculateNumber(JSShop.Settings.CostCorrection1);
+		return calculateNumber(JSShop.Settings.CostCorrection1 ? JSShop.Settings.CostCorrection1 : "");
 	}
 
 	this.CalculateCostCorrectionVat1 = function()
 	{
-		return calculateNumber(JSShop.Settings.CostCorrectionVat1);
+		return calculateNumber(JSShop.Settings.CostCorrectionVat1 ? JSShop.Settings.CostCorrectionVat1 : "");
 	}
 
 	this.CalculateCostCorrectionMessage1 = function()
 	{
-		calculateString(JSShop.Settings.CostCorrectionMessage1);
+		return calculateString(JSShop.Settings.CostCorrectionMessage1 ? JSShop.Settings.CostCorrectionMessage1 : "");
 	}
 
 	this.CalculateCostCorrection2 = function()
 	{
-		return calculateNumber(JSShop.Settings.CostCorrection2);
+		return calculateNumber(JSShop.Settings.CostCorrection2 ? JSShop.Settings.CostCorrection2 : "");
 	}
 
 	this.CalculateCostCorrectionVat2 = function()
 	{
-		return calculateNumber(JSShop.Settings.CostCorrectionVat2);
+		return calculateNumber(JSShop.Settings.CostCorrectionVat2 ? JSShop.Settings.CostCorrectionVat2 : "");
 	}
 
 	this.CalculateCostCorrectionMessage2 = function()
 	{
-		calculateString(JSShop.Settings.CostCorrectionMessage2);
+		return calculateString(JSShop.Settings.CostCorrectionMessage2 ? JSShop.Settings.CostCorrectionMessage2 : "");
 	}
 
 	this.CalculateCostCorrection3 = function()
 	{
-		return calculateNumber(JSShop.Settings.CostCorrection3);
+		return calculateNumber(JSShop.Settings.CostCorrection3 ? JSShop.Settings.CostCorrection3 : "");
 	}
 
 	this.CalculateCostCorrectionVat3 = function()
 	{
-		return calculateNumber(JSShop.Settings.CostCorrectionVat3);
+		return calculateNumber(JSShop.Settings.CostCorrectionVat3 ? JSShop.Settings.CostCorrectionVat3 : "");
 	}
 
 	this.CalculateCostCorrectionMessage3 = function()
 	{
-		calculateString(JSShop.Settings.CostCorrectionMessage3);
+		return calculateString(JSShop.Settings.CostCorrectionMessage3 ? JSShop.Settings.CostCorrectionMessage3 : "");
 	}
 
 	this.CapturePayment = function(cbSuccess, cbFailure)
@@ -303,7 +286,7 @@ JSShop.Models.Order.RetrieveAll = function(search, fromTimestamp, toTimestamp, c
 
 	JSShop.Models.Base.RetrieveAll(JSShop.Models.Order, "Id", or, cbSuccess, cbFailure);
 }
-JSShop.Models.Order.CalculateExpression = function(price, vat, currency, weight, weightUnit, zipCode, paymentMethod, promoCode, custData1, custData2, custData3, expression, returnType/*, resultValidationCallback*/)
+JSShop.Models.Order.CalculateExpression = function(price, vat, currency, weight, weightUnit, zipCode, paymentMethod, promoCode, custData1, custData2, custData3, expression, returnType)
 {
 	Fit.Validation.ExpectNumber(price);
 	Fit.Validation.ExpectNumber(vat);
@@ -316,9 +299,26 @@ JSShop.Models.Order.CalculateExpression = function(price, vat, currency, weight,
 	Fit.Validation.ExpectString(custData1);
 	Fit.Validation.ExpectString(custData2);
 	Fit.Validation.ExpectString(custData3);
-	Fit.Validation.ExpectStringValue(expression);
+	Fit.Validation.ExpectString(expression);
 	Fit.Validation.ExpectStringValue(returnType);
-	//Fit.Validation.ExpectFunction(resultValidationCallback);
+
+	// Allow empty expression string
+
+	if (expression === "")
+	{
+		if (returnType === "number")
+		{
+			return 0.0; //expression = "0.0";
+		}
+		else if (returnType === "string")
+		{
+			return ""; //expression = "''";
+		}
+		else
+		{
+			throw "InvalidReturnType: Return type must be either 'string' or 'number'";
+		}
+	}
 
 	var ex = expression;
 
@@ -381,7 +381,6 @@ JSShop.Models.Order.CalculateExpression = function(price, vat, currency, weight,
 		throw "InvalidReturnType: Return type must be either 'string' or 'number'";
 	}
 
-	//if (resultValidationCallback(result) === false)
 	if (isValid === false)
 		throw "InvalidExpressionResult: Expression did not produce a valid value of type '" + returnType + "'";
 

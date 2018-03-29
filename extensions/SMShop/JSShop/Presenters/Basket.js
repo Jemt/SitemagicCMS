@@ -204,23 +204,23 @@ JSShop.Presenters.Basket = function()
 							var costCorrections =
 							[
 								{
-									Expression: JSShop.Settings.CostCorrection1,
-									Vat: JSShop.Settings.CostCorrectionVat1,
-									Msg: JSShop.Settings.CostCorrectionMessage1,
+									Expression: JSShop.Settings.CostCorrection1 ? JSShop.Settings.CostCorrection1 : "",
+									Vat: JSShop.Settings.CostCorrectionVat1 ? JSShop.Settings.CostCorrectionVat1 : "",
+									Msg: JSShop.Settings.CostCorrectionMessage1 ? JSShop.Settings.CostCorrectionMessage1 : "",
 									CostCorrectionExVat: 0,
 									CostCorrectionVat: 0
 								},
 								{
-									Expression: JSShop.Settings.CostCorrection2,
-									Vat: JSShop.Settings.CostCorrectionVat2,
-									Msg: JSShop.Settings.CostCorrectionMessage2,
+									Expression: JSShop.Settings.CostCorrection2 ? JSShop.Settings.CostCorrection2 : "",
+									Vat: JSShop.Settings.CostCorrectionVat2 ? JSShop.Settings.CostCorrectionVat2 : "",
+									Msg: JSShop.Settings.CostCorrectionMessage2 ? JSShop.Settings.CostCorrectionMessage2 : "",
 									CostCorrectionExVat: 0,
 									CostCorrectionVat: 0
 								},
 								{
-									Expression: JSShop.Settings.CostCorrection3,
-									Vat: JSShop.Settings.CostCorrectionVat3,
-									Msg: JSShop.Settings.CostCorrectionMessage3,
+									Expression: JSShop.Settings.CostCorrection3 ? JSShop.Settings.CostCorrection3 : "",
+									Vat: JSShop.Settings.CostCorrectionVat3 ? JSShop.Settings.CostCorrectionVat3 : "",
+									Msg: JSShop.Settings.CostCorrectionMessage3 ? JSShop.Settings.CostCorrectionMessage3 : "",
 									CostCorrectionExVat: 0,
 									CostCorrectionVat: 0
 								}

@@ -137,18 +137,24 @@ class SMShop extends SMExtension
 		}
 
 		// Configure JSShop
+		// JSShop.Settings is not the same that can be resolved using JSShop.Models.Config.Current.
+		// For instance JSShop.Settings.AdditionalData is an object while JSShop.Models.Config.Current.AdditionalData() returns a string.
+		// JSShop.Settings.TermsUrl returns a URL with arguments while JSShop.Models.Config.Current.Basic().TermsPage is just a filename (e.g. Terms.html).
+		// JSShop.Settings contain various settings not found in the Config model such as ConfigUrl, BasketUrl, PaymentUrl, Pages, etc.
+		// In addition, the JSShop.Settings object is immediately available while the Config model needs to be loaded asynchronously.
+		// In fact, JSShop could be used without the Config model - it is only used by the Config presenter.
 
 		$jsInit = "
 		<script type=\"text/javascript\">
-		JSShop.Settings.CostCorrection1 = \"" . $this->escapeJson($config->GetEntry("CostCorrection1")) . "\";
-		JSShop.Settings.CostCorrectionVat1 = \"" . $this->escapeJson($config->GetEntry("CostCorrectionVat1")) . "\";
-		JSShop.Settings.CostCorrectionMessage1 = SMStringUtilities.UnicodeDecode(\"" . $this->escapeJson($config->GetEntry("CostCorrectionMessage1")) . "\");
-		JSShop.Settings.CostCorrection2 = \"" . $this->escapeJson($config->GetEntry("CostCorrection2")) . "\";
-		JSShop.Settings.CostCorrectionVat2 = \"" . $this->escapeJson($config->GetEntry("CostCorrectionVat2")) . "\";
-		JSShop.Settings.CostCorrectionMessage2 = SMStringUtilities.UnicodeDecode(\"" . $this->escapeJson($config->GetEntry("CostCorrectionMessage2")) . "\");
-		JSShop.Settings.CostCorrection3 = \"" . $this->escapeJson($config->GetEntry("CostCorrection3")) . "\";
-		JSShop.Settings.CostCorrectionVat3 = \"" . $this->escapeJson($config->GetEntry("CostCorrectionVat3")) . "\";
-		JSShop.Settings.CostCorrectionMessage3 = SMStringUtilities.UnicodeDecode(\"" . $this->escapeJson($config->GetEntry("CostCorrectionMessage3")) . "\");
+		JSShop.Settings.CostCorrection1 = \"" . $this->escapeJson($config->GetEntryOrEmpty("CostCorrection1")) . "\";
+		JSShop.Settings.CostCorrectionVat1 = \"" . $this->escapeJson($config->GetEntryOrEmpty("CostCorrectionVat1")) . "\";
+		JSShop.Settings.CostCorrectionMessage1 = SMStringUtilities.UnicodeDecode(\"" . $this->escapeJson($config->GetEntryOrEmpty("CostCorrectionMessage1")) . "\");
+		JSShop.Settings.CostCorrection2 = \"" . $this->escapeJson($config->GetEntryOrEmpty("CostCorrection2")) . "\";
+		JSShop.Settings.CostCorrectionVat2 = \"" . $this->escapeJson($config->GetEntryOrEmpty("CostCorrectionVat2")) . "\";
+		JSShop.Settings.CostCorrectionMessage2 = SMStringUtilities.UnicodeDecode(\"" . $this->escapeJson($config->GetEntryOrEmpty("CostCorrectionMessage2")) . "\");
+		JSShop.Settings.CostCorrection3 = \"" . $this->escapeJson($config->GetEntryOrEmpty("CostCorrection3")) . "\";
+		JSShop.Settings.CostCorrectionVat3 = \"" . $this->escapeJson($config->GetEntryOrEmpty("CostCorrectionVat3")) . "\";
+		JSShop.Settings.CostCorrectionMessage3 = SMStringUtilities.UnicodeDecode(\"" . $this->escapeJson($config->GetEntryOrEmpty("CostCorrectionMessage3")) . "\");
 		JSShop.Settings.ConfigUrl = \"" . SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopConfig" . "\";
 		JSShop.Settings.BasketUrl = \"" . SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopBasket" . "\";
 		JSShop.Settings.TermsUrl = \"" . $config->GetEntry("TermsPage") . (($config->GetEntry("TermsPage") !== "") ? "?SMTemplateType=Basic&SMPagesDialog" : "") . "\";
@@ -296,6 +302,8 @@ class SMShop extends SMExtension
 
 	private function escapeJson($str)
 	{
+		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
+
 		$str = str_replace("\\", "\\\\", $str);
 		$str = str_replace("\r", "", $str);
 		$str = str_replace("\n", "\\n", $str);

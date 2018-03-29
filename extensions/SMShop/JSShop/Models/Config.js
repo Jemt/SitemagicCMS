@@ -10,6 +10,11 @@ JSShop.Models.Config = function(id)
 
 	var properties =
 	{
+		// The Config model is not a flat and simple data structure like all other models.
+		// It makes it a bit difficult to have the model expose it's data types properly without
+		// using some demo content initially, which is why the data structure below is
+		// pre-populated. Naturally the data should be replaced when Retrieve(..) is called.
+
 		Basic:
 		{
 			TermsPage: "Terms.html",

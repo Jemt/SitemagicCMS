@@ -768,6 +768,24 @@ function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weigh
 {
 	///////SMTypeCheck::CheckObject(__METHOD__, "expression", $expression, SMTypeCheckType::$String);
 
+	if ($expression === "")
+	{
+		if ($returnType === "number")
+		{
+			return 0.0; //$expression = "0.0";
+		}
+		else if ($returnType === "string" || $returnType === "htmlstring")
+		{
+			return ""; //$expression = "''";
+		}
+		else
+		{
+			header("HTTP/1.1 500 Internal Server Error");
+			echo "Return type must be either 'string', 'htmlstring', or 'number'";
+			exit;
+		}
+	}
+
 	// Security validation
 
 	$expr = $expression;
@@ -876,7 +894,7 @@ function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weigh
 	else
 	{
 		header("HTTP/1.1 500 Internal Server Error");
-		echo "Return type must be either 'string' or 'number'";
+		echo "Return type must be either 'string', 'htmlstring', or 'number'";
 		exit;
 	}
 
