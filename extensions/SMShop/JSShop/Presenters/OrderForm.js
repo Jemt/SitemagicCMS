@@ -351,7 +351,7 @@ JSShop.Presenters.OrderForm = function()
 			txtPromoCode.Width(100, "%");
 		}
 
-		if (JSShop.Settings.PaymentMethods !== null && JSShop.Settings.PaymentMethods.length > 0)
+		if (JSShop.Settings.PaymentMethods && JSShop.Settings.PaymentMethods.length > 0)
 		{
 			lstPaymentMethod = new Fit.Controls.DropDown("JSShopPaymentMethod");
 			lstPaymentMethod.Required(true);
@@ -363,7 +363,8 @@ JSShop.Presenters.OrderForm = function()
 
 			Fit.Array.ForEach(JSShop.Settings.PaymentMethods, function(pm)
 			{
-				lstPaymentMethod.GetPicker().AddItem(pm.Title, pm.Module);
+				if (pm.Title && pm.Module && pm.Enabled === true)
+					lstPaymentMethod.GetPicker().AddItem(pm.Title, pm.Module);
 			});
 		}
 
@@ -434,9 +435,6 @@ JSShop.Presenters.OrderForm = function()
 		// Restore previously saved values and selections
 
 		restoreValues();
-
-		/*if (lstPaymentMethod !== null && (lstPaymentMethod.GetSelections().length === 0 || lstPaymentMethod.GetPicker().HasItem(lstPaymentMethod.GetSelections()[0].Value) === false))
-			lstPaymentMethod.AddSelection(JSShop.Settings.PaymentMethods[0].Title, JSShop.Settings.PaymentMethods[0].Module);*/
 	}
 
 	this.GetDomElement = function()
@@ -625,7 +623,15 @@ JSShop.Presenters.OrderForm = function()
 		restoreValue(txtAltCity);
 
 		if (lstPaymentMethod !== null)
+		{
 			restoreValue(lstPaymentMethod);
+
+			// Make sure saved payment method is still enabled and available
+			if (lstPaymentMethod.GetSelections().length > 0 && lstPaymentMethod.GetPicker().HasItem(lstPaymentMethod.GetSelections()[0].Value) === false)
+			{
+				lstPaymentMethod.Clear(); // Payment method no longer enabled or available - remove selection
+			}
+		}
 	}
 
 	init();

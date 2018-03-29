@@ -54,9 +54,9 @@ function SMShopGetConfiguration()
 	$paymentModules = SMFileSystem::GetFolders($path . "/../PSPI");
 
 	// Load configured PSPI modules
-	if ($configuration->GetEntry("PaymentMethods") !== "")
+	if ($configuration->GetEntryOrEmpty("PaymentMethods") !== "")
 	{
-		$modules = explode("#;#", $configuration->GetEntry("PaymentMethods"));
+		$modules = explode("#;#", $configuration->GetEntryOrEmpty("PaymentMethods"));
 		$paymentModule = null;
 
 		foreach ($modules as $pm)
@@ -83,7 +83,7 @@ function SMShopGetConfiguration()
 		// Register PSPI module
 
 		$paymentModulesStr .= (($paymentModulesStr !== "") ? ", " : "");
-		$paymentModulesStr .= '{ "Module": "' . $pm . '", "Title": "' . ((isset($paymentModulesConfigured[$pm]) === true) ? SMStringUtilities::JsonEncode($paymentModulesConfigured[$pm]["Title"]) : "") . '", "Enabled": ' . ((isset($paymentModulesConfigured[$pm]) === true && isset($paymentModulesConfigured[$pm]["Enabled"]) === true) ? "true" : "false") . ', "Settings": [ ' . $paymentModuleSettings . ' ] }';
+		$paymentModulesStr .= '{ "Module": "' . $pm . '", "Title": "' . ((isset($paymentModulesConfigured[$pm]) === true) ? SMStringUtilities::JsonEncode($paymentModulesConfigured[$pm]["Title"]) : "") . '", "Enabled": ' . ((isset($paymentModulesConfigured[$pm]) === true && isset($paymentModulesConfigured[$pm]["Enabled"]) === true && $paymentModulesConfigured[$pm]["Enabled"] === true) ? "true" : "false") . ', "Settings": [ ' . $paymentModuleSettings . ' ] }';
 	}
 
 	// Retrieve cost correction expressions

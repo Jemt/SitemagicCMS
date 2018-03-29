@@ -105,8 +105,7 @@ class SMShop extends SMExtension
 
 		$config = new SMConfiguration(SMEnvironment::GetDataDirectory() . "/SMShop/Config.xml.php");
 
-		//$paymentMethodsStr = ((SMAttributes::GetAttribute("SMShopPaymentMethods") !== null) ? SMAttributes::GetAttribute("SMShopPaymentMethods") : "");
-		$paymentMethodsStr = $config->GetEntry("PaymentMethods");
+		$paymentMethodsStr = $config->GetEntryOrEmpty("PaymentMethods");
 
 		if ($paymentMethodsStr !== "")
 		{

@@ -277,7 +277,7 @@ JSShop.Presenters.Config = function()
 		tpl.Content.Headline = module.Module;
 
 		var chk = new Fit.Controls.CheckBox(Fit.Data.CreateGuid());
-		chk.Label("Enabled");
+		chk.Label("Enable this payment module"); // TODO: lang. support
 		chk.Checked(module.Enabled);
 		chk.OnChange(function(sender)
 		{
@@ -292,8 +292,12 @@ JSShop.Presenters.Config = function()
 		{
 			var itm = tpl.Content.Properties.AddItem();
 			itm.PropertyName = s.Title;
-			itm.PropertyValue = createInput(s.Value, function(sender, val) { s.Value = val; })
+			itm.PropertyValue = createInput(s.Value, function(sender, val) { s.Value = val; });
 		});
+
+		var enabledItem = tpl.Content.Properties.AddItem();
+		enabledItem.PropertyName = "Enabled";
+		enabledItem.PropertyValue = chk.GetDomElement();
 
 		tpl.Update();
 	}
