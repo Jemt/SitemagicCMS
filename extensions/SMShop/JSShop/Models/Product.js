@@ -188,7 +188,7 @@ JSShop.Models.Product = function(itemId)
 		expr += "var currency = \"" + me.Currency() + "\";";
 		expr += "var weight = \"" + me.Weight() + "\";";
 		expr += "var weightunit = \"" + me.WeightUnit() + "\";";
-		expr += "var data = " + ((JSShop.Settings.AdditionalData !== null) ? JSON.stringify(JSShop.Settings.AdditionalData) : {}) + ";";
+		expr += "var data = " + (JSShop.Settings.AdditionalData ? JSON.stringify(JSShop.Settings.AdditionalData) : "{}") + ";";
 		expr += "(" + expression.replace(/JSShop\.Floor/g, "Math.floor").replace(/JSShop\.Ceil/g, "Math.ceil").replace(/JSShop\.Round/g, "Math.round") + ");";
 
 		// Evaluate, validate, and return

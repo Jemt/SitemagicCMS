@@ -355,7 +355,7 @@ JSShop.Models.Order.CalculateExpression = function(price, vat, currency, weight,
 	expr += "var custdata1 = \"" + custData1 + "\";";
 	expr += "var custdata2 = \"" + custData2 + "\";";
 	expr += "var custdata3 = \"" + custData3 + "\";";
-	expr += "var data = " + ((JSShop.Settings.AdditionalData !== null) ? JSON.stringify(JSShop.Settings.AdditionalData) : {}) + ";";
+	expr += "var data = " + (JSShop.Settings.AdditionalData ? JSON.stringify(JSShop.Settings.AdditionalData) : "{}") + ";";
 	expr += "(" + expression.replace(/JSShop\.Floor/g, "Math.floor").replace(/JSShop\.Ceil/g, "Math.ceil").replace(/JSShop\.Round/g, "Math.round") + ");";
 
 	// Evaluate, validate, and return

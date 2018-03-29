@@ -142,6 +142,7 @@ class SMShop extends SMExtension
 		// JSShop.Settings contain various settings not found in the Config model such as ConfigUrl, BasketUrl, PaymentUrl, Pages, etc.
 		// In addition, the JSShop.Settings object is immediately available while the Config model needs to be loaded asynchronously.
 		// In fact, JSShop could be used without the Config model - it is only used by the Config presenter.
+		// Furthermore the Config model also exposes configuration needed by the backend that is not exposed though JSShop.Settings, for instance MailTemplates.
 
 		$jsInit = "
 		<script type=\"text/javascript\">
