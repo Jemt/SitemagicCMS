@@ -35,7 +35,7 @@ JSShop.Settings.PaymentCancelUrl = null;
 JSShop.Settings.SendInvoiceUrl = null;
 JSShop.Settings.Pages = null;
 
-// Language
+// Language (cannot be null or undefined - must defined .Name and all entries in .Translations)
 
 JSShop.Language = {};
 JSShop.Language.Name = "en";

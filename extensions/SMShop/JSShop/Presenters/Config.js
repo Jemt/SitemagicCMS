@@ -104,7 +104,7 @@ JSShop.Presenters.Config = function()
 		var itm = tpl.Content.Properties.AddItem();
 		itm.PropertyName = "Receipt";
 
-		if (JSShop.Settings.Pages !== null && JSShop.Settings.Pages.length > 0)
+		if (JSShop.Settings.Pages && JSShop.Settings.Pages.length > 0)
 		{
 			itm.PropertyValue = createDropDown(config.Basic.ReceiptPage, JSShop.Settings.Pages, function(sender, val) { config.Basic.ReceiptPage = val; })
 		}
@@ -116,7 +116,7 @@ JSShop.Presenters.Config = function()
 		itm = tpl.Content.Properties.AddItem();
 		itm.PropertyName = "Terms";
 
-		if (JSShop.Settings.Pages !== null && JSShop.Settings.Pages.length > 0)
+		if (JSShop.Settings.Pages && JSShop.Settings.Pages.length > 0)
 		{
 			itm.PropertyValue = createDropDown(config.Basic.TermsPage, JSShop.Settings.Pages, function(sender, val) { config.Basic.TermsPage = val; })
 		}
