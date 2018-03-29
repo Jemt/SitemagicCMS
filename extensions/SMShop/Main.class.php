@@ -162,7 +162,7 @@ class SMShop extends SMExtension
 		JSShop.Settings.PaymentCaptureUrl = \"" . $payCallback . "&PaymentOperation=Capture\";
 		JSShop.Settings.PaymentCancelUrl = \"" . $payCallback . "&PaymentOperation=Cancel\";
 		JSShop.Settings.SendInvoiceUrl = \"" . $payCallback . "&PaymentOperation=Invoice\";
-		JSShop.Settings.AdditionalData = " . (($config->GetEntry("AdditionalData") !== null && $config->GetEntry("AdditionalData") !== "") ? $config->GetEntry("AdditionalData") : "{}") . ";
+		JSShop.Settings.AdditionalData = " . (($config->GetEntryOrEmpty("AdditionalData") !== "") ? $config->GetEntryOrEmpty("AdditionalData") : "{}") . ";
 		JSShop.Settings.Pages = [ " . $pages . "];
 
 		JSShop.Language.Name = \"" . $shopLang . "\";

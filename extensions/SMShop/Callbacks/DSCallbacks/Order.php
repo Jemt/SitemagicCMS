@@ -400,8 +400,8 @@ function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyVa
 	$mail->SetSubject((($title !== null && $title !== "") ? $title : $lang->GetTranslation((($asInvoice === false) ? "Confirmation" : "Invoice") . "Title")));
 	$mail->SetContent($content);
 
-	if ($config->GetEntry("ShopBccEmail") !== "" && SMStringUtilities::Validate($config->GetEntry("ShopBccEmail"), SMValueRestriction::$EmailAddress) === true)
-		$mail->AddRecipient($config->GetEntry("ShopBccEmail"), SMMailRecipientType::$Bcc);
+	if ($config->GetEntryOrEmpty("ShopBccEmail") !== "" && SMStringUtilities::Validate($config->GetEntryOrEmpty("ShopBccEmail"), SMValueRestriction::$EmailAddress) === true)
+		$mail->AddRecipient($config->GetEntryOrEmpty("ShopBccEmail"), SMMailRecipientType::$Bcc);
 
 	// Attach PDF files
 	foreach ($pdfFiles as $filename => $path)
@@ -427,10 +427,10 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 
 	$template = (($asInvoice === false) ? "ConfirmationMail.html" : "InvoiceMail.html");
 
-	if ($asInvoice === false && $config->GetEntry("ConfirmationMailTemplateExpression") !== null && $config->GetEntry("ConfirmationMailTemplateExpression") !== "")
-		$template = SMShopHandleExpression($config, null, $order["Price"], $order["Vat"], $order["Currency"], $order["Weight"], $order["WeightUnit"], (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $config->GetEntry("ConfirmationMailTemplateExpression"), "string");
-	else if ($asInvoice === true && $config->GetEntry("InvoiceMailTemplateExpression") !== null && $config->GetEntry("InvoiceMailTemplateExpression") !== "")
-		$template = SMShopHandleExpression($config, null, $order["Price"], $order["Vat"], $order["Currency"], $order["Weight"], $order["WeightUnit"], (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $config->GetEntry("InvoiceMailTemplateExpression"), "string");
+	if ($asInvoice === false && $config->GetEntryOrEmpty("ConfirmationMailTemplateExpression") !== "")
+		$template = SMShopHandleExpression($config, null, $order["Price"], $order["Vat"], $order["Currency"], $order["Weight"], $order["WeightUnit"], (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $config->GetEntryOrEmpty("ConfirmationMailTemplateExpression"), "string");
+	else if ($asInvoice === true && $config->GetEntryOrEmpty("InvoiceMailTemplateExpression") !== "")
+		$template = SMShopHandleExpression($config, null, $order["Price"], $order["Vat"], $order["Currency"], $order["Weight"], $order["WeightUnit"], (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $config->GetEntryOrEmpty("InvoiceMailTemplateExpression"), "string");
 
 	if ($template === "")
 		return null;
@@ -835,7 +835,7 @@ function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weigh
 	$expr .= "\ncustdata1 = \"" . (($custData1 !== null) ? $custData1 : "") . "\";";
 	$expr .= "\ncustdata2 = \"" . (($custData2 !== null) ? $custData2 : "") . "\";";
 	$expr .= "\ncustdata3 = \"" . (($custData3 !== null) ? $custData3 : "") . "\";";
-	$expr .= "\ndata = json_decode('" . (($config !== null && $config->GetEntry("AdditionalData") !== "") ? str_replace("'", "\"", $config->GetEntry("AdditionalData")) : "{}") . "', true);";
+	$expr .= "\ndata = json_decode('" . (($config !== null && $config->GetEntryOrEmpty("AdditionalData") !== "") ? str_replace("'", "\"", $config->GetEntryOrEmpty("AdditionalData")) : "{}") . "', true);";
 	$expr .= "\nreturn (" . str_replace("JSShop.Floor", "floor", str_replace("JSShop.Ceil", "ceil", str_replace("JSShop.Round", "round", $expression))) . ");";
 
 	// Temporarily remove non-empty strings from expression to prevent changes to these

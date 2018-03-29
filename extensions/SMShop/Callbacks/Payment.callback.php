@@ -52,7 +52,7 @@ if ($operation === null) // Step 1: Redirect to payment window
 	$currency = $order["Currency"];
 
 	$continueUrl = SMEnvironment::GetExternalUrl();
-	$continueUrl .= (($config->GetEntry("ReceiptPage") !== "") ? "/" . $config->GetEntry("ReceiptPage") : "");
+	$continueUrl .= (($config->GetEntryOrEmpty("ReceiptPage") !== "") ? "/" . $config->GetEntryOrEmpty("ReceiptPage") : "");
 	$callbackUrl = SMEnvironment::GetExternalUrl() . "/" . SMExtensionManager::GetCallbackUrl(SMExtensionManager::GetExecutingExtension(), "Callbacks/Payment") . "&PaymentOperation=Auth";
 
 	$p = PSP::GetPaymentProvider($order["PaymentMethod"]);

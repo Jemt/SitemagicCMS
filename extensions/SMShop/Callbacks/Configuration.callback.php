@@ -99,16 +99,16 @@ function SMShopGetConfiguration()
 	// Return data as JSON
 
 	$json = '
-	"Basic": { "TermsPage": "' . $configuration->GetEntry("TermsPage") . '", "ReceiptPage": "' . $configuration->GetEntry("ReceiptPage") . '", "ShopBccEmail": "' . $configuration->GetEntry("ShopBccEmail") . '" },
+	"Basic": { "TermsPage": "' . $configuration->GetEntryOrEmpty("TermsPage") . '", "ReceiptPage": "' . $configuration->GetEntryOrEmpty("ReceiptPage") . '", "ShopBccEmail": "' . $configuration->GetEntryOrEmpty("ShopBccEmail") . '" },
 	"MailTemplates":
 	{
-		"Confirmation": ' . (($configuration->GetEntry("ConfirmationMailTemplateExpression") !== null) ? '"' . SMStringUtilities::JsonEncode($configuration->GetEntry("ConfirmationMailTemplateExpression")) . '"' : "null") . ',
-		"Invoice": ' . (($configuration->GetEntry("InvoiceMailTemplateExpression") !== null) ? '"' . SMStringUtilities::JsonEncode($configuration->GetEntry("InvoiceMailTemplateExpression")) . '"' : "null") . ',
+		"Confirmation": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("ConfirmationMailTemplateExpression")) . '",
+		"Invoice": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("InvoiceMailTemplateExpression")) . '",
 		"Templates": [' . $mailTemplates . ']
 	},
 	"PaymentMethods": [' . $paymentModulesStr . '],
 	"CostCorrections": [ ' . $costCorrections . ' ],
-	"AdditionalData": "' . (($configuration->GetEntry("AdditionalData") !== null) ? SMStringUtilities::JsonEncode($configuration->GetEntry("AdditionalData")) : "") . '"';
+	"AdditionalData": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("AdditionalData")) . '"';
 
 	return "{" . $json . "\n}";
 }
