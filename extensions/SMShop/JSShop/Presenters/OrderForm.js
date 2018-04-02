@@ -353,19 +353,36 @@ JSShop.Presenters.OrderForm = function()
 
 		if (JSShop.Settings.PaymentMethods && JSShop.Settings.PaymentMethods.length > 0)
 		{
-			lstPaymentMethod = new Fit.Controls.DropDown("JSShopPaymentMethod");
-			lstPaymentMethod.Required(true);
-			lstPaymentMethod.Scope("JSShopOrderForm");
-			lstPaymentMethod.LazyValidation(true);
-			lstPaymentMethod.OnChange(saveValue);
-			lstPaymentMethod.SetPicker(new Fit.Controls.ListView());
-			lstPaymentMethod.Width(100, "%");
+			var enabled = [];
 
 			Fit.Array.ForEach(JSShop.Settings.PaymentMethods, function(pm)
 			{
 				if (pm.Title && pm.Module && pm.Enabled === true)
-					lstPaymentMethod.GetPicker().AddItem(pm.Title, pm.Module);
+				{
+					Fit.Array.Add(enabled, pm);
+				}
 			});
+
+			if (enabled.length > 0)
+			{
+				lstPaymentMethod = new Fit.Controls.DropDown("JSShopPaymentMethod");
+				lstPaymentMethod.Required(true);
+				lstPaymentMethod.Scope("JSShopOrderForm");
+				lstPaymentMethod.LazyValidation(true);
+				lstPaymentMethod.OnChange(saveValue);
+				lstPaymentMethod.SetPicker(new Fit.Controls.ListView());
+				lstPaymentMethod.Width(100, "%");
+
+				Fit.Array.ForEach(enabled, function(pm)
+				{
+					lstPaymentMethod.GetPicker().AddItem(pm.Title, pm.Module);
+				});
+			}
+
+			if (enabled.length === 1)
+			{
+				lstPaymentMethod.AddSelection(enabled[0].Title, enabled[0].Module);
+			}
 		}
 
 		if (JSShop.Settings.TermsUrl)
@@ -536,6 +553,10 @@ JSShop.Presenters.OrderForm = function()
 			if (JSShop.Settings.PaymentUrl)
 			{
 				location.href = JSShop.Settings.PaymentUrl + ((JSShop.Settings.PaymentUrl.indexOf("?") === -1) ? "?" : "&") + "OrderId=" + order.Id();
+			}
+			else if (JSShop.Settings.ReceiptUrl)
+			{
+				location.href = JSShop.Settings.ReceiptUrl;
 			}
 			else
 			{

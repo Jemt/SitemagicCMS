@@ -5,6 +5,8 @@ JSShop.Presenters.ProductForm = function()
 {
 	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
 
+	var me = this;
+
 	// MVC
 	var view = null;			// View (ProductForm.html)
 	var models = {};			// All models (products) loaded - associative object array
@@ -169,7 +171,12 @@ JSShop.Presenters.ProductForm = function()
 				lstCategories.AddSelection(lstCategories.GetInputValue(), lstCategories.GetInputValue());
 		});
 
-		populatePickers(); // Populate lstProducts and lstCategories
+		me.OnRendered(function(sender) // Notice: Event obviously won't fire if presenter is added to page like this: Fit.Dom.Add(document.body, productForm.GetDomElement())
+		{
+			populatePickers(); // Populate lstProducts and lstCategories when rendered
+		});
+
+		//populatePickers(); // Populate lstProducts and lstCategories - called at the end since it throws error if RetrieveAll WebService URL has not been configured
 
 		txtId = new Fit.Controls.Input("JSShopProductId");
 		txtId.Width(350, "px");
@@ -193,6 +200,7 @@ JSShop.Presenters.ProductForm = function()
 
 		picImages = new Fit.Controls.FilePicker("JSShopProductImages");
 		picImages.Url(JSShop.WebService.Files.Upload);
+		picImages.Enabled(JSShop.WebService.Files.Upload ? true : false);
 		picImages.MultiSelectionMode(true);
 		picImages.Title(lang.SelectFiles);
 		picImages.OnChange(function(sender)
@@ -549,16 +557,21 @@ JSShop.Presenters.ProductForm = function()
 		{
 			Fit.Array.ForEach(allModels, function(model)
 			{
-				if (lstProducts.TreeView.GetChild(model.Category()) === null)
+				// Category value is prefixed with "CAT#" to avoid problems if user creates both
+				// a category and a product with an Id (model.Id()) identical to a category name.
+				// Values added to TreeView should be unique.
+				var categoryValue = "CAT#" + model.Category();
+
+				if (lstProducts.TreeView.GetChild(categoryValue) === null) // Avoid adding category multiple times
 				{
-					lstProducts.TreeView.AddChild(new Fit.Controls.TreeView.Node(model.Category(), model.Category()));
+					lstProducts.TreeView.AddChild(new Fit.Controls.TreeView.Node(model.Category(), categoryValue));
 					lstCategories.GetPicker().AddItem(model.Category(), model.Category());
 				}
 
 				var node = new Fit.Controls.TreeView.Node(model.Title(), model.Id());
 				node.Selectable(true);
 
-				lstProducts.TreeView.GetChild(model.Category()).AddChild(node);
+				lstProducts.TreeView.GetChild(categoryValue).AddChild(node);
 
 				models[model.Id()] = model;
 			});
@@ -760,8 +773,10 @@ JSShop.Presenters.ProductForm = function()
 		cmdDelete.className = "fa fa-remove";
 		cmdDelete.onclick = function(e)
 		{
-			deleteCallback();
+			if (JSShop.WebService.Files.Remove)
+				deleteCallback();
 		}
+		cmdDelete.style.cssText = (!JSShop.WebService.Files.Remove ? "opacity: 0.5; cursor: not-allowed;" : "");
 
 		previewFrame.appendChild(cmdDelete);
 

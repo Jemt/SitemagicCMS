@@ -73,8 +73,12 @@ JSShop.Presenters.OrderList = function()
 
 					cmdExport.Render(view.querySelector("#JSShopOrderListButtons"));
 					cmdInvoice.Render(view.querySelector("#JSShopOrderListButtons"));
-					cmdCapture.Render(view.querySelector("#JSShopOrderListButtons"));
-					cmdReject.Render(view.querySelector("#JSShopOrderListButtons"));
+
+					if (cmdCapture !== null)
+						cmdCapture.Render(view.querySelector("#JSShopOrderListButtons"));
+
+					if (cmdReject !== null)
+						cmdReject.Render(view.querySelector("#JSShopOrderListButtons"));
 
 					if (cmdConfig !== null)
 						cmdConfig.Render(view.querySelector("#JSShopOrderListButtons"));
@@ -371,51 +375,61 @@ JSShop.Presenters.OrderList = function()
 				return;
 			}
 
-			sendInvoices();
+			Fit.Controls.Dialog.Confirm(lang.ConfirmAction + ": " + lang.SendInvoice, function(res)
+			{
+				if (res === true)
+					sendInvoices();
+			});
 		});
 		cmdInvoice.GetDomElement().title = lang.SendInvoice;
 
-		cmdCapture = new Fit.Controls.Button("JSShopCaptureButton");
-		//cmdCapture.Title(lang.Capture);
-		cmdCapture.Icon("fa-exchange");
-		cmdCapture.Type(Fit.Controls.Button.Type.Success);
-		//cmdCapture.Enabled(false);
-		cmdCapture.OnClick(function(sender)
+		if (JSShop.Settings.PaymentCaptureUrl)
 		{
-			if (process.length === 0)
+			cmdCapture = new Fit.Controls.Button("JSShopCaptureButton");
+			//cmdCapture.Title(lang.Capture);
+			cmdCapture.Icon("fa-exchange");
+			cmdCapture.Type(Fit.Controls.Button.Type.Success);
+			//cmdCapture.Enabled(false);
+			cmdCapture.OnClick(function(sender)
 			{
-				Fit.Controls.Dialog.Alert(lang.SelectOrders);
-				return;
-			}
+				if (process.length === 0)
+				{
+					Fit.Controls.Dialog.Alert(lang.SelectOrders);
+					return;
+				}
 
-			Fit.Controls.Dialog.Confirm(lang.ConfirmAction + ": " + lang.Capture, function(res)
-			{
-				if (res === true)
-					processPayments("Capture");
+				Fit.Controls.Dialog.Confirm(lang.ConfirmAction + ": " + lang.Capture, function(res)
+				{
+					if (res === true)
+						processPayments("Capture");
+				});
 			});
-		});
-		cmdCapture.GetDomElement().title = lang.Capture;
+			cmdCapture.GetDomElement().title = lang.Capture;
+		}
 
-		cmdReject = new Fit.Controls.Button("JSShopReturnButton");
-		//cmdReject.Title(lang.Reject);
-		cmdReject.Icon("fa-trash");
-		cmdReject.Type(Fit.Controls.Button.Type.Danger);
-		//cmdReject.Enabled(false);
-		cmdReject.OnClick(function(sender)
+		if (JSShop.Settings.PaymentCancelUrl)
 		{
-			if (process.length === 0)
+			cmdReject = new Fit.Controls.Button("JSShopReturnButton");
+			//cmdReject.Title(lang.Reject);
+			cmdReject.Icon("fa-trash");
+			cmdReject.Type(Fit.Controls.Button.Type.Danger);
+			//cmdReject.Enabled(false);
+			cmdReject.OnClick(function(sender)
 			{
-				Fit.Controls.Dialog.Alert(lang.SelectOrders);
-				return;
-			}
+				if (process.length === 0)
+				{
+					Fit.Controls.Dialog.Alert(lang.SelectOrders);
+					return;
+				}
 
-			Fit.Controls.Dialog.Confirm(lang.ConfirmAction + ": " + lang.Reject, function(res)
-			{
-				if (res === true)
-					processPayments("Reject");
+				Fit.Controls.Dialog.Confirm(lang.ConfirmAction + ": " + lang.Reject, function(res)
+				{
+					if (res === true)
+						processPayments("Reject");
+				});
 			});
-		});
-		cmdReject.GetDomElement().title = lang.Reject;
+			cmdReject.GetDomElement().title = lang.Reject;
+		}
 
 		if (JSShop.Settings.ConfigUrl)
 		{
@@ -513,9 +527,9 @@ JSShop.Presenters.OrderList = function()
 
 				model._internal.StateElement.innerHTML = getStateTitle(model.State());
 
-				if (processing.length === 0)
+				if (processing.length === 0) // No more requests to be made
 				{
-					if (processed === scheduled)
+					if (processed === scheduled) // All responses have been received
 					{
 						if (failed.length === 0)
 							Fit.Controls.Dialog.Alert(lang.DoneSuccess);
@@ -523,10 +537,11 @@ JSShop.Presenters.OrderList = function()
 							Fit.Controls.Dialog.Alert(lang.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
 					}
 				}
-				else
+				else // More requests to be made
 				{
-					execute(processing[0]);
-					Fit.Array.Remove(processing, processing[0]);
+					var nextModel = processing[0];
+					Fit.Array.Remove(processing, nextModel);
+					execute(nextModel);
 				}
 			},
 			function(req, m) // Error handler
@@ -536,15 +551,16 @@ JSShop.Presenters.OrderList = function()
 
 				processed++;
 
-				if (processing.length === 0)
+				if (processing.length === 0) // No more requests to be made
 				{
-					if (processed === scheduled)
+					if (processed === scheduled) // All responses have been received
 						Fit.Controls.Dialog.Alert(lang.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
 				}
-				else
+				else // More requests to be made
 				{
-					execute(processing[0]);
-					Fit.Array.Remove(processing, processing[0]);
+					var nextModel = processing[0];
+					Fit.Array.Remove(processing, nextModel);
+					execute(nextModel);
 				}
 			});
 		};
@@ -555,20 +571,27 @@ JSShop.Presenters.OrderList = function()
 		}*/
 
 		var maxConcurrentRequests = 3;
-		var remove = [];
+		var startProcessing = [];
 
+		// Get up to a maximum of X number of models (specified in maxConcurrentRequests)
 		for (var i = 0 ; i < maxConcurrentRequests ; i++)
 		{
 			if (i <= processing.length - 1)
 			{
-				execute(processing[i]);
-				Fit.Array.Add(remove, processing[i]);
+				Fit.Array.Add(startProcessing, processing[i]);
 			}
 		}
 
-		Fit.Array.ForEach(remove, function(model)
+		// Remove models from processing array
+		Fit.Array.ForEach(startProcessing, function(model)
 		{
 			Fit.Array.Remove(processing, model);
+		});
+
+		// Invoke requests
+		Fit.Array.ForEach(startProcessing, function(model)
+		{
+			execute(model);
 		});
 
 		/*Fit.Array.ForEach(processing, function(model)
@@ -1275,23 +1298,23 @@ JSShop.Presenters.OrderList = function()
 	{
 		var processing = [];
 		var failed = [];
-		var skipped = [];
+		//var skipped = [];
 		var scheduled = 0;
 		var processed = 0;
 
 		Fit.Array.ForEach(process, function(model)
 		{
-			if (model.State() !== "Captured")
+			/*if (model.State() !== "Captured")
 			{
 				Fit.Array.Add(skipped, model.Id());
 				return; // Skip, must be captured to send invoice
-			}
+			}*/
 
 			Fit.Array.Add(processing, model);
 		});
 
-		if (skipped.length > 0)
-			Fit.Controls.Dialog.Alert(lang.OrdersSkipped + ":<br><br>" + skipped.join(((skipped.length <= 10) ? "<br>" : ", ")));
+		/*if (skipped.length > 0)
+			Fit.Controls.Dialog.Alert(lang.OrdersSkipped + ":<br><br>" + skipped.join(((skipped.length <= 10) ? "<br>" : ", ")));*/
 
 		if (processing.length === 0)
 			return;
@@ -1306,9 +1329,9 @@ JSShop.Presenters.OrderList = function()
 				//Fit.Array.Remove(processing, model);
 				processed++;
 
-				if (processing.length === 0)
+				if (processing.length === 0) // No more requests to be made
 				{
-					if (processed === scheduled)
+					if (processed === scheduled) // All responses have been received
 					{
 						if (failed.length === 0)
 							Fit.Controls.Dialog.Alert(lang.DoneSuccess);
@@ -1316,10 +1339,11 @@ JSShop.Presenters.OrderList = function()
 							Fit.Controls.Dialog.Alert(lang.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
 					}
 				}
-				else
+				else // More requests to be made
 				{
-					execute(processing[0]);
-					Fit.Array.Remove(processing, processing[0]);
+					var nextModel = processing[0];
+					Fit.Array.Remove(processing, nextModel);
+					execute(nextModel);
 				}
 
 				// SendInvoice(..), CapturePayment(..), and CancelPayment(..)
@@ -1338,34 +1362,42 @@ JSShop.Presenters.OrderList = function()
 
 				processed++;
 
-				if (processing.length === 0)
+				if (processing.length === 0) // No more requests to be made
 				{
-					if (processed === scheduled)
+					if (processed === scheduled) // All responses have been received
 						Fit.Controls.Dialog.Alert(lang.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
 				}
-				else
+				else // More requests to be made
 				{
-					execute(processing[0]);
-					Fit.Array.Remove(processing, processing[0]);
+					var nextModel = processing[0];
+					Fit.Array.Remove(processing, nextModel);
+					execute(nextModel);
 				}
 			});
 		}
 
 		var maxConcurrentRequests = 3;
-		var remove = [];
+		var startProcessing = [];
 
+		// Get up to a maximum of X number of models (specified in maxConcurrentRequests)
 		for (var i = 0 ; i < maxConcurrentRequests ; i++)
 		{
 			if (i <= processing.length - 1)
 			{
-				execute(processing[i]);
-				Fit.Array.Add(remove, processing[i]);
+				Fit.Array.Add(startProcessing, processing[i]);
 			}
 		}
 
-		Fit.Array.ForEach(remove, function(model)
+		// Remove models from processing array
+		Fit.Array.ForEach(startProcessing, function(model)
 		{
 			Fit.Array.Remove(processing, model);
+		});
+
+		// Invoke requests
+		Fit.Array.ForEach(startProcessing, function(model)
+		{
+			execute(model);
 		});
 
 		/*Fit.Array.ForEach(processing, function(model)

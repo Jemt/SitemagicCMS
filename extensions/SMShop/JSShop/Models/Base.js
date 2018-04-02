@@ -11,6 +11,9 @@ JSShop.Models.Base = function(itemId)
 	var me = this;
 	var urls = null;
 	var complex = false;
+	var onRequestHandlers = [];
+	var onResponseHandlers = [];
+	var onFailureHandlers = [];
 
 	this.InitializeModel = function(isComplex) // Derivatives MUST call InitializeModel once GetProperties() has been overridden, in order for Get/Set functions to be created
 	{
@@ -77,7 +80,7 @@ JSShop.Models.Base = function(itemId)
 		if (Fit.Validation.IsSet(urls.Create) === false)
 			Fit.Validation.ThrowError("WebService URL not configured");
 
-		var req = JSShop.Models.Base.CreateRequest(me, "Create", cbSuccess, cbFailure);
+		var req = createRequest("Create", cbSuccess, cbFailure);
 		req.SetData({ Model: me.GetModelName(), Properties: Fit.Core.Clone(me.GetProperties()), Operation: "Create" });
 		req.Start();
 	}
@@ -90,7 +93,7 @@ JSShop.Models.Base = function(itemId)
 		if (Fit.Validation.IsSet(urls.Retrieve) === false)
 			Fit.Validation.ThrowError("WebService URL not configured");
 
-		var req = JSShop.Models.Base.CreateRequest(me, "Retrieve", cbSuccess, cbFailure);
+		var req = createRequest("Retrieve", cbSuccess, cbFailure);
 		req.SetData({ Model: me.GetModelName(), Properties: Fit.Core.Clone(me.GetProperties()), Operation: "Retrieve" });
 		req.Start();
 	}
@@ -103,7 +106,7 @@ JSShop.Models.Base = function(itemId)
 		if (Fit.Validation.IsSet(urls.Update) === false)
 			Fit.Validation.ThrowError("WebService URL not configured");
 
-		var req = JSShop.Models.Base.CreateRequest(me, "Update", cbSuccess, cbFailure);
+		var req = createRequest("Update", cbSuccess, cbFailure);
 		req.SetData({ Model: me.GetModelName(), Properties: Fit.Core.Clone(me.GetProperties()), Operation: "Update" });
 		req.Start();
 	}
@@ -116,9 +119,27 @@ JSShop.Models.Base = function(itemId)
 		if (Fit.Validation.IsSet(urls.Delete) === false)
 			Fit.Validation.ThrowError("WebService URL not configured");
 
-		var req = JSShop.Models.Base.CreateRequest(me, "Delete", cbSuccess, cbFailure);
+		var req = createRequest("Delete", cbSuccess, cbFailure);
 		req.SetData({ Model: me.GetModelName(), Properties: Fit.Core.Clone(me.GetProperties()), Operation: "Delete" });
 		req.Start();
+	}
+
+	this.OnRequest = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onRequestHandlers, cb);
+	}
+
+	this.OnResponse = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onResponseHandlers, cb);
+	}
+
+	this.OnFailure = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onFailureHandlers, cb);
 	}
 
 	// Private
@@ -143,70 +164,98 @@ JSShop.Models.Base = function(itemId)
 			return getter();
 		}
 	}
-}
-JSShop.Models.Base.CreateRequest = function(model, operation, cbSuccess, cbFailure)
-{
-	Fit.Validation.ExpectInstance(model, JSShop.Models.Base);
-	Fit.Validation.ExpectString(operation);
-	Fit.Validation.ExpectFunction(cbSuccess, true);
-	Fit.Validation.ExpectFunction(cbFailure, true);
 
-	var req = new Fit.Http.JsonRequest(model.GetWebServiceUrls()[operation]);
-
-	req.OnRequest(function(sender)
+	function createRequest(operation, cbSuccess, cbFailure)
 	{
-		if (req.SuppressEvents === true) // SuppressEvents is a custom property not defined by Fit.UI
-			return;
+		Fit.Validation.ExpectString(operation);
+		Fit.Validation.ExpectFunction(cbSuccess, true);
+		Fit.Validation.ExpectFunction(cbFailure, true);
 
-		if (Fit.Validation.IsSet(JSShop.Events.OnRequest) === true)
+		var req = new Fit.Http.JsonRequest(me.GetWebServiceUrls()[operation]);
+
+		req.OnRequest(function(sender)
 		{
-			if (JSShop.Events.OnRequest(req, [model], operation) === false)
-				return false;
-		}
-	});
-	req.OnSuccess(function(sender)
-	{
-		if (req.SuppressEvents === true) // SuppressEvents is a custom property not defined by Fit.UI
-			return;
+			if (req.SuppressEvents === true) // SuppressEvents is a custom property not defined by Fit.UI
+				return;
 
-		// Update model before firing events
-
-		var resp = req.GetResponseJson();
-
-		if (resp !== null) // Returning model data is optional (often not necessary for Create/Update/Delete)
-		{
-			Fit.Array.ForEach(model.GetProperties(), function(prop)
+			Fit.Array.ForEach(onRequestHandlers, function(cb)
 			{
-				if (resp[prop] === null || resp[prop] === undefined) // WebService may have omitted some properties
-					return;
-
-				model[prop](resp[prop]);
+				cb(req, me, operation);
 			});
-		}
 
-		// Fire global success event handler if defined
-		if (Fit.Validation.IsSet(JSShop.Events.OnSuccess) === true)
-			JSShop.Events.OnSuccess(req, [model], operation);
+			if (Fit.Validation.IsSet(JSShop.Events.OnRequest) === true)
+			{
+				if (JSShop.Events.OnRequest(req, [me], operation) === false)
+					return false;
+			}
+		});
+		req.OnSuccess(function(sender)
+		{
+			if (req.SuppressEvents === true) // SuppressEvents is a custom property not defined by Fit.UI
+				return;
 
-		// Fire success callback if passed to function
-		if (Fit.Validation.IsSet(cbSuccess) === true)
-			cbSuccess(req, model); // Do not pass operation - callback is operation specific, e.g. passed to Create function
-	});
-	req.OnFailure(function(sender)
+			// Update model before firing events
+
+			var resp = req.GetResponseJson();
+
+			if (resp !== null) // Returning model data is optional (often not necessary for Create/Update/Delete)
+			{
+				Fit.Array.ForEach(me.GetProperties(), function(prop)
+				{
+					if (resp[prop] === null || resp[prop] === undefined) // WebService may have omitted some properties
+						return;
+
+					me[prop](resp[prop]);
+				});
+			}
+
+			Fit.Array.ForEach(onResponseHandlers, function(cb)
+			{
+				cb(req, me, operation);
+			});
+
+			// Fire global success event handler if defined
+			if (Fit.Validation.IsSet(JSShop.Events.OnSuccess) === true)
+				JSShop.Events.OnSuccess(req, [me], operation);
+
+			// Fire success callback if passed to function
+			if (Fit.Validation.IsSet(cbSuccess) === true)
+				cbSuccess(req, me); // Do not pass operation - callback is operation specific, e.g. passed to Create function
+		});
+		req.OnFailure(function(sender)
+		{
+			if (req.SuppressEvents === true) // SuppressEvents is a custom property not defined by Fit.UI
+				return;
+
+			// Fire OnFailure event
+			Fit.Array.ForEach(onFailureHandlers, function(cb)
+			{
+				cb(req, me, operation);
+			});
+
+			// Fire global error event handler if defined
+			if (Fit.Validation.IsSet(JSShop.Events.OnError) === true)
+				JSShop.Events.OnError(req, [me], operation);
+
+			// Fire failure callback if passed to function
+			if (Fit.Validation.IsSet(cbFailure) === true)
+				cbFailure(req, me); // Do not pass operation - callback is operation specific, e.g. passed to Create function
+		});
+
+		return req;
+	}
+
+	this._internal =
 	{
-		if (req.SuppressEvents === true) // SuppressEvents is a custom property not defined by Fit.UI
-			return;
+		CreateRequest: function(operation, cbSuccess, cbFailure) // Needed by JSShop.Models.Base.RetrieveAll(..)
+		{
+			Fit.Validation.ExpectString(operation);
+			Fit.Validation.ExpectFunction(cbSuccess, true);
+			Fit.Validation.ExpectFunction(cbFailure, true);
 
-		// Fire global error event handler if defined
-		if (Fit.Validation.IsSet(JSShop.Events.OnError) === true)
-			JSShop.Events.OnError(req, [model], operation);
-
-		// Fire failure callback if passed to function
-		if (Fit.Validation.IsSet(cbFailure) === true)
-			cbFailure(req, model); // Do not pass operation - callback is operation specific, e.g. passed to Create function
-	});
-
-	return req;
+			return createRequest(operation, cbSuccess, cbFailure);
+		}
+	}
 }
 JSShop.Models.Base.RetrieveAll = function(modelType, idProp, match, cbSuccess, cbFailure)
 {
@@ -221,7 +270,7 @@ JSShop.Models.Base.RetrieveAll = function(modelType, idProp, match, cbSuccess, c
 	if (Fit.Validation.IsSet(templateModel.GetWebServiceUrls().RetrieveAll) === false)
 		Fit.Validation.ThrowError("WebService URL not configured");
 
-	var req = JSShop.Models.Base.CreateRequest(templateModel, "RetrieveAll");
+	var req = templateModel._internal.CreateRequest("RetrieveAll");
 	req.SuppressEvents = true; // Do not fire events defined in CreateRequest(..) - it would cause template model created above to be passed to event handlers - we want to pass the models loaded below instead
 	req.SetData({ Model: templateModel.GetModelName(), Properties: Fit.Core.Clone(templateModel.GetProperties()), Operation: "RetrieveAll", Match: match });
 	req.OnRequest(function(sender)

@@ -4,6 +4,8 @@ if (!window.JSShop)
 JSShop.Presenters.Base = function()
 {
 	var me = this;
+	var onRenderHandlers = [];
+	var onRenderedHandlers = [];
 
 	function init()
 	{
@@ -17,7 +19,30 @@ JSShop.Presenters.Base = function()
 	this.Render = function(toElement)
 	{
 		Fit.Validation.ExpectDomElement(toElement);
+
+		Fit.Array.ForEach(onRenderHandlers, function(cb)
+		{
+			cb(me);
+		});
+
 		Fit.Dom.Add(toElement, me.GetDomElement());
+
+		Fit.Array.ForEach(onRenderedHandlers, function(cb)
+		{
+			cb(me);
+		});
+	}
+
+	this.OnRender = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onRenderHandlers, cb);
+	}
+
+	this.OnRendered = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onRenderedHandlers, cb);
 	}
 
 	init();

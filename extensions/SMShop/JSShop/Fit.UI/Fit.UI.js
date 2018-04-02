@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 0, Patch: 20 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 0, Patch: 22 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -11432,7 +11432,6 @@ Fit.Controls.DropDown = function(ctlId)
 	/// </function>
 	this.ClearSelections = function()
 	{
-		var selections = getSelectionElements();
 		var fireEvent = false;
 		var wasFocused = focusAssigned; // Removing an input from DOM fires OnBlur which sets focusAssigned to False
 
@@ -11442,7 +11441,27 @@ Fit.Controls.DropDown = function(ctlId)
 			{
 				if (picker !== null)
 				{
-					var res = picker.UpdateItemSelection(decode(Fit.Dom.Data(selection, "value")), false); // OnItemSelectionChanging and OnItemSelectionChanged are fired if picker recognizes item, causing it to be removed in drop down's OnItemSelectionChanged handler (unless canceled, in which case False is returned)
+					// Notice: Picker fires OnItemSelectionChanged when picker.UpdateItemSelection(..) is invoked
+					// below (other controls than DropDown may have registered an OnItemSelectionChanged
+					// handler too). In this case we set suppressOnItemSelectionChanged to True, causing
+					// drop down to do nothing in OnItemSelectionChanged handler when fired. Drop down's OnItemSelectionChanged
+					// handler is responsible for handling items added/removed by picker, but in this case the change did not
+					// come from the picker.
+					suppressOnItemSelectionChanged = true;
+
+					var res = true;
+					var error = null;
+
+					try // Make sure we can set suppressOnItemSelectionChanged false again, so drop down remains in a functioning state
+					{
+						var res = picker.UpdateItemSelection(decode(Fit.Dom.Data(selection, "value")), false); // OnItemSelectionChanging and OnItemSelectionChanged are fired if picker recognizes item, causing it to be removed in drop down's OnItemSelectionChanged handler (unless canceled, in which case False is returned)
+					}
+					catch (err) { error = err; }
+
+					suppressOnItemSelectionChanged = false;
+
+					if (error !== null)
+						Fit.Validation.ThrowError(error);
 
 					if (res !== false && selection.parentElement.parentElement !== null)
 					{
@@ -15726,7 +15745,7 @@ Fit.Controls.TreeView = function(ctlId)
 			//{ PickerControl support - START
 
 			// If used as picker control, make sure first node is selected on initial key press
-			if (isPicker === true && activeNode === null && rootNode.GetChildren().length > 0)
+			if (isPicker === true && isNodeSet(activeNode) === false && rootNode.GetChildren().length > 0)
 			{
 				focusNode(rootNode.GetChildren()[0]); // Sets activeNode to first child
 				return;
@@ -15735,7 +15754,7 @@ Fit.Controls.TreeView = function(ctlId)
 			// If onkeydown was not fired from a list item (which usually has focus),
 			// it was most likely fired from a host control through HandleEvent(..).
 			// In this case activeNode will be set.
-			if (elm.tagName !== "LI" && isPicker === true && activeNode !== null)
+			if (elm.tagName !== "LI" && isPicker === true && isNodeSet(activeNode) === true)
 				elm = activeNode.GetDomElement();
 
 			//} // PickerControl support - END
@@ -16734,7 +16753,7 @@ Fit.Controls.TreeView = function(ctlId)
 			// to indicate that the node has focus, even though it has not,
 			// and keep a reference to the "pseudo focused" node in activeNode.
 
-			if (activeNode !== null)
+			if (isNodeSet(activeNode) === true)
 				Fit.Dom.Data(activeNode.GetDomElement(), "active", null);
 
 			activeNode = node;
@@ -16791,6 +16810,11 @@ Fit.Controls.TreeView = function(ctlId)
 		{
 			node.Focused(true);
 		}
+	}
+
+	function isNodeSet(node) // Used to check whether activeNode is set and that it has not been disposed
+	{
+		return (node !== null && node.GetDomElement() !== null); // GetDomElement() returns null if node has been disposed
 	}
 
 	function getNodeFocused()

@@ -213,8 +213,10 @@ function SMShopSetConfiguration($data)
 
 	if (isset($data["CostCorrections"]) === true)
 	{
-		for ($i = 1 ; $i <= 3 ; $i++)
+		for ($i = 1 ; $i <= count($data["CostCorrections"]) ; $i++)
 		{
+			if ($i > 3) break; // No more than 3 Cost Corrections are supported
+
 			$configuration->SetEntry("CostCorrection" . $i, $data["CostCorrections"][$i - 1]["CostCorrection"]);
 			$configuration->SetEntry("CostCorrectionVat" . $i, $data["CostCorrections"][$i - 1]["Vat"]);
 			$configuration->SetEntry("CostCorrectionMessage" . $i, $data["CostCorrections"][$i - 1]["Message"]);

@@ -12,13 +12,13 @@ JSShop._internal = { CacheKey: null, Debug: false };
 
 JSShop.Settings = {};
 JSShop.Settings.CostCorrection1 = null;
-JSShop.Settings.CostCorrectionVat1 = 0;
+JSShop.Settings.CostCorrectionVat1 = null;
 JSShop.Settings.CostCorrectionMessage1 = null;
 JSShop.Settings.CostCorrection2 = null;
-JSShop.Settings.CostCorrectionVat2 = 0;
+JSShop.Settings.CostCorrectionVat2 = null;
 JSShop.Settings.CostCorrectionMessage2 = null;
 JSShop.Settings.CostCorrection3 = null;
-JSShop.Settings.CostCorrectionVat3 = 0;
+JSShop.Settings.CostCorrectionVat3 = null;
 JSShop.Settings.CostCorrectionMessage3 = null;
 JSShop.Settings.AdditionalData = {};
 JSShop.Settings.ConfigUrl = null;
@@ -83,8 +83,8 @@ JSShop.WebService.OrderEntries.Delete = null;
 
 JSShop.Events = {};
 JSShop.Events.OnRequest = null;
-JSShop.Events.OnSuccess = null;
-JSShop.Events.OnError = null;
+JSShop.Events.OnSuccess = null; // TODO: Rename to OnReponse (?) Currently not consistent with Models/Base.OnResponse(..) which is identical to JSShop.Events.OnSuccess
+JSShop.Events.OnError = null; // TODO: Rename to OnFailure (?) Currently not consistent with Models/Base.OnFailure(..) which is identical to JSShop.Events.OnError
 
 // ======================================================
 // JSShop path info
@@ -191,6 +191,93 @@ JSShop._internal.Initialized = false;
 JSShop.Initialize = function(cb)
 {
 	Fit.Validation.ExpectFunction(cb);
+
+	// Validate JSShop object - arrays are validated further down
+
+	Fit.Validation.ExpectObject(window.JSShop);
+
+	Fit.Validation.ExpectObject(JSShop.Settings);
+	Fit.Validation.ExpectString(JSShop.Settings.CostCorrection1, true);
+	Fit.Validation.ExpectString(JSShop.Settings.CostCorrectionVat1, true);
+	Fit.Validation.ExpectString(JSShop.Settings.CostCorrectionMessage1, true);
+	Fit.Validation.ExpectString(JSShop.Settings.CostCorrection2, true);
+	Fit.Validation.ExpectString(JSShop.Settings.CostCorrectionVat2, true);
+	Fit.Validation.ExpectString(JSShop.Settings.CostCorrectionMessage2, true);
+	Fit.Validation.ExpectString(JSShop.Settings.CostCorrection3, true);
+	Fit.Validation.ExpectString(JSShop.Settings.CostCorrectionVat3, true);
+	Fit.Validation.ExpectString(JSShop.Settings.CostCorrectionMessage3, true);
+	Fit.Validation.ExpectObject(JSShop.Settings.AdditionalData);
+	Fit.Validation.ExpectString(JSShop.Settings.ConfigUrl, true);
+	Fit.Validation.ExpectString(JSShop.Settings.BasketUrl, true);
+	Fit.Validation.ExpectString(JSShop.Settings.TermsUrl, true);
+	Fit.Validation.ExpectString(JSShop.Settings.PaymentUrl, true);
+	Fit.Validation.ExpectArray(JSShop.Settings.PaymentMethods, true);
+	Fit.Validation.ExpectString(JSShop.Settings.PaymentCaptureUrl, true);
+	Fit.Validation.ExpectString(JSShop.Settings.PaymentCancelUrl, true);
+	Fit.Validation.ExpectString(JSShop.Settings.SendInvoiceUrl, true);
+	Fit.Validation.ExpectArray(JSShop.Settings.Pages, true);
+
+	Fit.Validation.ExpectObject(JSShop.Language);
+	Fit.Validation.ExpectObject(JSShop.Language.Translations);
+	Fit.Validation.ExpectString(JSShop.Language.Name);
+
+	Fit.Validation.ExpectObject(JSShop.Models);
+	Fit.Validation.ExpectObject(JSShop.Presenters);
+	Fit.Validation.ExpectInstance(JSShop.Cookies, Fit.Cookies);
+
+	// Although WebService function URLs are marked optional (true argument), not providing this information will
+	// prevent WebService features from working - network communication errors will occur. But JSShop could be
+	// used with almost all Presenters except e.g. Configuration, in which case we would like to be able to avoid
+	// assigning values to JSShop.WebService.Configuration.Retrieve and JSShop.WebService.Configuration.Update.
+	// The approach below allows for most flexibility.
+	Fit.Validation.ExpectObject(JSShop.WebService);
+	Fit.Validation.ExpectObject(JSShop.WebService.Configuration);
+	Fit.Validation.ExpectString(JSShop.WebService.Configuration.Retrieve, true);
+	Fit.Validation.ExpectString(JSShop.WebService.Configuration.Update, true);
+	Fit.Validation.ExpectObject(JSShop.WebService.Products);
+	Fit.Validation.ExpectString(JSShop.WebService.Products.Create, true);
+	Fit.Validation.ExpectString(JSShop.WebService.Products.Retrieve, true);
+	Fit.Validation.ExpectString(JSShop.WebService.Products.Update, true);
+	Fit.Validation.ExpectString(JSShop.WebService.Products.Delete, true);
+	Fit.Validation.ExpectObject(JSShop.WebService.Files);
+	Fit.Validation.ExpectString(JSShop.WebService.Files.Upload, true);
+	Fit.Validation.ExpectString(JSShop.WebService.Files.Remove, true);
+	Fit.Validation.ExpectObject(JSShop.WebService.Orders);
+	Fit.Validation.ExpectString(JSShop.WebService.Orders.Create, true);
+	Fit.Validation.ExpectString(JSShop.WebService.Orders.Retrieve, true);
+	Fit.Validation.ExpectString(JSShop.WebService.Orders.Update, true);
+	Fit.Validation.ExpectString(JSShop.WebService.Orders.Delete, true);
+	Fit.Validation.ExpectObject(JSShop.WebService.OrderEntries);
+	Fit.Validation.ExpectString(JSShop.WebService.OrderEntries.Create, true);
+	Fit.Validation.ExpectString(JSShop.WebService.OrderEntries.Retrieve, true);
+	Fit.Validation.ExpectString(JSShop.WebService.OrderEntries.Update, true);
+	Fit.Validation.ExpectString(JSShop.WebService.OrderEntries.Delete, true);
+
+	Fit.Validation.ExpectObject(JSShop.Events);
+	Fit.Validation.ExpectFunction(JSShop.Events.OnRequest, true);
+	Fit.Validation.ExpectFunction(JSShop.Events.OnSuccess, true);
+	Fit.Validation.ExpectFunction(JSShop.Events.OnError, true);
+
+	if (JSShop.Settings.PaymentMethods)
+	{
+		Fit.Array.ForEach(JSShop.Settings.PaymentMethods, function(pm)
+		{
+			Fit.Validation.ExpectString(pm.Module);
+			Fit.Validation.ExpectString(pm.Title);
+			Fit.Validation.ExpectBoolean(pm.Enabled);
+		});
+	}
+
+	if (JSShop.Settings.Pages)
+	{
+		Fit.Array.ForEach(JSShop.Settings.Pages, function(p)
+		{
+			Fit.Validation.ExpectString(p.Title);
+			Fit.Validation.ExpectString(p.Value);
+		});
+	}
+
+	// Initialize JSShop
 
 	if (JSShop._internal.Initialized === true)
 	{

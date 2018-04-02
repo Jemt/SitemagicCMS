@@ -33,6 +33,9 @@ JSShop.Presenters.Config = function()
 				var cmdPayMethods = createTabButton("Payment methods", function(sender) { showPayMethods(sender); });
 				var cmdAdvanced = createTabButton("Advanced", function(sender) { showAdvanced(sender); });
 
+				cmdMails.Enabled(((config.MailTemplates.Templates && config.MailTemplates.Templates.length > 0) ? true : false));
+				cmdPayMethods.Enabled((config.PaymentMethods.length > 0 ? true : false));
+
 				cmdSave = new Fit.Controls.Button(Fit.Data.CreateGuid());
 				cmdSave.Title("Save");
 				cmdSave.Type(Fit.Controls.Button.Type.Success);
@@ -106,11 +109,11 @@ JSShop.Presenters.Config = function()
 
 		if (JSShop.Settings.Pages && JSShop.Settings.Pages.length > 0)
 		{
-			itm.PropertyValue = createDropDown(config.Basic.ReceiptPage, JSShop.Settings.Pages, function(sender, val) { config.Basic.ReceiptPage = val; })
+			itm.PropertyValue = createDropDown((config.Basic.ReceiptPage ? config.Basic.ReceiptPage : ""), JSShop.Settings.Pages, function(sender, val) { config.Basic.ReceiptPage = val; })
 		}
 		else
 		{
-			itm.PropertyValue = createInput(config.Basic.ReceiptPage, function(sender, val) { config.Basic.ReceiptPage = val; });
+			itm.PropertyValue = createInput((config.Basic.ReceiptPage ? config.Basic.ReceiptPage : ""), function(sender, val) { config.Basic.ReceiptPage = val; });
 		}
 
 		itm = tpl.Content.Properties.AddItem();
@@ -118,16 +121,16 @@ JSShop.Presenters.Config = function()
 
 		if (JSShop.Settings.Pages && JSShop.Settings.Pages.length > 0)
 		{
-			itm.PropertyValue = createDropDown(config.Basic.TermsPage, JSShop.Settings.Pages, function(sender, val) { config.Basic.TermsPage = val; })
+			itm.PropertyValue = createDropDown((config.Basic.TermsPage ? config.Basic.TermsPage : ""), JSShop.Settings.Pages, function(sender, val) { config.Basic.TermsPage = val; })
 		}
 		else
 		{
-			itm.PropertyValue = createInput(config.Basic.TermsPage, function(sender, val) { config.Basic.TermsPage = val; });
+			itm.PropertyValue = createInput((config.Basic.TermsPage ? config.Basic.TermsPage : ""), function(sender, val) { config.Basic.TermsPage = val; });
 		}
 
 		itm = tpl.Content.Properties.AddItem();
 		itm.PropertyName = "BCC e-mail address (receive copies of all e-mails sent)";
-		itm.PropertyValue = createInput(config.Basic.ShopBccEmail, function(sender, val) { config.Basic.ShopBccEmail = val; });
+		itm.PropertyValue = createInput(config.Basic.ShopBccEmail ? config.Basic.ShopBccEmail : "", function(sender, val) { config.Basic.ShopBccEmail = val; });
 
 		tpl.Update();
 	}
@@ -135,8 +138,9 @@ JSShop.Presenters.Config = function()
 	function showMailTemplates(btn)
 	{
 		var options = [];
+		var templates = (config.MailTemplates.Templates ? config.MailTemplates.Templates : []);
 
-		Fit.Array.ForEach(config.MailTemplates.Templates, function(mt)
+		Fit.Array.ForEach(templates, function(mt)
 		{
 			Fit.Array.Add(options, mt.Title);
 		});
@@ -175,9 +179,10 @@ JSShop.Presenters.Config = function()
 
 		tpl.Content.Properties.Clear();
 
+		var templates = (config.MailTemplates.Templates ? config.MailTemplates.Templates : []);
 		var mt = null;
 
-		Fit.Array.ForEach(config.MailTemplates.Templates, function(t)
+		Fit.Array.ForEach(templates, function(t)
 		{
 			if (t.Title === tplName)
 			{
@@ -288,7 +293,7 @@ JSShop.Presenters.Config = function()
 		itmTitle.PropertyName = "Title";
 		itmTitle.PropertyValue = createInput(module.Title, function(sender, val) { module.Title = val; });;
 
-		Fit.Array.ForEach(module.Settings, function(s)
+		Fit.Array.ForEach(module.Settings ? module.Settings : [], function(s)
 		{
 			var itm = tpl.Content.Properties.AddItem();
 			itm.PropertyName = s.Title;
@@ -304,7 +309,16 @@ JSShop.Presenters.Config = function()
 
 	function showAdvanced(btn)
 	{
-		var options = [ "Choose e-mail templates", "Cost correction 1", "Cost correction 2", "Cost correction 3", "Additional data" ];
+		var options = [];
+
+		Fit.Array.Add(options, (!config.MailTemplates.Templates || config.MailTemplates.Templates.length === 0 ? "!" : "") + "E-mail templates");
+
+		for (var i = 0 ; i < 3 ; i++)
+		{
+			Fit.Array.Add(options, (!config.CostCorrections || !config.CostCorrections[i] ? "!" : "") + "Cost correction " + (i + 1));
+		}
+
+		Fit.Array.Add(options, (config.CostCorrections.length === 0 ? "!" : "") + "Additional data");
 
 		showOptions(btn, options, function(selectedValue)
 		{
@@ -322,20 +336,23 @@ JSShop.Presenters.Config = function()
 
 		var itm = null;
 
-		if (section === "Choose e-mail templates")
+		if (section === "E-mail templates") // Lang. support
 		{
 			itm = tpl.Content.Properties.AddItem();
 			itm.PropertyName = "Confirmation E-mail template";
-			itm.PropertyValue = createInput(config.MailTemplates.Confirmation, function(sender, val) { config.MailTemplates.Confirmation = val; });
+			itm.PropertyValue = createInput(config.MailTemplates.Confirmation ? config.MailTemplates.Confirmation : "", function(sender, val) { config.MailTemplates.Confirmation = val; });
 
 			itm = tpl.Content.Properties.AddItem();
 			itm.PropertyName = "Invoice E-mail template";
-			itm.PropertyValue = createInput(config.MailTemplates.Invoice, function(sender, val) { config.MailTemplates.Invoice = val; });
+			itm.PropertyValue = createInput(config.MailTemplates.Invoice ? config.MailTemplates.Invoice : "", function(sender, val) { config.MailTemplates.Invoice = val; });
 		}
 		else if (section.indexOf("Cost correction") === 0)
 		{
 			var ccId = parseInt(section.substring(section.length - 1), 10) - 1;
 			var cc = config.CostCorrections[ccId];
+
+			if (!cc) // Cost Correction object not provided by backend which may not support multiple cost corrections (or any)
+				return;
 
 			itm = tpl.Content.Properties.AddItem();
 			itm.PropertyName = "Cost expression";
@@ -384,7 +401,13 @@ JSShop.Presenters.Config = function()
 
 		Fit.Array.ForEach(options, function(opt)
 		{
-			ctx.AddChild(new Fit.Controls.ContextMenu.Item(opt, opt));
+			var enabled = (opt.indexOf("!") !== 0); // An option starting with "!" is disabled
+			var title = (enabled === true ? opt : opt.substring(1)); // Remove "!" from title if disabled
+
+			var item = new Fit.Controls.ContextMenu.Item(title, title);
+			item.Selectable(enabled);
+
+			ctx.AddChild(item);
 		});
 
 		ctx.OnSelect(function(sender, item)

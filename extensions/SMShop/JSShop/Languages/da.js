@@ -20,10 +20,10 @@
 			Title:				"Titel",
 			Description:		"Beskrivelse",
 			Images:				"Billeder",
-			SelectFiles:		"Vælg fil(er)",
+			SelectFiles:		"VÃ¦lg fil(er)",
 			Price:				"Pris excl. moms",
 			Vat:				"Moms (%)",
-			Weight:				"Vægt",
+			Weight:				"VÃ¦gt",
 			Pounds:				"Pund (lbs.)",
 			Kilos:				"Kilo (kg.)",
 			DeliveryTime:		"Leveringstid",
@@ -38,14 +38,14 @@
 
 		ProductList:
 		{
-			ProductAdded:		"Produkt tilføjet til indkøbskurven",
-			OpenBasket:			"Gå til indkøbskurv",
-			ContinueShopping:	"Køb mere"
+			ProductAdded:		"Produkt tilfÃ¸jet til indkÃ¸bskurven",
+			OpenBasket:			"GÃ¥ til indkÃ¸bskurv",
+			ContinueShopping:	"KÃ¸b mere"
 		},
 
 		Basket:
 		{
-			BasketEmpty:		"Indkøbskurven er tom",
+			BasketEmpty:		"IndkÃ¸bskurven er tom",
 			Product:			"Produkt",
 			UnitPrice:			"Enhedspris",
 			Units:				"Antal",
@@ -75,40 +75,40 @@
 			PaymentAndTerms:	"Betaling og handelsbetingelser",
 			PaymentMethod:		"Betalingsmetode",
 			AcceptTerms:		"Jeg accepterer handelsbetingelserne",
-			TermsRequired:		"Accepterer venligst handelsbetingelserne for at fortsætte",
-			Read:				"Læs",
-			Continue:			"Fortsæt",
+			TermsRequired:		"Accepterer venligst handelsbetingelserne for at fortsÃ¦tte",
+			Read:				"LÃ¦s",
+			Continue:			"FortsÃ¦t",
 			OrderReceived:		"Din ordre er modtaget - tak",
 			MissingPhoneNumber:	"Indtast venligst dit telefonnummer hvis du har et",
-			ContinueWithout:	"Fortsæt uden",
-			AddPhoneNumber:		"Tilføj telefonnummer",
+			ContinueWithout:	"FortsÃ¦t uden",
+			AddPhoneNumber:		"TilfÃ¸j telefonnummer",
 			EnterValidEmail:	"Indtast en gyldig e-mail adresse",
 			EnterValidZipCode:	"Indtast et gyldigt postnummer (tal)",
-			PartialAltAddress:	"Du har kun delvist udfyldt felterne under Alternativ Leveringsadresse - udfyld venligst resten, eller slå Alternativ Leveringsadresse fra"
+			PartialAltAddress:	"Du har kun delvist udfyldt felterne under Alternativ Leveringsadresse - udfyld venligst resten, eller slÃ¥ Alternativ Leveringsadresse fra"
 		},
 
 		OrderList:
 		{
 			Export:				"Eksport",
 			SendInvoice:		"Send faktura",
-			Capture:			"Hæv",
+			Capture:			"HÃ¦v",
 			Reject:				"Afvis",
 			OrderId:			"Ordrenr.",
 			Time:				"Tidspunkt",
 			Customer:			"Kunde",
-			Amount:				"Beløb",
+			Amount:				"BelÃ¸b",
 			PaymentMethod:		"Type",
 			State:				"Tilstand",
 			InvoiceId:			"Fakturanr.",
 			StateInitial:		"Initiel",
 			StateAuthorized:	"Godkendt",
-			StateCaptured:		"Hævet",
+			StateCaptured:		"HÃ¦vet",
 			StateCanceled:		"Afvist",
-			SelectOrders:		"Vælg venligst en eller flere ordre",
-			ConfirmAction:		"Bekræft venligst handlingen",
-			OrdersSkipped:		"Denne handling kunne ikke udføres for de følgende ordre pga. deres nuværende tilstand",
-			DoneSuccess:		"Færdig - alle ordre behandlet",
-			DoneFailure:		"Færdig - følgende ordre fejlede",
+			SelectOrders:		"VÃ¦lg venligst en eller flere ordre",
+			ConfirmAction:		"BekrÃ¦ft venligst handlingen",
+			//OrdersSkipped:		"Denne handling kunne ikke udfÃ¸res for de fÃ¸lgende ordre pga. deres nuvÃ¦rende tilstand",
+			DoneSuccess:		"FÃ¦rdig - alle ordre behandlet",
+			DoneFailure:		"FÃ¦rdig - fÃ¸lgende ordre fejlede",
 
 			// Dialog: Customer details
 			CustomerDetails:	"Kundedetaljer",
@@ -129,8 +129,8 @@
 			Ok:					"OK",
 			Cancel:				"Annuller",
 			Required:			"Feltet skal udfyldes",
-			MaxLengthExceeded:	"Værdien indtastet overstiger det maksimalt tilladte antal karakterer",
-			InvalidValue:		"Ugyldig værdi",
+			MaxLengthExceeded:	"VÃ¦rdien indtastet overstiger det maksimalt tilladte antal karakterer",
+			InvalidValue:		"Ugyldig vÃ¦rdi",
 			InvalidEntries:		"Et eller flere felter er ikke udfyldt korrekt"
 		}
 	};

@@ -120,6 +120,9 @@ class SMShop extends SMExtension
 				if (count($paymentModule) !== 3)
 					continue; // Not valid
 
+				//if ($paymentModule[2] !== "true")
+				//	continue; // Not enabled
+
 				$paymentMethodsStr .= (($paymentMethodsStr !== "") ? ", " : "");
 				$paymentMethodsStr .= "{ Module: '" . $paymentModule[0] . "', Title: '" . $paymentModule[1] . "', Enabled: " . $paymentModule[2] . " }";
 			}
@@ -158,10 +161,11 @@ class SMShop extends SMExtension
 		JSShop.Settings.ConfigUrl = \"" . SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopConfig" . "\";
 		JSShop.Settings.BasketUrl = \"" . SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopBasket" . "\";
 		JSShop.Settings.TermsUrl = \"" . $config->GetEntryOrEmpty("TermsPage") . (($config->GetEntryOrEmpty("TermsPage") !== "") ? "?SMTemplateType=Basic&SMPagesDialog" : "") . "\";
-		JSShop.Settings.PaymentUrl = \"" . $payCallback . "\";
+		JSShop.Settings.ReceiptUrl = \"" . $config->GetEntryOrEmpty("ReceiptPage") . "\";
+		JSShop.Settings.PaymentUrl = \"" . (($paymentMethodsStr !== "") ? $payCallback : "") . "\";
 		JSShop.Settings.PaymentMethods = [ " . $paymentMethodsStr . " ];
-		JSShop.Settings.PaymentCaptureUrl = \"" . $payCallback . "&PaymentOperation=Capture\";
-		JSShop.Settings.PaymentCancelUrl = \"" . $payCallback . "&PaymentOperation=Cancel\";
+		JSShop.Settings.PaymentCaptureUrl = \"" . (($paymentMethodsStr !== "") ? $payCallback . "&PaymentOperation=Capture" : "") . "\";
+		JSShop.Settings.PaymentCancelUrl = \"" . (($paymentMethodsStr !== "") ? $payCallback . "&PaymentOperation=Cancel" : "") . "\";
 		JSShop.Settings.SendInvoiceUrl = \"" . $payCallback . "&PaymentOperation=Invoice\";
 		JSShop.Settings.AdditionalData = " . (($config->GetEntryOrEmpty("AdditionalData") !== "") ? $config->GetEntryOrEmpty("AdditionalData") : "{}") . ";
 		JSShop.Settings.Pages = [ " . $pages . "];

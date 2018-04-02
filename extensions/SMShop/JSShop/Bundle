@@ -19,6 +19,11 @@ do
 	cat $file >> JSShopBundle.temp.js
 done
 
+# Disable DebugMode in Fit.UI (optimization)
+
+echo >> JSShopBundle.temp.js
+echo "Fit._internal.Validation.DebugMode = false;" >> JSShopBundle.temp.js
+
 # Minify
 
 curl -X POST -s --data-urlencode "input@JSShopBundle.temp.js" https://javascript-minifier.com/raw > JSShopBundle.js

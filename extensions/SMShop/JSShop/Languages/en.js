@@ -106,7 +106,7 @@
 			StateCanceled:		"Rejected",
 			SelectOrders:		"Please select one or multiple orders",
 			ConfirmAction:		"Please confirm action",
-			OrdersSkipped:		"This action could not be performed for the following orders due to their current state",
+			//OrdersSkipped:		"This action could not be performed for the following orders due to their current state",
 			DoneSuccess:		"Done - all orders processed",
 			DoneFailure:		"Done - the following orders failed",
 
