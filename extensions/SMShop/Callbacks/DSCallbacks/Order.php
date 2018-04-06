@@ -543,7 +543,7 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 		$content = str_replace($expr[0], $expressionResult, $content);
 	}
 
-	// TODO: These place holders are not consistent with expressions above ( e.g. ${[..]} ) or place holders used to populate orderline data (see further down where {[Placeholder]} syntax is used)
+	// Notice: These placeholders are based on a syntax different from expressions used above ( e.g. ${[..]} ) and placeholders used to populate order line data (see further down where {[Placeholder]} syntax is used)
 	$content = str_replace("{Company}", $order["Company"], $content);
 	$content = str_replace("{FirstName}", $order["FirstName"], $content);
 	$content = str_replace("{LastName}", $order["LastName"], $content);
@@ -608,7 +608,7 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 	$orderLines = array();
 	$productLines = array();
 
-	// TODO: These place holders are not consistent with place holders used to populate order data (see further up where {Placeholder} syntax is used)
+	// Notice: These placeholders are based on a syntax different from placeholders used to populate order data (see further up where {Placeholder} syntax is used)
 	foreach (array("OrderLine", "ProductLine") as $listType)
 	{
 		foreach ($entries as $entry)
@@ -711,12 +711,6 @@ function SMShopGeneratePdfAttachments($content)
 		$pdfContent = null;
 		$pdf = null;
 
-		// TODO: Replace code below with SMEnvironment::GetDocumentRoot() - code copied here instead
-		// to work around bug on Stampemollen which is running with a buggy version of SMEnvironment.
-		$root = $_SERVER["SCRIPT_FILENAME"];			// E.g. /var/www/domain.com/web/Sitemagic/index.php
-		$root = str_replace("\\", "/", $root);			// In case backslashes are used on Windows Server
-		$root = substr($root, 0, strrpos($root, "/"));	// Remove last slash and filename (e.g. /index.php)
-
 		foreach ($pdfMatches as $match) // $match[0] = full match, $match[1] = 1st capture group (filename), $match[2] = 2nd capture group (PDF content)
 		{
 			$fullMatch = $match[0];
@@ -745,7 +739,7 @@ function SMShopGeneratePdfAttachments($content)
 			$pdf->AddPage();
 
 			$pdf->writeHTML(utf8_encode($pdfContent), false);
-			$pdf->Output($root . "/" . $pdfFiles[$filename], "F");
+			$pdf->Output(SMEnvironment::GetDocumentRoot() . "/" . $pdfFiles[$filename], "F");
 
 			$content = str_replace($fullMatch, "", $content);
 		}
@@ -885,7 +879,7 @@ function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weigh
 	}
 	else if ($returnType === "string")
 	{
-		$isValid = (is_string($res) === true && strip_tags($res) === $res); // TBD: Why are we using strip_tags(..) ? HTML is encoded further down - this seems a bit abrupt as it will halt execution
+		$isValid = (is_string($res) === true);
 	}
 	else if ($returnType === "htmlstring")
 	{

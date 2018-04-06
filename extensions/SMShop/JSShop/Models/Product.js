@@ -105,7 +105,7 @@ JSShop.Models.Product = function(itemId)
 		return discount;
 	}
 
-	this.CalculateDiscount = function(units) // TODO: Rename to CostCorrection ???
+	this.CalculateDiscount = function(units)
 	{
 		Fit.Validation.ExpectInteger(units);
 

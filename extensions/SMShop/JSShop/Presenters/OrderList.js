@@ -15,8 +15,6 @@ JSShop.Presenters.OrderList = function()
 
 	var process = [];
 
-	// TODO: Hide buttons if features are not supported !!!
-
 	var txtSearch = null;
 	var txtFrom = null;
 	var txtTo = null;
@@ -204,7 +202,7 @@ JSShop.Presenters.OrderList = function()
 						Fit.Dom.Replace(entry.querySelector("#JSShopOrderInvoice" + model.Id()), invoiceElm);
 
 						//model._internal = {};
-						// TODO: BAD PRACTICE ! _internal is defined by JSShop.Models.Base which all models inherit from !!
+						// BAD PRACTICE ! _internal is defined by JSShop.Models.Base which all models inherit from !! Replace usage of _internal with a custom property like _presenter
 						model._internal.StateElement = stateElm;
 						model._internal.InvoiceElement = invoiceElm;
 						model._internal.CheckBox = chk;

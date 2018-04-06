@@ -282,7 +282,7 @@ JSShop.Presenters.Config = function()
 		tpl.Content.Headline = module.Module;
 
 		var chk = new Fit.Controls.CheckBox(Fit.Data.CreateGuid());
-		chk.Label("Enable this payment module"); // TODO: lang. support
+		chk.Label("Enable this payment module");
 		chk.Checked(module.Enabled);
 		chk.OnChange(function(sender)
 		{

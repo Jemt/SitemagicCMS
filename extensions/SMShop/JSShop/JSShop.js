@@ -83,8 +83,8 @@ JSShop.WebService.OrderEntries.Delete = null;
 
 JSShop.Events = {};
 JSShop.Events.OnRequest = null;
-JSShop.Events.OnSuccess = null; // TODO: Rename to OnReponse (?) Currently not consistent with Models/Base.OnResponse(..) which is identical to JSShop.Events.OnSuccess
-JSShop.Events.OnError = null; // TODO: Rename to OnFailure (?) Currently not consistent with Models/Base.OnFailure(..) which is identical to JSShop.Events.OnError
+JSShop.Events.OnSuccess = null;
+JSShop.Events.OnError = null;
 
 // ======================================================
 // JSShop path info
