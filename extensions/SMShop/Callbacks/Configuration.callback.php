@@ -13,7 +13,7 @@ if (SMAuthentication::Authorized() === false)
 
 // Functions
 
-function SMShopGetConfiguration()
+function SMShopGetConfiguration($pspmHardcodedSettings)
 {
 	$path = SMEnvironment::GetDataDirectory() . "/SMShop";
 	$configuration = new SMConfiguration($path . "/Config.xml.php");
@@ -76,6 +76,9 @@ function SMShopGetConfiguration()
 		$paymentModuleSettings = "";
 		foreach ($config as $key => $val)
 		{
+			if (isset($pspmHardcodedSettings[$pm]) === true && isset($pspmHardcodedSettings[$pm][$key]) === true)
+				continue; // Skip setting hardcoded by SMShop
+
 			$paymentModuleSettings .= (($paymentModuleSettings !== "") ? ", " : "");
 			$paymentModuleSettings .= '{ "Title": "' . SMStringUtilities::JsonEncode($key) . '", "Value": "' . SMStringUtilities::JsonEncode($val) . '" }';
 		}
@@ -113,7 +116,7 @@ function SMShopGetConfiguration()
 	return "{" . $json . "\n}";
 }
 
-function SMShopSetConfiguration($data)
+function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 {
 	$path = SMEnvironment::GetDataDirectory() . "/SMShop";
 	$configuration = new SMConfiguration($path . "/Config.xml.php", true);
@@ -197,6 +200,13 @@ function SMShopSetConfiguration($data)
 			foreach ($pm["Settings"] as $s)
 				$settings .= (($settings !== "") ? ",\n" : "") . "\t\"" . $s["Title"] . "\" => \"" . str_replace("\"", "\\\"", str_replace("\$", "\\\$", $s["Value"])) . "\"";
 
+			// Add settings hardcoded by SMShop
+			if (isset($pspmHardcodedSettings[$pm["Module"]]) === true)
+			{
+				foreach ($pspmHardcodedSettings[$pm["Module"]] as $s => $v)
+					$settings .= (($settings !== "") ? ",\n" : "") . "\t\"" . $s . "\" => \"" . str_replace("\"", "\\\"", str_replace("\$", "\\\$", $v)) . "\"";
+			}
+
 			$php = "";
 			$php .= "<?php\n\n";
 			$php .= "\$config = array\n(\n";
@@ -240,13 +250,23 @@ $model = $json["Model"];
 $props = $json["Properties"];
 $operation = $json["Operation"];
 
+// Some PSPM settings can be automatically supplied so there is no need
+// to expose these settings and their associated complexity to the user.
+// The settings below are obviously PSPM specific and will be hidden from
+// the configuration interface.
+$pspmHardcodedSettings = array(
+	"QuickPay" => array(
+		"Cancel URL" => SMEnvironment::GetExternalUrl()
+	)
+);
+
 if ($operation === "Retrieve")
 {
-	echo SMShopGetConfiguration();
+	echo SMShopGetConfiguration($pspmHardcodedSettings);
 }
 else if ($operation === "Update")
 {
-	SMShopSetConfiguration($props);
+	SMShopSetConfiguration($props, $pspmHardcodedSettings);
 }
 
 ?>
