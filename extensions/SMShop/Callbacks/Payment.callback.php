@@ -64,8 +64,6 @@ else if ($operation === "Auth") // Step 2: Handle response from PSP - Callback i
 
 	$transactionId = $data["TransactionId"];	// String
 	$orderId = $data["OrderId"];				// String
-	//$amount = $data["Amount"];				// Integer
-	//$currency = $data["Currency"];			// String
 
 	$order = getOrder($orderId);
 
@@ -129,7 +127,7 @@ else if ($operation === "Cancel") // Called from JSShop
 		exit;
 	}
 
-	$orderId = SMEnvironment::GetPostValue("OrderId"); // POST
+	$orderId = SMEnvironment::GetPostValue("OrderId");
 	$order = getOrder($orderId);
 
 	if ($order["State"] !== "Authorized")
@@ -165,7 +163,7 @@ else if ($operation === "Invoice") // Called from JSShop
 		exit;
 	}
 
-	$orderId = SMEnvironment::GetPostValue("OrderId"); // POST
+	$orderId = SMEnvironment::GetPostValue("OrderId");
 	$order = getOrder($orderId);
 
 	/*if ($order["State"] !== "Captured")

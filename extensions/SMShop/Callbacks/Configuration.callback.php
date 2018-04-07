@@ -245,7 +245,7 @@ function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 
 // Execution
 
-$json = SMEnvironment::GetJsonData(); //SMShopGetJsonData();
+$json = SMEnvironment::GetJsonData();
 $model = $json["Model"];
 $props = $json["Properties"];
 $operation = $json["Operation"];

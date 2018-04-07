@@ -30,19 +30,6 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 
 	$pricing = null;
 
-	/*$vat = 0.0;
-	$vatFactor = 0.0;
-	$numberOfUnits = 0;
-	$unitPriceExclVat = 0.0;
-	$unitPriceInclVat = 0.0;
-	$priceAllUnitsInclVat = 0.0;
-
-	$discountExclVat = 0.0;
-	$discountInclVat = 0.0;
-
-	$resultPriceInclVat = 0.0;
-	$resultVat = 0.0;*/
-
 	$commonVatFactor = -99999.99;
 	$identicalVat = true;
 
@@ -136,28 +123,9 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 
 		// Totals
 
-		// Important: Calculates MUST be identical to the onces done client side
+		// Important: Calculations MUST be identical to the onces done client side
 		// to make sure the results are exactly the same. The code below is based
 		// on the JS code found in JSShop/JSShop.js => JSShop.CalculatePricing(..)
-
-		/*******$vat = (float)$product["Vat"];
-		$vatFactor = (($vat > 0) ? 1.0 + ($vat / 100) : 1.0);
-		$numberOfUnits = (int)$entry["Units"];
-		$unitPriceExclVat = (float)$product["Price"];
-		$unitPriceInclVat = round($unitPriceExclVat * $vatFactor, 2);
-		$priceAllUnitsInclVat = round($unitPriceInclVat * $numberOfUnits, 2); //$unitPriceInclVat * $numberOfUnits;
-
-		$discountExclVat = round($discount, 2); //$discount;
-		$discountInclVat = round($discountExclVat * $vatFactor, 2);
-
-		$resultPriceInclVat = round($priceAllUnitsInclVat - $discountInclVat, 2); //$priceAllUnitsInclVat - $discountInclVat;
-		$resultVat = $resultPriceInclVat - round($resultPriceInclVat / $vatFactor, 2);
-
-		$priceTotal += $resultPriceInclVat;
-		$vatTotal += $resultVat;
-		SMLog::Log(__FILE__, __LINE__, "PriceTotal and VAT is now: " . $priceTotal . " incl. VAT - " . $vatTotal . " (VAT) = " . ($priceTotal - $vatTotal) . " excl. VAT");
-		$weightTotal += (int)$entry["Units"] * (float)$product["Weight"];*******/
-
 
 		$pricing = SMShopCalculatePricing((float)$product["Price"], (int)$entry["Units"], (float)$product["Vat"], $discount);
 
@@ -182,8 +150,6 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 
 		$eDs->Update($entry, "Id = '" . $eDs->Escape($entry["Id"]) . "'");
 	}
-
-	//$eDs->Commit();
 
 	// Handle cost corrections (shipping expense, order discount, credit card fee, etc)
 
@@ -219,9 +185,7 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 	);
 
 	$correctionExclVat = 0.0;
-	///////$correctionInclVat = 0.0;
 	$correctionVat = 0.0;
-	///////$correctionVatFactor = 0.0;
 	$correctionMessage = null;
 
 	for ($i = 0 ; $i < count($costCorrections) ; $i++)
@@ -230,7 +194,6 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 			continue;
 
 		$correctionExclVat = SMShopHandleExpression($config, null, (string)($priceTotal - $vatTotal), (string)$vatTotal, $currency, (string)$weightTotal, $weightUnit, (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $costCorrections[$i]["Expression"], "number");
-		/////$correctionInclVat = 0.0;
 
 		if ($correctionExclVat > 0 || $correctionExclVat < 0)
 		{
@@ -238,15 +201,6 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 
 			if ($costCorrections[$i]["Vat"] !== "")
 				$correctionVat = SMShopHandleExpression($config, null, (string)($priceTotal - $vatTotal), (string)$vatTotal, $currency, (string)$weightTotal, $weightUnit, (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $costCorrections[$i]["Vat"], "number");
-
-			/*****$correctionVatFactor = (($correctionVat > 0) ? 1.0 + ($correctionVat / 100) : 1.0);
-			$correctionExclVat = round($correctionExclVat, 2);
-			$correctionInclVat = round($correctionExclVat * $correctionVatFactor, 2);****/
-
-			/*$pricing = SMShopCalculatePricing($correctionExclVat, 1, $correctionVat, 0);
-			$correctionVatFactor = $pricing["VatFactor"];
-			$correctionExclVat = $pricing["TotalExclvat"];
-			$correctionInclVat = $pricing["TotalInclvat"];*/
 
 			$correctionMessage = "";
 
@@ -262,14 +216,6 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 
 			if ($commonVatFactor !== $pricing["VatFactor"])
 				$identicalVat = false;
-
-			// Results are added to totals later, to prevent CostCorrections from affecting each other
-			/*****$costCorrections[$i]["CostCorrectionExVat"] = $correctionExclVat;
-			$costCorrections[$i]["CostCorrectionVat"] = ($correctionInclVat - $correctionExclVat);
-			$costCorrections[$i]["CostCorrectionMsg"] = $correctionMessage;
-
-			if ($commonVatFactor !== $correctionVatFactor)
-				$identicalVat = false;*****/
 		}
 	}
 
@@ -279,15 +225,12 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 	{
 		$priceTotal += $costCorrections[$i]["CostCorrectionExVat"] + $costCorrections[$i]["CostCorrectionVat"];
 		$vatTotal += $costCorrections[$i]["CostCorrectionVat"];
-		////SMLog::Log(__FILE__, __LINE__, "PriceTotal and VAT is now (CC): " . $priceTotal . " incl. VAT - " . $vatTotal . " (VAT) = " . ($priceTotal - $vatTotal) . " excl. VAT");
 
 	}
 
 	if ($identicalVat === true)
 	{
-		////SMLog::Log(__FILE__, __LINE__, "VAT is identical - current value: " . $vatTotal);
 		$vatTotal = round($priceTotal - ($priceTotal / $commonVatFactor), 2);
-		////SMLog::Log(__FILE__, __LINE__, "VAT is identical - new value: " . $vatTotal);
 	}
 
 	// Update order details
@@ -324,14 +267,9 @@ function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyVa
 {
 	SMTypeCheck::CheckObject(__METHOD__, "asInvoice", $asInvoice, SMTypeCheckType::$Boolean);
 
-	//SMLog::Log(__FILE__, __LINE__, "SMShopSendMail(" . $asInvoice . ")");
-	//SMLog::Log(__FILE__, __LINE__, " - Order details: " . print_r($order, true));
-
 	if ($asInvoice === true && $order["InvoiceId"] === "")
 	{
 		// Ensure invoice ID
-
-		//SMLog::Log(__FILE__, __LINE__, " - Ensure invoice ID");
 
 		SMAttributes::Lock(); // Prevent two sessions from obtaining the same Invoice ID
 		SMAttributes::Reload(false); // No data will be lost when reloading attributes from a callback since no extensions are being executed
@@ -350,8 +288,6 @@ function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyVa
 
 		$ds->Update($update, "Id = '" . $ds->Escape($order["Id"]) . "'");
 		$ds->Commit(); // Also releases lock
-
-		//SMLog::Log(__FILE__, __LINE__, " - New invoice ID: " . $invoiceId);
 
 		SMAttributes::SetAttribute("SMShopNextInvoiceId", (string)($invoiceId + 1));
 		SMAttributes::Commit(); // Also releases lock
@@ -470,11 +406,6 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 
 	$orderDetails = "";
 
-	/*****$vatFactor = 0.0;
-	$unitPriceExclVat = 0.0;
-	$UnitPriceInclVat = 0.0;
-	$discountInclVat = 0.0;******/
-
 	foreach ($entries as $entry)
 	{
 		$products = $pDs->Select("*", "Id = '" . $pDs->Escape($entry["ProductId"]) . "'");
@@ -490,17 +421,6 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 
 		$orderDetails .= (($orderDetails !== "") ? "<br>" : "");
 		$orderDetails .= $entry["Units"] . " x " . $products[0]["Title"] . ", " . $order["Currency"] . " " . number_format($pricing["TotalInclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
-
-
-		/*******$vatFactor = (((float)$entry["Vat"] > 0) ? 1.0 + ((float)$entry["Vat"] / 100) : 1.0);
-		$unitPriceExclVat = (float)$entry["UnitPrice"];
-		$unitPriceInclVat = round($unitPriceExclVat * $vatFactor, 2);
-		$discountInclVat = round((float)$entry["Discount"] * $vatFactor, 2);
-
-		$orderDetails .= (($orderDetails !== "") ? "<br>" : "");
-		$orderDetails .= $entry["Units"] . " x " . $products[0]["Title"] . ", " . $order["Currency"] . " " . number_format(((int)$entry["Units"] * $unitPriceInclVat) - $discountInclVat, 2, $lang->GetTranslation("DecimalSeparator"), "");
-		//$orderDetails .= $entry["Units"] . " x " . $products[0]["Title"] . ", " . $order["Currency"] . " " . number_format((((int)$entry["Units"] * (float)$entry["UnitPrice"]) - (float)$entry["Discount"]) * (((float)$entry["Vat"] / 100) + 1), 2, $lang->GetTranslation("DecimalSeparator"), "");
-		********/
 	}
 
 	// Cost corrections
@@ -624,8 +544,6 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 
 			$pricing = SMShopCalculatePricing((float)$entry["UnitPrice"], (int)$entry["Units"], (float)$entry["Vat"], (float)$entry["Discount"]);
 
-			//SMLog::Log(__FILE__, __LINE__, print_r($pricing, true));
-
 			$orderLine = new SMKeyValueCollection();
 			$orderLine[$listType . "Amount"] = $entry["Units"];
 			$orderLine[$listType . "ProductId"] = $entry["ProductId"];
@@ -639,20 +557,6 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 				$orderLines[] = $orderLine;
 			else
 				$productLines[] = $orderLine;
-
-			/*
-			$resultObj = array
-			(
-				"VatFactor"			=> $vatFactor,
-				"UnitPriceExclVat"	=> $unitPriceExclVat,
-				"UnitPriceInclVat"	=> $unitPriceInclVat,
-				"DiscountExclVat"	=> $discountExclVat,
-				"DiscountInclVat"	=> $discountInclVat,
-				"TotalInclVat"		=> $resultPriceInclVat,
-				"TotalExclVat"		=> $resultPriceExclVat,
-				"TotalVat"			=> $resultVat
-			);
-			*/
 		}
 
 		if ($listType === "OrderLine")
@@ -694,7 +598,6 @@ function SMShopGeneratePdfAttachments($content)
 	$pdfFiles = array();
 
 	$pdfMatches = null;
-	//$pdfMatchCount = preg_match_all('/<!--\s*PDF:(\w+)\s*-->\s*(.*?)\s*<!--\s*\/PDF:\1\s*-->/ms', $content, $pdfMatches, PREG_SET_ORDER); // https://regex101.com/r/3J3pV2/4
 	$pdfMatchCount = preg_match_all('/<!--\s*PDF:([\w\-]+)\s*-->\s*(.*?)\s*<!--\s*\/PDF:\1\s*-->/ms', $content, $pdfMatches, PREG_SET_ORDER); // https://regex101.com/r/3J3pV2/5
 
 	if ($pdfMatchCount !== false && $pdfMatchCount > 0)
@@ -760,8 +663,6 @@ function SMShopCleanUpPdfAttachments($pdfFiles)
 
 function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weight, $weightUnit, $zipCode, $paymentMethod, $promoCode, $custData1, $custData2, $custData3, $expression, $returnType)
 {
-	///////SMTypeCheck::CheckObject(__METHOD__, "expression", $expression, SMTypeCheckType::$String);
-
 	if ($expression === "")
 	{
 		if ($returnType === "number")

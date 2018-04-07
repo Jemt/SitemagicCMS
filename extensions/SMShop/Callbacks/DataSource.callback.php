@@ -166,23 +166,6 @@ function SMShopDataItemToJson($dsDef, $props, SMKeyValueCollection $item)
 	foreach (array_keys($props) as $prop)  // Using properties from request to prevent any other data in DataSource from being returned (optimization), and to make sure JSON is returned in proper casing (DataSource column names are always lower cased)
 	{
 		$res .= (($res !== "") ? ", " : "") . "\"" . $prop . "\": " . (($dsDef["Fields"][$prop]["DataType"] === "string") ? "\"" . (($item[$prop] !== null) ? SMStringUtilities::JsonEncode($item[$prop]) : "") . "\"" : (($item[$prop] !== null && $item[$prop] !== "") ? $item[$prop] : "0"));
-
-		/*$res .= (($res !== "") ? ", " : "");
-		$res .= "\"" . $prop . "\": ";
-
-		if ($dsDef["Fields"][$prop]["DataType"] === "string")
-		{
-			$res .= "\"" . (($item[$prop] !== null) ? SMShopEscapeJsonValue($item[$prop]) : "") . "\"";
-		}
-		else // Number
-		{
-			if ($item[$prop] === null || $item[$prop] === "")
-				$res .= "0";
-			else if ((string)(int)$item[$prop] === (string)(float)$item[$prop]) // Int
-				$res .= $item[$prop];
-			else // Float - round off
-				$res .= (string)round((float)$item[$prop], 2);
-		}*/
 	}
 
 	return "{" . $res . "}";
@@ -224,7 +207,7 @@ function SMShopGetJsType($val)
 
 // Read data
 
-$json = SMEnvironment::GetJsonData(); //SMShopGetJsonData();
+$json = SMEnvironment::GetJsonData();
 $model = $json["Model"];
 $props = $json["Properties"];
 $command = $json["Operation"];
