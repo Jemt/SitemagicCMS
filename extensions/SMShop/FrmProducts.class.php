@@ -50,11 +50,8 @@ class SMShopFrmProducts implements SMIExtensionForm
 			// will be transformed to lowercase keys (see lowerCasePlaceHolders(..)).
 			// Entries added below therefore also have to use lowercase keys.
 
-			// number_format(((int)$entry["Units"] * $unitPriceInclVat) - $discountInclVat, 2, $lang->GetTranslation("DecimalSeparator"), "")
-
 			$prod["description"] = SMStringUtilities::NewLineToHtmlLineBreak($prod["description"]);
 
-			//if ($prod["Vat"] === "" || (float)$prod["Vat"] === 0.0)
 			if ((float)$prod["Vat"] === 0.0)
 				$prod["fullprice"] = number_format((float)$prod["Price"], 2, $this->lang->GetTranslation("DecimalSeparator"), "");
 			else
@@ -66,21 +63,6 @@ class SMShopFrmProducts implements SMIExtensionForm
 
 			$prod["buy"] = $this->lang->GetTranslation("Buy");
 			$prod["readmore"] = $this->lang->GetTranslation("ReadMore");
-
-			//SMLog::Log(__FILE__, __LINE__, "Product: " . print_r($prod, true));
-
-			/*$prod["Vat"] = (($prod["Vat"] === "" || (float)$prod["Vat"] === 0.0) ? "0.0" : (string)round((float)$prod["Vat"], 2));
-			$prod["Price"] = (($prod["Price"] === "" || (float)$prod["Price"] === 0.0) ? "0.0" : (string)round((float)$prod["Price"], 2));
-			$prod["Weight"] = (($prod["Weight"] === "" || (float)$prod["Weight"] === 0.0) ? "0.0" : (string)round((float)$prod["Weight"], 2));
-
-			//if ($prod["Vat"] === "" || (float)$prod["Vat"] === 0.0)
-			if ((float)$prod["Vat"] === 0.0)
-				$prod["fullprice"] = (string)round((float)$prod["Price"], 2);
-			else
-				  $prod["fullprice"] = (string)round((float)$prod["Price"] + ((float)$prod["Price"] * ((float)$prod["Vat"]/100)), 2);
-
-			$prod["buy"] = $this->lang->GetTranslation("Buy");
-			$prod["readmore"] = $this->lang->GetTranslation("ReadMore");*/
 		}
 
 		// Set page title

@@ -299,8 +299,6 @@ class SMShop extends SMExtension
 				$menuItem->AddChild(new SMMenuItem($this->name, $this->getTranslation("Products"), SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopEditProducts"));
 			if ($adminItem !== null)
 				$adminItem->AddChild(new SMMenuItem($this->name . "Adm", $this->getTranslation("Title"), SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopAdministration"));
-			//if ($adminItem !== null)
-			//	$adminItem->AddChild(new SMMenuItem($this->name . "Cfg", $this->getTranslation("ConfigTitle"), SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopConfig"));
 		}
 	}
 
