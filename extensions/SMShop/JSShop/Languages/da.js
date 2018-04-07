@@ -106,7 +106,6 @@
 			StateCanceled:		"Afvist",
 			SelectOrders:		"Vælg venligst en eller flere ordre",
 			ConfirmAction:		"Bekræft venligst handlingen",
-			//OrdersSkipped:		"Denne handling kunne ikke udføres for de følgende ordre pga. deres nuværende tilstand",
 			DoneSuccess:		"Færdig - alle ordre behandlet",
 			DoneFailure:		"Færdig - følgende ordre fejlede",
 

@@ -419,15 +419,6 @@ JSShop.Presenters.OrderForm = function()
 					dialog.Dispose();
 
 					processOrder();
-
-					/*cmdContinueWithout.Enabled(false);
-					cmdGoBack.Enabled(false);
-
-					processOrder(function() // Error handler - unlock UI if processOrder fails
-					{
-						cmdContinueWithout.Enabled(true);
-						cmdGoBack.Enabled(true);
-					});*/
 				});
 				dialog.AddButton(cmdContinueWithout);
 

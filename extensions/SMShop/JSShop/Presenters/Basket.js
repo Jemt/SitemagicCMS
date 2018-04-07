@@ -126,32 +126,6 @@ JSShop.Presenters.Basket = function()
 								if (item.Product.WeightUnit() !== weightUnit)
 									weightUnitError = true;
 
-								// Calculate pricing
-
-								/****var vatFactor = ((item.Product.Vat() > 0) ? 1.0 + (item.Product.Vat() / 100) : 1.0);
-								var numberOfUnits = item.Units;
-								var unitPriceExclVat = item.Product.Price();
-								var unitPriceInclVat = Fit.Math.Round(unitPriceExclVat * vatFactor, 2);
-								var priceAllUnitsInclVat = unitPriceInclVat * numberOfUnits;
-
-								var discountExclVat = Fit.Math.Round(item.Product.CalculateDiscount(item.Units), 2);
-								var discountInclVat = Fit.Math.Round(discountExclVat * vatFactor, 2);
-
-								var resultPriceInclVat = priceAllUnitsInclVat - discountInclVat;
-								var resultVat = Fit.Math.Round(resultPriceInclVat - (resultPriceInclVat / vatFactor), 2);
-
-								// Populate HTML
-
-								var curItemHtml = itemHtml;
-
-								curItemHtml = curItemHtml.replace(/{\[Title\]}/g, item.Product.Title());
-								curItemHtml = curItemHtml.replace(/{\[UnitPrice\]}/g, Fit.Math.Format(unitPriceInclVat, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
-								curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, Fit.Math.Format(discountInclVat * -1, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
-								curItemHtml = curItemHtml.replace(/{\[DiscountMessage\]}/g, ((discountInclVat !== 0) ? item.Product.CalculateDiscountMessage(item.Units) : ""));
-								curItemHtml = curItemHtml.replace(/{\[Units\]}/g, "<div id='JSShopBasketItem" + item.ProductId + "'></div>");
-								curItemHtml = curItemHtml.replace(/{\[Currency\]}/g, item.Product.Currency());
-								curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(resultPriceInclVat, 2, JSShop.Language.Translations.Locale.DecimalSeparator));******/
-
 								// Populate HTML
 
 								var curItemHtml = itemHtml;
@@ -176,27 +150,11 @@ JSShop.Presenters.Basket = function()
 								totalDiscount = Fit.Math.Round(totalDiscount + pricing.DiscountInclVat, 2);
 								totalWeight = Fit.Math.Round(totalWeight + (item.Units * item.Product.Weight()), 2);
 
-								/****totalVat += pricing.TotalVat;
-								totalPrice += pricing.TotalInclVat;
-								totalDiscount += pricing.DiscountInclVat;
-								totalWeight += item.Units * item.Product.Weight();****/
-
 								if (commonVatFactor === -99999.99)
 									commonVatFactor = pricing.VatFactor;
 
 								if (commonVatFactor !== pricing.VatFactor)
 									identicalVat = false;
-
-								/****totalVat += resultVat;
-								totalPrice += resultPriceInclVat;
-								totalDiscount += discountInclVat;
-								totalWeight += item.Units * item.Product.Weight();
-
-								if (commonVatFactor === -99999.99)
-									commonVatFactor = vatFactor;
-
-								if (commonVatFactor !== vatFactor)
-									identicalVat = false;****/
 							});
 
 							// Handle cost corrections (shipping expense, order discount, credit card fee, etc)
@@ -241,10 +199,6 @@ JSShop.Presenters.Basket = function()
 									if (cc.Vat)
 										correctionVat = JSShop.Models.Order.CalculateExpression(totalPrice - totalVat, totalVat, currency, totalWeight, weightUnit, zipCode, paymentMethod, promoCode, custData1, custData2, custData3, cc.Vat, "number");
 
-									/****var correctionVatFactor = ((correctionVat > 0) ? 1.0 + (correctionVat / 100) : 1.0);
-									correctionExclVat = Fit.Math.Round(correctionExclVat, 2);
-									correctionInclVat = Fit.Math.Round(correctionExclVat * correctionVatFactor, 2);***/
-
 									var costCorrectionResult = JSShop.CalculatePricing(correctionExclVat, 1, correctionVat, 0);
 									correctionExclVat = costCorrectionResult.TotalExclVat;
 									correctionInclVat = costCorrectionResult.TotalInclVat;
@@ -269,7 +223,6 @@ JSShop.Presenters.Basket = function()
 									cc.CostCorrectionExVat = correctionExclVat;
 									cc.CostCorrectionVat = (correctionInclVat - correctionExclVat);
 
-									/****if (commonVatFactor !== correctionVatFactor)***/
 									if (commonVatFactor !== costCorrectionResult.VatFactor)
 										identicalVat = false;
 								}
@@ -332,7 +285,6 @@ JSShop.Presenters.Basket = function()
 
 									var units = item.Units.toString();
 									var txtUnits = new Fit.Controls.Input(Fit.Data.CreateGuid());
-									///txtUnits.Value(units);
 									txtUnits.Width(4, "em");
 									txtUnits.OnChange(function(sender)
 									{

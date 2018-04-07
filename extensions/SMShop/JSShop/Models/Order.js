@@ -1,27 +1,3 @@
-/*
-// Performance test client side:
-
-for (var i = 20000 ; i < 20500 ; i++)
-{
-    create(i.toString(), i.toString());
-}
-
-function create(orderId, orderEntryId)
-{
-    var order = new JSShop.Models.Order(orderId);
-    var entry = new JSShop.Models.OrderEntry(orderEntryId);
-    entry.OrderId(orderId);
-    entry.ProductId("10001");
-    entry.UnitPrice(2000);
-    entry.Units(3);
-    entry.Vat(25);
-    entry.Create(function(a,b,c)
-    {
-        order.Create();
-    });
-}
-*/
-
 if (!window.JSShop)
 	Fit.Validation.ThrowError("JSShop.js must be loaded");
 
@@ -332,8 +308,6 @@ JSShop.Models.Order.CalculateExpression = function(price, vat, currency, weight,
 	ex = ex.replace(/(["']).*?\1/g, ""); // Allow use of double quoted and single quoted strings - ? after quantifiers makes the match non-greedy
 
 	var secure = (ex === ""); // All valid elements were removed above, so if ex contains anything, it is potentially a security threat
-	//secure = (secure === true && /(["']).*?<.*?>.*?\1/.test(expression) === false) // Make sure HTML is not found in quoted strings - ? after quantifiers makes the match non-greedy - https://regex101.com/r/dL1bI2/2
-	////secure = (secure === true && /(["'])[^\1.]*?<[^\1.]*?>[^\1.]*?\1/.test(expression) === false) // Make sure HTML is not found in quoted strings - ? after quantifiers makes the match non-greedy - https://regex101.com/r/dL1bI2/3
 
 	if (secure === false)
 		throw "InvalidExpression: Invalid and potentially insecure expression detected - evaluation aborted";

@@ -149,25 +149,6 @@ JSShop.Presenters.Config = function()
 		{
 			loadMailConfig(btn, selectedValue);
 		});
-
-		/*var ctx = new Fit.Controls.ContextMenu();
-
-		Fit.Array.ForEach(config.MailTemplates.Templates, function(mt)
-		{
-			ctx.AddChild(new Fit.Controls.ContextMenu.Item(mt.Title, mt.Title));
-		});
-
-		ctx.OnSelect(function(sender, item)
-		{
-			loadMailConfig(btn, item.Value());
-			ctx.Hide();
-		});
-
-		var el = btn.GetDomElement();
-		var x = el.offsetLeft;
-		var y = el.offsetTop + el.offsetHeight;
-
-		ctx.Show(x, y);*/
 	}
 
 	function loadMailConfig(btn, tplName)
@@ -459,7 +440,6 @@ JSShop.Presenters.Config = function()
 
 			return true;
 		}, "Invalid expression");
-		//itm.PropertyValue.FitControl.LazyValidation(true);
 		input.FitControl.CheckSpelling(false);
 		input.FitControl.MultiLine(true);
 		input.FitControl.Height(100);
@@ -491,20 +471,11 @@ JSShop.Presenters.Config = function()
 			ctl.GetPicker().AddItem(option.Title, option.Value);
 		});
 
-		//ctl.InputEnabled(true);
-		//ctl.Value(value.replace(/=/g, "%3D")); // Equal sign is reserved to separate Title and Value (Title=Value) in DropDown control
 		ctl.AddSelection(title, value);
 		ctl.OnChange(function(sender)
 		{
 			onChange(sender, ((ctl.GetSelections().length !== 0) ? ctl.GetSelections()[0].Value : ""));
 		});
-		/*ctl.OnBlur(function(sender)
-		{
-			if (ctl.GetSelections().length === 0 && ctl.GetInputValue() !== "")
-			{
-				ctl.AddSelection(ctl.GetInputValue(), ctl.GetInputValue());
-			}
-		});*/
 		ctl.Width(700);
 
 		ctl.GetDomElement().FitControl = ctl;

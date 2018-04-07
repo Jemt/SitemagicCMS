@@ -10,24 +10,15 @@ JSShop.Models.Base = function(itemId)
 
 	var me = this;
 	var urls = null;
-	var complex = false;
 	var onRequestHandlers = [];
 	var onResponseHandlers = [];
 	var onFailureHandlers = [];
 
-	this.InitializeModel = function(isComplex) // Derivatives MUST call InitializeModel once GetProperties() has been overridden, in order for Get/Set functions to be created
+	this.InitializeModel = function() // Derivatives MUST call InitializeModel once GetProperties() has been overridden, in order for Get/Set functions to be created
 	{
-		Fit.Validation.ExpectBoolean(isComplex, true);
-
 		// Get WS Urls
 
 		urls = me.GetWebServiceUrls();
-
-		/*if (isComplex === true)
-		{
-			complex = isComplex;
-			return;
-		}*/
 
 		// Create Get/Set functions - examples:
 		// var title = model.Title();
@@ -66,11 +57,6 @@ JSShop.Models.Base = function(itemId)
 	{
 		Fit.Validation.ThrowError("Missing implementation");
 	}
-
-	/*this.IsComplex = function()
-	{
-		return complex;
-	}*/
 
 	this.Create = function(cbSuccess, cbFailure)
 	{
