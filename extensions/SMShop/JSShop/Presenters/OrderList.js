@@ -41,7 +41,7 @@ JSShop.Presenters.OrderList = function()
 
 			Fit.Array.ForEach(models, function(model)
 			{
-				model._internal.CheckBox.Dispose();
+				model._presenter.CheckBox.Dispose();
 			});
 
 			chkSelectAll.Checked(false);
@@ -102,7 +102,7 @@ JSShop.Presenters.OrderList = function()
 
 				Fit.Array.ForEach(oldModels, function(model)
 				{
-					Fit.Dom.Remove(model._internal.DomElement);
+					Fit.Dom.Remove(model._presenter.DomElement);
 				});
 
 				var from = Fit.Date.Parse(txtFrom.Value() + " 00:00:00", JSShop.Language.Translations.Locale.DateFormat + " hh:mm:ss").getTime();
@@ -201,12 +201,11 @@ JSShop.Presenters.OrderList = function()
 						invoiceElm.innerHTML = model.InvoiceId();
 						Fit.Dom.Replace(entry.querySelector("#JSShopOrderInvoice" + model.Id()), invoiceElm);
 
-						//model._internal = {};
-						// BAD PRACTICE ! _internal is defined by JSShop.Models.Base which all models inherit from !! Replace usage of _internal with a custom property like _presenter
-						model._internal.StateElement = stateElm;
-						model._internal.InvoiceElement = invoiceElm;
-						model._internal.CheckBox = chk;
-						model._internal.DomElement = entry;
+						model._presenter = {};
+						model._presenter.StateElement = stateElm;
+						model._presenter.InvoiceElement = invoiceElm;
+						model._presenter.CheckBox = chk;
+						model._presenter.DomElement = entry;
 					});
 
 					if (cb)
@@ -448,10 +447,10 @@ JSShop.Presenters.OrderList = function()
 			{
 				Fit.Array.ForEach(models, function(model)
 				{
-					//if (model._internal.CheckBox.Enabled() === true)
+					//if (model._presenter.CheckBox.Enabled() === true)
 
-					if (model._internal.DomElement.style.display !== "none")
-						model._internal.CheckBox.Checked(chkSelectAll.Checked());
+					if (model._presenter.DomElement.style.display !== "none")
+						model._presenter.CheckBox.Checked(chkSelectAll.Checked());
 				});
 			}
 		});
@@ -523,7 +522,7 @@ JSShop.Presenters.OrderList = function()
 				//Fit.Array.Remove(processing, model);
 				processed++;
 
-				model._internal.StateElement.innerHTML = getStateTitle(model.State());
+				model._presenter.StateElement.innerHTML = getStateTitle(model.State());
 
 				if (processing.length === 0) // No more requests to be made
 				{
@@ -600,7 +599,7 @@ JSShop.Presenters.OrderList = function()
 			{
 				Fit.Array.Remove(processing, model);
 
-				model._internal.StateElement.innerHTML = getStateTitle(model.State());
+				model._presenter.StateElement.innerHTML = getStateTitle(model.State());
 
 				if (processing.length === 0)
 				{
@@ -627,7 +626,7 @@ JSShop.Presenters.OrderList = function()
 
 		Fit.Array.ForEach(models, function(model)
 		{
-			if (model._internal.DomElement.style.display !== "none" && model._internal.CheckBox.Checked() === false)
+			if (model._presenter.DomElement.style.display !== "none" && model._presenter.CheckBox.Checked() === false)
 			{
 				allSelected = false;
 				return false;
@@ -641,13 +640,13 @@ JSShop.Presenters.OrderList = function()
 
 		Fit.Array.ForEach(models, function(model)
 		{
-			if (model._internal.CheckBox.Enabled() === true && model._internal.CheckBox.Checked() === false)
+			if (model._presenter.CheckBox.Enabled() === true && model._presenter.CheckBox.Checked() === false)
 			{
 				allSelected = false;
 				chkSelectAll.Checked(false);
 			}
 
-			if (model._internal.CheckBox.Enabled() === true)
+			if (model._presenter.CheckBox.Enabled() === true)
 			{
 				enabled = true;
 			}
@@ -957,12 +956,12 @@ JSShop.Presenters.OrderList = function()
 				}*/
 
 				//////Fit.Array.Remove(process, model);
-				//model._internal.CheckBox.Checked(false);
+				//model._presenter.CheckBox.Checked(false);
 			});
 
 			/*Fit.Array.ForEach(models, function(model)
 			{
-				model._internal.CheckBox.Checked(false);
+				model._presenter.CheckBox.Checked(false);
 			});
 			chkSelectAll.Checked(false);*/
 
@@ -1003,7 +1002,7 @@ JSShop.Presenters.OrderList = function()
 
 			Fit.Array.ForEach(process, function(model)
 			{
-				if (model._internal.Entries !== undefined)
+				if (model._presenter.Entries !== undefined)
 				{
 					loaded++;
 
@@ -1016,7 +1015,7 @@ JSShop.Presenters.OrderList = function()
 				JSShop.Models.OrderEntry.RetrieveAll(model.Id(), function(req, models)
 				{
 					loaded++;
-					model._internal.Entries = models;
+					model._presenter.Entries = models;
 
 					if (loaded === process.length)
 						execute();
@@ -1024,7 +1023,7 @@ JSShop.Presenters.OrderList = function()
 				function(req, models)
 				{
 					loaded++;
-					model._internal.Entries = null;
+					model._presenter.Entries = null;
 
 					if (loaded === process.length)
 						execute();
@@ -1123,7 +1122,7 @@ JSShop.Presenters.OrderList = function()
 				pdf.text(x + 350, y, "Antal");
 				pdf.text(x + 400, y, "Pris");
 
-				Fit.Array.ForEach(order._internal.Entries, function(entry)
+				Fit.Array.ForEach(order._presenter.Entries, function(entry)
 				{
 					y += 20;
 
@@ -1231,7 +1230,7 @@ JSShop.Presenters.OrderList = function()
 
 		Fit.Array.ForEach(process, function(order)
 		{
-			if (Fit.Validation.IsSet(order._internal.Entries) === true)
+			if (Fit.Validation.IsSet(order._presenter.Entries) === true)
 			{
 				loaded++;
 
@@ -1257,7 +1256,7 @@ JSShop.Presenters.OrderList = function()
 						if (productsLoaded === entries.length)
 						{
 							loaded++;
-							orderModel._internal.Entries = entries;
+							orderModel._presenter.Entries = entries;
 
 							if (loaded === process.length)
 								execute();
@@ -1271,7 +1270,7 @@ JSShop.Presenters.OrderList = function()
 						if (productsLoaded === entries.length)
 						{
 							loaded++;
-							model._internal.Entries = entries;
+							model._presenter.Entries = entries;
 
 							if (loaded === process.length)
 								execute();
@@ -1282,7 +1281,7 @@ JSShop.Presenters.OrderList = function()
 			function(req, entries)
 			{
 				loaded++;
-				model._internal.Entries = null;
+				model._presenter.Entries = null;
 
 				if (loaded === process.length)
 					execute();
@@ -1350,7 +1349,7 @@ JSShop.Presenters.OrderList = function()
 
 				model.Retrieve(function(req, m)
 				{
-					model._internal.InvoiceElement.innerHTML = model.InvoiceId();
+					model._presenter.InvoiceElement.innerHTML = model.InvoiceId();
 				});
 			},
 			function(req, m) // Error handler
@@ -1418,7 +1417,7 @@ JSShop.Presenters.OrderList = function()
 
 				model.Retrieve(function(req, m)
 				{
-					model._internal.InvoiceElement.innerHTML = model.InvoiceId();
+					model._presenter.InvoiceElement.innerHTML = model.InvoiceId();
 				});
 			},
 			function(req, m) // Error handler
