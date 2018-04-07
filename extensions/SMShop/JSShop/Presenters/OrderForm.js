@@ -41,9 +41,9 @@ JSShop.Presenters.OrderForm = function()
 			return;
 
 		if (document.querySelector("link[href*='/Views/OrderForm.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
-			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderForm.css");
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderForm.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderForm.html");
+		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderForm.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 		req.OnSuccess(function(sender)
 		{
 			view.innerHTML = req.GetResponseText();

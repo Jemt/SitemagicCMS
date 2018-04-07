@@ -38,7 +38,7 @@ JSShop.Presenters.Basket = function()
 		// Load CSS
 
 		if (document.querySelector("link[href*='/Views/Basket.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
-			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/Basket.css");
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/Basket.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
 		// Check basket
 
@@ -50,7 +50,7 @@ JSShop.Presenters.Basket = function()
 
 		// Load view and data
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/Basket.html");
+		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/Basket.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 		req.OnSuccess(function(sender)
 		{
 			var htmlView = req.GetResponseText();

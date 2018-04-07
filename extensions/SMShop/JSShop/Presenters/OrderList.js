@@ -52,9 +52,9 @@ JSShop.Presenters.OrderList = function()
 			process = [];
 
 			if (document.querySelector("link[href*='/Views/OrderList.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
-				Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList.css");
+				Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
-			var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderList.html");
+			var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderList.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 			req.OnSuccess(function(sender)
 			{
 				var initialLoad = (view.innerHTML === "");
@@ -685,9 +685,9 @@ JSShop.Presenters.OrderList = function()
 		cmdOk.Focused(true);
 
 		if (document.querySelector("link[href*='/Views/DialogCustomerDetails.css']") === null)
-			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/DialogCustomerDetails.css");
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/DialogCustomerDetails.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/DialogCustomerDetails.html");
+		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/DialogCustomerDetails.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 		req.OnSuccess(function(sender)
 		{
 			var html = req.GetResponseText();
@@ -750,9 +750,9 @@ JSShop.Presenters.OrderList = function()
 		cmdOk.Focused(true);
 
 		if (document.querySelector("link[href*='/Views/DialogOrderEntries.css']") === null)
-			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/DialogOrderEntries.css");
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/DialogOrderEntries.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/DialogOrderEntries.html");
+		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/DialogOrderEntries.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 		req.OnSuccess(function(sender)
 		{
 			var html = req.GetResponseText();

@@ -15,7 +15,7 @@ JSShop.Presenters.Config = function()
 	function init()
 	{
 		if (document.querySelector("link[href*='/Views/Config.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
-			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/Config.css");
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/Config.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
 		view = document.createElement("div");
 
@@ -26,7 +26,7 @@ JSShop.Presenters.Config = function()
 		{
 			config = JSShop.Models.Config.Current.GetProperties();
 
-			tpl.LoadUrl(JSShop.GetPath() + "/Views/Config.html", function(sender, html)
+			tpl.LoadUrl(JSShop.GetPath() + "/Views/Config.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 			{
 				var cmdBasic = createTabButton("Basic", loadBasicConfig);
 				var cmdMails = createTabButton("E-mail templates", function(sender) { showMailTemplates(sender); });

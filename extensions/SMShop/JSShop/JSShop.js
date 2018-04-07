@@ -6,11 +6,13 @@ if (!window.Fit)
 // ======================================================
 
 JSShop = {};
-JSShop._internal = { CacheKey: null, Debug: false };
+JSShop._internal = { };
 
 // Settings
 
 JSShop.Settings = {};
+JSShop.Settings.CacheKey = "";
+JSShop.Settings.Debug = false;
 JSShop.Settings.CostCorrection1 = null;
 JSShop.Settings.CostCorrectionVat1 = null;
 JSShop.Settings.CostCorrectionMessage1 = null;
@@ -103,11 +105,11 @@ JSShop.Events.OnError = null;
 
 	// Get CacheKey from script URL if defined
 	var cacheKey = qs.Parameters["CacheKey"];
-	JSShop._internal.CacheKey = (cacheKey ? cacheKey : null);
+	JSShop.Settings.CacheKey = (cacheKey ? cacheKey : null);
 
 	// Get Debug flag from script URL if defined
 	var debug = qs.Parameters["Debug"];
-	JSShop._internal.Debug = (debug === "true" ? true : false);
+	JSShop.Settings.Debug = (debug === "true" ? true : false);
 
 	// Extract Base URL - e.g. http://server.com/libs/jsshop
 	JSShop._internal.BaseUrl = src.substring(0, src.lastIndexOf("/"));
@@ -197,6 +199,8 @@ JSShop.Initialize = function(cb)
 	Fit.Validation.ExpectObject(window.JSShop);
 
 	Fit.Validation.ExpectObject(JSShop.Settings);
+	Fit.Validation.ExpectString(JSShop.Settings.CacheKey, true);
+	Fit.Validation.ExpectBoolean(JSShop.Settings.Debug, true);
 	Fit.Validation.ExpectString(JSShop.Settings.CostCorrection1, true);
 	Fit.Validation.ExpectString(JSShop.Settings.CostCorrectionVat1, true);
 	Fit.Validation.ExpectString(JSShop.Settings.CostCorrectionMessage1, true);
@@ -285,10 +289,10 @@ JSShop.Initialize = function(cb)
 		return;
 	}
 
-	var cacheKey = (JSShop._internal.CacheKey !== null ? JSShop._internal.CacheKey : "0");
+	var cacheKey = (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0");
 	var resources = null;
 
-	if (JSShop._internal.Debug === true)
+	if (JSShop.Settings.Debug)
 	{
 		resources =
 		[

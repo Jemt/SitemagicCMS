@@ -94,7 +94,7 @@ class SMShopFrmProducts implements SMIExtensionForm
 
 		$extPath = SMExtensionManager::GetExtensionPath($this->context->GetExtensionName());
 
-		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$StyleSheet, $extPath . "/Views/FrmProducts.css", true);
+		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$StyleSheet, $extPath . "/Views/FrmProducts.css?CacheKey=" . SMEnvironment::GetVersion(), true);
 
 		$view = new SMTemplate($extPath . "/Views/FrmProducts.html");
 		$this->lowerCasePlaceHolders($view); // Data in DataSource uses lowercase keys, so place holders must use the same casing

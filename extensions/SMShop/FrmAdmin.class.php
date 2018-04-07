@@ -30,7 +30,6 @@ class SMShopFrmAdmin implements SMIExtensionForm
 	public function Render()
 	{
 		$extPath = SMExtensionManager::GetExtensionPath($this->context->GetExtensionName());
-		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$StyleSheet, $extPath . "/JSShop/Views/Basket.css", true);
 
 		$output = "
 		<div id=\"" . $this->context->GetExtensionName() . "Administration\"></div>

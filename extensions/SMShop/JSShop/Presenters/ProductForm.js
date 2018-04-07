@@ -45,9 +45,9 @@ JSShop.Presenters.ProductForm = function()
 		// Load view
 
 		if (document.querySelector("link[href*='/Views/ProductForm.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
-			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/ProductForm.css");
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/ProductForm.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/ProductForm.html");
+		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/ProductForm.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 		req.OnSuccess(function(sender)
 		{
 			var htmlView = req.GetResponseText();
