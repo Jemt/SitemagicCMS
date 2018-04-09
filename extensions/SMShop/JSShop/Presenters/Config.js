@@ -367,7 +367,16 @@ JSShop.Presenters.Config = function()
 		{
 			itm = tpl.Content.Properties.AddItem();
 			itm.PropertyName = "Additional data (JSON)";
-			itm.PropertyValue = createInput("", function(sender, val) { config.AdditionalData = val; });
+			itm.PropertyValue = createInput("", function(sender, val)
+			{
+				config.AdditionalData = val;
+
+				if (sender.IsValid() === true)
+				{
+					// Make sure changes to Additional Data is immediately accessible when configuring Cost Corrections
+					JSShop.Settings.AdditionalData = JSON.parse(val);
+				}
+			});
 			itm.PropertyValue.FitControl.MultiLine(true);
 			itm.PropertyValue.FitControl.Maximizable(true);
 			itm.PropertyValue.FitControl.Value(config.AdditionalData); // Set value after MultiLine is enabled to preserve line breaks
