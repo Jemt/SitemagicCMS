@@ -28,7 +28,7 @@ JSShop.Presenters.Config = function()
 
 			tpl.LoadUrl(JSShop.GetPath() + "/Views/Config.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 			{
-				var cmdBasic = createTabButton("Basic", loadBasicConfig);
+				var cmdBasic = createTabButton("Basic", function(sender) { loadBasicConfig(sender); });
 				var cmdMails = createTabButton("E-mail templates", function(sender) { showMailTemplates(sender); });
 				var cmdPayMethods = createTabButton("Payment methods", function(sender) { showPayMethods(sender); });
 				var cmdAdvanced = createTabButton("Advanced", function(sender) { showAdvanced(sender); });
@@ -96,9 +96,20 @@ JSShop.Presenters.Config = function()
 		return b;
 	}
 
+	function disposeControls()
+	{
+		var items = tpl.Content.Properties.GetItems();
+
+		Fit.Array.ForEach(items, function(item)
+		{
+			item.PropertyValue.FitControl.Dispose();
+		});
+	}
+
 	function loadBasicConfig(sender)
 	{
 		setActiveTabButton(sender);
+		disposeControls();
 
 		tpl.Content.Properties.Clear();
 
@@ -157,6 +168,7 @@ JSShop.Presenters.Config = function()
 		Fit.Validation.ExpectString(tplName);
 
 		setActiveTabButton(btn);
+		disposeControls();
 
 		tpl.Content.Properties.Clear();
 
@@ -221,6 +233,7 @@ JSShop.Presenters.Config = function()
 				autoLineBreaks = false;
 			}
 		});
+		chk.GetDomElement().FitControl = chk;
 
 		var itmLineBreaks = tpl.Content.Properties.AddItem();
 		itmLineBreaks.PropertyValue = chk.GetDomElement();
@@ -246,6 +259,7 @@ JSShop.Presenters.Config = function()
 	function loadPaymentMethod(btn, moduleName)
 	{
 		setActiveTabButton(btn);
+		disposeControls();
 
 		tpl.Content.Properties.Clear();
 
@@ -269,6 +283,7 @@ JSShop.Presenters.Config = function()
 		{
 			module.Enabled = chk.Checked();
 		});
+		chk.GetDomElement().FitControl = chk;
 
 		var itmTitle = tpl.Content.Properties.AddItem();
 		itmTitle.PropertyName = "Title";
@@ -310,6 +325,7 @@ JSShop.Presenters.Config = function()
 	function loadAdvanced(btn, section)
 	{
 		setActiveTabButton(btn);
+		disposeControls();
 
 		tpl.Content.Properties.Clear();
 
