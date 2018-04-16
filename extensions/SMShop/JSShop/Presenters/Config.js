@@ -469,7 +469,7 @@ JSShop.Presenters.Config = function()
 			try
 			{
 				var res = JSON.parse(val);
-				return (res && typeof res === "object");
+				return (res !== undefined && res !== null && res.constructor === Object);
 			}
 			catch (err)
 			{
