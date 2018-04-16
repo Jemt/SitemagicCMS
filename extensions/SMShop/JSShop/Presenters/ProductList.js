@@ -25,6 +25,8 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 {
 	Fit.Validation.ExpectDomElement(productList);
 
+	var lang = JSShop.Language.Translations;
+
 	// Create Buy buttons
 
 	var buyButtons = document.querySelectorAll(".JSShopBuyButton");
@@ -79,14 +81,14 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 
 				var dialog = new Fit.Controls.Dialog();
 				dialog.Modal(true);
-				dialog.Content("<b>" + JSShop.Language.Translations.ProductList.ProductAdded + "</b><br><br>" + i.Value() + " x " + p.Title());
+				dialog.Content("<b>" + lang.ProductList.ProductAdded + "</b><br><br>" + i.Value() + " x " + p.Title());
 
 				if (JSShop.Settings.BasketUrl)
 				{
 					var cmdOpenBasket = new Fit.Controls.Button("JSShopBasketButton" + Fit.Data.CreateGuid());
 					cmdOpenBasket.Type(Fit.Controls.Button.Type.Default);
 					cmdOpenBasket.Icon("shopping-basket"); // credit-card-alt
-					cmdOpenBasket.Title(JSShop.Language.Translations.ProductList.OpenBasket);
+					cmdOpenBasket.Title(lang.ProductList.OpenBasket);
 					cmdOpenBasket.OnClick(function(sender)
 					{
 						dialog.Close();
@@ -99,7 +101,7 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 				var cmdContinue = new Fit.Controls.Button("JSShopContinueButton" + Fit.Data.CreateGuid());
 				cmdContinue.Type(Fit.Controls.Button.Type.Default);
 				cmdContinue.Icon("shopping-cart");
-				cmdContinue.Title(JSShop.Language.Translations.ProductList.ContinueShopping);
+				cmdContinue.Title(lang.ProductList.ContinueShopping);
 				cmdContinue.OnClick(function(sender)
 				{
 					dialog.Close();
@@ -154,6 +156,6 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 		if (isNumber === false)
 			return; // Skip
 
-		elm.innerHTML = val.replace(".", JSShop.Language.Translations.Locale.DecimalSeparator);
+		elm.innerHTML = val.replace(".", lang.Locale.DecimalSeparator);
 	});
 }

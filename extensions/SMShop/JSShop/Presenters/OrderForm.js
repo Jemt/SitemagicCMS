@@ -6,7 +6,7 @@ JSShop.Presenters.OrderForm = function()
 	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
 
 	var view = null;
-	var lang = JSShop.Language.Translations.OrderForm;
+	var lang = JSShop.Language.Translations;
 
 	// Controls
 	var txtCompany = null;
@@ -56,33 +56,33 @@ JSShop.Presenters.OrderForm = function()
 
 			// Controls - order form
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Headline-Label"), document.createTextNode(lang.CustomerDetails));
+			Fit.Dom.Add(addressForm.querySelector("#JSShop-Headline-Label"), document.createTextNode(lang.OrderForm.CustomerDetails));
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Company-Label"), document.createTextNode(lang.Company));
+			Fit.Dom.Add(addressForm.querySelector("#JSShop-Company-Label"), document.createTextNode(lang.OrderForm.Company));
 			txtCompany.Render(addressForm.querySelector("#JSShop-Company-Control"));
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-FirstName-Label"), document.createTextNode(lang.FirstName));
+			Fit.Dom.Add(addressForm.querySelector("#JSShop-FirstName-Label"), document.createTextNode(lang.OrderForm.FirstName));
 			txtFirstName.Render(addressForm.querySelector("#JSShop-FirstName-Control"));
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-LastName-Label"), document.createTextNode(lang.LastName));
+			Fit.Dom.Add(addressForm.querySelector("#JSShop-LastName-Label"), document.createTextNode(lang.OrderForm.LastName));
 			txtLastName.Render(addressForm.querySelector("#JSShop-LastName-Control"));
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Address-Label"), document.createTextNode(lang.Address));
+			Fit.Dom.Add(addressForm.querySelector("#JSShop-Address-Label"), document.createTextNode(lang.OrderForm.Address));
 			txtAddress.Render(addressForm.querySelector("#JSShop-Address-Control"));
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-ZipCode-Label"), document.createTextNode(lang.ZipCode));
+			Fit.Dom.Add(addressForm.querySelector("#JSShop-ZipCode-Label"), document.createTextNode(lang.OrderForm.ZipCode));
 			txtZipCode.Render(addressForm.querySelector("#JSShop-ZipCode-Control"));
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-City-Label"), document.createTextNode(lang.City));
+			Fit.Dom.Add(addressForm.querySelector("#JSShop-City-Label"), document.createTextNode(lang.OrderForm.City));
 			txtCity.Render(addressForm.querySelector("#JSShop-City-Control"));
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Email-Label"), document.createTextNode(lang.Email));
+			Fit.Dom.Add(addressForm.querySelector("#JSShop-Email-Label"), document.createTextNode(lang.OrderForm.Email));
 			txtEmail.Render(addressForm.querySelector("#JSShop-Email-Control"));
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Phone-Label"), document.createTextNode(lang.Phone));
+			Fit.Dom.Add(addressForm.querySelector("#JSShop-Phone-Label"), document.createTextNode(lang.OrderForm.Phone));
 			txtPhone.Render(addressForm.querySelector("#JSShop-Phone-Control"));
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Message-Label"), document.createTextNode(lang.Message));
+			Fit.Dom.Add(addressForm.querySelector("#JSShop-Message-Label"), document.createTextNode(lang.OrderForm.Message));
 			txtMessage.Render(addressForm.querySelector("#JSShop-Message-Control"));
 
 			chkRememberMe.Render(addressForm.querySelector("#JSShop-RememberMe-Control"));
@@ -91,34 +91,34 @@ JSShop.Presenters.OrderForm = function()
 
 			// Controls - alternative delivery address
 
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeHeadline-Label"), document.createTextNode(lang.AlternativeAddress));
+			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeHeadline-Label"), document.createTextNode(lang.OrderForm.AlternativeAddress));
 
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeCompany-Label"), document.createTextNode(lang.Company));
+			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeCompany-Label"), document.createTextNode(lang.OrderForm.Company));
 			txtAltCompany.Render(altAddressForm.querySelector("#JSShop-AlternativeCompany-Control"));
 
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeFirstName-Label"), document.createTextNode(lang.FirstName));
+			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeFirstName-Label"), document.createTextNode(lang.OrderForm.FirstName));
 			txtAltFirstName.Render(altAddressForm.querySelector("#JSShop-AlternativeFirstName-Control"));
 
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeLastName-Label"), document.createTextNode(lang.LastName));
+			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeLastName-Label"), document.createTextNode(lang.OrderForm.LastName));
 			txtAltLastName.Render(altAddressForm.querySelector("#JSShop-AlternativeLastName-Control"));
 
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeAddress-Label"), document.createTextNode(lang.Address));
+			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeAddress-Label"), document.createTextNode(lang.OrderForm.Address));
 			txtAltAddress.Render(altAddressForm.querySelector("#JSShop-AlternativeAddress-Control"));
 
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeZipCode-Label"), document.createTextNode(lang.ZipCode));
+			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeZipCode-Label"), document.createTextNode(lang.OrderForm.ZipCode));
 			txtAltZipCode.Render(altAddressForm.querySelector("#JSShop-AlternativeZipCode-Control"));
 
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeCity-Label"), document.createTextNode(lang.City));
+			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeCity-Label"), document.createTextNode(lang.OrderForm.City));
 			txtAltCity.Render(altAddressForm.querySelector("#JSShop-AlternativeCity-Control"));
 
 			// Controls - terms and payment methods
 
 			if ((lstPaymentMethod !== null || txtPromoCode !== null) && chkAcceptTerms !== null)
-				Fit.Dom.Add(paymentForm.querySelector("#JSShop-Header-Label"), document.createTextNode(lang.PaymentAndTerms));
+				Fit.Dom.Add(paymentForm.querySelector("#JSShop-Header-Label"), document.createTextNode(lang.OrderForm.PaymentAndTerms));
 			else if (lstPaymentMethod !== null || txtPromoCode !== null)
-				Fit.Dom.Add(paymentForm.querySelector("#JSShop-Header-Label"), document.createTextNode(lang.Payment));
+				Fit.Dom.Add(paymentForm.querySelector("#JSShop-Header-Label"), document.createTextNode(lang.OrderForm.Payment));
 			else if (chkAcceptTerms !== null)
-				Fit.Dom.Add(paymentForm.querySelector("#JSShop-Header-Label"), document.createTextNode(lang.Terms));
+				Fit.Dom.Add(paymentForm.querySelector("#JSShop-Header-Label"), document.createTextNode(lang.OrderForm.Terms));
 
 			if (txtPromoCode !== null)
 			{
@@ -128,7 +128,7 @@ JSShop.Presenters.OrderForm = function()
 
 			if (lstPaymentMethod !== null)
 			{
-				Fit.Dom.Add(paymentForm.querySelector("#JSShop-PaymentMethod-Label"), document.createTextNode(lang.PaymentMethod));
+				Fit.Dom.Add(paymentForm.querySelector("#JSShop-PaymentMethod-Label"), document.createTextNode(lang.OrderForm.PaymentMethod));
 				lstPaymentMethod.Render(paymentForm.querySelector("#JSShop-PaymentMethod-Control"));
 			}
 
@@ -143,7 +143,7 @@ JSShop.Presenters.OrderForm = function()
 
 				var cmdOk = new Fit.Controls.Button("JSShopOkButton");
 				cmdOk.Type(Fit.Controls.Button.Type.Success);
-				cmdOk.Title(JSShop.Language.Translations.Common.Ok);
+				cmdOk.Title(lang.Common.Ok);
 				cmdOk.OnClick(function(sender)
 				{
 					chkAcceptTerms.Checked(true);
@@ -153,7 +153,7 @@ JSShop.Presenters.OrderForm = function()
 
 				var cmdCancel = new Fit.Controls.Button("JSShopCancelButton");
 				cmdCancel.Type(Fit.Controls.Button.Type.Danger);
-				cmdCancel.Title(JSShop.Language.Translations.Common.Cancel);
+				cmdCancel.Title(lang.Common.Cancel);
 				cmdCancel.OnClick(function(sender)
 				{
 					chkAcceptTerms.Checked(false);
@@ -161,7 +161,7 @@ JSShop.Presenters.OrderForm = function()
 				});
 				dialog.AddButton(cmdCancel);
 
-				var link = Fit.Dom.CreateElement(" (<a href='javascript:'>" + lang.Read + "</a>)", "span");
+				var link = Fit.Dom.CreateElement(" (<a href='javascript:'>" + lang.OrderForm.Read + "</a>)", "span");
 				link.onclick = function(e)
 				{
 					dialog.Open();
@@ -174,7 +174,7 @@ JSShop.Presenters.OrderForm = function()
 		req.Start();
 
 		txtCompany = new Fit.Controls.Input("JSShopCompany");
-		txtCompany.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtCompany.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtCompany.Scope("JSShopOrderForm");
 		txtCompany.LazyValidation(true);
 		txtCompany.OnChange(saveValue);
@@ -182,7 +182,7 @@ JSShop.Presenters.OrderForm = function()
 		txtCompany.Width(100, "%");
 
 		txtFirstName = new Fit.Controls.Input("JSShopFirstName");
-		txtFirstName.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtFirstName.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtFirstName.Required(true);
 		txtFirstName.Scope("JSShopOrderForm");
 		txtFirstName.LazyValidation(true);
@@ -191,7 +191,7 @@ JSShop.Presenters.OrderForm = function()
 		txtFirstName.Width(100, "%");
 
 		txtLastName = new Fit.Controls.Input("JSShopLastName");
-		txtLastName.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtLastName.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtLastName.Required(true);
 		txtLastName.Scope("JSShopOrderForm");
 		txtLastName.LazyValidation(true);
@@ -200,7 +200,7 @@ JSShop.Presenters.OrderForm = function()
 		txtLastName.Width(100, "%");
 
 		txtAddress = new Fit.Controls.Input("JSShopAddress");
-		txtAddress.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtAddress.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtAddress.Required(true);
 		txtAddress.Scope("JSShopOrderForm");
 		txtAddress.LazyValidation(true);
@@ -209,7 +209,7 @@ JSShop.Presenters.OrderForm = function()
 		txtAddress.Width(100, "%");
 
 		txtZipCode = new Fit.Controls.Input("JSShopZipCode");
-		txtZipCode.SetValidationCallback(function(val) { return (val.length <= 20); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtZipCode.SetValidationCallback(function(val) { return (val.length <= 20); }, lang.Common.MaxLengthExceeded);
 		txtZipCode.Required(true);
 		txtZipCode.Scope("JSShopOrderForm");
 		txtZipCode.LazyValidation(true);
@@ -221,11 +221,11 @@ JSShop.Presenters.OrderForm = function()
 		{
 			// Make sure zipcode can be parsed to a number (integer) if zipcodeval
 			// is used in cost corrections. Same rule has been applied to txtAltZipCode.
-			txtZipCode.SetValidationExpression(/^\d*$/, lang.EnterValidZipCode);
+			txtZipCode.SetValidationExpression(/^\d*$/, lang.OrderForm.EnterValidZipCode);
 		}
 
 		txtCity = new Fit.Controls.Input("JSShopCity");
-		txtCity.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtCity.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtCity.Required(true);
 		txtCity.Scope("JSShopOrderForm");
 		txtCity.LazyValidation(true);
@@ -234,8 +234,8 @@ JSShop.Presenters.OrderForm = function()
 		txtCity.Width(100, "%");
 
 		txtEmail = new Fit.Controls.Input("JSShopEmail");
-		txtEmail.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
-		txtEmail.SetValidationExpression(/^[a-z0-9!#$%&'*+-\/=?^_`{|}~]+@[a-z0-9_.-]+$/i, lang.EnterValidEmail);
+		txtEmail.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
+		txtEmail.SetValidationExpression(/^[a-z0-9!#$%&'*+-\/=?^_`{|}~]+@[a-z0-9_.-]+$/i, lang.OrderForm.EnterValidEmail);
 		txtEmail.Required(true);
 		txtEmail.Scope("JSShopOrderForm");
 		txtEmail.LazyValidation(true);
@@ -244,7 +244,7 @@ JSShop.Presenters.OrderForm = function()
 		txtEmail.Width(100, "%");
 
 		txtPhone = new Fit.Controls.Input("JSShopPhone");
-		txtPhone.SetValidationCallback(function(val) { return (val.length <= 20); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtPhone.SetValidationCallback(function(val) { return (val.length <= 20); }, lang.Common.MaxLengthExceeded);
 		//txtPhone.Required(true);
 		txtPhone.Scope("JSShopOrderForm");
 		txtPhone.LazyValidation(true);
@@ -253,7 +253,7 @@ JSShop.Presenters.OrderForm = function()
 		txtPhone.Width(100, "%");
 
 		txtMessage = new Fit.Controls.Input("JSShopMessage");
-		txtMessage.SetValidationCallback(function(val) { return (val.length <= 250); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtMessage.SetValidationCallback(function(val) { return (val.length <= 250); }, lang.Common.MaxLengthExceeded);
 		txtMessage.Scope("JSShopOrderForm");
 		txtMessage.LazyValidation(true);
 		//txtMessage.OnChange(saveValue);
@@ -263,7 +263,7 @@ JSShop.Presenters.OrderForm = function()
 		txtMessage.OnBlur(cleanUp);
 
 		chkRememberMe = new Fit.Controls.CheckBox("JSShopRememberMe");
-		chkRememberMe.Label(lang.RememberMe);
+		chkRememberMe.Label(lang.OrderForm.RememberMe);
 		chkRememberMe.Value(((JSShop.Cookies.Get(chkRememberMe.GetId()) !== null) ? JSShop.Cookies.Get(chkRememberMe.GetId()) : "false"));
 		chkRememberMe.OnChange(function(sender)
 		{
@@ -278,7 +278,7 @@ JSShop.Presenters.OrderForm = function()
 		});
 
 		chkAlternativeAddress = new Fit.Controls.CheckBox("JSShopAlternativeAddress");
-		chkAlternativeAddress.Label(lang.AlternativeAddress);
+		chkAlternativeAddress.Label(lang.OrderForm.AlternativeAddress);
 		chkAlternativeAddress.OnChange(saveValue);
 		chkAlternativeAddress.OnChange(function(sender)
 		{
@@ -287,7 +287,7 @@ JSShop.Presenters.OrderForm = function()
 		});
 
 		txtAltCompany = new Fit.Controls.Input("JSShopAltCompany");
-		txtAltCompany.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtAltCompany.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtAltCompany.Scope("JSShopOrderForm");
 		txtAltCompany.LazyValidation(true);
 		txtAltCompany.OnChange(saveValue);
@@ -295,7 +295,7 @@ JSShop.Presenters.OrderForm = function()
 		txtAltCompany.Width(100, "%");
 
 		txtAltFirstName = new Fit.Controls.Input("JSShopAltFirstName");
-		txtAltFirstName.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtAltFirstName.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtAltFirstName.Scope("JSShopOrderForm");
 		txtAltFirstName.LazyValidation(true);
 		txtAltFirstName.OnChange(saveValue);
@@ -303,7 +303,7 @@ JSShop.Presenters.OrderForm = function()
 		txtAltFirstName.Width(100, "%");
 
 		txtAltLastName = new Fit.Controls.Input("JSShopAltLastName");
-		txtAltLastName.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtAltLastName.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtAltLastName.Scope("JSShopOrderForm");
 		txtAltLastName.LazyValidation(true);
 		txtAltLastName.OnChange(saveValue);
@@ -311,7 +311,7 @@ JSShop.Presenters.OrderForm = function()
 		txtAltLastName.Width(100, "%");
 
 		txtAltAddress = new Fit.Controls.Input("JSShopAltAddress");
-		txtAltAddress.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtAltAddress.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtAltAddress.Scope("JSShopOrderForm");
 		txtAltAddress.LazyValidation(true);
 		txtAltAddress.OnChange(saveValue);
@@ -319,7 +319,7 @@ JSShop.Presenters.OrderForm = function()
 		txtAltAddress.Width(100, "%");
 
 		txtAltZipCode = new Fit.Controls.Input("JSShopAltZipCode");
-		txtAltZipCode.SetValidationCallback(function(val) { return (val.length <= 20); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtAltZipCode.SetValidationCallback(function(val) { return (val.length <= 20); }, lang.Common.MaxLengthExceeded);
 		txtAltZipCode.Scope("JSShopOrderForm");
 		txtAltZipCode.LazyValidation(true);
 		txtAltZipCode.OnChange(saveValue);
@@ -330,11 +330,11 @@ JSShop.Presenters.OrderForm = function()
 		{
 			// Make sure zipcode can be parsed to a number (integer) if zipcodeval
 			// is used in cost corrections. Same rule has been applied to txtZipCode.
-			txtAltZipCode.SetValidationExpression(/^\d*$/, lang.EnterValidZipCode);
+			txtAltZipCode.SetValidationExpression(/^\d*$/, lang.OrderForm.EnterValidZipCode);
 		}
 
 		txtAltCity = new Fit.Controls.Input("JSShopAltCity");
-		txtAltCity.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtAltCity.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtAltCity.Scope("JSShopOrderForm");
 		txtAltCity.LazyValidation(true);
 		txtAltCity.OnChange(saveValue);
@@ -344,7 +344,7 @@ JSShop.Presenters.OrderForm = function()
 		if (isContainedInCostCorrections("promocode") === true)
 		{
 			txtPromoCode = new Fit.Controls.Input("JSShopPromoCode");
-			txtPromoCode.SetValidationCallback(function(val) { return (val.length <= 30); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+			txtPromoCode.SetValidationCallback(function(val) { return (val.length <= 30); }, lang.Common.MaxLengthExceeded);
 			txtPromoCode.Scope("JSShopOrderForm");
 			txtPromoCode.LazyValidation(true);
 			txtPromoCode.OnBlur(cleanUp);
@@ -388,17 +388,17 @@ JSShop.Presenters.OrderForm = function()
 		if (JSShop.Settings.TermsUrl)
 		{
 			chkAcceptTerms = new Fit.Controls.CheckBox("JSShopAcceptTerms");
-			chkAcceptTerms.Label(lang.AcceptTerms);
+			chkAcceptTerms.Label(lang.OrderForm.AcceptTerms);
 		}
 
 		cmdContinue = new Fit.Controls.Button("JSShopContinue");
 		cmdContinue.Type(Fit.Controls.Button.Type.Primary);
-		cmdContinue.Title(lang.Continue);
+		cmdContinue.Title(lang.OrderForm.Continue);
 		cmdContinue.OnClick(function(sender)
 		{
 			if (chkAcceptTerms !== null && chkAcceptTerms.Checked() === false)
 			{
-				Fit.Controls.Dialog.Alert(lang.TermsRequired);
+				Fit.Controls.Dialog.Alert(lang.OrderForm.TermsRequired);
 				return;
 			}
 
@@ -406,13 +406,13 @@ JSShop.Presenters.OrderForm = function()
 			{
 				var dialog = new Fit.Controls.Dialog();
 				dialog.Modal(true);
-				dialog.Content(lang.MissingPhoneNumber);
+				dialog.Content(lang.OrderForm.MissingPhoneNumber);
 
 				var cmdContinueWithout = new Fit.Controls.Button("JSShopContinueWithoutButton");
 				var cmdGoBack = new Fit.Controls.Button("JSShopGoBackButton");
 
 				cmdContinueWithout.Type(Fit.Controls.Button.Type.Default);
-				cmdContinueWithout.Title(lang.ContinueWithout);
+				cmdContinueWithout.Title(lang.OrderForm.ContinueWithout);
 				cmdContinueWithout.OnClick(function(sender)
 				{
 					dialog.Close();
@@ -423,7 +423,7 @@ JSShop.Presenters.OrderForm = function()
 				dialog.AddButton(cmdContinueWithout);
 
 				cmdGoBack.Type(Fit.Controls.Button.Type.Default);
-				cmdGoBack.Title(lang.AddPhoneNumber);
+				cmdGoBack.Title(lang.OrderForm.AddPhoneNumber);
 				cmdGoBack.OnClick(function(sender)
 				{
 					dialog.Close();
@@ -486,7 +486,7 @@ JSShop.Presenters.OrderForm = function()
 
 		if (Fit.Controls.ValidateAll("JSShopOrderForm") === false)
 		{
-			Fit.Controls.Dialog.Alert(JSShop.Language.Translations.Common.InvalidEntries);
+			Fit.Controls.Dialog.Alert(lang.Common.InvalidEntries);
 
 			if (Fit.Validation.IsSet(errorCallback) === true)
 				errorCallback();
@@ -503,7 +503,7 @@ JSShop.Presenters.OrderForm = function()
 
 			if (altAddressPartial === true)
 			{
-				Fit.Controls.Dialog.Alert(lang.PartialAltAddress);
+				Fit.Controls.Dialog.Alert(lang.OrderForm.PartialAltAddress);
 				return;
 			}
 		}
@@ -551,7 +551,7 @@ JSShop.Presenters.OrderForm = function()
 			}
 			else
 			{
-				Fit.Controls.Dialog.Alert(lang.OrderReceived, function()
+				Fit.Controls.Dialog.Alert(lang.OrderForm.OrderReceived, function()
 				{
 					location.href = location.href;
 				});

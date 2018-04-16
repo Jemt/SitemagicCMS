@@ -9,7 +9,7 @@ JSShop.Presenters.Basket = function()
 
 	var view = null;
 	var basket = JSShop.Models.Basket;
-	var lang = JSShop.Language.Translations.Basket;
+	var lang = JSShop.Language.Translations;
 
 	var zipCode = "";
 	var paymentMethod = "";
@@ -44,7 +44,7 @@ JSShop.Presenters.Basket = function()
 
 		if (items.length === 0)
 		{
-			view.innerHTML = lang.BasketEmpty;
+			view.innerHTML = lang.Basket.BasketEmpty;
 			return;
 		}
 
@@ -57,13 +57,13 @@ JSShop.Presenters.Basket = function()
 
 			// Populate header titles
 
-			htmlView = htmlView.replace(/{\[HeaderProduct\]}/g, lang.Product);
-			htmlView = htmlView.replace(/{\[HeaderUnitPrice\]}/g, lang.UnitPrice);
-			htmlView = htmlView.replace(/{\[HeaderUnits\]}/g, lang.Units);
-			htmlView = htmlView.replace(/{\[HeaderDiscount\]}/g, lang.Discount);
-			htmlView = htmlView.replace(/{\[HeaderPrice\]}/g, lang.Price);
-			htmlView = htmlView.replace(/{\[HeaderTotalVat\]}/g, lang.TotalVat);
-			htmlView = htmlView.replace(/{\[HeaderTotalPrice\]}/g, lang.TotalPrice);
+			htmlView = htmlView.replace(/{\[HeaderProduct\]}/g, lang.Basket.Product);
+			htmlView = htmlView.replace(/{\[HeaderUnitPrice\]}/g, lang.Basket.UnitPrice);
+			htmlView = htmlView.replace(/{\[HeaderUnits\]}/g, lang.Basket.Units);
+			htmlView = htmlView.replace(/{\[HeaderDiscount\]}/g, lang.Basket.Discount);
+			htmlView = htmlView.replace(/{\[HeaderPrice\]}/g, lang.Basket.Price);
+			htmlView = htmlView.replace(/{\[HeaderTotalVat\]}/g, lang.Basket.TotalVat);
+			htmlView = htmlView.replace(/{\[HeaderTotalPrice\]}/g, lang.Basket.TotalPrice);
 
 			// Extract item HTML
 
@@ -134,12 +134,12 @@ JSShop.Presenters.Basket = function()
 								var pricing = JSShop.CalculatePricing(item.Product.Price(), item.Units, item.Product.Vat(), discountExclVat);
 
 								curItemHtml = curItemHtml.replace(/{\[Title\]}/g, item.Product.Title());
-								curItemHtml = curItemHtml.replace(/{\[UnitPrice\]}/g, Fit.Math.Format(pricing.UnitPriceInclVat, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+								curItemHtml = curItemHtml.replace(/{\[UnitPrice\]}/g, Fit.Math.Format(pricing.UnitPriceInclVat, 2, lang.Locale.DecimalSeparator));
 								curItemHtml = curItemHtml.replace(/{\[DiscountMessage\]}/g, ((pricing.DiscountInclVat > 0) ? item.Product.CalculateDiscountMessage(item.Units) : ""));
-								curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, ((pricing.DiscountInclVat > 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, JSShop.Language.Translations.Locale.DecimalSeparator) : ""));
+								curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, ((pricing.DiscountInclVat > 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator) : ""));
 								curItemHtml = curItemHtml.replace(/{\[Units\]}/g, "<div id='JSShopBasketItem" + item.ProductId + "'></div>");
 								curItemHtml = curItemHtml.replace(/{\[Currency\]}/g, item.Product.Currency());
-								curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(pricing.TotalInclVat, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+								curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(pricing.TotalInclVat, 2, lang.Locale.DecimalSeparator));
 
 								allItemsHtml += curItemHtml;
 
@@ -215,7 +215,7 @@ JSShop.Presenters.Basket = function()
 									correctionItemHtml = correctionItemHtml.replace(/{\[DiscountMessage\]}/g, "");
 									correctionItemHtml = correctionItemHtml.replace(/{\[Units\]}/g, "&nbsp;");
 									correctionItemHtml = correctionItemHtml.replace(/{\[Currency\]}/g, currency);
-									correctionItemHtml = correctionItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(correctionInclVat, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+									correctionItemHtml = correctionItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(correctionInclVat, 2, lang.Locale.DecimalSeparator));
 
 									allItemsHtml += correctionItemHtml;
 
@@ -251,9 +251,9 @@ JSShop.Presenters.Basket = function()
 
 							htmlView = htmlView.replace(res[0], allItemsHtml);
 							htmlView = htmlView.replace(/{\[Currency\]}/g, items[0].Product.Currency());
-							htmlView = htmlView.replace(/{\[TotalVat\]}/g, Fit.Math.Format(totalVat, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
-							htmlView = htmlView.replace(/{\[TotalPrice\]}/g, Fit.Math.Format(totalPrice, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
-							htmlView = htmlView.replace(/{\[TotalDiscount\]}/g, Fit.Math.Format(totalDiscount, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+							htmlView = htmlView.replace(/{\[TotalVat\]}/g, Fit.Math.Format(totalVat, 2, lang.Locale.DecimalSeparator));
+							htmlView = htmlView.replace(/{\[TotalPrice\]}/g, Fit.Math.Format(totalPrice, 2, lang.Locale.DecimalSeparator));
+							htmlView = htmlView.replace(/{\[TotalDiscount\]}/g, Fit.Math.Format(totalDiscount, 2, lang.Locale.DecimalSeparator));
 
 							view.innerHTML = htmlView;
 
@@ -274,7 +274,7 @@ JSShop.Presenters.Basket = function()
 									var html = "";
 									html += "<div style='text-align: center' id='JSShopUnitsDialogInput'>";
 									html += "<b>" + item.Product.Title() + "</b><br><br>";
-									html += lang.NumberOfUnits + ":<br><br>";
+									html += lang.Basket.NumberOfUnits + ":<br><br>";
 									html += "</div>";
 
 									var dialog = new Fit.Controls.Dialog();
@@ -312,7 +312,7 @@ JSShop.Presenters.Basket = function()
 									// Create dialog buttons
 
 									var cmdSave = new Fit.Controls.Button(Fit.Data.CreateGuid());
-									cmdSave.Title(JSShop.Language.Translations.Common.Ok);
+									cmdSave.Title(lang.Common.Ok);
 									cmdSave.Type(Fit.Controls.Button.Type.Success);
 									cmdSave.OnClick(function(sender)
 									{
@@ -323,7 +323,7 @@ JSShop.Presenters.Basket = function()
 									dialog.AddButton(cmdSave);
 
 									var cmdCancel = new Fit.Controls.Button(Fit.Data.CreateGuid());
-									cmdCancel.Title(JSShop.Language.Translations.Common.Cancel);
+									cmdCancel.Title(lang.Common.Cancel);
 									cmdCancel.Type(Fit.Controls.Button.Type.Danger);
 									cmdCancel.OnClick(function(sender)
 									{

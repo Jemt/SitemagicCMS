@@ -34,7 +34,7 @@ JSShop.Presenters.ProductForm = function()
 	var cmdDelete = null;
 
 	// Misc.
-	var lang = JSShop.Language.Translations.ProductForm;
+	var lang = JSShop.Language.Translations;
 	var imagesRemoved = []; // Existing product images located on server that the user removed from prevew section
 	var imagesIgnored = []; // New images selected using file picker (not uploaded yet), that user removed from preview section
 
@@ -55,44 +55,44 @@ JSShop.Presenters.ProductForm = function()
 
 			// Add controls and buttons to view
 
-			Fit.Dom.Add(view.querySelector("#JSShop-Products-Label"), document.createTextNode(lang.EditProduct));
+			Fit.Dom.Add(view.querySelector("#JSShop-Products-Label"), document.createTextNode(lang.ProductForm.EditProduct));
 			lstProducts.Render(view.querySelector("#JSShop-Products-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-Category-Label"), document.createTextNode(lang.Category));
+			Fit.Dom.Add(view.querySelector("#JSShop-Category-Label"), document.createTextNode(lang.ProductForm.Category));
 			lstCategories.Render(view.querySelector("#JSShop-Category-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-ProductId-Label"), document.createTextNode(lang.ProductId));
+			Fit.Dom.Add(view.querySelector("#JSShop-ProductId-Label"), document.createTextNode(lang.ProductForm.ProductId));
 			txtId.Render(view.querySelector("#JSShop-ProductId-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-Title-Label"), document.createTextNode(lang.Title));
+			Fit.Dom.Add(view.querySelector("#JSShop-Title-Label"), document.createTextNode(lang.ProductForm.Title));
 			txtTitle.Render(view.querySelector("#JSShop-Title-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-Description-Label"), document.createTextNode(lang.Description));
+			Fit.Dom.Add(view.querySelector("#JSShop-Description-Label"), document.createTextNode(lang.ProductForm.Description));
 			txtDescription.Render(view.querySelector("#JSShop-Description-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-Images-Label"), document.createTextNode(lang.Images));
+			Fit.Dom.Add(view.querySelector("#JSShop-Images-Label"), document.createTextNode(lang.ProductForm.Images));
 			picImages.Render(view.querySelector("#JSShop-Images-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-Price-Label"), document.createTextNode(lang.Price));
+			Fit.Dom.Add(view.querySelector("#JSShop-Price-Label"), document.createTextNode(lang.ProductForm.Price));
 			txtPrice.Render(view.querySelector("#JSShop-Price-Control"));
 
 			lstCurrencies.Render(view.querySelector("#JSShop-Currency-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-Vat-Label"), document.createTextNode(lang.Vat));
+			Fit.Dom.Add(view.querySelector("#JSShop-Vat-Label"), document.createTextNode(lang.ProductForm.Vat));
 			txtVat.Render(view.querySelector("#JSShop-Vat-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-Weight-Label"), document.createTextNode(lang.Weight));
+			Fit.Dom.Add(view.querySelector("#JSShop-Weight-Label"), document.createTextNode(lang.ProductForm.Weight));
 			txtWeight.Render(view.querySelector("#JSShop-Weight-Control"));
 
 			lstWeightUnits.Render(view.querySelector("#JSShop-WeightUnit-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-DeliveryTime-Label"), document.createTextNode(lang.DeliveryTime));
+			Fit.Dom.Add(view.querySelector("#JSShop-DeliveryTime-Label"), document.createTextNode(lang.ProductForm.DeliveryTime));
 			txtDeliveryTime.Render(view.querySelector("#JSShop-DeliveryTime-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-DiscountExpression-Label"), document.createTextNode(lang.DiscountExpression));
+			Fit.Dom.Add(view.querySelector("#JSShop-DiscountExpression-Label"), document.createTextNode(lang.ProductForm.DiscountExpression));
 			txtDiscountExpr.Render(view.querySelector("#JSShop-DiscountExpression-Control"));
 
-			Fit.Dom.Add(view.querySelector("#JSShop-DiscountMessage-Label"), document.createTextNode(lang.DiscountMessage));
+			Fit.Dom.Add(view.querySelector("#JSShop-DiscountMessage-Label"), document.createTextNode(lang.ProductForm.DiscountMessage));
 			txtDiscountMsg.Render(view.querySelector("#JSShop-DiscountMessage-Control"));
 
 			Fit.Dom.Add(view.querySelector("#JSShop-Buttons"), cmdSave.GetDomElement());
@@ -157,7 +157,7 @@ JSShop.Presenters.ProductForm = function()
 		lstCategories.Width(350, "px");
 		lstCategories.DropDownMaxWidth(150, "%");
 		lstCategories.InputEnabled(true);
-		lstCategories.SetValidationCallback(function(val) { return (val.split("=")[0].length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		lstCategories.SetValidationCallback(function(val) { return (val.split("=")[0].length <= 50); }, lang.Common.MaxLengthExceeded);
 		lstCategories.Required(true);
 		lstCategories.Scope("JSShopProductForm");
 		lstCategories.OnBlur(function(sender)
@@ -181,13 +181,13 @@ JSShop.Presenters.ProductForm = function()
 		txtId = new Fit.Controls.Input("JSShopProductId");
 		txtId.Width(350, "px");
 		txtId.Required(true);
-		txtId.SetValidationCallback(function(val) { return (val.length <= 30); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtId.SetValidationCallback(function(val) { return (val.length <= 30); }, lang.Common.MaxLengthExceeded);
 		txtId.Scope("JSShopProductForm");
 
 		txtTitle = new Fit.Controls.Input("JSShopProductTitle");
 		txtTitle.Width(350, "px");
 		txtTitle.Required(true);
-		txtTitle.SetValidationCallback(function(val) { return (val.length <= 250); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtTitle.SetValidationCallback(function(val) { return (val.length <= 250); }, lang.Common.MaxLengthExceeded);
 		txtTitle.Scope("JSShopProductForm");
 
 		txtDescription = new Fit.Controls.Input("JSShopProductDescription");
@@ -195,14 +195,14 @@ JSShop.Presenters.ProductForm = function()
 		txtDescription.Height(80, "px");
 		txtDescription.MultiLine(true, 300);
 		txtDescription.Maximizable(true, 250);
-		txtDescription.SetValidationCallback(function(val) { return (val.length <= 1000); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtDescription.SetValidationCallback(function(val) { return (val.length <= 1000); }, lang.Common.MaxLengthExceeded);
 		txtDescription.Scope("JSShopProductForm");
 
 		picImages = new Fit.Controls.FilePicker("JSShopProductImages");
 		picImages.Url(JSShop.WebService.Files.Upload);
 		picImages.Enabled(JSShop.WebService.Files.Upload ? true : false);
 		picImages.MultiSelectionMode(true);
-		picImages.Title(lang.SelectFiles);
+		picImages.Title(lang.ProductForm.SelectFiles);
 		picImages.OnChange(function(sender)
 		{
 			if (picImages.IsLegacyModeEnabled() === true)
@@ -269,13 +269,13 @@ JSShop.Presenters.ProductForm = function()
 		txtPrice = new Fit.Controls.Input("JSShopProductPrice");
 		txtPrice.Width(185, "px");
 		txtPrice.Required(true);
-		txtPrice.SetValidationCallback(function(val) { return (val.length <= 10); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
-		txtPrice.SetValidationExpression(new RegExp("^([0-9]+(\\" + JSShop.Language.Translations.Locale.DecimalSeparator + "[0-9]+)?)?$"), JSShop.Language.Translations.Common.InvalidValue); // /^([0-9]+(\.[0-9]+)?)?$/
+		txtPrice.SetValidationCallback(function(val) { return (val.length <= 10); }, lang.Common.MaxLengthExceeded);
+		txtPrice.SetValidationExpression(new RegExp("^([0-9]+(\\" + lang.Locale.DecimalSeparator + "[0-9]+)?)?$"), lang.Common.InvalidValue); // /^([0-9]+(\.[0-9]+)?)?$/
 		txtPrice.Scope("JSShopProductForm");
 
 		if (JSShop.Cookies.Get("PreviousCurrency") === null)
 		{
-			JSShop.Cookies.Set("PreviousCurrency", JSShop.Language.Translations.Locale.Currency, 365 * 24 * 60 * 60); // Expires in 1 year
+			JSShop.Cookies.Set("PreviousCurrency", lang.Locale.Currency, 365 * 24 * 60 * 60); // Expires in 1 year
 		}
 
 		var currencies = null; // Data from Currencies.json
@@ -341,8 +341,8 @@ JSShop.Presenters.ProductForm = function()
 
 		txtVat = new Fit.Controls.Input("JSShopProductVat");
 		txtVat.Width(185, "px");
-		txtVat.SetValidationCallback(function(val) { return (val.length <= 10); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
-		txtVat.SetValidationExpression(new RegExp("^([0-9]+(\\" + JSShop.Language.Translations.Locale.DecimalSeparator + "[0-9]+)?)?$"), JSShop.Language.Translations.Common.InvalidValue); // /^([0-9]+(\.[0-9]+)?)?$/
+		txtVat.SetValidationCallback(function(val) { return (val.length <= 10); }, lang.Common.MaxLengthExceeded);
+		txtVat.SetValidationExpression(new RegExp("^([0-9]+(\\" + lang.Locale.DecimalSeparator + "[0-9]+)?)?$"), lang.Common.InvalidValue); // /^([0-9]+(\.[0-9]+)?)?$/
 		txtVat.Scope("JSShopProductForm");
 		txtVat.Value(((JSShop.Cookies.Get("PreviousVat") !== null) ? JSShop.Cookies.Get("PreviousVat") : ""));
 		txtVat.OnChange(function(sender)
@@ -352,13 +352,13 @@ JSShop.Presenters.ProductForm = function()
 
 		txtWeight = new Fit.Controls.Input("JSShopProductWeight");
 		txtWeight.Width(185, "px");
-		txtWeight.SetValidationCallback(function(val) { return (val.length <= 10); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
-		txtWeight.SetValidationExpression(new RegExp("^([0-9]+(\\" + JSShop.Language.Translations.Locale.DecimalSeparator + "[0-9]+)?)?$"), JSShop.Language.Translations.Common.InvalidValue); // /^([0-9]+(\.[0-9]+)?)?$/
+		txtWeight.SetValidationCallback(function(val) { return (val.length <= 10); }, lang.Common.MaxLengthExceeded);
+		txtWeight.SetValidationExpression(new RegExp("^([0-9]+(\\" + lang.Locale.DecimalSeparator + "[0-9]+)?)?$"), lang.Common.InvalidValue); // /^([0-9]+(\.[0-9]+)?)?$/
 		txtWeight.Scope("JSShopProductForm");
 
 		if (JSShop.Cookies.Get("PreviousWeightUnit") === null)
 		{
-			JSShop.Cookies.Set("PreviousWeightUnit", getWeightUnitControlValue(JSShop.Language.Translations.Locale.WeightUnit), 365 * 24 * 60 * 60); // Expires in 1 year
+			JSShop.Cookies.Set("PreviousWeightUnit", getWeightUnitControlValue(lang.Locale.WeightUnit), 365 * 24 * 60 * 60); // Expires in 1 year
 		}
 
 		JSShop.Cookies.Get("PreviousWeightUnit")
@@ -366,8 +366,8 @@ JSShop.Presenters.ProductForm = function()
 		lstWeightUnits = new Fit.Controls.DropDown("JSShopProductWeightUnit");
 		lstWeightUnits.Width(125, "px");
 		lstWeightUnits.SetPicker(new Fit.Controls.ListView());
-		lstWeightUnits.GetPicker().AddItem(lang.Kilos, "kg");
-		lstWeightUnits.GetPicker().AddItem(lang.Pounds, "lbs");
+		lstWeightUnits.GetPicker().AddItem(lang.ProductForm.Kilos, "kg");
+		lstWeightUnits.GetPicker().AddItem(lang.ProductForm.Pounds, "lbs");
 		lstWeightUnits.Value(JSShop.Cookies.Get("PreviousWeightUnit"));
 		lstWeightUnits.Required(true);
 		lstWeightUnits.OnChange(function(sender)
@@ -378,7 +378,7 @@ JSShop.Presenters.ProductForm = function()
 		txtDeliveryTime = new Fit.Controls.Input("JSShopProductDeliveryTime");
 		txtDeliveryTime.Width(350, "px");
 		txtDeliveryTime.Value(((JSShop.Cookies.Get("PreviousDeliveryTime") !== null) ? JSShop.Cookies.Get("PreviousDeliveryTime") : ""));
-		txtDeliveryTime.SetValidationCallback(function(val) { return (val.length <= 50); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		txtDeliveryTime.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
 		txtDeliveryTime.Scope("JSShopProductForm");
 		txtDeliveryTime.OnChange(function(sender)
 		{
@@ -410,8 +410,8 @@ JSShop.Presenters.ProductForm = function()
 			{
 				return false;
 			}
-		}, JSShop.Language.Translations.Common.InvalidValue);
-		txtDiscountExpr.SetValidationExpression(/^(.|\n){0,250}$/, JSShop.Language.Translations.Common.MaxLengthExceeded); // RegEx MaxLength: https://regex101.com/r/bY3xS9/1
+		}, lang.Common.InvalidValue);
+		txtDiscountExpr.SetValidationExpression(/^(.|\n){0,250}$/, lang.Common.MaxLengthExceeded); // RegEx MaxLength: https://regex101.com/r/bY3xS9/1
 		txtDiscountExpr.Scope("JSShopProductForm");
 
 		txtDiscountMsg = new Fit.Controls.Input("JSShopProductDiscountMessage");
@@ -437,13 +437,13 @@ JSShop.Presenters.ProductForm = function()
 			{
 				return false;
 			}
-		}, JSShop.Language.Translations.Common.InvalidValue);
-		txtDiscountMsg.SetValidationExpression(/^(.|\n){0,250}$/, JSShop.Language.Translations.Common.MaxLengthExceeded); // RegEx MaxLength: https://regex101.com/r/bY3xS9/1
-		//txtDiscountMsg.SetValidationCallback(function(val) { return (val.length <= 250); }, JSShop.Language.Translations.Common.MaxLengthExceeded);
+		}, lang.Common.InvalidValue);
+		txtDiscountMsg.SetValidationExpression(/^(.|\n){0,250}$/, lang.Common.MaxLengthExceeded); // RegEx MaxLength: https://regex101.com/r/bY3xS9/1
+		//txtDiscountMsg.SetValidationCallback(function(val) { return (val.length <= 250); }, lang.Common.MaxLengthExceeded);
 		txtDiscountMsg.Scope("JSShopProductForm");
 
 		cmdSave = new Fit.Controls.Button("JSShopSaveButton");
-		cmdSave.Title(lang.Save);
+		cmdSave.Title(lang.ProductForm.Save);
 		cmdSave.Icon("floppy-o");
 		cmdSave.Type(Fit.Controls.Button.Type.Success);
 		cmdSave.OnClick(function(sender)
@@ -455,7 +455,7 @@ JSShop.Presenters.ProductForm = function()
 
 			if (Fit.Controls.ValidateAll("JSShopProductForm") === false)
 			{
-				Fit.Controls.Dialog.Alert(JSShop.Language.Translations.Common.InvalidEntries);
+				Fit.Controls.Dialog.Alert(lang.Common.InvalidEntries);
 				return;
 			}
 
@@ -491,7 +491,7 @@ JSShop.Presenters.ProductForm = function()
 		});
 
 		cmdClear = new Fit.Controls.Button("JSShopClearButton");
-		cmdClear.Title(lang.Clear);
+		cmdClear.Title(lang.ProductForm.Clear);
 		cmdClear.Icon("refresh");
 		cmdClear.Type(Fit.Controls.Button.Type.Warning);
 		cmdClear.OnClick(function(sender)
@@ -505,13 +505,13 @@ JSShop.Presenters.ProductForm = function()
 		});
 
 		cmdDelete = new Fit.Controls.Button("JSShopDeleteButton");
-		cmdDelete.Title(lang.Delete);
+		cmdDelete.Title(lang.ProductForm.Delete);
 		cmdDelete.Icon("minus-circle");
 		cmdDelete.Type(Fit.Controls.Button.Type.Danger);
 		cmdDelete.GetDomElement().style.display = "none";
 		cmdDelete.OnClick(function(sender)
 		{
-			Fit.Controls.Dialog.Confirm(lang.DeleteWarning, function(res)
+			Fit.Controls.Dialog.Confirm(lang.ProductForm.DeleteWarning, function(res)
 			{
 				if (res === false)
 					return;
@@ -578,7 +578,7 @@ JSShop.Presenters.ProductForm = function()
 
 			if (Fit.Array.Count(models) === 0)
 			{
-				lstProducts.SetInputValue(lang.NoProducts); // Causes drop down to open (see lstProducts.OnChange)
+				lstProducts.SetInputValue(lang.ProductForm.NoProducts); // Causes drop down to open (see lstProducts.OnChange)
 				lstProducts.CloseDropDown(); // Close drop down again
 			}
 		});
@@ -601,10 +601,10 @@ JSShop.Presenters.ProductForm = function()
 			txtTitle.Value(model.Title());
 			txtDescription.Value(model.Description());
 			picImages.Clear(); // Clear file picker
-			txtPrice.Value(model.Price().toString().replace(".", JSShop.Language.Translations.Locale.DecimalSeparator));
+			txtPrice.Value(model.Price().toString().replace(".", lang.Locale.DecimalSeparator));
 			lstCurrencies.Value(model.Currency());
-			txtVat.Value(((model.Vat() !== 0) ? model.Vat().toString().replace(".", JSShop.Language.Translations.Locale.DecimalSeparator) : ""));
-			txtWeight.Value(((model.Weight() !== 0) ? model.Weight().toString().replace(".", JSShop.Language.Translations.Locale.DecimalSeparator) : ""));
+			txtVat.Value(((model.Vat() !== 0) ? model.Vat().toString().replace(".", lang.Locale.DecimalSeparator) : ""));
+			txtWeight.Value(((model.Weight() !== 0) ? model.Weight().toString().replace(".", lang.Locale.DecimalSeparator) : ""));
 			lstWeightUnits.Value(getWeightUnitControlValue(model.WeightUnit()));
 			txtDeliveryTime.Value(model.DeliveryTime());
 			txtDiscountExpr.Value(model.DiscountExpression());
@@ -703,10 +703,10 @@ JSShop.Presenters.ProductForm = function()
 		model.Title(txtTitle.Value());
 		model.Description(txtDescription.Value());
 		model.Images(imagesStr);
-		model.Price(parseFloat(txtPrice.Value().replace(JSShop.Language.Translations.Locale.DecimalSeparator, ".")));
+		model.Price(parseFloat(txtPrice.Value().replace(lang.Locale.DecimalSeparator, ".")));
 		model.Currency(lstCurrencies.GetSelections()[0].Value);
-		model.Vat(((txtVat.Value() !== "") ? parseFloat(txtVat.Value().replace(JSShop.Language.Translations.Locale.DecimalSeparator, ".")) : 0));
-		model.Weight(((txtWeight.Value() !== "") ? parseFloat(txtWeight.Value().replace(JSShop.Language.Translations.Locale.DecimalSeparator, ".")) : 0));
+		model.Vat(((txtVat.Value() !== "") ? parseFloat(txtVat.Value().replace(lang.Locale.DecimalSeparator, ".")) : 0));
+		model.Weight(((txtWeight.Value() !== "") ? parseFloat(txtWeight.Value().replace(lang.Locale.DecimalSeparator, ".")) : 0));
 		model.WeightUnit(lstWeightUnits.GetSelections()[0].Value);
 		model.DeliveryTime(txtDeliveryTime.Value());
 		model.DiscountExpression(txtDiscountExpr.Value());
@@ -754,7 +754,7 @@ JSShop.Presenters.ProductForm = function()
 		});
 		req.OnFailure(function(sender)
 		{
-			Fit.Controls.Dialog.Alert(lang.ImagesNotRemoved);
+			Fit.Controls.Dialog.Alert(lang.ProductForm.ImagesNotRemoved);
 			cb();
 		});
 		req.Start();
@@ -817,9 +817,9 @@ JSShop.Presenters.ProductForm = function()
 	function getWeightUnitControlValue(unit)
 	{
 		if (unit === "lbs")
-			return lang.Pounds + "=lbs"
+			return lang.ProductForm.Pounds + "=lbs"
 
-		return lang.Kilos + "=kg";
+		return lang.ProductForm.Kilos + "=kg";
 	}
 
 	init();

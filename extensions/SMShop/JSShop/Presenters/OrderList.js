@@ -7,7 +7,7 @@ JSShop.Presenters.OrderList = function()
 
 	var view = null;
 	var models = [];
-	var lang = JSShop.Language.Translations.OrderList;
+	var lang = JSShop.Language.Translations;
 
 	var orderEntryTemplate = null;
 	var entriesParent = null
@@ -79,13 +79,13 @@ JSShop.Presenters.OrderList = function()
 						cmdConfig.Render(view.querySelector("#JSShopOrderListButtons"));
 
 					Fit.Dom.Add(view.querySelector("#JSShop-Select"), chkSelectAll.GetDomElement());
-					Fit.Dom.Add(view.querySelector("#JSShop-OrderId"), document.createTextNode(lang.OrderId));
-					Fit.Dom.Add(view.querySelector("#JSShop-Time"), document.createTextNode(lang.Time));
-					Fit.Dom.Add(view.querySelector("#JSShop-Customer"), document.createTextNode(lang.Customer));
-					Fit.Dom.Add(view.querySelector("#JSShop-Amount"), document.createTextNode(lang.Amount));
-					Fit.Dom.Add(view.querySelector("#JSShop-PaymentMethod"), document.createTextNode(lang.PaymentMethod));
-					Fit.Dom.Add(view.querySelector("#JSShop-State"), document.createTextNode(lang.State));
-					Fit.Dom.Add(view.querySelector("#JSShop-InvoiceId"), document.createTextNode(lang.InvoiceId));
+					Fit.Dom.Add(view.querySelector("#JSShop-OrderId"), document.createTextNode(lang.OrderList.OrderId));
+					Fit.Dom.Add(view.querySelector("#JSShop-Time"), document.createTextNode(lang.OrderList.Time));
+					Fit.Dom.Add(view.querySelector("#JSShop-Customer"), document.createTextNode(lang.OrderList.Customer));
+					Fit.Dom.Add(view.querySelector("#JSShop-Amount"), document.createTextNode(lang.OrderList.Amount));
+					Fit.Dom.Add(view.querySelector("#JSShop-PaymentMethod"), document.createTextNode(lang.OrderList.PaymentMethod));
+					Fit.Dom.Add(view.querySelector("#JSShop-State"), document.createTextNode(lang.OrderList.State));
+					Fit.Dom.Add(view.querySelector("#JSShop-InvoiceId"), document.createTextNode(lang.OrderList.InvoiceId));
 
 					orderEntryTemplate = view.querySelector("#JSShopOrderEntry");
 					Fit.Dom.Attribute(orderEntryTemplate, "id", null);
@@ -102,8 +102,8 @@ JSShop.Presenters.OrderList = function()
 					Fit.Dom.Remove(model._presenter.DomElement);
 				});
 
-				var from = Fit.Date.Parse(txtFrom.Value() + " 00:00:00", JSShop.Language.Translations.Locale.DateFormat + " hh:mm:ss").getTime();
-				var to = Fit.Date.Parse(txtTo.Value() + " 23:59:59", JSShop.Language.Translations.Locale.DateFormat + " hh:mm:ss").getTime();
+				var from = Fit.Date.Parse(txtFrom.Value() + " 00:00:00", lang.Locale.DateFormat + " hh:mm:ss").getTime();
+				var to = Fit.Date.Parse(txtTo.Value() + " 23:59:59", lang.Locale.DateFormat + " hh:mm:ss").getTime();
 
 				JSShop.Models.Order.RetrieveAll(txtSearch.Value(), from, to, function(request, mdls)
 				{
@@ -117,7 +117,7 @@ JSShop.Presenters.OrderList = function()
 
 						entryHtml = entryHtml.replace(/{\[CheckBox\]}/g, "<div id='JSShopOrderCheckBox" + model.Id() + "'></div>");
 						entryHtml = entryHtml.replace(/{\[OrderId\]}/g, model.Id());
-						entryHtml = entryHtml.replace(/{\[Time\]}/g, Fit.Date.Format(new Date(model.Time()), JSShop.Language.Translations.Locale.DateFormat + " " + JSShop.Language.Translations.Locale.TimeFormat));
+						entryHtml = entryHtml.replace(/{\[Time\]}/g, Fit.Date.Format(new Date(model.Time()), lang.Locale.DateFormat + " " + lang.Locale.TimeFormat));
 						entryHtml = entryHtml.replace(/{\[Customer\]}/g, "<div id='JSShopCustomerDetails" + model.Id() + "'></div>");
 						entryHtml = entryHtml.replace(/{\[Currency\]}/g, model.Currency());
 						entryHtml = entryHtml.replace(/{\[Amount\]}/g, "<div id='JSShopOrderEntries" + model.Id() + "'></div>");
@@ -166,7 +166,7 @@ JSShop.Presenters.OrderList = function()
 						{
 							displayOrderEntries(model);
 						}
-						lnkOrderEntries.innerHTML = Fit.Math.Format(model.Price() + model.Vat(), 2, JSShop.Language.Translations.Locale.DecimalSeparator);
+						lnkOrderEntries.innerHTML = Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator);
 						Fit.Dom.Replace(entry.querySelector("#JSShopOrderEntries" + model.Id()), lnkOrderEntries);
 
 						var stateElm = document.createElement("span");
@@ -205,7 +205,7 @@ JSShop.Presenters.OrderList = function()
 		{
 			try
 			{
-				Fit.Date.Parse(txtFrom.Value(), JSShop.Language.Translations.Locale.DateFormat);
+				Fit.Date.Parse(txtFrom.Value(), lang.Locale.DateFormat);
 			}
 			catch (err)
 			{
@@ -218,19 +218,19 @@ JSShop.Presenters.OrderList = function()
 		{
 			if (txtFrom.IsValid() === false)
 			{
-				txtFrom.Value(Fit.Date.Format(new Date(), JSShop.Language.Translations.Locale.DateFormat));
+				txtFrom.Value(Fit.Date.Format(new Date(), lang.Locale.DateFormat));
 			}
 			else
 			{
 				// Parser is very forgiving - e.g. it allow letters in date (2016-05ABC-20).
 				// Parse and re-format to make sure value in input field is properly formatted.
-				var d = Fit.Date.Parse(txtFrom.Value(), JSShop.Language.Translations.Locale.DateFormat);
-				var v = Fit.Date.Format(d, JSShop.Language.Translations.Locale.DateFormat);
+				var d = Fit.Date.Parse(txtFrom.Value(), lang.Locale.DateFormat);
+				var v = Fit.Date.Format(d, lang.Locale.DateFormat);
 				txtFrom.Value(v);
 			}
 		});
 		txtFrom.Width(120);
-		txtFrom.Value(Fit.Date.Format(new Date(), JSShop.Language.Translations.Locale.DateFormat));
+		txtFrom.Value(Fit.Date.Format(new Date(), lang.Locale.DateFormat));
 		txtFrom.GetDomElement().title = "Display orders from this date";
 
 		txtTo = new Fit.Controls.Input("JSShopToDate");
@@ -239,7 +239,7 @@ JSShop.Presenters.OrderList = function()
 		{
 			try
 			{
-				Fit.Date.Parse(txtTo.Value(), JSShop.Language.Translations.Locale.DateFormat);
+				Fit.Date.Parse(txtTo.Value(), lang.Locale.DateFormat);
 			}
 			catch (err)
 			{
@@ -252,19 +252,19 @@ JSShop.Presenters.OrderList = function()
 		{
 			if (txtTo.IsValid() === false)
 			{
-				txtTo.Value(Fit.Date.Format(new Date(), JSShop.Language.Translations.Locale.DateFormat));
+				txtTo.Value(Fit.Date.Format(new Date(), lang.Locale.DateFormat));
 			}
 			else
 			{
 				// Parser is very forgiving - e.g. it allow letters in date (2016-05ABC-20).
 				// Parse and re-format to make sure value in input field is properly formatted.
-				var d = Fit.Date.Parse(txtTo.Value(), JSShop.Language.Translations.Locale.DateFormat);
-				var v = Fit.Date.Format(d, JSShop.Language.Translations.Locale.DateFormat);
+				var d = Fit.Date.Parse(txtTo.Value(), lang.Locale.DateFormat);
+				var v = Fit.Date.Format(d, lang.Locale.DateFormat);
 				txtTo.Value(v);
 			}
 		});
 		txtTo.Width(120);
-		txtTo.Value(Fit.Date.Format(new Date(), JSShop.Language.Translations.Locale.DateFormat));
+		txtTo.Value(Fit.Date.Format(new Date(), lang.Locale.DateFormat));
 		txtTo.GetDomElement().title = "Display orders to this date";
 
 		cmdUpdate = new Fit.Controls.Button("JSShopUpdateButton");
@@ -284,7 +284,7 @@ JSShop.Presenters.OrderList = function()
 		{
 			if (process.length === 0)
 			{
-				Fit.Controls.Dialog.Alert(lang.SelectOrders);
+				Fit.Controls.Dialog.Alert(lang.OrderList.SelectOrders);
 				return;
 			}
 
@@ -327,7 +327,7 @@ JSShop.Presenters.OrderList = function()
 			dia.Open();
 			cmdCsv.Focused(true);
 		});
-		cmdExport.GetDomElement().title = lang.Export;
+		cmdExport.GetDomElement().title = lang.OrderList.Export;
 
 		cmdInvoice = new Fit.Controls.Button("JSShopInvoiceButton");
 		cmdInvoice.Icon("fa-paperclip");
@@ -336,17 +336,17 @@ JSShop.Presenters.OrderList = function()
 		{
 			if (process.length === 0)
 			{
-				Fit.Controls.Dialog.Alert(lang.SelectOrders);
+				Fit.Controls.Dialog.Alert(lang.OrderList.SelectOrders);
 				return;
 			}
 
-			Fit.Controls.Dialog.Confirm(lang.ConfirmAction + ": " + lang.SendInvoice, function(res)
+			Fit.Controls.Dialog.Confirm(lang.OrderList.ConfirmAction + ": " + lang.OrderList.SendInvoice, function(res)
 			{
 				if (res === true)
 					sendInvoices();
 			});
 		});
-		cmdInvoice.GetDomElement().title = lang.SendInvoice;
+		cmdInvoice.GetDomElement().title = lang.OrderList.SendInvoice;
 
 		if (JSShop.Settings.PaymentCaptureUrl)
 		{
@@ -357,17 +357,17 @@ JSShop.Presenters.OrderList = function()
 			{
 				if (process.length === 0)
 				{
-					Fit.Controls.Dialog.Alert(lang.SelectOrders);
+					Fit.Controls.Dialog.Alert(lang.OrderList.SelectOrders);
 					return;
 				}
 
-				Fit.Controls.Dialog.Confirm(lang.ConfirmAction + ": " + lang.Capture, function(res)
+				Fit.Controls.Dialog.Confirm(lang.OrderList.ConfirmAction + ": " + lang.OrderList.Capture, function(res)
 				{
 					if (res === true)
 						processPayments("Capture");
 				});
 			});
-			cmdCapture.GetDomElement().title = lang.Capture;
+			cmdCapture.GetDomElement().title = lang.OrderList.Capture;
 		}
 
 		if (JSShop.Settings.PaymentCancelUrl)
@@ -379,17 +379,17 @@ JSShop.Presenters.OrderList = function()
 			{
 				if (process.length === 0)
 				{
-					Fit.Controls.Dialog.Alert(lang.SelectOrders);
+					Fit.Controls.Dialog.Alert(lang.OrderList.SelectOrders);
 					return;
 				}
 
-				Fit.Controls.Dialog.Confirm(lang.ConfirmAction + ": " + lang.Reject, function(res)
+				Fit.Controls.Dialog.Confirm(lang.OrderList.ConfirmAction + ": " + lang.OrderList.Reject, function(res)
 				{
 					if (res === true)
 						processPayments("Reject");
 				});
 			});
-			cmdReject.GetDomElement().title = lang.Reject;
+			cmdReject.GetDomElement().title = lang.OrderList.Reject;
 		}
 
 		if (JSShop.Settings.ConfigUrl)
@@ -430,13 +430,13 @@ JSShop.Presenters.OrderList = function()
 		Fit.Validation.ExpectStringValue(state);
 
 		if (state === "Initial")
-			return lang.StateInitial;
+			return lang.OrderList.StateInitial;
 		else if (state === "Authorized")
-			return lang.StateAuthorized;
+			return lang.OrderList.StateAuthorized;
 		else if (state === "Captured")
-			return lang.StateCaptured;
+			return lang.OrderList.StateCaptured;
 		else if (state === "Canceled")
-			return lang.StateCanceled;
+			return lang.OrderList.StateCanceled;
 
 		return "UNKNOWN";
 	}
@@ -463,7 +463,7 @@ JSShop.Presenters.OrderList = function()
 		});
 
 		if (skipped.length > 0)
-			Fit.Controls.Dialog.Alert(lang.OrdersSkipped + ":<br><br>" + skipped.join(((skipped.length <= 10) ? "<br>" : ", ")));
+			Fit.Controls.Dialog.Alert(lang.OrderList.OrdersSkipped + ":<br><br>" + skipped.join(((skipped.length <= 10) ? "<br>" : ", ")));
 
 		if (processing.length === 0)
 			return;
@@ -486,9 +486,9 @@ JSShop.Presenters.OrderList = function()
 					if (processed === scheduled) // All responses have been received
 					{
 						if (failed.length === 0)
-							Fit.Controls.Dialog.Alert(lang.DoneSuccess);
+							Fit.Controls.Dialog.Alert(lang.OrderList.DoneSuccess);
 						else
-							Fit.Controls.Dialog.Alert(lang.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
+							Fit.Controls.Dialog.Alert(lang.OrderList.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
 					}
 				}
 				else // More requests to be made
@@ -507,7 +507,7 @@ JSShop.Presenters.OrderList = function()
 				if (processing.length === 0) // No more requests to be made
 				{
 					if (processed === scheduled) // All responses have been received
-						Fit.Controls.Dialog.Alert(lang.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
+						Fit.Controls.Dialog.Alert(lang.OrderList.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
 				}
 				else // More requests to be made
 				{
@@ -569,7 +569,7 @@ JSShop.Presenters.OrderList = function()
 		dia.Open();
 
 		var cmdOk = new Fit.Controls.Button("JSShopOrderDetailsOkButton");
-		cmdOk.Title(JSShop.Language.Translations.Common.Ok);
+		cmdOk.Title(lang.Common.Ok);
 		cmdOk.Type(Fit.Controls.Button.Type.Success);
 		cmdOk.Enabled(false);
 		cmdOk.OnClick(function(sender)
@@ -587,9 +587,9 @@ JSShop.Presenters.OrderList = function()
 		{
 			var html = req.GetResponseText();
 
-			html = html.replace(/{\[CustomerDetailsHeadline\]}/, lang.CustomerDetails);
-			html = html.replace(/{\[AlternativeAddressHeadline\]}/, lang.AlternativeAddress);
-			html = html.replace(/{\[CustomerMessageHeadline\]}/, lang.Message);
+			html = html.replace(/{\[CustomerDetailsHeadline\]}/, lang.OrderList.CustomerDetails);
+			html = html.replace(/{\[AlternativeAddressHeadline\]}/, lang.OrderList.AlternativeAddress);
+			html = html.replace(/{\[CustomerMessageHeadline\]}/, lang.OrderList.Message);
 
 			var data = [ "Company", "FirstName", "LastName", "Address", "ZipCode", "City", "Phone", "Email", "Message" ];
 			data = Fit.Array.Merge(data, [ "AltCompany", "AltFirstName", "AltLastName", "AltAddress", "AltZipCode", "AltCity" ]);
@@ -634,7 +634,7 @@ JSShop.Presenters.OrderList = function()
 		dia.GetDomElement().style.maxWidth = "95%";
 
 		var cmdOk = new Fit.Controls.Button("JSShopOrderEntriesOkButton");
-		cmdOk.Title(JSShop.Language.Translations.Common.Ok);
+		cmdOk.Title(lang.Common.Ok);
 		cmdOk.Type(Fit.Controls.Button.Type.Success);
 		cmdOk.Enabled(false);
 		cmdOk.OnClick(function(sender)
@@ -654,12 +654,12 @@ JSShop.Presenters.OrderList = function()
 
 			// Headers
 
-			html = html.replace(/{\[HeaderProduct\]}/g, lang.Product);
-			html = html.replace(/{\[HeaderUnitPrice\]}/g, lang.UnitPrice);
-			html = html.replace(/{\[HeaderUnits\]}/g, lang.Units);
-			html = html.replace(/{\[HeaderPrice\]}/g, lang.Price);
-			html = html.replace(/{\[HeaderTotalVat\]}/g, lang.TotalVat);
-			html = html.replace(/{\[HeaderTotalPrice\]}/g, lang.TotalPrice);
+			html = html.replace(/{\[HeaderProduct\]}/g, lang.OrderList.Product);
+			html = html.replace(/{\[HeaderUnitPrice\]}/g, lang.OrderList.UnitPrice);
+			html = html.replace(/{\[HeaderUnits\]}/g, lang.OrderList.Units);
+			html = html.replace(/{\[HeaderPrice\]}/g, lang.OrderList.Price);
+			html = html.replace(/{\[HeaderTotalVat\]}/g, lang.OrderList.TotalVat);
+			html = html.replace(/{\[HeaderTotalPrice\]}/g, lang.OrderList.TotalPrice);
 
 			// Extract item HTML
 
@@ -698,12 +698,12 @@ JSShop.Presenters.OrderList = function()
 					var pricing = JSShop.CalculatePricing(entry.UnitPrice(), entry.Units(), entry.Vat(), entry.Discount());
 
 					curItemHtml = curItemHtml.replace(/{\[Title\]}/g, ((entry.Product !== null) ? entry.Product.Title() : entry.ProductId()));
-					curItemHtml = curItemHtml.replace(/{\[UnitPrice\]}/g, Fit.Math.Format(pricing.UnitPriceInclVat, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+					curItemHtml = curItemHtml.replace(/{\[UnitPrice\]}/g, Fit.Math.Format(pricing.UnitPriceInclVat, 2, lang.Locale.DecimalSeparator));
 					curItemHtml = curItemHtml.replace(/{\[DiscountMessage\]}/g, entry.DiscountMessage());
-					curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, ((pricing.DiscountInclVat > 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, JSShop.Language.Translations.Locale.DecimalSeparator) : ""));
+					curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, ((pricing.DiscountInclVat > 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator) : ""));
 					curItemHtml = curItemHtml.replace(/{\[Units\]}/g, entry.Units());
 					curItemHtml = curItemHtml.replace(/{\[Currency\]}/g, entry.Currency());
-					curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(pricing.TotalInclVat, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+					curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(pricing.TotalInclVat, 2, lang.Locale.DecimalSeparator));
 
 					allItemsHtml += curItemHtml;
 				});
@@ -720,7 +720,7 @@ JSShop.Presenters.OrderList = function()
 						curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, "");
 						curItemHtml = curItemHtml.replace(/{\[Units\]}/g, "");
 						curItemHtml = curItemHtml.replace(/{\[Currency\]}/g, model.Currency());
-						curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(model["CostCorrection" + i]() + model["CostCorrectionVat" + i](), 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+						curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(model["CostCorrection" + i]() + model["CostCorrectionVat" + i](), 2, lang.Locale.DecimalSeparator));
 
 						allItemsHtml += curItemHtml;
 					}
@@ -729,8 +729,8 @@ JSShop.Presenters.OrderList = function()
 				html = html.replace(res[0], allItemsHtml);
 
 				html = html.replace(/{\[Currency\]}/g, model.Currency());
-				html = html.replace(/{\[TotalVat\]}/g, Fit.Math.Format(model.Vat(), 2, JSShop.Language.Translations.Locale.DecimalSeparator));
-				html = html.replace(/{\[TotalPrice\]}/g, Fit.Math.Format(model.Price() + model.Vat(), 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+				html = html.replace(/{\[TotalVat\]}/g, Fit.Math.Format(model.Vat(), 2, lang.Locale.DecimalSeparator));
+				html = html.replace(/{\[TotalPrice\]}/g, Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator));
 
 				cmdOk.Enabled(true);
 				dia.Content(html);
@@ -930,9 +930,9 @@ JSShop.Presenters.OrderList = function()
 					var pricing = JSShop.CalculatePricing(entry.UnitPrice(), entry.Units(), entry.Vat(), entry.Discount());
 
 					pdf.text(x, y, ((entry.Product !== null) ? entry.Product.Title() : entry.ProductId()));
-					pdf.text(x + 250, y, Fit.Math.Format(pricing.UnitPriceInclVat, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+					pdf.text(x + 250, y, Fit.Math.Format(pricing.UnitPriceInclVat, 2, lang.Locale.DecimalSeparator));
 					pdf.text(x + 350, y, entry.Units().toString());
-					pdf.text(x + 400, y, Fit.Math.Format(pricing.TotalInclVat, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+					pdf.text(x + 400, y, Fit.Math.Format(pricing.TotalInclVat, 2, lang.Locale.DecimalSeparator));
 
 					if (entry.Discount() !== 0)
 					{
@@ -941,7 +941,7 @@ JSShop.Presenters.OrderList = function()
 						pdf.setFontSize(minorSize);
 
 						pdf.text(x, y, entry.DiscountMessage());
-						pdf.text(x + 400, y, Fit.Math.Format(pricing.DiscountInclVat * -1, 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+						pdf.text(x + 400, y, Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator));
 
 						pdf.setFontSize(fontSize);
 					}
@@ -956,7 +956,7 @@ JSShop.Presenters.OrderList = function()
 						y += 20;
 
 						pdf.text(x, y, order["CostCorrectionMessage" + i]());
-						pdf.text(x + 400, y, Fit.Math.Format(order["CostCorrection" + i]() + order["CostCorrectionVat" + i](), 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+						pdf.text(x + 400, y, Fit.Math.Format(order["CostCorrection" + i]() + order["CostCorrectionVat" + i](), 2, lang.Locale.DecimalSeparator));
 					}
 				}
 
@@ -965,12 +965,12 @@ JSShop.Presenters.OrderList = function()
 				y += 50;
 
 				pdf.text(x + 250, y, "Moms");
-				pdf.text(x + 400, y, Fit.Math.Format(order.Vat(), 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+				pdf.text(x + 400, y, Fit.Math.Format(order.Vat(), 2, lang.Locale.DecimalSeparator));
 
 				y += 20;
 
 				pdf.text(x + 250, y, "Total inkl. moms");
-				pdf.text(x + 400, y, Fit.Math.Format(order.Price() + order.Vat(), 2, JSShop.Language.Translations.Locale.DecimalSeparator));
+				pdf.text(x + 400, y, Fit.Math.Format(order.Price() + order.Vat(), 2, lang.Locale.DecimalSeparator));
 
 				// Custom data
 
@@ -1111,9 +1111,9 @@ JSShop.Presenters.OrderList = function()
 					if (processed === scheduled) // All responses have been received
 					{
 						if (failed.length === 0)
-							Fit.Controls.Dialog.Alert(lang.DoneSuccess);
+							Fit.Controls.Dialog.Alert(lang.OrderList.DoneSuccess);
 						else
-							Fit.Controls.Dialog.Alert(lang.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
+							Fit.Controls.Dialog.Alert(lang.OrderList.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
 					}
 				}
 				else // More requests to be made
@@ -1141,7 +1141,7 @@ JSShop.Presenters.OrderList = function()
 				if (processing.length === 0) // No more requests to be made
 				{
 					if (processed === scheduled) // All responses have been received
-						Fit.Controls.Dialog.Alert(lang.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
+						Fit.Controls.Dialog.Alert(lang.OrderList.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
 				}
 				else // More requests to be made
 				{

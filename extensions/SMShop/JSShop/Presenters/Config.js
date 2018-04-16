@@ -8,7 +8,7 @@ JSShop.Presenters.Config = function()
 	var view = null;
 	var tpl = null;
 	var config = null;
-	var lang = JSShop.Language.Translations.Config;
+	var lang = JSShop.Language.Translations;
 	var buttons = [];
 	var cmdSave = null;
 	var codeMirrorLoadState = -1; // -1 = Not loaded, 0 = loading, 1 = loaded
