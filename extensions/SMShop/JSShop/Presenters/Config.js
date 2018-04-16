@@ -11,6 +11,7 @@ JSShop.Presenters.Config = function()
 	var lang = JSShop.Language.Translations.Config;
 	var buttons = [];
 	var cmdSave = null;
+	var codeMirrorLoadState = -1; // -1 = Not loaded, 0 = loading, 1 = loaded
 
 	function init()
 	{
@@ -57,19 +58,10 @@ JSShop.Presenters.Config = function()
 				loadBasicConfig(cmdBasic);
 
 				tpl.Update();
+
+				// Prepare Code Mirror in the background when UI is ready
+				setTimeout(function() { loadCodeMirror(); }, 1000);
 			});
-		});
-
-		// Experimental CodeMirror editor (press F2 to activate)
-
-		Fit.Events.AddHandler(document, "keydown", function(e)
-		{
-			var ev = Fit.Events.GetEvent(e);
-
-			if (ev.keyCode === 113)
-			{
-				activateCodeMirror();
-			}
 		});
 	}
 
@@ -353,49 +345,31 @@ JSShop.Presenters.Config = function()
 
 			itm = tpl.Content.Properties.AddItem();
 			itm.PropertyName = "Cost expression";
-			itm.PropertyValue = createExpressionInput(cc.CostCorrection, "number", function(sender, val) { cc.CostCorrection = val; });
+			itm.PropertyValue = createCostCorrectionExpressionInput(cc.CostCorrection, "number", function(sender, val) { cc.CostCorrection = val; });
 
 			itm = tpl.Content.Properties.AddItem();
 			itm.PropertyName = "VAT expression";
-			itm.PropertyValue = createExpressionInput(cc.Vat, "number", function(sender, val) { cc.Vat = val; });
+			itm.PropertyValue = createCostCorrectionExpressionInput(cc.Vat, "number", function(sender, val) { cc.Vat = val; });
 
 			itm = tpl.Content.Properties.AddItem();
 			itm.PropertyName = "Message expression";
-			itm.PropertyValue = createExpressionInput(cc.Message, "string", function(sender, val) { cc.Message = val; });
+			itm.PropertyValue = createCostCorrectionExpressionInput(cc.Message, "string", function(sender, val) { cc.Message = val; });
 		}
 		else if (section === "Additional data")
 		{
 			itm = tpl.Content.Properties.AddItem();
-			itm.PropertyName = "Additional data (JSON)";
-			itm.PropertyValue = createInput("", function(sender, val)
+			itm.PropertyName = "Additional data (JSON object)";
+
+			itm.PropertyValue = createAdditionalDataExpressionInput(config.AdditionalData, function(sender, val)
 			{
 				config.AdditionalData = val;
 
 				if (sender.IsValid() === true)
 				{
 					// Make sure changes to Additional Data is immediately accessible when configuring Cost Corrections
-					JSShop.Settings.AdditionalData = JSON.parse(val);
+					JSShop.Settings.AdditionalData = (val !== "" ? JSON.parse(val) : {});
 				}
 			});
-			itm.PropertyValue.FitControl.MultiLine(true);
-			itm.PropertyValue.FitControl.Maximizable(true);
-			itm.PropertyValue.FitControl.Value(config.AdditionalData); // Set value after MultiLine is enabled to preserve line breaks
-			itm.PropertyValue.FitControl.SetValidationCallback(function(val)
-			{
-				if (val === "")
-					return true;
-
-				try
-				{
-					JSON.parse(val);
-				}
-				catch (err)
-				{
-					return false;
-				}
-
-				return true;
-			}, "Invalid JSON");
 		}
 
 		tpl.Update();
@@ -444,9 +418,23 @@ JSShop.Presenters.Config = function()
 		return ctl.GetDomElement();
 	}
 
-	function createExpressionInput(value, valueType, onChange)
+	function createExpressionInput(value, onChange)
 	{
 		var input = createInput(value, onChange);
+
+		input.FitControl.CheckSpelling(false);
+		input.FitControl.MultiLine(true);
+		input.FitControl.Height(-1); // Reset height to make it resize to fit content
+		input.FitControl.Value(value); // Line breaks are not preserved when control is initially single line
+
+		setTimeout(function() { activateCodeMirror(input.FitControl); }, 0); // Postpone - code mirror can only be enabled for elements added to DOM and template has not yet been pushed to DOM
+
+		return input;
+	}
+
+	function createCostCorrectionExpressionInput(value, valueType, onChange)
+	{
+		var input = createExpressionInput(value, onChange);
 
 		input.FitControl.SetValidationCallback(function(val)
 		{
@@ -465,11 +453,29 @@ JSShop.Presenters.Config = function()
 
 			return true;
 		}, "Invalid expression");
-		input.FitControl.CheckSpelling(false);
-		input.FitControl.MultiLine(true);
-		input.FitControl.Height(100);
-		input.FitControl.Maximizable(true, 300);
-		input.FitControl.Value(value); // Line breaks are not preserved when control is initially single line
+
+		return input;
+	}
+
+	function createAdditionalDataExpressionInput(value, onChange)
+	{
+		var input = createExpressionInput(value, onChange);
+
+		input.FitControl.SetValidationCallback(function(val)
+		{
+			if (val === "")
+				return true;
+
+			try
+			{
+				var res = JSON.parse(val);
+				return (res && typeof res === "object");
+			}
+			catch (err)
+			{
+				return false;
+			}
+		}, "Invalid JSON object");
 
 		return input;
 	}
@@ -521,41 +527,63 @@ JSShop.Presenters.Config = function()
 		active.Focused(false);
 	}
 
-	function activateCodeMirror()
+	function loadCodeMirror(callback)
 	{
-		Fit.Loader.LoadStyleSheet("https://codemirror.net/lib/codemirror.css");
-		Fit.Loader.LoadScripts(
-		[
-			{ source : "https://codemirror.net/lib/codemirror.js" },
-			{ source : "https://codemirror.net/mode/xml/xml.js" },
-			{ source : "https://codemirror.net/mode/javascript/javascript.js" },
-			//{ source : "https://codemirror.net/mode/css/css.js" },
-			//{ source : "https://codemirror.net/mode/htmlmixed/htmlmixed.js" },
-			{ source : "https://codemirror.net/addon/edit/matchbrackets.js" }
-		],
-		function(cfgs)
+		Fit.Validation.ExpectFunction(callback, true);
+
+		var cb = (callback ? callback : function() {});
+
+		if (codeMirrorLoadState === 1) // Already loaded
 		{
-			Fit.Array.ForEach(document.querySelectorAll("div.FitUiControlInput[data-multiline='true']"), function(txtElm)
+			cb();
+		}
+		else if (codeMirrorLoadState === 0) // Loading but not ready yet
+		{
+			var checkInt = -1;
+			checkInt = setInterval(function()
 			{
-				var ctl = Fit.Controls.Find(txtElm.id);
-
-				ctl.Maximizable(false);
-				ctl.Height(-1);
-
-				var codeEditor = CodeMirror.fromTextArea(txtElm.querySelector("textarea"),
+				if (codeMirrorLoadState === 1)
 				{
-					lineNumbers: true,
-					mode: "javascript", // "htmlmixed", "css", "javascript"
-					matchBrackets: true,
-					viewportMargin: Infinity, // Used with height:auto to enable auto resize: https://codemirror.net/demo/resize.html
-					styleActiveLine: true
-				});
-				codeEditor.getWrapperElement().style.cssText += "; border: 1px solid silver; height: auto;";
+					clearInterval(checkInt);
+					cb();
+				}
+			}, 250);
+		}
+		else // Not loaded
+		{
+			codeMirrorLoadState = 0; // Indicate loading state
 
-				codeEditor.on("change", function(sender, args)
-				{
-					ctl.Value(sender.getValue());
-				});
+			// The file codemirror.min.css is a minified version of lib/codemirror.css while codemirror.bundle.min.js
+			// is a minified bundle of lib/codemirror.js, mode/javascript/javascript.js, and addon/edit/matchbrackets.js
+			// which reduces the total size by ~55%.
+
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/CodeMirror/codemirror.min.css");
+			Fit.Loader.LoadScript(JSShop.GetPath() + "/CodeMirror/codemirror.bundled.min.js", function(cfgs)
+			{
+				codeMirrorLoadState = 1; // Done loading
+				cb();
+			});
+		}
+	}
+
+	function activateCodeMirror(ctl)
+	{
+		loadCodeMirror(function()
+		{
+			var codeEditor = CodeMirror.fromTextArea(ctl.GetDomElement().querySelector("textarea"),
+			{
+				lineNumbers: true,
+				mode: "javascript", // "htmlmixed", "css", "javascript"
+				matchBrackets: true,
+				viewportMargin: Infinity, // Used with height:auto to enable auto resize: https://codemirror.net/demo/resize.html
+				styleActiveLine: true
+			});
+
+			codeEditor.getWrapperElement().style.cssText += "; border: 1px solid silver; height: auto;";
+
+			codeEditor.on("change", function(sender, args)
+			{
+				ctl.Value(sender.getValue());
 			});
 		});
 	}
