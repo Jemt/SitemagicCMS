@@ -361,9 +361,9 @@ JSShop.Presenters.Basket = function()
 							// Display warnings
 
 							if (currencyError === true)
-								Fit.Controls.Dialog.Alert("Error - buying products with different currencies is not supported!");
+								Fit.Controls.Dialog.Alert(lang.Basket.ErrorCurrencies);
 							if (weightUnitError === true)
-								Fit.Controls.Dialog.Alert("Error - buying products with different weight units is not supported!");
+								Fit.Controls.Dialog.Alert(lang.Basket.ErrorWeightUnits);
 
 							// Fire OnUpdated
 

@@ -193,8 +193,8 @@ JSShop.Presenters.OrderList = function()
 
 		txtSearch = new Fit.Controls.Input("JSShopSearch");
 		txtSearch.Width(120);
-		txtSearch.GetDomElement().title = "Search";
-		txtSearch.Placeholder("Search..");
+		txtSearch.GetDomElement().title = lang.OrderList.Search;
+		txtSearch.Placeholder(lang.OrderList.Search + "..");
 
 		var now = new Date();
 		var yesterday = new Date(((new Date()).setDate(now.getDate() - 1)));
@@ -231,7 +231,7 @@ JSShop.Presenters.OrderList = function()
 		});
 		txtFrom.Width(120);
 		txtFrom.Value(Fit.Date.Format(new Date(), lang.Locale.DateFormat));
-		txtFrom.GetDomElement().title = "Display orders from this date";
+		txtFrom.GetDomElement().title = lang.OrderList.DisplayFromDate;
 
 		txtTo = new Fit.Controls.Input("JSShopToDate");
 		txtTo.Required(true);
@@ -265,7 +265,7 @@ JSShop.Presenters.OrderList = function()
 		});
 		txtTo.Width(120);
 		txtTo.Value(Fit.Date.Format(new Date(), lang.Locale.DateFormat));
-		txtTo.GetDomElement().title = "Display orders to this date";
+		txtTo.GetDomElement().title = lang.OrderList.DisplayToDate;
 
 		cmdUpdate = new Fit.Controls.Button("JSShopUpdateButton");
 		cmdUpdate.Icon("fa-refresh");
@@ -275,7 +275,7 @@ JSShop.Presenters.OrderList = function()
 			cmdUpdate.Enabled(false);
 			loadData(function() { cmdUpdate.Enabled(true); });
 		});
-		cmdUpdate.GetDomElement().title = "Update";
+		cmdUpdate.GetDomElement().title = lang.OrderList.Update;
 
 		cmdExport = new Fit.Controls.Button("JSShopExportButton");
 		cmdExport.Icon("fa-table");
@@ -310,7 +310,7 @@ JSShop.Presenters.OrderList = function()
 			cmdPdf.Enabled((Fit.Browser.GetInfo().Name !== "MSIE" || Fit.Browser.GetInfo().Name >= 10)); // jsPDF requires IE10+
 
 			var cmdCancel = new Fit.Controls.Button("JSShopExportCancelButton");
-			cmdCancel.Title("Annuller");
+			cmdCancel.Title(lang.Common.Cancel);
 			cmdCancel.Icon("fa-cancel");
 			cmdCancel.Type(Fit.Controls.Button.Type.Danger);
 			cmdCancel.OnClick(function(sender)
@@ -319,7 +319,7 @@ JSShop.Presenters.OrderList = function()
 			});
 
 			var dia = new Fit.Controls.Dialog();
-			dia.Content("Vælg venligst format");
+			dia.Content(lang.OrderList.ChooseFormat);
 			dia.Modal(true);
 			dia.AddButton(cmdCsv);
 			dia.AddButton(cmdPdf);
@@ -401,7 +401,7 @@ JSShop.Presenters.OrderList = function()
 			{
 				location.href = JSShop.Settings.ConfigUrl;
 			});
-			cmdConfig.GetDomElement().title = "Settings";
+			cmdConfig.GetDomElement().title = lang.OrderList.Settings;
 		}
 
 		chkSelectAll = new Fit.Controls.CheckBox("JSShopSelectAll");
@@ -565,7 +565,7 @@ JSShop.Presenters.OrderList = function()
 
 		var dia = new Fit.Controls.Dialog();
 		dia.Modal(true);
-		dia.Content("Working on it..");
+		dia.Content(lang.OrderList.Loading);
 		dia.Open();
 
 		var cmdOk = new Fit.Controls.Button("JSShopOrderDetailsOkButton");
@@ -629,7 +629,7 @@ JSShop.Presenters.OrderList = function()
 
 		var dia = new Fit.Controls.Dialog();
 		dia.Modal(true);
-		dia.Content("Working on it..");
+		dia.Content(lang.OrderList.Loading);
 		dia.Open();
 		dia.GetDomElement().style.maxWidth = "95%";
 
@@ -865,12 +865,12 @@ JSShop.Presenters.OrderList = function()
 
 				pdf.setFontSize(headerSize);
 				pdf.setFontStyle("bold")
-				pdf.text(x, y, "Order " + order.Id());
+				pdf.text(x, y, lang.OrderList.Order + " " + order.Id());
 				pdf.setFontSize(fontSize);
 				pdf.setFontStyle("normal");
 
 				pdf.setFontSize(fontSize);
-				pdf.text(450, y, Fit.Date.Format(new Date(order.Time()), "YYYY-MM-DD hh:mm:ss"));
+				pdf.text(450, y, Fit.Date.Format(new Date(order.Time()), lang.Locale.DateFormat + " " + lang.Locale.TimeFormat));
 				pdf.setFontSize(fontSize);
 
 				y += 30;
@@ -880,7 +880,7 @@ JSShop.Presenters.OrderList = function()
 				var customerY = y;
 
 				pdf.setFontStyle("bold");
-				pdf.text(x, customerY += 20, "Kundedetaljer");
+				pdf.text(x, customerY += 20, lang.OrderList.CustomerDetails);
 				pdf.setFontStyle("normal");
 
 				if (order.Company() !== "")
@@ -897,7 +897,7 @@ JSShop.Presenters.OrderList = function()
 				var deliveryY = y;
 
 				pdf.setFontStyle("bold");
-				pdf.text(x + 250, deliveryY += 20, "Alternativ leveringsadresse");
+				pdf.text(x + 250, deliveryY += 20, lang.OrderList.AlternativeAddress);
 				pdf.setFontStyle("normal");
 
 				if (order.AltCompany() !== "")
@@ -913,15 +913,15 @@ JSShop.Presenters.OrderList = function()
 				y += 50;
 
 				pdf.setFontStyle("bold");
-				pdf.text(x, y, "Bestilling");
+				pdf.text(x, y, lang.OrderList.Order);
 				pdf.setFontStyle("normal");
 
 				y += 20;
 
-				pdf.text(x, y, "Title");
-				pdf.text(x + 250, y, "Enhedspris");
-				pdf.text(x + 350, y, "Antal");
-				pdf.text(x + 400, y, "Pris");
+				pdf.text(x, y, lang.OrderList.Product);
+				pdf.text(x + 250, y, lang.OrderList.UnitPrice);
+				pdf.text(x + 350, y, lang.OrderList.Units);
+				pdf.text(x + 400, y, lang.OrderList.Price);
 
 				Fit.Array.ForEach(order._presenter.Entries, function(entry)
 				{
@@ -964,12 +964,12 @@ JSShop.Presenters.OrderList = function()
 
 				y += 50;
 
-				pdf.text(x + 250, y, "Moms");
+				pdf.text(x + 250, y, lang.OrderList.TotalVat);
 				pdf.text(x + 400, y, Fit.Math.Format(order.Vat(), 2, lang.Locale.DecimalSeparator));
 
 				y += 20;
 
-				pdf.text(x + 250, y, "Total inkl. moms");
+				pdf.text(x + 250, y, lang.OrderList.TotalPrice);
 				pdf.text(x + 400, y, Fit.Math.Format(order.Price() + order.Vat(), 2, lang.Locale.DecimalSeparator));
 
 				// Custom data
@@ -995,7 +995,7 @@ JSShop.Presenters.OrderList = function()
 					y += 50;
 
 					pdf.setFontStyle("bold");
-					pdf.text(x, y, "Besked");
+					pdf.text(x, y, lang.OrderList.Message);
 					pdf.setFontStyle("normal");
 
 					var msg = order.Message();
@@ -1008,7 +1008,7 @@ JSShop.Presenters.OrderList = function()
 				}
 			});
 
-			pdf.save("Export.pdf");
+			pdf.save(lang.OrderList.Export + ".pdf");
 		}
 
 		var loaded = -1;

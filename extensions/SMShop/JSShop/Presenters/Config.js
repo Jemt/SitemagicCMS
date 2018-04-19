@@ -29,22 +29,22 @@ JSShop.Presenters.Config = function()
 
 			tpl.LoadUrl(JSShop.GetPath() + "/Views/Config.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 			{
-				var cmdBasic = createTabButton("Basic", function(sender) { loadBasicConfig(sender); });
-				var cmdMails = createTabButton("E-mail templates", function(sender) { showMailTemplates(sender); });
-				var cmdPayMethods = createTabButton("Payment methods", function(sender) { showPayMethods(sender); });
-				var cmdAdvanced = createTabButton("Advanced", function(sender) { showAdvanced(sender); });
+				var cmdBasic = createTabButton(lang.Config.Basic, function(sender) { loadBasicConfig(sender); });
+				var cmdMails = createTabButton(lang.Config.EmailTemplates, function(sender) { showMailTemplates(sender); });
+				var cmdPayMethods = createTabButton(lang.Config.PaymentMethods, function(sender) { showPayMethods(sender); });
+				var cmdAdvanced = createTabButton(lang.Config.Advanced, function(sender) { showAdvanced(sender); });
 
 				cmdMails.Enabled(((config.MailTemplates.Templates && config.MailTemplates.Templates.length > 0) ? true : false));
 				cmdPayMethods.Enabled((config.PaymentMethods.length > 0 ? true : false));
 
 				cmdSave = new Fit.Controls.Button(Fit.Data.CreateGuid());
-				cmdSave.Title("Save");
+				cmdSave.Title(lang.Config.Save);
 				cmdSave.Type(Fit.Controls.Button.Type.Success);
 				cmdSave.OnClick(function(sender)
 				{
 					JSShop.Models.Config.Current.Update(function(req, model)
 					{
-						Fit.Controls.Dialog.Alert("Done");
+						Fit.Controls.Dialog.Alert(lang.Config.Done);
 					});
 				});
 
@@ -105,10 +105,10 @@ JSShop.Presenters.Config = function()
 
 		tpl.Content.Properties.Clear();
 
-		tpl.Content.Headline = "Basic";
+		tpl.Content.Headline = lang.Config.Basic;
 
 		var itm = tpl.Content.Properties.AddItem();
-		itm.PropertyName = "Receipt";
+		itm.PropertyName = lang.Config.Receipt;
 
 		if (JSShop.Settings.Pages && JSShop.Settings.Pages.length > 0)
 		{
@@ -120,7 +120,7 @@ JSShop.Presenters.Config = function()
 		}
 
 		itm = tpl.Content.Properties.AddItem();
-		itm.PropertyName = "Terms";
+		itm.PropertyName = lang.Config.Terms;
 
 		if (JSShop.Settings.Pages && JSShop.Settings.Pages.length > 0)
 		{
@@ -132,7 +132,7 @@ JSShop.Presenters.Config = function()
 		}
 
 		itm = tpl.Content.Properties.AddItem();
-		itm.PropertyName = "BCC e-mail address (receive copies of all e-mails sent)";
+		itm.PropertyName = lang.Config.BccEmail;
 		itm.PropertyValue = createInput(config.Basic.ShopBccEmail ? config.Basic.ShopBccEmail : "", function(sender, val) { config.Basic.ShopBccEmail = val; });
 
 		tpl.Update();
@@ -179,7 +179,7 @@ JSShop.Presenters.Config = function()
 		tpl.Content.Headline = mt.Title;
 
 		var itmSubject = tpl.Content.Properties.AddItem();
-		itmSubject.PropertyName = "Subject";
+		itmSubject.PropertyName = lang.Config.Subject;
 		itmSubject.PropertyValue = createInput(mt.Subject, function(sender, val) { mt.Subject = val; });
 
 		var autoLineBreaksTag = "<!-- JSShopAutoLineBreaks -->\n";
@@ -189,7 +189,7 @@ JSShop.Presenters.Config = function()
 		val = ((autoLineBreaks === true) ? val.replace(/<br\s?\/?>/g, "\n") : val);
 
 		var itmContent = tpl.Content.Properties.AddItem();
-		itmContent.PropertyName = "Content";
+		itmContent.PropertyName = lang.Config.Content;
 		itmContent.PropertyValue = createInput("", function(sender, val)
 		{
 			if (autoLineBreaks === true)
@@ -208,7 +208,7 @@ JSShop.Presenters.Config = function()
 		itmContent.PropertyValue.FitControl.Value(val); // Set value after MultiLine is enabled to preserve line breaks
 
 		var chk = new Fit.Controls.CheckBox(Fit.Data.CreateGuid());
-		chk.Label("Automatically turn line breaks into &lt;br&gt; HTML line breaks (default)");
+		chk.Label(Fit.String.EncodeHtml(lang.Config.AutoLineBreaks));
 		chk.Checked(autoLineBreaks);
 		chk.OnChange(function(sender)
 		{
@@ -269,7 +269,7 @@ JSShop.Presenters.Config = function()
 		tpl.Content.Headline = module.Module;
 
 		var chk = new Fit.Controls.CheckBox(Fit.Data.CreateGuid());
-		chk.Label("Enable this payment module");
+		chk.Label(lang.Config.EnableModule);
 		chk.Checked(module.Enabled);
 		chk.OnChange(function(sender)
 		{
@@ -278,7 +278,7 @@ JSShop.Presenters.Config = function()
 		chk.GetDomElement().FitControl = chk;
 
 		var itmTitle = tpl.Content.Properties.AddItem();
-		itmTitle.PropertyName = "Title";
+		itmTitle.PropertyName = lang.Config.Title;
 		itmTitle.PropertyValue = createInput(module.Title, function(sender, val) { module.Title = val; });;
 
 		Fit.Array.ForEach(module.Settings ? module.Settings : [], function(s)
@@ -289,7 +289,7 @@ JSShop.Presenters.Config = function()
 		});
 
 		var enabledItem = tpl.Content.Properties.AddItem();
-		enabledItem.PropertyName = "Enabled";
+		enabledItem.PropertyName = lang.Config.Enabled;
 		enabledItem.PropertyValue = chk.GetDomElement();
 
 		tpl.Update();
@@ -299,14 +299,14 @@ JSShop.Presenters.Config = function()
 	{
 		var options = [];
 
-		Fit.Array.Add(options, (!config.MailTemplates.Templates || config.MailTemplates.Templates.length === 0 ? "!" : "") + "E-mail templates");
+		Fit.Array.Add(options, (!config.MailTemplates.Templates || config.MailTemplates.Templates.length === 0 ? "!" : "") + lang.Config.EmailTemplates);
 
 		for (var i = 0 ; i < 3 ; i++)
 		{
-			Fit.Array.Add(options, (!config.CostCorrections || !config.CostCorrections[i] ? "!" : "") + "Cost correction " + (i + 1));
+			Fit.Array.Add(options, (!config.CostCorrections || !config.CostCorrections[i] ? "!" : "") + lang.Config.CostCorrection + " " + (i + 1));
 		}
 
-		Fit.Array.Add(options, (config.CostCorrections.length === 0 ? "!" : "") + "Additional data");
+		Fit.Array.Add(options, (config.CostCorrections.length === 0 ? "!" : "") + lang.Config.AdditionalData);
 
 		showOptions(btn, options, function(selectedValue)
 		{
@@ -325,17 +325,17 @@ JSShop.Presenters.Config = function()
 
 		var itm = null;
 
-		if (section === "E-mail templates") // Lang. support
+		if (section === lang.Config.EmailTemplates)
 		{
 			itm = tpl.Content.Properties.AddItem();
-			itm.PropertyName = "Confirmation E-mail template";
+			itm.PropertyName = lang.Config.ConfirmTemplate;
 			itm.PropertyValue = createInput(config.MailTemplates.Confirmation ? config.MailTemplates.Confirmation : "", function(sender, val) { config.MailTemplates.Confirmation = val; });
 
 			itm = tpl.Content.Properties.AddItem();
-			itm.PropertyName = "Invoice E-mail template";
+			itm.PropertyName = lang.Config.InvoiceTemplate;
 			itm.PropertyValue = createInput(config.MailTemplates.Invoice ? config.MailTemplates.Invoice : "", function(sender, val) { config.MailTemplates.Invoice = val; });
 		}
-		else if (section.indexOf("Cost correction") === 0)
+		else if (section.indexOf(lang.Config.CostCorrection) === 0)
 		{
 			var ccId = parseInt(section.substring(section.length - 1), 10) - 1;
 			var cc = config.CostCorrections[ccId];
@@ -344,21 +344,21 @@ JSShop.Presenters.Config = function()
 				return;
 
 			itm = tpl.Content.Properties.AddItem();
-			itm.PropertyName = "Cost expression";
+			itm.PropertyName = lang.Config.CostExpression;
 			itm.PropertyValue = createCostCorrectionExpressionInput(cc.CostCorrection, "number", function(sender, val) { cc.CostCorrection = val; });
 
 			itm = tpl.Content.Properties.AddItem();
-			itm.PropertyName = "VAT expression";
+			itm.PropertyName = lang.Config.VatExpression;
 			itm.PropertyValue = createCostCorrectionExpressionInput(cc.Vat, "number", function(sender, val) { cc.Vat = val; });
 
 			itm = tpl.Content.Properties.AddItem();
-			itm.PropertyName = "Message expression";
+			itm.PropertyName = lang.Config.MessageExpression;
 			itm.PropertyValue = createCostCorrectionExpressionInput(cc.Message, "string", function(sender, val) { cc.Message = val; });
 		}
-		else if (section === "Additional data")
+		else if (section === lang.Config.AdditionalData)
 		{
 			itm = tpl.Content.Properties.AddItem();
-			itm.PropertyName = "Additional data (JSON object)";
+			itm.PropertyName = lang.Config.AdditionalDataJson;
 
 			itm.PropertyValue = createAdditionalDataExpressionInput(config.AdditionalData, function(sender, val)
 			{
@@ -452,7 +452,7 @@ JSShop.Presenters.Config = function()
 			}
 
 			return true;
-		}, "Invalid expression");
+		}, lang.Config.InvalidExpression);
 
 		return input;
 	}
@@ -475,7 +475,7 @@ JSShop.Presenters.Config = function()
 			{
 				return false;
 			}
-		}, "Invalid JSON object");
+		}, lang.Config.InvalidJson);
 
 		return input;
 	}

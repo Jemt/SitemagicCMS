@@ -114,7 +114,7 @@ JSShop.Presenters.ProductList.Initialize = function(productList)
 			},
 			function()
 			{
-				alert("Product with ID '" + productId + "' not found");
+				alert(lang.ProductList.ErrorNotFound + ": " + productId);
 				b.Enabled(true);
 			});
 		});

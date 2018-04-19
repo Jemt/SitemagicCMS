@@ -40,7 +40,8 @@
 		{
 			ProductAdded:		"Produkt tilføjet til indkøbskurven",
 			OpenBasket:			"Gå til indkøbskurv",
-			ContinueShopping:	"Køb mere"
+			ContinueShopping:	"Køb mere",
+			ErrorNotFound:		"Produkt blev ikke fundet"
 		},
 
 		Basket:
@@ -53,7 +54,9 @@
 			Price:				"Pris",
 			TotalVat:			"Moms",
 			TotalPrice:			"Pris inkl. moms",
-			NumberOfUnits:		"Antal enheder"
+			NumberOfUnits:		"Antal enheder",
+			ErrorCurrencies:	"Fejl - det er ikke understøttet at blande produkter med forskellige valutaer",
+			ErrorWeightUnits:	"Fejl - det er ikke understøttet at blande produkter med forskellige vægtenheder"
 		},
 
 		OrderForm:
@@ -89,10 +92,16 @@
 
 		OrderList:
 		{
+			Search:				"Søg",
+			DisplayFromDate:	"Vis ordre fra denne dato",
+			DisplayToDate:		"Vis ordre til denne dato",
+			Update:				"Opdater",
 			Export:				"Eksport",
+			ChooseFormat:		"Vælg venligst format",
 			SendInvoice:		"Send faktura",
 			Capture:			"Hæv",
 			Reject:				"Afvis",
+			Settings:			"Indstillinger",
 			OrderId:			"Ordrenr.",
 			Time:				"Tidspunkt",
 			Customer:			"Kunde",
@@ -108,6 +117,9 @@
 			ConfirmAction:		"Bekræft venligst handlingen",
 			DoneSuccess:		"Færdig - alle ordre behandlet",
 			DoneFailure:		"Færdig - følgende ordre fejlede",
+			Loading:			"Indlæser, vent venligst..",
+			Order:				"Bestilling",
+
 
 			// Dialog: Customer details
 			CustomerDetails:	"Kundedetaljer",
@@ -121,6 +133,35 @@
 			Price:				"Pris",
 			TotalVat:			"Moms",
 			TotalPrice:			"Pris inkl. moms"
+		},
+
+		Config:
+		{
+			Basic:				"Primær",
+			EmailTemplates:		"E-mail skabeloner",
+			PaymentMethods:		"Betalingsmetoder",
+			Advanced:			"Advanceret",
+			Save:				"Gem",
+			Done:				"Færdig",
+			Receipt:			"Kvittering",
+			Terms:				"Vilkår",
+			BccEmail:			"BCC e-mail addresse der modtager kopier af alle e-mails sendt",
+			Subject:			"Emne",
+			Content:			"Indhold",
+			AutoLineBreaks:		"Konverter automatisk linjeskift til <br> HTML linjeskift (standard)",
+			EnableModule:		"Aktiver dette betalingsmodul",
+			Title:				"Titel",
+			Enabled:			"Aktiveret",
+			CostCorrection:		"Prisregulering",
+			AdditionalData:		"Yderligere data",
+			ConfirmTemplate:	"Bekræftelses e-mail skabelon",
+			InvoiceTemplate:	"Faktura e-mail skabelon",
+			CostExpression:		"Pris-udtryk",
+			VatExpression:		"Moms-udtryk",
+			MessageExpression:	"Besked-udtryk",
+			AdditionalDataJson:	"Yderligere data (JSON objekt)",
+			InvalidJson:		"Ugyldigt JSON objekt",
+			InvalidExpression:	"Ugyldigt udtryk"
 		},
 
 		Common:

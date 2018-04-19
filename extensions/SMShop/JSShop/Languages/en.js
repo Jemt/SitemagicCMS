@@ -40,7 +40,8 @@
 		{
 			ProductAdded:		"Product added to basket",
 			OpenBasket:			"Go to basket",
-			ContinueShopping:	"Continue shopping"
+			ContinueShopping:	"Continue shopping",
+			ErrorNotFound:		"Product not found"
 		},
 
 		Basket:
@@ -53,7 +54,9 @@
 			Price:				"Price",
 			TotalVat:			"VAT",
 			TotalPrice:			"Price incl. VAT",
-			NumberOfUnits:		"Number of units"
+			NumberOfUnits:		"Number of units",
+			ErrorCurrencies:	"Error - mixing products with different currencies is not supported",
+			ErrorWeightUnits:	"Error - mixing products with different units of weight is not supported"
 		},
 
 		OrderForm:
@@ -89,10 +92,16 @@
 
 		OrderList:
 		{
+			Search:				"Search",
+			DisplayFromDate:	"Display orders from this date",
+			DisplayToDate:		"Display orders to this date",
+			Update:				"Update",
 			Export:				"Export",
+			ChooseFormat:		"Please choose format",
 			SendInvoice:		"Send invoice",
 			Capture:			"Withdraw",
 			Reject:				"Reject",
+			Settings:			"Settings",
 			OrderId:			"Order no.",
 			Time:				"Time",
 			Customer:			"Customer",
@@ -108,6 +117,8 @@
 			ConfirmAction:		"Please confirm action",
 			DoneSuccess:		"Done - all orders processed",
 			DoneFailure:		"Done - the following orders failed",
+			Loading:			"Loading, please wait..",
+			Order:				"Order",
 
 			// Dialog: Customer details
 			CustomerDetails:	"Customer details",
@@ -121,6 +132,35 @@
 			Price:				"Price",
 			TotalVat:			"VAT",
 			TotalPrice:			"Price incl. VAT"
+		},
+
+		Config:
+		{
+			Basic:				"Basic",
+			EmailTemplates:		"E-mail templates",
+			PaymentMethods:		"Payment methods",
+			Advanced:			"Advanced",
+			Save:				"Save",
+			Done:				"Done",
+			Receipt:			"Receipt",
+			Terms:				"Terms",
+			BccEmail:			"BCC e-mail address receiving copies of all e-mails sent",
+			Subject:			"Subject",
+			Content:			"Content",
+			AutoLineBreaks:		"Automatically turn line breaks into <br> HTML line breaks (default)",
+			EnableModule:		"Enable this payment module",
+			Title:				"Title",
+			Enabled:			"Enabled",
+			CostCorrection:		"Cost correction",
+			AdditionalData:		"Additional data",
+			ConfirmTemplate:	"Confirmation e-mail template",
+			InvoiceTemplate:	"Invoice e-mail template",
+			CostExpression:		"Cost expression",
+			VatExpression:		"VAT expression",
+			MessageExpression:	"Message expression",
+			AdditionalDataJson:	"Additional data (JSON object)",
+			InvalidJson:		"Invalid JSON object",
+			InvalidExpression:	"Invalid expression"
 		},
 
 		Common:
