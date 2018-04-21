@@ -32,11 +32,11 @@ function getOrder($orderId)
 // Step 1: User is redirected to payment form.
 // Step 2: PSP invokes callback to let us know payment was received.
 
-$operation = SMEnvironment::GetQueryValue("PaymentOperation");
+$operation = SMEnvironment::GetQueryValue("PaymentOperation"); // Valid values: null, Auth, Capture, Cancel, or Invoice
 
 if ($operation === null) // Step 1: Redirect to payment window
 {
-	$orderId = SMEnvironment::GetQueryValue("OrderId"); // GET
+	$orderId = SMEnvironment::GetQueryValue("OrderId", SMValueRestriction::$Numeric);
 	$order = getOrder($orderId);
 
 	if ($order["State"] !== "Initial")
@@ -89,7 +89,7 @@ else if ($operation === "Capture") // Called from JSShop
 		exit;
 	}
 
-	$orderId = SMEnvironment::GetPostValue("OrderId"); // POST
+	$orderId = SMEnvironment::GetPostValue("OrderId", SMValueRestriction::$Numeric);
 	$order = getOrder($orderId);
 
 	if ($order["State"] !== "Authorized")
@@ -127,7 +127,7 @@ else if ($operation === "Cancel") // Called from JSShop
 		exit;
 	}
 
-	$orderId = SMEnvironment::GetPostValue("OrderId");
+	$orderId = SMEnvironment::GetPostValue("OrderId", SMValueRestriction::$Numeric);
 	$order = getOrder($orderId);
 
 	if ($order["State"] !== "Authorized")
@@ -163,7 +163,7 @@ else if ($operation === "Invoice") // Called from JSShop
 		exit;
 	}
 
-	$orderId = SMEnvironment::GetPostValue("OrderId");
+	$orderId = SMEnvironment::GetPostValue("OrderId", SMValueRestriction::$Numeric);
 	$order = getOrder($orderId);
 
 	/*if ($order["State"] !== "Captured")

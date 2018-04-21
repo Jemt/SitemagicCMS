@@ -29,7 +29,7 @@ class SMShopFrmProducts implements SMIExtensionForm
 	{
 		// Get Category ID
 
-		$catId = SMEnvironment::GetQueryValue("SMShopCategory");
+		$catId = SMEnvironment::GetQueryValue("SMShopCategory", SMValueRestriction::$AlphaNumeric, array("-"));
 
 		// Load products
 

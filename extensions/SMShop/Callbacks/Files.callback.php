@@ -78,8 +78,8 @@ if ($command === "Upload")
 else if ($command === "Remove")
 {
 	$paths = null;
-	$file = SMEnvironment::GetPostValue("File");
-	$files = SMEnvironment::GetPostValue("Files");
+	$file = SMEnvironment::GetPostValue("File");	// Validated further down using SMStringUtilities::Validate(..)
+	$files = SMEnvironment::GetPostValue("Files");	// Validated further down using SMStringUtilities::Validate(..)
 
 	if ($file !== null)
 		$paths = array($file);
