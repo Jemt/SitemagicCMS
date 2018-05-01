@@ -516,7 +516,7 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 	$content = str_replace("{DateYear}", date("Y"), $content);
 	$content = str_replace("{DateMonth}", date("m"), $content);
 	$content = str_replace("{DateDay}", date("d"), $content);
-	$content = str_replace("{OrderDetails}", $orderDetails, $content);
+	$content = str_replace("{OrderDetails}", $orderDetails, $content); // Can be used to quickly get a simple text list of items purchased - quick and dirty
 	$content = str_replace("{WebsiteUrl}", SMEnvironment::GetExternalUrl(), $content);
 	//$content = preg_replace('/{\S+}/', "", $content); // Remove unsupported place holders
 
@@ -661,8 +661,23 @@ function SMShopCleanUpPdfAttachments($pdfFiles)
 	}
 }
 
-function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weight, $weightUnit, $zipCode, $paymentMethod, $promoCode, $custData1, $custData2, $custData3, $expression, $returnType)
+function SMShopHandleExpression(SMConfiguration $config, $units, $price, $vat, $currency, $weight, $weightUnit, $zipCode, $paymentMethod, $promoCode, $custData1, $custData2, $custData3, $expression, $returnType)
 {
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "units", $units, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "price", $price, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "vat", $vat, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "currency", $currency, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "weight", $weight, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "weightUnit", $weightUnit, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "zipCode", $zipCode, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "paymentMethod", $paymentMethod, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "promoCode", $promoCode, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "custData1", $custData1, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "custData2", $custData2, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObjectAllowNull(__METHOD__, "custData3", $custData3, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObject(__METHOD__, "expression", $expression, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObject(__METHOD__, "returnType", $returnType, SMTypeCheckType::$String);
+
 	if ($expression === "")
 	{
 		if ($returnType === "number")
@@ -717,11 +732,11 @@ function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weigh
 	}
 
 	$expr = "";
-	$expr .= "\nunits = " . (($units !== null) ? $units : -1) . ";";
-	$expr .= "\nprice = " . (($price !== null) ? $price : -1) . ";";
-	$expr .= "\nvat = " . (($vat !== null) ? $vat : -1) . ";";
-	$expr .= "\ncurrency = \"" . (($currency !== null) ? $currency : -1) . "\";";
-	$expr .= "\nweight = " . (($weight !== null) ? $weight : -1) . ";";
+	$expr .= "\nunits = " . (($units !== null) ? $units : "-1") . ";";
+	$expr .= "\nprice = " . (($price !== null) ? $price : "-1") . ";";
+	$expr .= "\nvat = " . (($vat !== null) ? $vat : "-1") . ";";
+	$expr .= "\ncurrency = \"" . (($currency !== null) ? $currency : "-1") . "\";";
+	$expr .= "\nweight = " . (($weight !== null) ? $weight : "-1") . ";";
 	$expr .= "\nweightunit = \"" . (($weightUnit !== null) ? $weightUnit : "") . "\";";
 	$expr .= "\nzipcode = \"" . (($zipCode !== null) ? $zipCode : "") . "\";";
 	$expr .= "\nzipcodeval = " . (($zipCodeVal !== null) ? $zipCodeVal : -1) . ";";
@@ -730,7 +745,7 @@ function SMShopHandleExpression($config, $units, $price, $vat, $currency, $weigh
 	$expr .= "\ncustdata1 = \"" . (($custData1 !== null) ? $custData1 : "") . "\";";
 	$expr .= "\ncustdata2 = \"" . (($custData2 !== null) ? $custData2 : "") . "\";";
 	$expr .= "\ncustdata3 = \"" . (($custData3 !== null) ? $custData3 : "") . "\";";
-	$expr .= "\ndata = json_decode('" . (($config !== null && $config->GetEntryOrEmpty("AdditionalData") !== "") ? str_replace("'", "\"", $config->GetEntryOrEmpty("AdditionalData")) : "{}") . "', true);";
+	$expr .= "\ndata = json_decode('" . (($config->GetEntryOrEmpty("AdditionalData") !== "") ? str_replace("'", "\"", $config->GetEntryOrEmpty("AdditionalData")) : "{}") . "', true);";
 	$expr .= "\nreturn (" . str_replace("JSShop.Floor", "floor", str_replace("JSShop.Ceil", "ceil", str_replace("JSShop.Round", "round", $expression))) . ");";
 
 	// Temporarily remove non-empty strings from expression to prevent changes to these
