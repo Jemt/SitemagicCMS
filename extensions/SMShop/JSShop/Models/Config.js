@@ -89,12 +89,12 @@ JSShop.Models.Config = function(id)
 				Fit.Validation.ExpectString(props.AdditionalData);
 
 				// Validate inner properties (can be null/undefined but must have the correct types if defined)
-				Fit.Validation.ExpectString(props.Basic.TermsPage, true);
-				Fit.Validation.ExpectString(props.Basic.ReceiptPage, true);
-				Fit.Validation.ExpectString(props.Basic.ShopBccEmail, true);
-				Fit.Validation.ExpectString(props.MailTemplates.Confirmation, true);
-				Fit.Validation.ExpectString(props.MailTemplates.Invoice, true);
-				Fit.Validation.ExpectArray(props.MailTemplates.Templates, true);
+				Fit.Validation.ExpectString(props.Basic.TermsPage);
+				Fit.Validation.ExpectString(props.Basic.ReceiptPage);
+				Fit.Validation.ExpectString(props.Basic.ShopBccEmail);
+				Fit.Validation.ExpectString(props.MailTemplates.Confirmation);
+				Fit.Validation.ExpectString(props.MailTemplates.Invoice);
+				Fit.Validation.ExpectArray(props.MailTemplates.Templates);
 
 				// Validate arrays and contained objects
 
@@ -104,17 +104,14 @@ JSShop.Models.Config = function(id)
 					Fit.Validation.ExpectString(p.Module);
 					Fit.Validation.ExpectString(p.Title);
 					Fit.Validation.ExpectBoolean(p.Enabled);
-					Fit.Validation.ExpectArray(p.Settings, true);
+					Fit.Validation.ExpectArray(p.Settings);
 
-					if (p.Settings)
+					Fit.Array.ForEach(p.Settings, function(s)
 					{
-						Fit.Array.ForEach(p.Settings, function(s)
-						{
-							// Defined payment method settings must define all properties
-							Fit.Validation.ExpectString(s.Title);
-							Fit.Validation.ExpectString(s.Value);
-						});
-					}
+						// Defined payment method settings must define all properties
+						Fit.Validation.ExpectString(s.Title);
+						Fit.Validation.ExpectString(s.Value);
+					});
 				});
 
 				Fit.Array.ForEach(props.CostCorrections, function(c)
@@ -125,16 +122,13 @@ JSShop.Models.Config = function(id)
 					Fit.Validation.ExpectString(c.Message);
 				});
 
-				if (props.MailTemplates.Templates)
+				Fit.Array.ForEach(props.MailTemplates.Templates, function(t)
 				{
-					Fit.Array.ForEach(props.MailTemplates.Templates, function(t)
-					{
-						// Defined mail template objects must define all properties
-						Fit.Validation.ExpectString(t.Title);
-						Fit.Validation.ExpectString(t.Subject);
-						Fit.Validation.ExpectString(t.Content);
-					});
-				}
+					// Defined mail template objects must define all properties
+					Fit.Validation.ExpectString(t.Title);
+					Fit.Validation.ExpectString(t.Subject);
+					Fit.Validation.ExpectString(t.Content);
+				});
 			}
 		})
 	}

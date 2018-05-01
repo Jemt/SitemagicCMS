@@ -15,6 +15,8 @@ if (SMAuthentication::Authorized() === false)
 
 function SMShopGetConfiguration($pspmHardcodedSettings)
 {
+	SMTypeCheck::CheckMultiArray(__METHOD__, "pspmHardcodedSettings", $pspmHardcodedSettings, SMTypeCheckType::$String);
+
 	$path = SMEnvironment::GetDataDirectory() . "/SMShop";
 	$configuration = new SMConfiguration($path . "/Config.xml.php");
 	$files = SMFileSystem::GetFiles($path);
@@ -118,127 +120,126 @@ function SMShopGetConfiguration($pspmHardcodedSettings)
 
 function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 {
+	// Both $data and $pspmHardcodedSettings are associative arrays. The latter has a uniform structure.
+	// The $data argument however is an associative array representing a JSON object with a more flexible structure.
+	// The $dataSchema below is used to describe the expected structure of $data.
+
+	$dataSchema = array(
+		"Basic"			=> array("DataType" => "object", "Schema" => array(
+			"TermsPage"		=> array("DataType" => "string"),
+			"ReceiptPage"	=> array("DataType" => "string"),
+			"ShopBccEmail"	=> array("DataType" => "string")
+		)),
+		"MailTemplates"		=> array("DataType" => "object", "Schema" => array(
+			"Confirmation"	=> array("DataType" => "string"),
+			"Invoice"		=> array("DataType" => "string"),
+			"Templates"		=> array("DataType" => "object[]", "Schema" => array(
+				"Title"			=> array("DataType" => "string"),
+				"Subject"		=> array("DataType" => "string"),
+				"Content"		=> array("DataType" => "string")
+			))
+		)),
+		"PaymentMethods"	=> array("DataType" => "object[]", "Schema" => array(
+			"Module"			=> array("DataType" => "string"),
+			"Title"				=> array("DataType" => "string"),
+			"Enabled"			=> array("DataType" => "boolean"),
+			"Settings"			=> array("DataType" => "object[]", "Schema" => array(
+				"Title"				=> array("DataType" => "string"),
+				"Value"				=> array("DataType" => "string")
+			)),
+		)),
+		"CostCorrections"	=> array("DataType" => "object[]", "Schema" => array(
+			"CostCorrection"	=> array("DataType" => "string"),
+			"Vat"				=> array("DataType" => "string"),
+			"Message"			=> array("DataType" => "string")
+		)),
+		"AdditionalData"	=> array("DataType" => "string")
+	);
+
+	SMTypeCheck::ValidateObjectArray($data, $dataSchema);
+	SMTypeCheck::CheckMultiArray(__METHOD__, "pspmHardcodedSettings", $pspmHardcodedSettings, SMTypeCheckType::$String);
+
+	// Config file
+
 	$path = SMEnvironment::GetDataDirectory() . "/SMShop";
 	$configuration = new SMConfiguration($path . "/Config.xml.php", true);
 
 	// Basic
 
-	if (isset($data["Basic"]) === true)
-	{
-		if (isset($data["Basic"]["TermsPage"]) === true)
-		{
-			$configuration->SetEntry("TermsPage", $data["Basic"]["TermsPage"]);
-		}
-
-		if (isset($data["Basic"]["ReceiptPage"]) === true)
-		{
-			$configuration->SetEntry("ReceiptPage", $data["Basic"]["ReceiptPage"]);
-		}
-
-		if (isset($data["Basic"]["ShopBccEmail"]) === true)
-		{
-			$configuration->SetEntry("ShopBccEmail", $data["Basic"]["ShopBccEmail"]);
-		}
-	}
+	$configuration->SetEntry("TermsPage", $data["Basic"]["TermsPage"]);
+	$configuration->SetEntry("ReceiptPage", $data["Basic"]["ReceiptPage"]);
+	$configuration->SetEntry("ShopBccEmail", $data["Basic"]["ShopBccEmail"]);
 
 	// Mail templates
 
 	$writer = null;
 
-	if (isset($data["MailTemplates"]) === true)
+	$configuration->SetEntry("ConfirmationMailTemplateExpression", $data["MailTemplates"]["Confirmation"]);
+	$configuration->SetEntry("InvoiceMailTemplateExpression", $data["MailTemplates"]["Invoice"]);
+
+	foreach ($data["MailTemplates"]["Templates"] as $mt)
 	{
-		if (isset($data["MailTemplates"]["Confirmation"]) === true)
-		{
-			$configuration->SetEntry("ConfirmationMailTemplateExpression", $data["MailTemplates"]["Confirmation"]);
-		}
-
-		if (isset($data["MailTemplates"]["Invoice"]) === true)
-		{
-			$configuration->SetEntry("InvoiceMailTemplateExpression", $data["MailTemplates"]["Invoice"]);
-		}
-
-		if (isset($data["MailTemplates"]["Templates"]) === true)
-		{
-			foreach ($data["MailTemplates"]["Templates"] as $mt)
-			{
-				if (isset($mt["Title"]) === false || isset($mt["Subject"]) === false || isset($mt["Content"]) === false)
-					continue;
-
-				$writer = new SMTextFileWriter($path . "/" . $mt["Title"], SMTextFileWriteMode::$Overwrite);
-				$writer->Write($mt["Subject"] . "\n" . $mt["Content"]);
-			}
-		}
+		$writer = new SMTextFileWriter($path . "/" . $mt["Title"], SMTextFileWriteMode::$Overwrite);
+		$writer->Write($mt["Subject"] . "\n" . $mt["Content"]);
 	}
 
 	// Payment methods
 
 	$modules = "";
 
-	if (isset($data["PaymentMethods"]) === true)
+	// Save enabled payment methods
+
+	foreach ($data["PaymentMethods"] as $pm)
 	{
-		// Save enabled payment methods
+		$modules .= (($modules !== "") ? "#;#" : "");
+		$modules .= $pm["Module"] . "#:#" . $pm["Title"] . "#:#" . (($pm["Enabled"] === true) ? "true" : "false");
+	}
 
-		foreach ($data["PaymentMethods"] as $pm)
+	$configuration->SetEntry("PaymentMethods", $modules);
+
+	// PSPI module settings
+
+	$php = "";
+	$settings = "";
+
+	foreach ($data["PaymentMethods"] as $pm)
+	{
+		$settings = "";
+		foreach ($pm["Settings"] as $s)
+			$settings .= (($settings !== "") ? ",\n" : "") . "\t\"" . $s["Title"] . "\" => \"" . str_replace("\"", "\\\"", str_replace("\$", "\\\$", $s["Value"])) . "\"";
+
+		// Add settings hardcoded by SMShop, if any is defined
+		if (isset($pspmHardcodedSettings[$pm["Module"]]) === true)
 		{
-			if (isset($pm["Module"]) === false || isset($pm["Title"]) === false || isset($pm["Enabled"]) === false)
-				continue;
-
-			$modules .= (($modules !== "") ? "#;#" : "");
-			$modules .= $pm["Module"] . "#:#" . $pm["Title"] . "#:#" . (($pm["Enabled"] === true) ? "true" : "false");
+			foreach ($pspmHardcodedSettings[$pm["Module"]] as $s => $v)
+				$settings .= (($settings !== "") ? ",\n" : "") . "\t\"" . $s . "\" => \"" . str_replace("\"", "\\\"", str_replace("\$", "\\\$", $v)) . "\"";
 		}
-
-		$configuration->SetEntry("PaymentMethods", $modules);
-
-		// PSPI module settings
 
 		$php = "";
-		$settings = "";
+		$php .= "<?php\n\n";
+		$php .= "\$config = array\n(\n";
+		$php .= $settings;
+		$php .= "\n);\n\n";
+		$php .= "?>\n";
 
-		foreach ($data["PaymentMethods"] as $pm)
-		{
-			$settings = "";
-			foreach ($pm["Settings"] as $s)
-				$settings .= (($settings !== "") ? ",\n" : "") . "\t\"" . $s["Title"] . "\" => \"" . str_replace("\"", "\\\"", str_replace("\$", "\\\$", $s["Value"])) . "\"";
-
-			// Add settings hardcoded by SMShop
-			if (isset($pspmHardcodedSettings[$pm["Module"]]) === true)
-			{
-				foreach ($pspmHardcodedSettings[$pm["Module"]] as $s => $v)
-					$settings .= (($settings !== "") ? ",\n" : "") . "\t\"" . $s . "\" => \"" . str_replace("\"", "\\\"", str_replace("\$", "\\\$", $v)) . "\"";
-			}
-
-			$php = "";
-			$php .= "<?php\n\n";
-			$php .= "\$config = array\n(\n";
-			$php .= $settings;
-			$php .= "\n);\n\n";
-			$php .= "?>\n";
-
-			$writer = new SMTextFileWriter($path . "/../PSPI/" . $pm["Module"] . "/Config.php", SMTextFileWriteMode::$Overwrite);
-			$writer->Write($php);
-		}
+		$writer = new SMTextFileWriter($path . "/../PSPI/" . $pm["Module"] . "/Config.php", SMTextFileWriteMode::$Overwrite);
+		$writer->Write($php);
 	}
 
 	// Cost corrections
 
-	if (isset($data["CostCorrections"]) === true)
+	for ($i = 1 ; $i <= count($data["CostCorrections"]) ; $i++)
 	{
-		for ($i = 1 ; $i <= count($data["CostCorrections"]) ; $i++)
-		{
-			if ($i > 3) break; // No more than 3 Cost Corrections are supported
+		if ($i > 3) break; // No more than 3 Cost Corrections are supported
 
-			$configuration->SetEntry("CostCorrection" . $i, $data["CostCorrections"][$i - 1]["CostCorrection"]);
-			$configuration->SetEntry("CostCorrectionVat" . $i, $data["CostCorrections"][$i - 1]["Vat"]);
-			$configuration->SetEntry("CostCorrectionMessage" . $i, $data["CostCorrections"][$i - 1]["Message"]);
-		}
+		$configuration->SetEntry("CostCorrection" . $i, $data["CostCorrections"][$i - 1]["CostCorrection"]);
+		$configuration->SetEntry("CostCorrectionVat" . $i, $data["CostCorrections"][$i - 1]["Vat"]);
+		$configuration->SetEntry("CostCorrectionMessage" . $i, $data["CostCorrections"][$i - 1]["Message"]);
 	}
 
 	// Additional data
 
-	if (isset($data["AdditionalData"]) === true)
-	{
-		$configuration->SetEntry("AdditionalData", $data["AdditionalData"]);
-	}
+	$configuration->SetEntry("AdditionalData", $data["AdditionalData"]);
 
 	$configuration->Commit();
 }
