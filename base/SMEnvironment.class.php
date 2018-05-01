@@ -522,7 +522,7 @@ class SMEnvironment
 	/// 		Get path to document root, e.g. /var/www/domain.com/web (installed to root)
 	/// 		or /var/www/domain.com/web/Sitemagic/sites/demo (demo subsite).
 	/// 	</description>
-	/// 	<param name="absolute" type="boolean" default="true> Flag indicating whether to return document root as an absolute path (default) or not (relative path) </param>
+	/// 	<param name="absolute" type="boolean" default="true"> Flag indicating whether to return document root as an absolute path (default) or not (relative path) </param>
 	/// </function>
 	public static function GetDocumentRoot($absolute = true)
 	{
@@ -649,7 +649,7 @@ class SMEnvironment
 		return self::$version;
 	}
 
-	// <function container="base/SMEnvironment" name="GetClientCacheKey" access="public" static="true" returns="string">
+	/// <function container="base/SMEnvironment" name="GetClientCacheKey" access="public" static="true" returns="string">
 	/// 	<description>
 	/// 		Returns client cache key useful for forcing browser to reload CSS and JavaScript
 	/// 		when cache has been invalidated using SMEnvironment::UpdateClientCacheKey().
@@ -676,7 +676,7 @@ class SMEnvironment
 		return self::$cacheKey;
 	}
 
-	// <function container="base/SMEnvironment" name="UpdateClientCacheKey" access="public" static="true">
+	/// <function container="base/SMEnvironment" name="UpdateClientCacheKey" access="public" static="true">
 	/// 	<description> Update client cache key to force client resources to load latest version </description>
 	/// </function>
 	public static function UpdateClientCacheKey()
