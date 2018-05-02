@@ -84,11 +84,13 @@ JSShop.Models.Order = function(orderId)
 
 	function calculateNumber(expr)
 	{
+		Fit.Validation.ExpectString(expr);
 		return JSShop.Models.Order.CalculateExpression(me.Price(), me.Vat(), me.Currency(), me.Weight(), me.WeightUnit(), ((me.AltZipCode() !== "") ? me.AltZipCode() : me.ZipCode()), me.PaymentMethod(), me.PromoCode(), me.CustData1(), me.CustData2(), me.CustData3(), expr, "number");
 	}
 
 	function calculateString(expr)
 	{
+		Fit.Validation.ExpectString(expr);
 		return JSShop.Models.Order.CalculateExpression(me.Price(), me.Vat(), me.Currency(), me.Weight(), me.WeightUnit(), ((me.AltZipCode() !== "") ? me.AltZipCode() : me.ZipCode()), me.PaymentMethod(), me.PromoCode(), me.CustData1(), me.CustData2(), me.CustData3(), expr, "string");
 	}
 

@@ -80,15 +80,13 @@ JSShop.Models.Config = function(id)
 				var props = me.GetProperties();
 
 				// Validate outer properties
-
-				// Outer properties must be defined with appropriate types (required)
 				Fit.Validation.ExpectObject(props.Basic);
 				Fit.Validation.ExpectObject(props.MailTemplates);
 				Fit.Validation.ExpectArray(props.PaymentMethods);
 				Fit.Validation.ExpectArray(props.CostCorrections);
 				Fit.Validation.ExpectString(props.AdditionalData);
 
-				// Validate inner properties (can be null/undefined but must have the correct types if defined)
+				// Validate inner properties
 				Fit.Validation.ExpectString(props.Basic.TermsPage);
 				Fit.Validation.ExpectString(props.Basic.ReceiptPage);
 				Fit.Validation.ExpectString(props.Basic.ShopBccEmail);
@@ -100,7 +98,6 @@ JSShop.Models.Config = function(id)
 
 				Fit.Array.ForEach(props.PaymentMethods, function(p)
 				{
-					// Defined payment method objects must define almost all properties (Settings is optional)
 					Fit.Validation.ExpectString(p.Module);
 					Fit.Validation.ExpectString(p.Title);
 					Fit.Validation.ExpectBoolean(p.Enabled);
@@ -108,7 +105,6 @@ JSShop.Models.Config = function(id)
 
 					Fit.Array.ForEach(p.Settings, function(s)
 					{
-						// Defined payment method settings must define all properties
 						Fit.Validation.ExpectString(s.Title);
 						Fit.Validation.ExpectString(s.Value);
 					});
@@ -116,7 +112,6 @@ JSShop.Models.Config = function(id)
 
 				Fit.Array.ForEach(props.CostCorrections, function(c)
 				{
-					// Defined cost correction objects must define all properties
 					Fit.Validation.ExpectString(c.CostCorrection);
 					Fit.Validation.ExpectString(c.Vat);
 					Fit.Validation.ExpectString(c.Message);
@@ -124,7 +119,6 @@ JSShop.Models.Config = function(id)
 
 				Fit.Array.ForEach(props.MailTemplates.Templates, function(t)
 				{
-					// Defined mail template objects must define all properties
 					Fit.Validation.ExpectString(t.Title);
 					Fit.Validation.ExpectString(t.Subject);
 					Fit.Validation.ExpectString(t.Content);

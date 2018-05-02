@@ -137,6 +137,10 @@ JSShop.Models.Base = function(itemId)
 
 	function createGetSet(getter, setter, validator)
 	{
+		Fit.Validation.ExpectFunction(getter);
+		Fit.Validation.ExpectFunction(setter);
+		Fit.Validation.ExpectFunction(validator, true);
+
 		return function(val)
 		{
 			if (Fit.Validation.IsSet(validator) === true)
