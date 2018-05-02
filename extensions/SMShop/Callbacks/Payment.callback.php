@@ -71,7 +71,10 @@ else if ($operation === "Auth") // Step 2: Handle response from PSP - Callback i
 	$order["State"] = "Authorized";
 
 	$ds = new SMDataSource("SMShopOrders");
-	$ds->Lock();
+
+	if ($ds->GetDataSourceType() === SMDataSourceType::$Xml)
+		$ds->Lock();
+
 	$ds->Update($order, "Id = '" . $ds->Escape($order["Id"]) . "'");
 	$ds->Commit();
 
@@ -114,7 +117,10 @@ else if ($operation === "Capture") // Called from JSShop
 	$order["State"] = "Captured";
 
 	$ds = new SMDataSource("SMShopOrders");
-	$ds->Lock();
+
+	if ($ds->GetDataSourceType() === SMDataSourceType::$Xml)
+		$ds->Lock();
+
 	$ds->Update($order, "Id = '" . $ds->Escape($order["Id"]) . "'");
 	$ds->Commit();
 }
@@ -150,7 +156,10 @@ else if ($operation === "Cancel") // Called from JSShop
 	$order["State"] = "Canceled";
 
 	$ds = new SMDataSource("SMShopOrders");
-	$ds->Lock();
+
+	if ($ds->GetDataSourceType() === SMDataSourceType::$Xml)
+		$ds->Lock();
+
 	$ds->Update($order, "Id = '" . $ds->Escape($order["Id"]) . "'");
 	$ds->Commit();
 }
