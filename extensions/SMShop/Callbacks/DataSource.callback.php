@@ -11,13 +11,17 @@ if ($SMCallback !== true)
 $ip = SMEnvironment::GetEnvironmentValue("REMOTE_ADDR");
 $ip = (($ip !== null) ? $ip : "");
 
-// DataSource definitions.
+// ==================================================================
+// DataSource definitions
+// ==================================================================
+
 // NOTICE: Some fields have MaxLength multiplied by 8 to support the length of encoded Unicode characters.
 
 $dataSourcesAllowed = array
 (
 	/*"SMShopExample" => array
 	(
+		"Name"				=> "SMShopExample", // Required
 		"AuthRequired"		=> array("Create", "Retrieve", "Update", "Delete", "RetrieveAll"), // Required
 		"XmlLockRequired"  	=> array("Create", "Update", "Delete"), // Required
 		"XmlTimeOut"		=> 180,		// Optional
@@ -48,6 +52,7 @@ $dataSourcesAllowed = array
 	),*/
 	"SMShopProducts" => array
 	(
+		"Name"				=> "SMShopProducts",
 		"AuthRequired"		=> array("Create", "Update", "Delete"), // Retrieve and RetrieveAll does not require auth.
 		"XmlLockRequired"	=> array(),
 		"XmlTimeOut"		=> -1,
@@ -73,6 +78,7 @@ $dataSourcesAllowed = array
 	),
 	"SMShopOrders" => array
 	(
+		"Name"				=> "SMShopOrders",
 		"AuthRequired"		=> array("Retrieve", "Update", "Delete", "RetrieveAll"), // Create does not require auth.
 		"XmlLockRequired"  	=> array("Create", "Update", "Delete"),
 		"XmlTimeOut"		=> 180, // Increase script execution timeout if using XML Data Source - data source may contain thousands of records
@@ -137,6 +143,7 @@ $dataSourcesAllowed = array
 	),
 	"SMShopOrderEntries" => array
 	(
+		"Name"				=> "SMShopOrderEntries",
 		"AuthRequired"		=> array("Retrieve", "Update", "Delete", "RetrieveAll"), // Create does not require auth.
 		"XmlLockRequired"  	=> array("Create", "Update", "Delete"),
 		"XmlTimeOut"		=> 180, // Increase script execution timeout if using XML Data Source - data source may contain thousands of records
@@ -157,10 +164,143 @@ $dataSourcesAllowed = array
 	)
 );
 
+// Map JSShop models to DataSources
+$modelDataSources = array(
+	"Product"			=> $dataSourcesAllowed["SMShopProducts"],
+	"Order"				=> $dataSourcesAllowed["SMShopOrders"],
+	"OrderEntry"		=> $dataSourcesAllowed["SMShopOrderEntries"]
+);
+
+// ==================================================================
 // Functions
+// ==================================================================
+
+function SMShopValidateDataSourceDefinitions($dataSourcesAllowed)
+{
+	if (SMTypeCheck::GetEnabled() === false)
+		return;
+
+	SMTypeCheck::CheckObject(__METHOD__, "dataSourcesAllowed", $dataSourcesAllowed, SMTypeCheckType::$Array);
+
+	foreach ($dataSourcesAllowed as $name => $dsDef)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "dsDef", $dsDef, SMTypeCheckType::$Array);
+		SMTypeCheck::CheckObject(__METHOD__, "dsDef[Name]", $dsDef["Name"], SMTypeCheckType::$String);
+		SMTypeCheck::CheckArray(__METHOD__, "dsDef[AuthRequired]", $dsDef["AuthRequired"], SMTypeCheckType::$String);
+		SMTypeCheck::CheckArray(__METHOD__, "dsDef[XmlLockRequired]", $dsDef["XmlLockRequired"], SMTypeCheckType::$String);
+		SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlTimeOut]", $dsDef["XmlTimeOut"], SMTypeCheckType::$Integer);
+		SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlMemoryRequired]", $dsDef["XmlMemoryRequired"], SMTypeCheckType::$Integer);
+		SMTypeCheck::CheckObject(__METHOD__, "dsDef[OrderBy]", $dsDef["OrderBy"], SMTypeCheckType::$String);
+		SMTypeCheck::CheckArray(__METHOD__, "dsDef[Fields]", $dsDef["Fields"], SMTypeCheckType::$Array);
+
+		if ($name !== $dsDef["Name"])
+		{
+			throw new Exception("DataSource '" . $name . "' has been configured with an incorrect Name attribute with a value of '" . $dsDef["Name"] . "'");
+		}
+
+		if (isset($dsDef["Fields"]["Id"]) === false)
+		{
+			throw new Exception("DataSource '" . $name . "' does not define the required Id field");
+		}
+
+		foreach ($dsDef["Fields"] as $fieldName => $fieldDef)
+		{
+			SMTypeCheck::CheckObject(__METHOD__, "fieldDef", $fieldDef, SMTypeCheckType::$Array);
+			SMTypeCheck::CheckObject(__METHOD__, "fieldDef[DataType]", $fieldDef["DataType"], SMTypeCheckType::$String);
+			SMTypeCheck::CheckObject(__METHOD__, "fieldDef[MaxLength]", $fieldDef["MaxLength"], SMTypeCheckType::$Integer);
+
+			if (isset($fieldDef["ForceInitialValue"]) === true)
+				SMTypeCheck::CheckObject(__METHOD__, "fieldDef[ForceInitialValue]", $fieldDef["ForceInitialValue"], SMTypeCheckType::$String);
+
+			if ($fieldDef["DataType"] !== "string" && $fieldDef["DataType"] !== "number")
+			{
+				throw new Exception("DataSource '" . $name . "' defines the field '" . $fieldName . "' with an invalid DataType");
+			}
+		}
+
+		if (isset($dsDef["Callbacks"]) === true)
+		{
+			SMTypeCheck::CheckObject(__METHOD__, "dsDef[Callbacks]", $dsDef["Callbacks"], SMTypeCheckType::$Array);
+			SMTypeCheck::CheckObject(__METHOD__, "dsDef[Callbacks][File]", $dsDef["Callbacks"]["File"], SMTypeCheckType::$String);
+			SMTypeCheck::CheckObject(__METHOD__, "dsDef[Callbacks][Functions]", $dsDef["Callbacks"]["Functions"], SMTypeCheckType::$Array);
+
+			foreach ($dsDef["Callbacks"]["Functions"] as $key => $val)
+			{
+				SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[Callbacks][Functions][" . $key . "]", $dsDef["Callbacks"]["Functions"][$key], SMTypeCheckType::$String);
+			}
+		}
+	}
+}
+
+function SMShopValidateJsonData($dataSources, $data)
+{
+	// Use instance of SMTypeChecker (rather than static functions on SMTypeCheck) which will always perform type checks,
+	// even when Debug Mode is disabled. We should always validate arbitrary input data to make sure it is valid and safe to use.
+	$checker = new SMTypeChecker();
+
+	$checker->CheckObject(__METHOD__, "dataSources", $dataSources, SMTypeCheckType::$Array);
+	$checker->CheckObject(__METHOD__, "data", $data, SMTypeCheckType::$Array);
+
+	if (isset($data["Model"]) === false || isset($data["Properties"]) === false || isset($data["Operation"]) === false)
+	{
+		throw new Exception("JSON data is not compatible with data interface - Model, Properties, and Operation must be specified");
+	}
+
+	$checker->CheckObject(__METHOD__, "data[Model]", $data["Model"], SMTypeCheckType::$String);
+	$checker->CheckObject(__METHOD__, "data[Properties]", $data["Properties"], SMTypeCheckType::$Array);
+	$checker->CheckObject(__METHOD__, "data[Operation]", $data["Operation"], SMTypeCheckType::$String);
+
+	if (isset($dataSources[$data["Model"]]) === false)
+	{
+		throw new Exception("Invalid data source '" . $data["Model"] . "'");
+	}
+
+	$dsDef = $dataSources[$data["Model"]];
+
+	if (in_array($data["Operation"], $dsDef["AuthRequired"]) === true && SMAuthentication::Authorized() === false)
+	{
+		throw new Exception("Unauthorized - data source '" . $data["Model"] . "' requires authentication for operation '" . $data["Operation"] . "'");
+	}
+
+	foreach ($data["Properties"] as $prop => $val)
+	{
+		SMShopValidateField($dsDef, $prop, $val); // Make sure property/field is allowed, that data type is valid, and that max length is not exceeded
+	}
+
+	$match = array();
+
+	if (isset($data["Match"]) === true)
+	{
+		$checker->CheckObject(__METHOD__, "data[Match]", $data["Match"], SMTypeCheckType::$Array);
+		$match = $data["Match"];
+	}
+
+	foreach ($match as $or)
+	{
+		$checker->CheckObject(__METHOD__, "or", $or, SMTypeCheckType::$Array);
+
+		foreach ($or as $m)
+		{
+			if (isset($m["Field"]) === false || isset($m["Operator"]) === false || isset($m["Value"]) === false)
+			{
+				throw new Exception("Filtering (Match) requires a Field, an Operator, and a Value");
+			}
+
+			SMShopValidateField($dsDef, $m["Field"], $m["Value"], true); // Passing true to skip MaxLength check which a search value is allowed to exceed
+
+			if ($m["Operator"] !== "CONTAINS" && $m["Operator"] !== "=" && $m["Operator"] !== "!=" && $m["Operator"] !== "<" && $m["Operator"] !== "<=" && $m["Operator"] !== ">" && $m["Operator"] !== ">=")
+			{
+				throw new Exception("Match operator '" . $m["Operator"] . "' is not supported");
+			}
+		}
+	}
+}
 
 function SMShopDataItemToJson($dsDef, $props, SMKeyValueCollection $item)
 {
+	SMTypeCheck::CheckObject(__METHOD__, "dsDef", $dsDef, SMTypeCheckType::$Array);
+	SMTypeCheck::CheckObject(__METHOD__, "props", $props, SMTypeCheckType::$Array);
+
 	$res = "";
 
 	foreach (array_keys($props) as $prop)  // Using properties from request to prevent any other data in DataSource from being returned (optimization), and to make sure JSON is returned in proper casing (DataSource column names are always lower cased)
@@ -171,31 +311,29 @@ function SMShopDataItemToJson($dsDef, $props, SMKeyValueCollection $item)
 	return "{" . $res . "}";
 }
 
-function SMShopValidateField($dsDef, $fieldName, $fieldValue)
+function SMShopValidateField($dsDef, $fieldName, $fieldValue, $skipMaxLengthCheck = false) // Argument $fieldValue is a mixed type - double, float, or string - checked further down
 {
+	SMTypeCheck::CheckObject(__METHOD__, "dsDef", $dsDef, SMTypeCheckType::$Array);
+	SMTypeCheck::CheckObject(__METHOD__, "fieldName", $fieldName, SMTypeCheckType::$String);
+	SMTypeCheck::CheckObject(__METHOD__, "skipMaxLengthCheck", $skipMaxLengthCheck, SMTypeCheckType::$Boolean);
+
 	if (isset($dsDef["Fields"][$fieldName]) === false)
 	{
-		header("HTTP/1.1 500 Internal Server Error");
-		echo "Field '" . $fieldName . "' not found in DataSource definition";
-		exit;
+		throw new Exception("Field '" . $fieldName . "' not found in DataSource definition");
 	}
 
-	if (strlen($fieldValue) > $dsDef["Fields"][$fieldName]["MaxLength"])
+	if ($skipMaxLengthCheck === false && strlen($fieldValue) > $dsDef["Fields"][$fieldName]["MaxLength"])
 	{
-		header("HTTP/1.1 500 Internal Server Error");
-		echo "Field '" . $fieldName . "' exceeds MaxLength " . $dsDef["Fields"][$fieldName]["MaxLength"];
-		exit;
+		throw new Exception("Field '" . $fieldName . "' exceeds MaxLength '" . $dsDef["Fields"][$fieldName]["MaxLength"] . "'");
 	}
 
 	if (SMShopGetJsType($fieldValue) !== $dsDef["Fields"][$fieldName]["DataType"])
 	{
-		header("HTTP/1.1 500 Internal Server Error");
-		echo "Field '" . $fieldName . "' was not passed as type '" . $dsDef["Fields"][$fieldName]["DataType"] . "'";
-		exit;
+		throw new Exception("Field '" . $fieldName . "' was not passed as type '" . $dsDef["Fields"][$fieldName]["DataType"] . "'");
 	}
 }
 
-function SMShopGetJsType($val)
+function SMShopGetJsType($val) // Mixed type
 {
 	$type = gettype($val);
 
@@ -205,71 +343,62 @@ function SMShopGetJsType($val)
 	return $type;
 }
 
-// Read data
+// ==================================================================
+// Execute operation
+// ==================================================================
+
+// Validate DataSource definitions to make sure they are valid
+
+try
+{
+	SMShopValidateDataSourceDefinitions($dataSourcesAllowed);
+}
+catch (Exception $ex)
+{
+	header("HTTP/1.1 500 Internal Server Error");
+	echo "Exception occurred validating DataSource definitions: " . $ex->getMessage();
+	exit;
+}
+
+// Read and check input data
 
 $json = SMEnvironment::GetJsonData();
+
+try
+{
+	SMShopValidateJsonData($modelDataSources, $json);
+}
+catch (Exception $ex)
+{
+	header("HTTP/1.1 500 Internal Server Error");
+	echo "Exception occurred validating input data (JSON): " . $ex->getMessage();
+	exit;
+}
+
+// At this point $json has been validated.
+// We can trust that the model exists,
+// that properties are valid and allowed,
+// and that the user is authorized if needed.
+// No input sanitation has been performed though!
+
 $model = $json["Model"];
 $props = $json["Properties"];
 $command = $json["Operation"];
 $match = ((isset($json["Match"]) === true) ? $json["Match"] : null);
 
-$dataSourceName = "SMShop" . (($model !== "OrderEntry") ? $model . "s" : "OrderEntries"); // $model contains e.g. "Product", "Order", or "OrderEntry"
-
-// Make sure DataSource is supported
-
-if (in_array($dataSourceName, array_keys($dataSourcesAllowed), true) === false)
-{
-	header("HTTP/1.1 500 Internal Server Error");
-	echo "Invalid data source";
-	exit;
-}
-
-$dsDef = $dataSourcesAllowed[$dataSourceName];
-
-// Make sure user is authorized for operations requiring authorization
-
-if (in_array($command, $dsDef["AuthRequired"]) === true && SMAuthentication::Authorized() === false)
-{
-	header("HTTP/1.1 500 Internal Server Error");
-	echo "Unauthorized - '" . $model . "' requires authentication for operation '" . $command . "'";
-	exit;
-}
+$dsDef = $modelDataSources[$model];
 
 // Sanitize input
 
 foreach ($props as $prop => $val)
 {
-	SMShopValidateField($dsDef, $prop, $val);
-
 	if ($dsDef["Fields"][$prop]["DataType"] === "string")
 		$props[$prop] = strip_tags($val);
 }
 
-foreach ((($match !== null) ? $match : array()) as $or)
-{
-	foreach ($or as $m)
-	{
-		if (isset($m["Field"]) === false || isset($m["Operator"]) === false || isset($m["Value"]) === false)
-		{
-			header("HTTP/1.1 500 Internal Server Error");
-			echo "Filtering (Match) requires a Field, an Operator, and a Value";
-			exit;
-		}
-
-		SMShopValidateField($dsDef, $m["Field"], $m["Value"]);
-
-		if ($m["Operator"] !== "CONTAINS" && $m["Operator"] !== "=" && $m["Operator"] !== "!=" && $m["Operator"] !== "<" && $m["Operator"] !== "<=" && $m["Operator"] !== ">" && $m["Operator"] !== ">=")
-		{
-			header("HTTP/1.1 500 Internal Server Error");
-			echo "Match operator '" . $m["Operator"] . "' is not supported";
-			exit;
-		}
-	}
-}
-
 // Initialize data source
 
-$ds = new SMDataSource($dataSourceName);
+$ds = new SMDataSource($dsDef["Name"]);
 
 if ($ds->GetDataSourceType() === SMDataSourceType::$Xml && $dsDef["XmlTimeOut"] > 0)
 {
