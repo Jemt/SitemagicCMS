@@ -473,6 +473,8 @@ JSShop.Presenters.OrderList = function()
 		var execute = null;
 		execute = function(model)
 		{
+			Fit.Validation.ExpectInstance(model, JSShop.Models.Order);
+
 			var method = ((type === "Capture") ? model.CapturePayment : model.CancelPayment);
 
 			method(function(req, m) // Success handler
@@ -1102,6 +1104,8 @@ JSShop.Presenters.OrderList = function()
 		var execute = null;
 		execute = function(model)
 		{
+			Fit.Validation.ExpectInstance(model, JSShop.Models.Order);
+
 			model.SendInvoice(function(req, m) // Success handler
 			{
 				processed++;

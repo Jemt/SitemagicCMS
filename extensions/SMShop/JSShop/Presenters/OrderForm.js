@@ -473,8 +473,10 @@ JSShop.Presenters.OrderForm = function()
 
 	function cleanUp(sender)
 	{
+		Fit.Validation.ExpectInstance(sender, Fit.Controls.Input);
+
 		var val = sender.Value();
-		var trimmed = Fit.String.Trim(val.replace(" ", " ")); // Replace non-breaking spaces with spaces (Mac: Alt + Space), and trim value
+		var trimmed = Fit.String.Trim(val.replace(" ", " ")); // Replace non-breaking spaces with spaces (On Mac: Alt + Space), and trim value
 
 		if (trimmed !== sender.Value())
 			sender.Value(trimmed);
@@ -568,18 +570,23 @@ JSShop.Presenters.OrderForm = function()
 
 	function saveValue(sender)
 	{
+		Fit.Validation.ExpectInstance(sender, Fit.Controls.ControlBase);
+
 		if (chkRememberMe.Checked() === true)
 			JSShop.Cookies.Set(sender.GetId(), sender.Value(), 60 * 60 * 24 * 365 * 5);
 	}
 
 	function restoreValue(sender)
 	{
+		Fit.Validation.ExpectInstance(sender, Fit.Controls.ControlBase);
+
 		if (chkRememberMe.Checked() === true && JSShop.Cookies.Get(sender.GetId()) !== null)
 			sender.Value(JSShop.Cookies.Get(sender.GetId()));
 	}
 
 	function clearValue(sender)
 	{
+		Fit.Validation.ExpectInstance(sender, Fit.Controls.ControlBase);
 		JSShop.Cookies.Remove(sender.GetId());
 	}
 

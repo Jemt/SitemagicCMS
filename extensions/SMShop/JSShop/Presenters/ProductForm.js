@@ -740,6 +740,8 @@ JSShop.Presenters.ProductForm = function()
 
 	function removeImages(cb)
 	{
+		Fit.Validation.ExpectFunction(cb);
+
 		if (imagesRemoved.length === 0)
 		{
 			cb();
@@ -762,6 +764,9 @@ JSShop.Presenters.ProductForm = function()
 
 	function createPreviewFrame(preview, deleteCallback)
 	{
+		Fit.Validation.ExpectInstance(preview, Image);
+		Fit.Validation.ExpectFunction(deleteCallback);
+
 		// Create preview container
 
 		var previewFrame = document.createElement("div");
@@ -816,6 +821,8 @@ JSShop.Presenters.ProductForm = function()
 
 	function getWeightUnitControlValue(unit)
 	{
+		Fit.Validation.ExpectString(unit);
+
 		if (unit === "lbs")
 			return lang.ProductForm.Pounds + "=lbs"
 

@@ -100,6 +100,8 @@ JSShop.Presenters.Config = function()
 
 	function loadBasicConfig(sender)
 	{
+		Fit.Validation.ExpectInstance(sender, Fit.Controls.Button);
+
 		setActiveTabButton(sender);
 		disposeControls();
 
@@ -140,6 +142,8 @@ JSShop.Presenters.Config = function()
 
 	function showMailTemplates(btn)
 	{
+		Fit.Validation.ExpectInstance(btn, Fit.Controls.Button);
+
 		var options = [];
 		var templates = (config.MailTemplates.Templates ? config.MailTemplates.Templates : []);
 
@@ -235,6 +239,8 @@ JSShop.Presenters.Config = function()
 
 	function showPayMethods(btn)
 	{
+		Fit.Validation.ExpectInstance(btn, Fit.Controls.Button);
+
 		var options = [];
 
 		Fit.Array.ForEach(config.PaymentMethods, function(pm)
@@ -250,6 +256,9 @@ JSShop.Presenters.Config = function()
 
 	function loadPaymentMethod(btn, moduleName)
 	{
+		Fit.Validation.ExpectInstance(btn, Fit.Controls.Button);
+		Fit.Validation.ExpectString(moduleName);
+
 		setActiveTabButton(btn);
 		disposeControls();
 
@@ -297,6 +306,8 @@ JSShop.Presenters.Config = function()
 
 	function showAdvanced(btn)
 	{
+		Fit.Validation.ExpectInstance(btn, Fit.Controls.Button);
+
 		var options = [];
 
 		Fit.Array.Add(options, (!config.MailTemplates.Templates || config.MailTemplates.Templates.length === 0 ? "!" : "") + lang.Config.EmailTemplates);
@@ -316,6 +327,9 @@ JSShop.Presenters.Config = function()
 
 	function loadAdvanced(btn, section)
 	{
+		Fit.Validation.ExpectInstance(btn, Fit.Controls.Button);
+		Fit.Validation.ExpectString(section);
+
 		setActiveTabButton(btn);
 		disposeControls();
 
@@ -377,6 +391,10 @@ JSShop.Presenters.Config = function()
 
 	function showOptions(btn, options, cb)
 	{
+		Fit.Validation.ExpectInstance(btn, Fit.Controls.Button);
+		Fit.Validation.ExpectTypeArray(options, Fit.Validation.ExpectString);
+		Fit.Validation.ExpectFunction(cb);
+
 		var ctx = new Fit.Controls.ContextMenu();
 
 		Fit.Array.ForEach(options, function(opt)
@@ -407,6 +425,7 @@ JSShop.Presenters.Config = function()
 	function createInput(value, onChange)
 	{
 		Fit.Validation.ExpectString(value);
+		Fit.Validation.ExpectFunction(onChange);
 
 		var ctl = new Fit.Controls.Input(Fit.Data.CreateGuid());
 		ctl.Value(value);
@@ -420,6 +439,9 @@ JSShop.Presenters.Config = function()
 
 	function createExpressionInput(value, onChange)
 	{
+		Fit.Validation.ExpectString(value);
+		Fit.Validation.ExpectFunction(onChange);
+
 		var input = createInput(value, onChange);
 
 		input.FitControl.CheckSpelling(false);
@@ -434,6 +456,10 @@ JSShop.Presenters.Config = function()
 
 	function createCostCorrectionExpressionInput(value, valueType, onChange)
 	{
+		Fit.Validation.ExpectString(value);
+		Fit.Validation.ExpectString(valueType);
+		Fit.Validation.ExpectFunction(onChange);
+
 		var input = createExpressionInput(value, onChange);
 
 		input.FitControl.SetValidationCallback(function(val)
@@ -459,6 +485,9 @@ JSShop.Presenters.Config = function()
 
 	function createAdditionalDataExpressionInput(value, onChange)
 	{
+		Fit.Validation.ExpectString(value);
+		Fit.Validation.ExpectFunction(onChange);
+
 		var input = createExpressionInput(value, onChange);
 
 		input.FitControl.SetValidationCallback(function(val)
@@ -483,8 +512,8 @@ JSShop.Presenters.Config = function()
 	function createDropDown(value, options, onChange)
 	{
 		Fit.Validation.ExpectString(value);
-		//Fit.Validation.ExpectTypeArray(options, Fit.Validation.ExpectString);
-		Fit.Validation.ExpectArray(options, Fit.Validation.ExpectString);
+		Fit.Validation.ExpectArray(options);
+		Fit.Validation.ExpectFunction(onChange);
 
 		var ctl = new Fit.Controls.DropDown(Fit.Data.CreateGuid());
 		ctl.SetPicker(new Fit.Controls.ListView());
@@ -568,6 +597,8 @@ JSShop.Presenters.Config = function()
 
 	function activateCodeMirror(ctl)
 	{
+		Fit.Validation.ExpectInstance(ctl, Fit.Controls.Input);
+
 		loadCodeMirror(function()
 		{
 			var codeEditor = CodeMirror.fromTextArea(ctl.GetDomElement().querySelector("textarea"),

@@ -509,6 +509,8 @@ JSShop.Presenters.Basket = function()
 
 	function expressionsContain(str)
 	{
+		Fit.Validation.ExpectString(str);
+
 		for (var i = 1 ; i <= 3 ; i++)
 		{
 			if (JSShop.Settings["CostCorrection" + i] && JSShop.Settings["CostCorrection" + i].indexOf(str) > -1
