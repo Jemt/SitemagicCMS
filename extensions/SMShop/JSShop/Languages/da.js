@@ -33,7 +33,8 @@
 			Clear:				"Rens",
 			Delete:				"Slet",
 			DeleteWarning:		"Slet produkt?",
-			ImagesNotRemoved:	"Et eller flere billeder kunne ikke slettes"
+			ImagesNotRemoved:	"Et eller flere billeder kunne ikke slettes",
+			NumericValueError:	"Værdi kan ikke overstige 9999999999,9999"
 		},
 
 		ProductList:
@@ -119,7 +120,6 @@
 			DoneFailure:		"Færdig - følgende ordre fejlede",
 			Loading:			"Indlæser, vent venligst..",
 			Order:				"Bestilling",
-
 
 			// Dialog: Customer details
 			CustomerDetails:	"Kundedetaljer",

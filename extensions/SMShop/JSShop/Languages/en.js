@@ -33,7 +33,8 @@
 			Clear:				"Clear",
 			Delete:				"Delete",
 			DeleteWarning:		"Delete product?",
-			ImagesNotRemoved:	"One or more images could not be removed"
+			ImagesNotRemoved:	"One or more images could not be removed",
+			NumericValueError:	"Value can not exceed 9999999999.9999"
 		},
 
 		ProductList:

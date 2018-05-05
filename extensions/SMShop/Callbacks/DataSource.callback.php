@@ -62,10 +62,10 @@ $dataSourcesAllowed = array
 		(
 			"Id"					=> array("DataType" => "string", "MaxLength" => 30*8),
 			"Category"				=> array("DataType" => "string", "MaxLength" => 50*8),
-			"CategoryId"			=> array("DataType" => "string", "MaxLength" => 50+20), // Only used to generate URLs (up to 50 ASCII characters + 20 characters for a hash code appended)
+			"CategoryId"			=> array("DataType" => "string", "MaxLength" => 50+20),	// Only used to generate URLs (up to 50 ASCII characters + 20 characters for a hash code appended)
 			"Title"					=> array("DataType" => "string", "MaxLength" => 250*8),
 			"Description"			=> array("DataType" => "string", "MaxLength" => 1000*8),
-			"Images"				=> array("DataType" => "string", "MaxLength" => 1000),
+			"Images"				=> array("DataType" => "string", "MaxLength" => 1000),	// E.g. <GUID>.png;<GUID>.jpeg, etc. - enough to hold 26 filenames
 			"Price"					=> array("DataType" => "number", "MaxLength" => 15),
 			"Vat"					=> array("DataType" => "number", "MaxLength" => 15),
 			"Currency"				=> array("DataType" => "string", "MaxLength" => 3),

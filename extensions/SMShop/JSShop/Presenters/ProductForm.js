@@ -269,7 +269,7 @@ JSShop.Presenters.ProductForm = function()
 		txtPrice = new Fit.Controls.Input("JSShopProductPrice");
 		txtPrice.Width(185, "px");
 		txtPrice.Required(true);
-		txtPrice.SetValidationCallback(function(val) { return (val.length <= 10); }, lang.Common.MaxLengthExceeded);
+		txtPrice.SetValidationCallback(function(val) { return (val.length <= 15 && parseFloat(val) <= 9999999999.9999); }, lang.ProductForm.NumericValueError);
 		txtPrice.SetValidationExpression(new RegExp("^([0-9]+(\\" + lang.Locale.DecimalSeparator + "[0-9]+)?)?$"), lang.Common.InvalidValue); // /^([0-9]+(\.[0-9]+)?)?$/
 		txtPrice.Scope("JSShopProductForm");
 
@@ -341,7 +341,7 @@ JSShop.Presenters.ProductForm = function()
 
 		txtVat = new Fit.Controls.Input("JSShopProductVat");
 		txtVat.Width(185, "px");
-		txtVat.SetValidationCallback(function(val) { return (val.length <= 10); }, lang.Common.MaxLengthExceeded);
+		txtVat.SetValidationCallback(function(val) { return (val.length <= 15 && parseFloat(val) <= 9999999999.9999); }, lang.ProductForm.NumericValueError);
 		txtVat.SetValidationExpression(new RegExp("^([0-9]+(\\" + lang.Locale.DecimalSeparator + "[0-9]+)?)?$"), lang.Common.InvalidValue); // /^([0-9]+(\.[0-9]+)?)?$/
 		txtVat.Scope("JSShopProductForm");
 		txtVat.Value(((JSShop.Cookies.Get("PreviousVat") !== null) ? JSShop.Cookies.Get("PreviousVat") : ""));
@@ -352,7 +352,7 @@ JSShop.Presenters.ProductForm = function()
 
 		txtWeight = new Fit.Controls.Input("JSShopProductWeight");
 		txtWeight.Width(185, "px");
-		txtWeight.SetValidationCallback(function(val) { return (val.length <= 10); }, lang.Common.MaxLengthExceeded);
+		txtWeight.SetValidationCallback(function(val) { return (val.length <= 15 && parseFloat(val) <= 9999999999.9999); }, lang.ProductForm.NumericValueError);
 		txtWeight.SetValidationExpression(new RegExp("^([0-9]+(\\" + lang.Locale.DecimalSeparator + "[0-9]+)?)?$"), lang.Common.InvalidValue); // /^([0-9]+(\.[0-9]+)?)?$/
 		txtWeight.Scope("JSShopProductForm");
 
