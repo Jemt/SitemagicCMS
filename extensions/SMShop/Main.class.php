@@ -27,10 +27,12 @@ class SMShop extends SMExtension
 
 		if ($this->smMenuExists === true && SMMenuLinkList::GetInstance()->GetReadyState() === true)
 		{
+			$menuLinkList = SMMenuLinkList::GetInstance();
+			$menuLinkList->AddLink($this->getTranslation("Title"), "# " . $this->lang->GetTranslation("Basket"), SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopBasket");
+
 			$ds = new SMDataSource("SMShopProducts");
 			$products = $ds->Select("Category, CategoryId", "", "Category ASC");
 
-			$menuLinkList = SMMenuLinkList::GetInstance();
 			$added = array();
 
 			foreach ($products as $prod)
@@ -45,10 +47,12 @@ class SMShop extends SMExtension
 
 		if ($this->smPagesExists === true && SMPagesLinkList::GetInstance()->GetReadyState() === true)
 		{
+			$pagesLinkList = SMPagesLinkList::GetInstance();
+			$pagesLinkList->AddLink($this->getTranslation("Title"), "# " . $this->lang->GetTranslation("Basket"), SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopBasket");
+
 			$ds = new SMDataSource("SMShopProducts");
 			$products = $ds->Select("Category, CategoryId", "", "Category ASC");
 
-			$pagesLinkList = SMPagesLinkList::GetInstance();
 			$added = array();
 
 			foreach ($products as $prod)
