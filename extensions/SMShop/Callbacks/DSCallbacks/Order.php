@@ -550,6 +550,9 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 			$orderLine[$listType . "ProductTitle"] = $products[0]["Title"];
 			$orderLine[$listType . "ProductPriceExclVat"] = number_format($pricing["UnitPriceExclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
 			$orderLine[$listType . "ProductPriceInclVat"] = number_format($pricing["UnitPriceInclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
+			$orderLine[$listType . "ProductDiscountMessage"] = $entry["DiscountMessage"];
+			$orderLine[$listType . "ProductDiscountExclVat"] = (($pricing["DiscountExclVat"] !== 0.0) ? "-" . number_format($pricing["DiscountExclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "") : "");
+			$orderLine[$listType . "ProductDiscountInclVat"] = (($pricing["DiscountExclVat"] !== 0.0) ? "-" . number_format($pricing["DiscountInclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "") : "");
 			$orderLine[$listType . "TotalExclVat"] = number_format($pricing["TotalExclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
 			$orderLine[$listType . "TotalInclVat"] = number_format($pricing["TotalInclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
 

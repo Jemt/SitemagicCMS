@@ -55,27 +55,27 @@ The webshop
         <td style="border-bottom: 1px solid #CCCCCC;">Payment method</td>
         <td style="border-bottom: 1px solid #CCCCCC;">{PaymentMethod}</td>
     </tr>
-    <tr>
-        <td style="border-bottom: 1px solid #CCCCCC;">Transaction ID</td>
-        <td style="border-bottom: 1px solid #CCCCCC;">{TransactionId}</td>
-    </tr>
 </table>
 
 <br><br>
 
 <table border="0" cellpadding="3" cellspacing="0">
     <tr>
-        <td style="border-bottom: 1px solid #CCCCCC;" width="10%"><b>Units</b></td>
-        <td style="border-bottom: 1px solid #CCCCCC;" width="50%"><b>Product</b></td>
-        <td style="border-bottom: 1px solid #CCCCCC;" width="20%" align="right"><b>Unit price</b></td>
-        <td style="border-bottom: 1px solid #CCCCCC;" width="20%" align="right"><b>Total</b></td>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="10%">Units</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="50%">Product</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="20%" align="right">Unit price</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="20%" align="right">Total</td>
     </tr>
     <!-- REPEAT OrderLines -->
     <tr>
-        <td style="border-bottom: 1px solid #CCCCCC;">{[OrderLineAmount]}</td>
-        <td style="border-bottom: 1px solid #CCCCCC;">{[OrderLineProductTitle]}</td>
-        <td style="border-bottom: 1px solid #CCCCCC;" align="right">{[OrderLineProductPriceInclVat]}</td>
-        <td style="border-bottom: 1px solid #CCCCCC;" align="right">{[OrderLineTotalInclVat]}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" valign="top">{[OrderLineAmount]}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" valign="top">{[OrderLineProductTitle]}
+            <div style="color: #5E5E5E;">{[OrderLineProductDiscountMessage]}</div>
+        </td>
+        <td style="border-bottom: 1px solid #CCCCCC;" valign="top" align="right">{[OrderLineProductPriceInclVat]}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" valign="top" align="right">{[OrderLineTotalInclVat]}
+            <div style="color: #5E5E5E;">{[OrderLineProductDiscountInclVat]}</div>
+        </td>
     </tr>
     <!-- /REPEAT OrderLines -->
 </table>
