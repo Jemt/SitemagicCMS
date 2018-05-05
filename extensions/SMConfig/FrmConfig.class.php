@@ -197,7 +197,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 		$this->populateSubSites();
 
-		$this->cmdNewSubSite = new SMLinkButton("SMConfigSave");
+		$this->cmdNewSubSite = new SMLinkButton("SMConfigNewSubSite");
 		$this->cmdNewSubSite->SetTitle("New subsite");
 		$this->cmdNewSubSite->SetIcon(SMImageProvider::GetImage(SMImageType::$Create));
 		$this->cmdNewSubSite->SetOnClick("var w = new SMWindow('SubsiteDialog'); w.SetUrl('" . SMExtensionManager::GetExtensionUrl($this->context->GetExtensionName(), SMTemplateType::$Basic, SMExecutionMode::$Dedicated) . "&SMConfigSubsiteForm'); w.SetSize(500, 500); w.Show(); return;");

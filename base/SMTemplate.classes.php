@@ -50,6 +50,7 @@ class SMTemplate
 		SMTypeCheck::CheckObject(__METHOD__, "templateFile", (($templateFile !== null) ? $templateFile : ""), SMTypeCheckType::$String);
 
 		$this->content = "";
+		$this->isHtml5 = false;
 		$this->closed = false;
 
 		if ($templateFile !== null)
@@ -65,6 +66,7 @@ class SMTemplate
 		SMTypeCheck::CheckObject(__METHOD__, "html", $html, SMTypeCheckType::$String);
 
 		$this->content = $html;
+		$this->isHtml5 = (strpos($this->content, "<!DOCTYPE html>") !== false);
 		$this->closed = false;
 	}
 
@@ -85,6 +87,8 @@ class SMTemplate
 
 		$basePath = substr($templateFile, 0, strrpos($templateFile, "/")); // Strip file from path
 		$this->loadHtmlIncludes($basePath);
+
+		$this->isHtml5 = (strpos($this->content, "<!DOCTYPE html>") !== false);
 	}
 
 	/// <function container="base/SMTemplate" name="ReplaceTag" access="public">
@@ -297,6 +301,7 @@ class SMTemplate
 			return;
 
 		$this->content = $content;
+		$this->isHtml5 = (strpos($this->content, "<!DOCTYPE html>") !== false);
 	}
 
 	/// <function container="base/SMTemplate" name="GetContent" access="public" returns="string">
@@ -439,6 +444,14 @@ class SMTemplate
 	public function IsClosed()
 	{
 		return $this->closed;
+	}
+
+	/// <function container="base/SMTemplate" name="IsHtml5" access="public" returns="boolean">
+	/// 	<description> Returns True if template is HTML 5, otherwise False </description>
+	/// </function>
+	public function IsHtml5()
+	{
+		return $this->isHtml5;
 	}
 
 	/// <function container="base/SMTemplate" name="GetTagsContent" access="public" returns="string">
