@@ -23,7 +23,7 @@ class QuickPay implements PSPI
 		$params = array(
 			"version"      => "v10",
 			"merchant_id"  => ((isset($cfg["Merchant ID"]) === true) ? $cfg["Merchant ID"] : ""),
-			"agreement_id" => ((isset($cfg["Agreement ID"]) === true) ? $cfg["Agreement ID"] : ""),
+			"agreement_id" => ((isset($cfg["Payment Window Agreement ID"]) === true) ? $cfg["Payment Window Agreement ID"] : ""),
 			"order_id"     => $orderId,
 			"amount"       => $amount,
 			"currency"     => $currency,
