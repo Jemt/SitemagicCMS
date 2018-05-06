@@ -25,6 +25,8 @@ class SMShop extends SMExtension
 	{
 		// Add basket and product categories to link pickers
 
+		$urlRewrite = (SMAttributes::GetAttribute("SMUrlRewritingEnabled") === "true");
+
 		if ($this->smMenuExists === true && SMMenuLinkList::GetInstance()->GetReadyState() === true)
 		{
 			$menuLinkList = SMMenuLinkList::GetInstance();
@@ -40,7 +42,11 @@ class SMShop extends SMExtension
 				if (in_array($prod["CategoryId"], $added, true) === true)
 					continue;
 
-				$menuLinkList->AddLink($this->getTranslation("Title"), $prod["Category"], "~/shop/" . $prod["CategoryId"]);
+				if ($urlRewrite === true)
+					$menuLinkList->AddLink($this->getTranslation("Title"), $prod["Category"], "~/shop/" . $prod["CategoryId"]);
+				else
+					$menuLinkList->AddLink($this->getTranslation("Title"), $prod["Category"], SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopCategory=" . $prod["CategoryId"]);
+
 				$added[] = $prod["CategoryId"];
 			}
 		}
@@ -60,7 +66,11 @@ class SMShop extends SMExtension
 				if (in_array($prod["CategoryId"], $added, true) === true)
 					continue;
 
-				$pagesLinkList->AddLink($this->getTranslation("Title"), $prod["Category"], "~/shop/" . $prod["CategoryId"]);
+				if ($urlRewrite === true)
+					$pagesLinkList->AddLink($this->getTranslation("Title"), $prod["Category"], "~/shop/" . $prod["CategoryId"]);
+				else
+					$pagesLinkList->AddLink($this->getTranslation("Title"), $prod["Category"], SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopCategory=" . $prod["CategoryId"]);
+
 				$added[] = $prod["CategoryId"];
 			}
 		}
@@ -76,9 +86,9 @@ class SMShop extends SMExtension
 		$basePath = SMEnvironment::GetRequestPath();
 		$basePath .= (($basePath !== "/") ? "/" : "");
 
-		if (SMEnvironment::GetQueryValue("SMShopCategory") !== null) // Product view - e.g. /shop/Overview or /shop/MyCategory
+		if (SMEnvironment::GetQueryValue("SMShopCategory") !== null && SMStringUtilities::EndsWith($basePath, "/shop/") === true) // Product view - e.g. /shop/Overview or /shop/MyCategory (if accessed using SEO friendly URL)
 		{
-			// Remove /shop suffix from basePath - it's not the real path of the web application.
+			// Remove "shop/" suffix from basePath - it's not the real path of the web application.
 			// Use the real path to prevent problems when calling WebServices under /shop/XYZ which would be redirected to / without preserving POST data (htaccess).
 			$basePath = substr($basePath, 0, -5);
 		}

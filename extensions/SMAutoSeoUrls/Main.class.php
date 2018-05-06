@@ -17,7 +17,8 @@ class SMAutoSeoUrls extends SMExtension // Supplementary extension to SMPages an
 		// of Sitemagic CMS. Notice, however, that this will cause modifications to be lost with every new version!
 		//$vers = 20140720; // Not necessarily the same as Sitemagic version - it simply represents .htaccess version!
 		//$vers = 20160228; // Adds support for web shop
-		$vers = 20160828; // Adds Cache Control
+		//$vers = 20160828; // Adds Cache Control
+		$vers = 20180505; // Fixes for web shop, ensure SMUrlRewritingEnabled in SMAttributes
 
 		if (SMAttributes::GetAttribute("SMPagesAutoSeoUrlsVersion") !== (string)$vers)
 		{
@@ -40,8 +41,21 @@ class SMAutoSeoUrls extends SMExtension // Supplementary extension to SMPages an
 
 		// Auto configure SEO friendly URLs
 
-		if ($this->manuallyConfigured() === true || $this->autoConfigured() === true || $this->htAccessExists() === false) // Cancel if already configured or misconfigured
+		if ($this->manuallyConfigured() === true || $this->autoConfigured() === true || $this->htAccessExists() === false) // Cancel if already configured
+		{
+			if (SMAttributes::GetAttribute("SMUrlRewritingEnabled") === null) // Ensure SMPages independent flag indicating whether URL Rewriting is available
+			{
+				// Prevent infinite loop - calling checkAccessUsingSeoUrl() below will make a new request to the application which re-triggers this extension
+				SMAttributes::SetAttribute("SMUrlRewritingEnabled", "false");
+				SMAttributes::Commit();
+
+				// SMUrlRewritingEnabled is basically the same as SMPagesSettingsSeoUrls, but without
+				// being SMPages specific - it simply indicates whether URL Rewriting is available or not.
+				SMAttributes::SetAttribute("SMUrlRewritingEnabled", (($this->checkAccessUsingSeoUrl() === true) ? "true" : "false"));
+			}
+
 			return;
+		}
 
 		// Prevent more than one attempt to auto configure SEO URLs.
 		// Immediately commit attribute - checkAccessUsingSeoUrl()
@@ -118,6 +132,8 @@ class SMAutoSeoUrls extends SMExtension // Supplementary extension to SMPages an
 	{
 		SMAttributes::SetAttribute("SMPagesSettingsUrlType", "Filename");
 		SMAttributes::SetAttribute("SMPagesSettingsSeoUrls", "true");
+
+		SMAttributes::SetAttribute("SMUrlRewritingEnabled", "true");
 	}
 
 	private function getPages() // Get pages array (key = Page Url, value = Page ID)
