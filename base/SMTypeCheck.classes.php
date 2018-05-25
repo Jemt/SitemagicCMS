@@ -584,7 +584,7 @@ class SMTypeCheck
 		if (self::$checker === null)
 			self::$checker = new SMTypeChecker();
 
-		return self::$checker->CheckObject($methodName, $objectName, $object, $typeExpected, false, $throwExceptionOnTypeError);
+		return self::$checker->CheckObject($methodName, $objectName, $object, $typeExpected, $throwExceptionOnTypeError);
 	}
 
 	public static function CheckObjectAllowNull($methodName, $objectName, $object, $typeExpected, $throwExceptionOnTypeError = true)
