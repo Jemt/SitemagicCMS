@@ -24,8 +24,26 @@ $dataSourcesAllowed = array
 		"Name"				=> "SMShopExample", // Required
 		"AuthRequired"		=> array("Create", "Retrieve", "Update", "Delete", "RetrieveAll"), // Required
 		"XmlLockRequired"  	=> array("Create", "Update", "Delete"), // Required
-		"XmlTimeOut"		=> 180,		// Optional
-		"XmlMemoryRequired"	=> 512,		// Optional
+		"XmlTimeOut"		=> 180,			// Optional
+		"XmlMemoryRequired"	=> 512,			// Optional
+		"XmlArchive"		=> array(		// Optional
+			"RecordLimit"		=> 150,		// Optional - if specified, old rows will be moved to an archive and only X rows will be kept in actual DataSource
+			"Relations"			=> array(	// Optional - if specified, related data will be archived as well
+				array(
+					"DataSource"	=> "SMShopOrderEntries",	// Required
+					"DataSourceRef"	=> null,					// Automatically set/replaced by reference to this DataSource definition
+					"Reference"		=> "OrderId"				// Required - foreign key containing Id of parent data source
+				)
+			),
+			"Callbacks"				=> array(												// Optional
+				"File"					=> dirname(__FILE__) . "/DSCallbacks/Order.php",	// Required
+				"Functions"				=> array											// Required
+				(
+					"SelectArchiveWhen"		=> "SMShopXmlArchiveSelectWhen",				// Optional - Receives string[][] - match array
+					"OnArchived"			=> "SMShopXmlArchiveOnArchived" 				// Optional - Receives SMKeyValueCollection item (archived DataSource row) and SMDataSource (SMShopState)
+				)
+			)
+		),
 		"OrderBy"			=> "",		// Required
 		"Fields"			=> array	// Required
 		(
@@ -83,6 +101,24 @@ $dataSourcesAllowed = array
 		"XmlLockRequired"  	=> array("Create", "Update", "Delete"),
 		"XmlTimeOut"		=> 180, // Increase script execution timeout if using XML Data Source - data source may contain thousands of records
 		"XmlMemoryRequired"	=> 512, // Increase memory if using XML Data Source - data source may contain thousands of records
+		"XmlArchive"		=> array(
+			"RecordLimit"		=> 150,
+			"Relations"			=> array(
+				array(
+					"DataSource"	=> "SMShopOrderEntries",
+					"DataSourceRef"	=> null, // Automatically replaced by reference to this DataSource definition
+					"Reference"		=> "OrderId"
+				)
+			),
+			"Callbacks"				=> array(
+				"File"					=> dirname(__FILE__) . "/DSCallbacks/Order.php",
+				"Functions"				=> array
+				(
+					"SelectArchiveWhen"		=> "SMShopXmlArchiveSelectWhen",	// Receives string[][] - match array
+					"OnArchived"			=> "SMShopXmlArchiveOnArchived" 	// Receives SMKeyValueCollection item (archived DataSource row) and SMDataSource (SMShopState)
+				)
+			)
+		),
 		"OrderBy"			=> "",
 		"Fields"			=> array
 		(
@@ -148,6 +184,16 @@ $dataSourcesAllowed = array
 		"XmlLockRequired"  	=> array("Create", "Update", "Delete"),
 		"XmlTimeOut"		=> 180, // Increase script execution timeout if using XML Data Source - data source may contain thousands of records
 		"XmlMemoryRequired"	=> 512, // Increase memory if using XML Data Source - data source may contain thousands of records
+		"XmlArchive"		=> array(
+			"Callbacks"				=> array(
+				"File"					=> dirname(__FILE__) . "/DSCallbacks/Order.php",
+				"Functions"				=> array
+				(
+					"SelectArchiveWhen"		=> "SMShopXmlArchiveSelectOrderEntriesWhen",	// Receives string[][] - match array
+					"OnArchived"			=> "SMShopXmlArchiveOrderEntriesOnArchived" 	// Receives SMKeyValueCollection item (archived DataSource row) and SMDataSource (SMShopState)
+				)
+			)
+		),
 		"OrderBy"			=> "",
 		"Fields"			=> array
 		(
@@ -175,6 +221,317 @@ $modelDataSources = array(
 // Functions
 // ==================================================================
 
+function SMShopXmlArchiving($dsDef)
+{
+	// Deadlock:
+	// This mechanism has the potential to cause deadlocks because multiple resources
+	// are being locked over time. However, DataSource.callback.php usually only lock
+	// one DataSource when doing CRUD - the XmlArchiving mechanism is (currently) the only
+	// mechanism that locks on multiple DataSources. Therefore we can avoid deadlocking by
+	// simply ensuring that multiple XmlArchiving operations do not run at the same time.
+	// Locking on each DataSource is still necessary though as we need to ensure consistency,
+	// so ordinary CRUD operations must be forced to wait.
+
+	// Transaction safe:
+	// One inconvenience with XmlArchiving is that it does not run in a transaction.
+	// Theoretically it may result in inconsistency, for instance if data is copied to the
+	// archive DataSource but not removed from the original DataSource, or if data referencing
+	// the data being archived is not updated appropriately when the archiving has been carried
+	// through.
+	// To prevent inconsistency a backup is created prior to archiving, and a transaction log
+	// is committed before any changes are made. If an error occur, the transaction log and
+	// backup is used to automatically bring the system back to a consistent state.
+
+	$source = new SMDataSource($dsDef["Name"]);
+
+	if ($source->GetDataSourceType() === SMDataSourceType::$Xml && isset($dsDef["XmlArchive"]) === true && isset($dsDef["XmlArchive"]["RecordLimit"]) === true)
+	{
+		// Avoid dead locks for XmlArchiving operations by locking on a resource common to all XmlArchiving operations.
+		// XmlArchiving may be invoked multiple times on different DataSources defining "Relations",
+		// potentially causing different XmlArchiving operations to wait for each other indefinitely (dead lock).
+		// Obviously this has the inconvenient result that XmlArchiving for completely unrelated DataSources
+		// will have to wait for each other, but that is acceptable.
+		$lockSource = new SMDataSource("SMShopXmlArchiving");
+		$lockSource->Lock();
+
+		// WARNING: Do NOT lock on SMAttributes from this point on! It may cause a deadlock if SMAttributes is used in conjunction
+		// with an ordinary CRUD operation that also needs to lock SMAttributes. Below is an example with two operations over time.
+		// Session 1 performans an XmlArchiving operation while Session 2 performs an ordinary Create operation.
+		// ------------------------------------------------------------------
+		// SESSION 1 (XmlArchiving)          SESSION 2 (Create operation)
+		// ------------------------------------------------------------------
+		// Lock DS SMShopOrders
+		//                                   Lock SMAttributes
+		// Lock DS SMShopOrderEntries
+		// Lock DS SMAttributes
+		//                                   Lock DS SMShopOrderEntries
+		// ------------------------------------------------------------------
+		// Session 1 will wait for Session 2 to release the lock on SMAttributes,
+		// and Session 2 will wait for Session 1 to release the lock on SMShopOrderEntries.
+		// Therefore, the rule is; do NOT lock on SMAttributes during XmlArchiving. It is
+		// allowed BEFORE the XmlArchiving operation starts and when it is completed.
+
+		// Lock all DataSources
+
+		$archive = new SMDataSource($dsDef["Name"] . "_archive");
+
+		$source->Lock();
+		$archive->Lock();
+
+		$relationSource = null;
+		$relationArchive = null;
+
+		if (isset($dsDef["XmlArchive"]["Relations"]) === true)
+		{
+			foreach ($dsDef["XmlArchive"]["Relations"] as $relation)
+			{
+				$relationSource = new SMDataSource($relation["DataSource"]);
+				$relationArchive = new SMDataSource($relation["DataSource"] . "_archive");
+
+				$relationSource->Lock();
+				$relationArchive->Lock();
+			}
+		}
+
+		// MUST be locked AFTER ordinary DataSources - otherwise we might create
+		// a dead lock since SMShopState may be used in conjunction with other
+		// DataSource operations such as the Create operation. Locking SMShopState
+		// first could cause the Xml Archiving operation and the Create operation
+		// to wait for each other, just like the example with SMAttributes given
+		// above.
+		$state = new SMDataSource("SMShopState");
+		$state->Lock();
+
+		// Archive data if number of records in DataSource exceeds configured RecordLimit
+
+		$count = $source->Count();
+
+		if ($count > $dsDef["XmlArchive"]["RecordLimit"])
+		{
+			$backup = array();		// String[]
+			$toCommit = array();	// SMDataSource[]
+			$logEntries = array();	// SMKeyValueCollection[]
+			$logEntry = null;		// SMKeyValueCollection
+
+			$backup[] = "SMShopState";
+
+			// Oldest records are selected first - will almost always return just one, except if
+			// previous XmlArchiving operation somehow wasn't carried through, e.g. in case of timeout.
+			$prevs = $source->Select("*", "", "", $count - $dsDef["XmlArchive"]["RecordLimit"]);
+
+			if (count($prevs) > 0)
+			{
+				$toCommit[] = $source;
+				$toCommit[] = $archive;
+				$backup[] = $dsDef["Name"]; // Both normal DS and Archive DS will be backed up
+			}
+
+			foreach ($prevs as $prev)
+			{
+				// Transaction log entry
+				$logEntry = new SMKeyValueCollection();
+				$logEntry["DataSource"] = $dsDef["Name"];
+				$logEntry["RowId"] = $prev["Id"];
+				$logEntry["Operation"] = "Archiving";
+				$logEntries[] = $logEntry;
+
+				// Move record to archive
+				$archive->Insert($prev);
+				$source->Delete("Id = '" . $prev["Id"] . "'", "", 1);
+
+				// Archive related data
+
+				if (isset($dsDef["XmlArchive"]["Relations"]) === true)
+				{
+					foreach ($dsDef["XmlArchive"]["Relations"] as $relation)
+					{
+						$relationSource = new SMDataSource($relation["DataSource"]);
+						$relationArchive = new SMDataSource($relation["DataSource"] . "_archive");
+
+						$where = $relation["Reference"] . " = '" . $prev["Id"] . "'";
+						$items = $relationSource->Select("*", $where);
+
+						if (count($items) > 0)
+						{
+							$toCommit[] = $relationSource;
+							$toCommit[] = $relationArchive;
+							$backup[] = $relation["DataSource"]; // Both normal DS and Archive DS will be backed up
+						}
+
+						foreach ($items as $item)
+						{
+							// Transaction log entry
+							$logEntry = new SMKeyValueCollection();
+							$logEntry["DataSource"] = $relation["DataSource"];
+							$logEntry["RowId"] = $item["Id"];
+							$logEntry["Operation"] = "Archiving";
+							$logEntries[] = $logEntry;
+
+							// Copy row to archive
+							$relationArchive->Insert($item);
+						}
+
+						// Remove archived data from original DataSource
+						if (count($items) > 0)
+						{
+							$relationSource->Delete($where);
+
+							// Trigger OnArchived callback if configured for related DataSource
+							if (isset($relation["DataSourceRef"]["XmlArchive"]) === true && isset($relation["DataSourceRef"]["XmlArchive"]["Callbacks"]) === true && isset($relation["DataSourceRef"]["XmlArchive"]["Callbacks"]["Functions"]["OnArchived"]) === true)
+							{
+								require_once($relation["DataSourceRef"]["XmlArchive"]["Callbacks"]["File"]);
+
+								foreach ($items as $item)
+								{
+									$relation["DataSourceRef"]["XmlArchive"]["Callbacks"]["Functions"]["OnArchived"]($item, $state);
+								}
+							}
+						}
+					}
+				}
+
+				if (isset($dsDef["XmlArchive"]["Callbacks"]) === true && isset($dsDef["XmlArchive"]["Callbacks"]["Functions"]["OnArchived"]) === true)
+				{
+					require_once($dsDef["Callbacks"]["File"]);
+					$dsDef["XmlArchive"]["Callbacks"]["Functions"]["OnArchived"]($prev, $state);
+				}
+			}
+
+			// Backup before commit - SMShopXmlArchivingEnsureConsistency() is responsible for restoring data in case of failure
+
+			foreach ($backup as $dsName)
+			{
+				// This is not ideal - the backup code below depends on implementation details (filesystem details) about the XML DataSource mechanism!
+
+				SMFileSystem::Copy(SMEnvironment::GetDataDirectory() . "/" . $dsName . ".xml.php", SMEnvironment::GetDataDirectory() . "/" . $dsName . ".xml.php.backup", true);
+
+				if ($dsName !== "SMShopState")
+					SMFileSystem::Copy(SMEnvironment::GetDataDirectory() . "/" . $dsName . "_archive.xml.php", SMEnvironment::GetDataDirectory() . "/" . $dsName . "_archive.xml.php.backup", true);
+			}
+
+			// Register transaction history before data is committed - if anything goes wrong (e.g. timeout or out-of-memory), this data will
+			// remain and we can use it to check whether data is still in a consistent state or not and restore it from the backup if necessary.
+
+			foreach ($logEntries as $le)
+			{
+				$lockSource->Insert($le);
+			}
+
+			$lockSource->Commit(false); // false = do not release lock
+
+			// Commit everything at the end - doing this all at once reduces the risk of failure and inconsistency
+
+			foreach ($toCommit as $tc)
+			{
+				$tc->Commit();
+			}
+
+			$state->Commit();
+
+			// At this point all DataSources have been committed and it is safe to assume
+			// that everything went well. Remove flag indicating that XmlArchiving went wrong.
+
+			$lockSource->Delete();
+			$lockSource->Commit();
+		}
+
+		$state->Unlock();
+		$lockSource->Unlock();
+	}
+}
+
+function SMShopXmlArchivingEnsureConsistency()
+{
+	// Notice that no order data is lost when restoring data after a failed Xml Archiving operation.
+	// Order information is committed before the Xml Archiving operation is executed, so the backup
+	// will contain the most recent data.
+
+	$lockSource = new SMDataSource("SMShopXmlArchiving");
+
+	if ($lockSource->GetDataSourceType() === SMDataSourceType::$Xml && $lockSource->Count() > 0)
+	{
+		// Make sure multiple recovery operations do not run simultaneously
+		$lockSource->Lock();
+
+		// Multiple recovery sessions may enter this if-block because we lock
+		// AFTER the row count above. Naturally we do this to prevent unnecessary
+		// waiting since every DataSource operation executes SMShopXmlArchivingEnsureConsistency(),
+		// and they would all be forced to wait for each other (even though it's fairly fast).
+		// Therefore we do a second count after the DataSource is locked to make sure another
+		// session did not perform recovery first. If that's the case, we simply terminate recovery.
+		if ($lockSource->Count() === 0)
+		{
+			$lockSource->Unlock();
+			return;
+		}
+
+		SMLog::Log(__FILE__, __LINE__, "Restoring SMShop data after failed Xml Archiving: Running..");
+
+		// Lock all DataSources that needs to be recovered to prevent inconsistency
+
+		$sources = array();
+
+		$entries = $lockSource->Select();
+		foreach ($entries as $entry)
+		{
+			if (isset($sources[$entry["DataSource"]]) === true)
+				continue;
+
+			$sources[$entry["DataSource"]] = new SMDataSource($entry["DataSource"]);
+			$sources[$entry["DataSource"]]->Lock();
+		}
+
+		// MUST be locked AFTER ordinary DataSources - otherwise we might create
+		// a dead lock since SMShopState may be used in conjunction with other
+		// DataSource operations such as the Create operation. Locking SMShopState
+		// first could cause the Xml Archiving operation and the Create operation
+		// to wait for each other, just like the example with SMAttributes given
+		// in SMShopXmlArchiving(..)
+		$sources["SMShopState"] = new SMDataSource("SMShopState");
+		$sources["SMShopState"]->Lock();
+
+		// Register transaction history before restoring data in case something goes wrong
+
+		$logEntry = null;
+		foreach ($sources as $dsName => $ds)
+		{
+			$logEntry = new SMKeyValueCollection();
+			$logEntry["DataSource"] = $dsName;
+			$logEntry["RowId"] = "";
+			$logEntry["Operation"] = "Restoring";
+			$lockSource->Insert($logEntry);
+		}
+
+		$lockSource->Commit(false); // false = do not release lock
+
+		// Restore data from backup
+
+		foreach ($sources as $dsName => $ds)
+		{
+			// This is not ideal! The recovery code below depends on implementation details (filesystem details) about the XML DataSource mechanism!
+
+			SMFileSystem::Copy(SMEnvironment::GetDataDirectory() . "/" . $dsName . ".xml.php.backup", SMEnvironment::GetDataDirectory() . "/" . $dsName . ".xml.php", true);
+
+			if ($dsName !== "SMShopState")
+				SMFileSystem::Copy(SMEnvironment::GetDataDirectory() . "/" . $dsName . "_archive.xml.php.backup", SMEnvironment::GetDataDirectory() . "/" . $dsName . "_archive.xml.php", true);
+		}
+
+		// Release locks
+
+		foreach ($sources as $dsName => $ds)
+		{
+			$ds->Unlock();
+		}
+
+		// Clear transaction history
+
+		$lockSource->Delete();
+		$lockSource->Commit();
+
+		SMLog::Log(__FILE__, __LINE__, "Restoring SMShop data after failed Xml Archiving: Done");
+	}
+}
+
 function SMShopValidateDataSourceDefinitions($dataSourcesAllowed)
 {
 	if (SMTypeCheck::GetEnabled() === false)
@@ -185,17 +542,44 @@ function SMShopValidateDataSourceDefinitions($dataSourcesAllowed)
 	foreach ($dataSourcesAllowed as $name => $dsDef)
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "dsDef", $dsDef, SMTypeCheckType::$Array);
-		SMTypeCheck::CheckObject(__METHOD__, "dsDef[Name]", $dsDef["Name"], SMTypeCheckType::$String);
-		SMTypeCheck::CheckArray(__METHOD__, "dsDef[AuthRequired]", $dsDef["AuthRequired"], SMTypeCheckType::$String);
-		SMTypeCheck::CheckArray(__METHOD__, "dsDef[XmlLockRequired]", $dsDef["XmlLockRequired"], SMTypeCheckType::$String);
-		SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlTimeOut]", $dsDef["XmlTimeOut"], SMTypeCheckType::$Integer);
-		SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlMemoryRequired]", $dsDef["XmlMemoryRequired"], SMTypeCheckType::$Integer);
-		SMTypeCheck::CheckObject(__METHOD__, "dsDef[OrderBy]", $dsDef["OrderBy"], SMTypeCheckType::$String);
-		SMTypeCheck::CheckArray(__METHOD__, "dsDef[Fields]", $dsDef["Fields"], SMTypeCheckType::$Array);
+		SMTypeCheck::CheckObject(__METHOD__, "dsDef[Name]", ((isset($dsDef["Name"]) === true) ? $dsDef["Name"] : null), SMTypeCheckType::$String);
+		SMTypeCheck::CheckArray(__METHOD__, "dsDef[AuthRequired]", ((isset($dsDef["AuthRequired"]) === true) ? $dsDef["AuthRequired"] : null), SMTypeCheckType::$String);
+		SMTypeCheck::CheckArray(__METHOD__, "dsDef[XmlLockRequired]", ((isset($dsDef["XmlLockRequired"]) === true) ? $dsDef["XmlLockRequired"] : null), SMTypeCheckType::$String);
+		SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlTimeOut]", ((isset($dsDef["XmlTimeOut"]) === true) ? $dsDef["XmlTimeOut"] : null), SMTypeCheckType::$Integer);
+		SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlMemoryRequired]", ((isset($dsDef["XmlMemoryRequired"]) === true) ? $dsDef["XmlMemoryRequired"] : null), SMTypeCheckType::$Integer);
+		SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlArchive]", ((isset($dsDef["XmlArchive"]) === true) ? $dsDef["XmlArchive"] : null), SMTypeCheckType::$Array);
+		SMTypeCheck::CheckObject(__METHOD__, "dsDef[OrderBy]", ((isset($dsDef["OrderBy"]) === true) ? $dsDef["OrderBy"] : null), SMTypeCheckType::$String);
+		SMTypeCheck::CheckArray(__METHOD__, "dsDef[Fields]", ((isset($dsDef["Fields"]) === true) ? $dsDef["Fields"] : null), SMTypeCheckType::$Array);
 
 		if ($name !== $dsDef["Name"])
 		{
 			throw new Exception("DataSource '" . $name . "' has been configured with an incorrect Name attribute with a value of '" . $dsDef["Name"] . "'");
+		}
+
+		if (isset($dsDef["XmlArchive"]) === true)
+		{
+			SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlArchive][RecordLimit]", ((isset($dsDef["XmlArchive"]["RecordLimit"]) === true) ? $dsDef["XmlArchive"]["RecordLimit"] : null), SMTypeCheckType::$Integer);
+			SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlArchive][Relations]", ((isset($dsDef["XmlArchive"]["Relations"]) === true) ? $dsDef["XmlArchive"]["Relations"] : null), SMTypeCheckType::$Array);
+			SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlArchive][Callbacks]", ((isset($dsDef["XmlArchive"]["Callbacks"]) === true) ? $dsDef["XmlArchive"]["Callbacks"] : null), SMTypeCheckType::$Array);
+
+			if (isset($dsDef["XmlArchive"]["Relations"]) === true)
+			{
+				foreach ($dsDef["XmlArchive"]["Relations"] as $rel)
+				{
+					SMTypeCheck::CheckObject(__METHOD__, "rel", $rel, SMTypeCheckType::$Array);
+					SMTypeCheck::CheckObject(__METHOD__, "rel[DataSource]", ((isset($rel["DataSource"]) === true) ? $rel["DataSource"] : null), SMTypeCheckType::$String);
+					//SMTypeCheck::CheckObject(__METHOD__, "rel[DataSourceRef]", ((isset($rel["DataSourceRef"]) === true) ? $rel["DataSourceRef"] : null), SMTypeCheckType::$Array);
+					SMTypeCheck::CheckObject(__METHOD__, "rel[Reference]", ((isset($rel["Reference"]) === true) ? $rel["Reference"] : null), SMTypeCheckType::$String);
+				}
+			}
+
+			if (isset($dsDef["XmlArchive"]["Callbacks"]) === true)
+			{
+				SMTypeCheck::CheckObject(__METHOD__, "dsDef[XmlArchive][Callbacks][File]", ((isset($dsDef["XmlArchive"]["Callbacks"]["File"]) === true) ? $dsDef["XmlArchive"]["Callbacks"]["File"] : null), SMTypeCheckType::$String);
+				SMTypeCheck::CheckObject(__METHOD__, "dsDef[XmlArchive][Callbacks][Functions]", ((isset($dsDef["XmlArchive"]["Callbacks"]["Functions"]) === true) ? $dsDef["XmlArchive"]["Callbacks"]["Functions"] : null), SMTypeCheckType::$Array);
+				SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlArchive][Callbacks][Functions][SelectArchiveWhen]", ((isset($dsDef["XmlArchive"]["Callbacks"]["Functions"]["SelectArchiveWhen"]) === true) ? $dsDef["XmlArchive"]["Callbacks"]["Functions"]["SelectArchiveWhen"] : null), SMTypeCheckType::$String);
+				SMTypeCheck::CheckObjectAllowNull(__METHOD__, "dsDef[XmlArchive][Callbacks][Functions][OnArchived]", ((isset($dsDef["XmlArchive"]["Callbacks"]["Functions"]["OnArchived"]) === true) ? $dsDef["XmlArchive"]["Callbacks"]["Functions"]["OnArchived"] : null), SMTypeCheckType::$String);
+			}
 		}
 
 		if (isset($dsDef["Fields"]["Id"]) === false)
@@ -206,11 +590,9 @@ function SMShopValidateDataSourceDefinitions($dataSourcesAllowed)
 		foreach ($dsDef["Fields"] as $fieldName => $fieldDef)
 		{
 			SMTypeCheck::CheckObject(__METHOD__, "fieldDef", $fieldDef, SMTypeCheckType::$Array);
-			SMTypeCheck::CheckObject(__METHOD__, "fieldDef[DataType]", $fieldDef["DataType"], SMTypeCheckType::$String);
-			SMTypeCheck::CheckObject(__METHOD__, "fieldDef[MaxLength]", $fieldDef["MaxLength"], SMTypeCheckType::$Integer);
-
-			if (isset($fieldDef["ForceInitialValue"]) === true)
-				SMTypeCheck::CheckObject(__METHOD__, "fieldDef[ForceInitialValue]", $fieldDef["ForceInitialValue"], SMTypeCheckType::$String);
+			SMTypeCheck::CheckObject(__METHOD__, "fieldDef[DataType]", ((isset($fieldDef["DataType"]) === true) ? $fieldDef["DataType"] : null), SMTypeCheckType::$String);
+			SMTypeCheck::CheckObject(__METHOD__, "fieldDef[MaxLength]", ((isset($fieldDef["MaxLength"]) === true) ? $fieldDef["MaxLength"] : null), SMTypeCheckType::$Integer);
+			SMTypeCheck::CheckObjectAllowNull(__METHOD__, "fieldDef[ForceInitialValue]", ((isset($fieldDef["ForceInitialValue"]) === true) ? $fieldDef["ForceInitialValue"] : null), SMTypeCheckType::$String);
 
 			if ($fieldDef["DataType"] !== "string" && $fieldDef["DataType"] !== "number")
 			{
@@ -221,8 +603,8 @@ function SMShopValidateDataSourceDefinitions($dataSourcesAllowed)
 		if (isset($dsDef["Callbacks"]) === true)
 		{
 			SMTypeCheck::CheckObject(__METHOD__, "dsDef[Callbacks]", $dsDef["Callbacks"], SMTypeCheckType::$Array);
-			SMTypeCheck::CheckObject(__METHOD__, "dsDef[Callbacks][File]", $dsDef["Callbacks"]["File"], SMTypeCheckType::$String);
-			SMTypeCheck::CheckObject(__METHOD__, "dsDef[Callbacks][Functions]", $dsDef["Callbacks"]["Functions"], SMTypeCheckType::$Array);
+			SMTypeCheck::CheckObject(__METHOD__, "dsDef[Callbacks][File]", ((isset($dsDef["Callbacks"]["File"]) === true) ? $dsDef["Callbacks"]["File"] : null), SMTypeCheckType::$String);
+			SMTypeCheck::CheckObject(__METHOD__, "dsDef[Callbacks][Functions]", ((isset($dsDef["Callbacks"]["Functions"]) === true) ? $dsDef["Callbacks"]["Functions"] : null), SMTypeCheckType::$Array);
 
 			foreach ($dsDef["Callbacks"]["Functions"] as $key => $val)
 			{
@@ -347,6 +729,8 @@ function SMShopGetJsType($val) // Mixed type
 // Execute operation
 // ==================================================================
 
+$state = new SMDataSource("SMShopState"); // IMPORTANT: Always lock on this DS when writing data! It contains important data such as NextOrderId and NextInvoiceId! ONLY lock for a very small amount of time - it is constantly being used!
+
 // Validate DataSource definitions to make sure they are valid
 
 try
@@ -359,6 +743,47 @@ catch (Exception $ex)
 	echo "Exception occurred validating DataSource definitions: " . $ex->getMessage();
 	exit;
 }
+
+// Handle XML archiving (maintenance operation)
+
+// For DataSources defining XmlArchive, make sure to provide an object reference to any related DataSources
+foreach ($dataSourcesAllowed as $dsName => $dsDef)
+{
+	if (isset($dsDef["XmlArchive"]) === true && isset($dsDef["XmlArchive"]["Relations"]) === true)
+	{
+		for ($i = 0 ; $i < count($dsDef["XmlArchive"]["Relations"]) ; $i++)
+		{
+			if (isset($dataSourcesAllowed[$dsDef["XmlArchive"]["Relations"][$i]["DataSource"]]) === false)
+			{
+				header("HTTP/1.1 500 Internal Server Error");
+				echo "DataSource '" . $dsName . "' defines a relation to a non-existing DataSource";
+				exit;
+			}
+
+			$dataSourcesAllowed[$dsName]["XmlArchive"]["Relations"][$i]["DataSourceRef"] = $dataSourcesAllowed[$dsDef["XmlArchive"]["Relations"][$i]["DataSource"]];
+		}
+	}
+}
+
+// Perform archiving
+$toXmlArchive = SMEnvironment::GetQueryValue("XmlArchiving", SMValueRestriction::$AlphaNumeric);
+if ($toXmlArchive !== null)
+{
+	if ($state->Count("key = 'AllowXmlArchiving" . $toXmlArchive . "'") !== 0)
+	{
+		$state->Lock();
+		$state->Delete("key = 'AllowXmlArchiving" . $toXmlArchive . "'");
+		$state->Commit();
+
+		SMShopXmlArchiving($dataSourcesAllowed[$toXmlArchive]);
+	}
+
+	exit;
+}
+
+// Executed for all requests to ensure consistency.
+// This function will recover data from an interrupted/failed Xml Archiving operation.
+SMShopXmlArchivingEnsureConsistency();
 
 // Read and check input data
 
@@ -480,11 +905,36 @@ if ($command === "Create")
 		$dsDef["Callbacks"]["Functions"]["CreateCompleted"]($item);
 	}
 
+	if ($ds->GetDataSourceType() === SMDataSourceType::$Xml && isset($dsDef["XmlArchive"]) === true && isset($dsDef["XmlArchive"]["RecordLimit"]) === true)
+	{
+		// Make JSShop trigger a maintenance request to start Xml Archiving if needed.
+		// This is done asynchronously since it may take several seconds to complete.
+
+		$state->Lock();
+
+		$allow = new SMKeyValueCollection();
+		$allow["key"] = "AllowXmlArchiving" . $dsDef["Name"];
+		$allow["value"] = "true";
+
+		$state->Insert($allow);
+		$state->Commit();
+
+		header("Post-Process-Url: [same]");
+		header("Post-Process-Arguments: XmlArchiving=" . $dsDef["Name"]);
+	}
+
 	echo SMShopDataItemToJson($dsDef, $props, $item); // Return updated data to client
 }
 else if ($command === "Retrieve")
 {
 	$items = $ds->Select("*", "Id = '" . $ds->Escape($props["Id"]) . "'", "");
+
+	if (count($items) === 0 && $ds->GetDataSourceType() === SMDataSourceType::$Xml && isset($dsDef["XmlArchive"]) === true)
+	{
+		// Item not found - search archive
+		$dsArch = new SMDataSource($dsDef["Name"] . "_archive");
+		$items = $dsArch->Select("*", "Id = '" . $dsArch->Escape($props["Id"]) . "'", "");
+	}
 
 	if (count($items) > 0)
 	{
@@ -525,7 +975,24 @@ else if ($command === "RetrieveAll")
 		}
 	}
 
-	$items = $ds->Select("*", $where, $dsDef["OrderBy"]);
+	$dataSources = array($ds);
+	$items = array();
+
+	if ($ds->GetDataSourceType() === SMDataSourceType::$Xml && isset($dsDef["XmlArchive"]) === true && isset($dsDef["XmlArchive"]["Callbacks"]) === true && isset($dsDef["XmlArchive"]["Callbacks"]["Functions"]["SelectArchiveWhen"]) === true)
+	{
+		// Include archived data if SelectArchiveWhen(..) returns true
+
+		require_once($dsDef["XmlArchive"]["Callbacks"]["File"]);
+
+		if ($dsDef["XmlArchive"]["Callbacks"]["Functions"]["SelectArchiveWhen"]((($match !== null) ? $match : array())) === true)
+			$dataSources[] = new SMDataSource($dsDef["Name"] . "_archive");
+	}
+
+	foreach ($dataSources as $d)
+	{
+		// This will produce a collection with archived data first followed by more current data
+		$items = array_merge($d->Select("*", $where, $dsDef["OrderBy"]), $items);
+	}
 
 	if (isset($dsDef["Callbacks"]) === true && isset($dsDef["Callbacks"]["Functions"]["RetrieveAll"]) === true)
 	{

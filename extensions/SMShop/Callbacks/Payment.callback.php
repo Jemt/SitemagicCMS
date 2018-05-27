@@ -78,7 +78,7 @@ else if ($operation === "Auth") // Step 2: Handle response from PSP - Callback i
 	$ds->Update($order, "Id = '" . $ds->Escape($order["Id"]) . "'");
 	$ds->Commit();
 
-	if (SMAttributes::GetAttribute("SMShopSendConfirmationMail") !== null && strtolower(SMAttributes::GetAttribute("SMShopSendConfirmationMail")) === "onpaymentauthorized")
+	if ($order["PaymentMethod"] !== "")
 	{
 		SMShopSendMail($order); // Alternatively called from Callbacks/DSCallbacks/Order.php in case SMShopSendConfirmationMail option is set to Immediately
 	}

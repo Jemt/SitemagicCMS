@@ -88,7 +88,8 @@
 			AddPhoneNumber:		"Tilføj telefonnummer",
 			EnterValidEmail:	"Indtast en gyldig e-mail adresse",
 			EnterValidZipCode:	"Indtast et gyldigt postnummer (tal)",
-			PartialAltAddress:	"Du har kun delvist udfyldt felterne under Alternativ Leveringsadresse - udfyld venligst resten, eller slå Alternativ Leveringsadresse fra"
+			PartialAltAddress:	"Du har kun delvist udfyldt felterne under Alternativ Leveringsadresse - udfyld venligst resten, eller slå Alternativ Leveringsadresse fra",
+			PleaseWait:			"Vi arbejder stadig på det - hav venligst tålmodighed lidt endnu"
 		},
 
 		OrderList:

@@ -511,6 +511,7 @@ JSShop.Presenters.OrderForm = function()
 		}
 
 		cmdContinue.Enabled(false);
+		cmdContinue.Icon("fa-spinner fa-spin");
 
 		var o = new JSShop.Models.Order(Fit.Data.CreateGuid());
 		o.Company(txtCompany.Value());
@@ -539,17 +540,32 @@ JSShop.Presenters.OrderForm = function()
 		if (lstPaymentMethod !== null)
 			o.PaymentMethod(lstPaymentMethod.GetSelections()[0].Value);
 
+		var showLoaderId = - 1;
+		showLoaderId = setTimeout(function()
+		{
+			var loadDia = new Fit.Controls.Dialog();
+			loadDia.Content(lang.OrderForm.PleaseWait);
+			loadDia.Modal(true);
+			loadDia.Open();
+
+			setTimeout(function() { loadDia.Dispose(); }, 15000); // Give up - remove dialog to give access to website again
+		}, 8000);
+
 		JSShop.Models.Basket.CreateOrder(o, function(order)
 		{
+			clearTimeout(showLoaderId);
+
 			JSShop.Models.Basket.Clear();
 
 			if (JSShop.Settings.PaymentUrl)
 			{
-				location.href = JSShop.Settings.PaymentUrl + ((JSShop.Settings.PaymentUrl.indexOf("?") === -1) ? "?" : "&") + "OrderId=" + order.Id();
+				// Postpone to allow models to trigger any maintenance jobs (async Post-Process-Url requests)
+				setTimeout(function() { location.href = JSShop.Settings.PaymentUrl + ((JSShop.Settings.PaymentUrl.indexOf("?") === -1) ? "?" : "&") + "OrderId=" + order.Id(); }, 750);
 			}
 			else if (JSShop.Settings.ReceiptUrl)
 			{
-				location.href = JSShop.Settings.ReceiptUrl;
+				// Postpone to allow models to trigger any maintenance jobs (async Post-Process-Url requests)
+				setTimeout(function() { location.href = JSShop.Settings.ReceiptUrl; }, 750);
 			}
 			else
 			{

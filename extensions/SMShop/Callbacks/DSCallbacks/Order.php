@@ -57,14 +57,22 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 
 	// Obtain new order ID (order was created with a temporary ID (GUID) generated client side)
 
-	SMAttributes::Lock(); // Prevent two sessions from obtaining the same Order ID
-	SMAttributes::Reload(false); // No data will be lost when reloading attributes from a callback since no extensions are being executed
+	$state = new SMDataSource("SMShopState"); // IMPORTANT: Always lock on this DS when writing data (and always AFTER locking on the DS required by an operation to prevent dead locks if Xml Archiving runs at the same time)! It contains important data such as NextOrderId and NextInvoiceId! ONLY lock for a very small amount of time - it is constantly being used!
+	$state->Lock();
 
-	$orderIdStr = SMAttributes::GetAttribute("SMShopNextOrderId");
-	$orderId = (($orderIdStr !== null) ? (int)$orderIdStr : 1);
+	$items = $state->Select("*", "key = 'NextOrderId'");
+	$orderId = ((count($items) > 0) ? (int)$items[0]["value"] : 1);
 
-	SMAttributes::SetAttribute("SMShopNextOrderId", (string)($orderId + 1));
-	SMAttributes::Commit(); // Also releases lock
+	$nextOrderId = new SMKeyValueCollection();
+	$nextOrderId["key"] = "NextOrderId";
+	$nextOrderId["value"] = (string)($orderId + 1);
+
+	if (count($items) === 0)
+		$state->Insert($nextOrderId);
+	else
+		$state->Update($nextOrderId, "key = '" . $nextOrderId["key"] . "'");
+
+	$state->Commit();
 
 	// Loop through order entries to extract currency, calculate
 	// discounts/totals/VAT, and update entries with these information.
@@ -257,9 +265,9 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 
 	// Send confirmation mail
 
-	if (SMAttributes::GetAttribute("SMShopSendConfirmationMail") === null || strtolower(SMAttributes::GetAttribute("SMShopSendConfirmationMail")) === "immediately")
+	if ($order["PaymentMethod"] === "")
 	{
-		SMShopSendMail($order); // Alternatively called from Callbacks/Payment.callback.php in case SMShopSendConfirmationMail option is set to OnPaymentAuthorized
+		SMShopSendMail($order); // Alternatively called from Callbacks/Payment.callback.php when payment is authorized
 	}
 }
 
@@ -269,28 +277,38 @@ function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyVa
 
 	if ($asInvoice === true && $order["InvoiceId"] === "")
 	{
+		$ds = new SMDataSource("SMShopOrders");
+
+		if ($ds->GetDataSourceType() === SMDataSourceType::$Xml)
+			$ds->Lock(); // MUST be locked before SMShopState DataSource to prevent dead locks - the Xml Archiving operation locks normal DataSources first and then the SMShopState DataSource. Doing it in reverse order here might trigger a dead lock!
+
 		// Ensure invoice ID
 
-		SMAttributes::Lock(); // Prevent two sessions from obtaining the same Invoice ID
-		SMAttributes::Reload(false); // No data will be lost when reloading attributes from a callback since no extensions are being executed
+		$state = new SMDataSource("SMShopState"); // IMPORTANT: Always lock on this DS when writing data (and always AFTER locking on the DS required by an operation to prevent dead locks if Xml Archiving runs at the same time)! It contains important data such as NextOrderId and NextInvoiceId! ONLY lock for a very small amount of time - it is constantly being used!
+		$state->Lock();
 
-		$invoiceIdStr = SMAttributes::GetAttribute("SMShopNextInvoiceId");
-		$invoiceId = (($invoiceIdStr !== null) ? (int)$invoiceIdStr : 1);
+		$items = $state->Select("*", "key = 'NextInvoiceId'");
+		$invoiceId = ((count($items) > 0) ? (int)$items[0]["value"] : 1);
+
+		$nextInvoiceId = new SMKeyValueCollection();
+		$nextInvoiceId["key"] = "NextInvoiceId";
+		$nextInvoiceId["value"] = (string)($invoiceId + 1);
+
+		if (count($items) === 0)
+			$state->Insert($nextInvoiceId);
+		else
+			$state->Update($nextInvoiceId, "key = '" . $nextInvoiceId["key"] . "'");
+
+		// Update order with Invoice ID
 
 		$update = new SMKeyValueCollection();
 		$update["InvoiceId"] = (string)$invoiceId;
 		$update["InvoiceTime"] = (string)(time() * 1000);
 
-		$ds = new SMDataSource("SMShopOrders");
-
-		if ($ds->GetDataSourceType() === SMDataSourceType::$Xml)
-			$ds->Lock();
-
 		$ds->Update($update, "Id = '" . $ds->Escape($order["Id"]) . "'");
 		$ds->Commit(); // Also releases lock
 
-		SMAttributes::SetAttribute("SMShopNextInvoiceId", (string)($invoiceId + 1));
-		SMAttributes::Commit(); // Also releases lock
+		$state->Commit();
 
 		$order["InvoiceId"] = $update["InvoiceId"];
 		$order["InvoiceTime"] = $update["InvoiceTime"];
@@ -870,6 +888,167 @@ function SMShopCalculatePricing($priceExVat, $units, $vatPercentage, $discountEx
 	);
 
 	return $resultObj;
+}
+
+// ==================================================
+// XML Archiving (SMShopOrders)
+// ==================================================
+
+function SMShopXmlArchiveOnArchived(SMKeyValueCollection $item, SMDataSource $state) // Do NOT commit or unlock $state DataSource!
+{
+	// Save offset time from which all data is expected to be found in "current data".
+	// If data is being queried from this timestamp and forward, there is no need
+	// to search the archived data.
+
+	// Remove time portion from timestamp and add one day.
+	// It is safe to assume that all records from datetime calculated below
+	// is contained in non-archived DataSource.
+	$time = (int)$item["Time"] / 1000;			// Milliseconds to seconds
+	$time = strtotime(date("Y-m-d", $time));	// Get rid of time portion
+	$time = $time + (24 * 60 * 60);				// Add one day
+	$time = $time * 1000;						// Seconds to milliseconds (compatible with JS)
+
+	// Save time
+
+	$update = new SMKeyValueCollection();
+	$update["key"] = "DataSourceSMShopOrdersArchiveTimeOffset";
+	$update["value"] = (string)$time;
+
+	if ($state->Count("key = '" . $update["key"] . "'") === 0)
+	{
+		$state->Insert($update);
+	}
+	else
+	{
+		$state->Update($update, "key = '" . $update["key"] . "'");
+	}
+}
+
+function SMShopXmlArchiveSelectWhen($match)
+{
+	SMTypeCheck::CheckArray(__METHOD__, "match", $match, SMTypeCheckType::$Array); // String[][]
+
+	// Get time offset
+
+	$state = new SMDataSource("SMShopState"); // IMPORTANT: Always lock on this DS when writing data (and always AFTER locking on the DS required by an operation to prevent dead locks if Xml Archiving runs at the same time)! It contains important data such as NextOrderId and NextInvoiceId! ONLY lock for a very small amount of time - it is constantly being used!
+
+	$items = $state->Select("*", "key = 'DataSourceSMShopOrdersArchiveTimeOffset'");
+	$timeStr = ((count($items) > 0) ? $items[0]["value"] : null);
+
+	$state = null; // Prevent further use! If we need it to write data, make sure it is locked first!
+
+	// Determine whether requested data must be queried in archived data
+
+	if ($timeStr === null)
+		return false; // Do not select from archive - nothing archived yet
+
+	$time = (int)$timeStr; // Data from this date (inclusive) and forward is found in current (non-archived) data
+	$timeMatchOnly = true;
+	$timeMatchContained = false;
+
+	foreach ($match as $or) // OR
+	{
+		$timeMatchContained = false;
+
+		foreach ($or as $m) // AND
+		{
+			if ($m["Field"] === "Time")
+			{
+				$timeMatchContained = true;
+
+				// Data is always queried from "current data", so all we need to do is figure out whether we should also look in archived data.
+				// Let's assume we have archived one or more records from 2018-05-22, but not necessarily all records from 2018-05-22.
+				// Therefore only 2018-05-23 and forward can be safely assumed to be found in "current data" - $time contains a timestamp
+				// equal to 2018-05-23.
+
+				// Example queries below, based on the data described above, and the result of those queries.
+				// Notice that `time` is actually a timestamp not a datetime like shown below.
+
+				// SELECT * FROM SMShopOrders WHERE time >= 1997-01-01		: Search archive and current
+				// SELECT * FROM SMShopOrders WHERE time <= 1997-01-01		: Search archive (doesn't matter that current data is also searched)
+				// SELECT * FROM SMShopOrders WHERE time <= 2018-05-22		: Search archive (doesn't matter that current data is also searched)
+				// SELECT * FROM SMShopOrders WHERE time  < 2018-05-22		: Search archive (doesn't matter that current data is also searched)
+				// SELECT * FROM SMShopOrders WHERE time  = 2018-05-22		: Search archive (doesn't matter that current data is also searched)
+				// SELECT * FROM SMShopOrders WHERE time  > 2018-05-22		: *** Search current
+				// SELECT * FROM SMShopOrders WHERE time >= 2018-05-22		: Search archive and current
+				// SELECT * FROM SMShopOrders WHERE time <= 2018-05-23		: Search archive and current
+				// SELECT * FROM SMShopOrders WHERE time  < 2018-05-23		: Search archive
+				// SELECT * FROM SMShopOrders WHERE time  = 2018-05-23		: Search current
+				// SELECT * FROM SMShopOrders WHERE time  > 2018-05-23		: Search current
+				// SELECT * FROM SMShopOrders WHERE time >= 2018-05-23		: Search current
+				// SELECT * FROM SMShopOrders WHERE time <= 2025-01-01		: Search archive and current
+				// SELECT * FROM SMShopOrders WHERE time >= 2025-01-01		: Search current
+
+				// From the examples above we can conclude that we should ALWAYS search the archive whenever
+				// the timestamp supplied is SMALLER than the value of the $time offset variable, (***) unless the
+				// operator is > (greater than) and the timestamp is equal to one day before $time. But we don't
+				// have to handle this. We simply always query the archive when the timestamp is smaller than $time.
+				// The worst thing that can happen is that we search the archive for no reason in this scenario:
+				// SELECT * FROM SMShopOrders WHERE time > 2018-05-22
+				// In this case 2018-05-22 is the day before $time (2018-05-23).
+				// But when JSShop queries data, the match always contains something like
+				// Time >= fromDate AND Time <= toDate
+				// So the operators used does not trigger this inconvenience.
+
+				// WARNING: Time comparison is affected by timezone! It must be properly
+				// configured in order for time portion to be 00:00:00 for both timestamps!
+
+				if ($m["Field"] === "Time" && $m["Value"] < $time)
+					return true; // Select from archive, data is requested outside of time range in current (non-archived) data
+			}
+		}
+
+		if ($timeMatchContained === false)
+			$timeMatchOnly = false;
+	}
+
+	if ($timeMatchOnly === true)
+		return false; // Do not select from archive, requested data is within time range in current (non-archived) data
+
+	return true; // Not a (pure) time match search (e.g. WHERE (time >= 2018-05-22) OR (name == 'Jens')) - search both current and archived data
+}
+
+// ==================================================
+// XML Archiving (SMShopOrderEntries)
+// ==================================================
+
+function SMShopXmlArchiveOrderEntriesOnArchived(SMKeyValueCollection $item, SMDataSource $state) // Do NOT commit or unlock $state DataSource!
+{
+	$update = new SMKeyValueCollection();
+	$update["key"] = "DataSourceSMShopOrderEntriesArchiveOrderIdOffset";
+	$update["value"] = $item["OrderId"];
+
+	if ($state->Count("key = '" . $update["key"] . "'") === 0)
+	{
+		$state->Insert($update);
+	}
+	else
+	{
+		$state->Update($update, "key = '" . $update["key"] . "'");
+	}
+}
+
+function SMShopXmlArchiveSelectOrderEntriesWhen($match)
+{
+	// Get OrderId offset
+
+	$state = new SMDataSource("SMShopState"); // IMPORTANT: Always lock on this DS when writing data (and always AFTER locking on the DS required by an operation to prevent dead locks if Xml Archiving runs at the same time)! It contains important data such as NextOrderId and NextInvoiceId! ONLY lock for a very small amount of time - it is constantly being used!
+
+	$items = $state->Select("*", "key = 'DataSourceSMShopOrderEntriesArchiveOrderIdOffset'");
+	$orderIdOffset = ((count($items) > 0) ? (int)$items[0]["value"] : null);
+
+	$state = null; // Prevent further use! If we need it to write data, make sure it is locked first!
+
+	// Determine whether requested data must be queried in archived data
+
+	if ($orderIdOffset === null)
+		return false; // Nothing has been archived yet
+
+	// Optimization specific to querying OrderEntries by OrderId
+	if (count($match) === 1 && count($match[0]) === 1 && $match[0][0]["Field"] === "OrderId" && $match[0][0]["Operator"] === "=")
+		return (int)$match[0][0]["Value"] <= (int)$orderIdOffset; // Querying OrderEntries related to specific OrderId
+
+	return true; // Match may be anything, look in both current data and archive
 }
 
 ?>

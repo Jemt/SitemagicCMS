@@ -211,6 +211,22 @@ JSShop.Models.Base = function(itemId)
 			// Fire success callback if passed to function
 			if (Fit.Validation.IsSet(cbSuccess) === true)
 				cbSuccess(req, me); // Do not pass operation - callback is operation specific, e.g. passed to Create function
+
+			if (req.GetResponseHeader("Post-Process-Url") !== null)
+			{
+				var url = req.GetResponseHeader("Post-Process-Url");
+				var data = req.GetResponseHeader("Post-Process-Payload");
+				var args = req.GetResponseHeader("Post-Process-Arguments");
+
+				if (url === "[same]")
+					url = me.GetWebServiceUrls()[operation];
+
+				var r = new Fit.Http.JsonRequest(url + (args !== null ? (url.indexOf("?") > -1 ? "&" : "?") + args : ""));
+				r.SetData(data !== null ? JSON.parse(data) : {});
+				r.OnSuccess(function() {}); // Force async.
+				r.Start();
+				setTimeout(function() { r.Abort(); }, 1000); // Request seems to sometimes prevent Chrome from redirecting (location.href = "..") - do not wait for response
+			}
 		});
 		req.OnFailure(function(sender)
 		{

@@ -1,5 +1,11 @@
 /* SMShop */
 
+CREATE TABLE IF NOT EXISTS SMShopState
+(
+	`key`					varchar(255)					DEFAULT NULL,
+	`value`					varchar(255)					DEFAULT NULL
+) ENGINE = InnoDB CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+
 CREATE TABLE IF NOT EXISTS SMShopProducts
 (
 	`id`					varchar(240)						DEFAULT NULL,
