@@ -270,6 +270,7 @@ JSShop.Presenters.OrderList = function()
 		cmdUpdate = new Fit.Controls.Button("JSShopUpdateButton");
 		cmdUpdate.Icon("fa-refresh");
 		cmdUpdate.Type(Fit.Controls.Button.Type.Primary);
+		cmdUpdate.Enabled(false); // Will be automatically enabled when initial data is loaded
 		cmdUpdate.OnClick(function(sender)
 		{
 			cmdUpdate.Enabled(false);
@@ -417,7 +418,7 @@ JSShop.Presenters.OrderList = function()
 			}
 		});
 
-		loadData();
+		loadData(function() { cmdUpdate.Enabled(true); });
 	}
 
 	this.GetDomElement = function()

@@ -225,7 +225,6 @@ JSShop.Models.Base = function(itemId)
 				r.SetData(data !== null ? JSON.parse(data) : {});
 				r.OnSuccess(function() {}); // Force async.
 				r.Start();
-				setTimeout(function() { r.Abort(); }, 1000); // Request seems to sometimes prevent Chrome from redirecting (location.href = "..") - do not wait for response
 			}
 		});
 		req.OnFailure(function(sender)

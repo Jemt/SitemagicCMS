@@ -223,6 +223,8 @@ $modelDataSources = array(
 
 function SMShopXmlArchiving($dsDef)
 {
+	SMTypeCheck::CheckObject(__METHOD__, "dsDef", $dsDef, SMTypeCheckType::$Array);
+
 	// Deadlock:
 	// This mechanism has the potential to cause deadlocks because multiple resources
 	// are being locked over time. However, DataSource.callback.php usually only lock
@@ -428,8 +430,8 @@ function SMShopXmlArchiving($dsDef)
 
 			$state->Commit();
 
-			// At this point all DataSources have been committed and it is safe to assume
-			// that everything went well. Remove flag indicating that XmlArchiving went wrong.
+			// At this point all DataSources have been committed and it is safe to assume that everything
+			// went well. Remove transaction log which is used to determine whether data is in an inconsistent state.
 
 			$lockSource->Delete();
 			$lockSource->Commit();
@@ -440,22 +442,44 @@ function SMShopXmlArchiving($dsDef)
 	}
 }
 
-function SMShopXmlArchivingEnsureConsistency()
+function SMShopXmlArchivingEnsureConsistency($dsDef)
 {
+	SMTypeCheck::CheckObject(__METHOD__, "dsDef", $dsDef, SMTypeCheckType::$Array);
+
 	// Notice that no order data is lost when restoring data after a failed Xml Archiving operation.
 	// Order information is committed before the Xml Archiving operation is executed, so the backup
 	// will contain the most recent data.
 
 	$lockSource = new SMDataSource("SMShopXmlArchiving");
 
-	if ($lockSource->GetDataSourceType() === SMDataSourceType::$Xml && $lockSource->Count() > 0)
+	if ($lockSource->GetDataSourceType() === SMDataSourceType::$Xml)
 	{
-		// Make sure multiple recovery operations do not run simultaneously
+		if ($lockSource->IsLocked() === true)
+		{
+			// Skip consistency check if $lockSource is locked, which means that Xml Archiving/Recovery is currently
+			// running. But only skip check if operation is related to a DataSource not currently undergoing XML Archiving
+			// or Recovery - otherwise we might be affected by inconsistent/partial data.
+			// Without this logic all operations would stall while perfoming XML Archiving/Recovery (SMShopXmlArchivingEnsureConsistency(..)
+			// is called on every request) , making it impossible to e.g. add products to the basket (which reads product information)
+			// while an Xml Archiving/Recovery operation related to Order data is in progress.
+
+			if ($lockSource->Count("DataSource = '" . $dsDef["Name"] . "'") === 0)
+			{
+				return; // No Xml Archiving/Recovery is taking place for the DataSource related to the current request
+			}
+		}
+		else if ($lockSource->Count() === 0)
+		{
+			// No entries found in transaction log so there is no data inconsistency
+			return;
+		}
+
+		// Make sure multiple recovery operations do not run simultaneously, or while an Xml Archiving operation is running
 		$lockSource->Lock();
 
-		// Multiple recovery sessions may enter this if-block because we lock
-		// AFTER the row count above. Naturally we do this to prevent unnecessary
-		// waiting since every DataSource operation executes SMShopXmlArchivingEnsureConsistency(),
+		// Multiple recovery sessions may get past $lockSource->Count(..) above because
+		// we lock AFTER the initial row count. Naturally we do this to prevent unnecessary
+		// waiting since every DataSource operation executes SMShopXmlArchivingEnsureConsistency(..),
 		// and they would all be forced to wait for each other (even though it's fairly fast).
 		// Therefore we do a second count after the DataSource is locked to make sure another
 		// session did not perform recovery first. If that's the case, we simply terminate recovery.
@@ -775,15 +799,20 @@ if ($toXmlArchive !== null)
 		$state->Delete("key = 'AllowXmlArchiving" . $toXmlArchive . "'");
 		$state->Commit();
 
+		// From the PHP manual - http://php.net/manual/en/function.session-write-close.php
+		// "Session data is usually stored after your script terminated without the
+		// need to call session_write_close(), but as session data is locked to prevent
+		// concurrent writes only one script may operate on a session at any time".
+		// The user triggering Xml Archiving will not be able to load new pages
+		// while the XML Archiving operation is running, unless we "unlock" the session.
+		// But obviously session state will not work properly from this point on !
+		session_write_close();
+
 		SMShopXmlArchiving($dataSourcesAllowed[$toXmlArchive]);
 	}
 
 	exit;
 }
-
-// Executed for all requests to ensure consistency.
-// This function will recover data from an interrupted/failed Xml Archiving operation.
-SMShopXmlArchivingEnsureConsistency();
 
 // Read and check input data
 
@@ -812,6 +841,12 @@ $command = $json["Operation"];
 $match = ((isset($json["Match"]) === true) ? $json["Match"] : null);
 
 $dsDef = $modelDataSources[$model];
+
+// Data consistency check (XML Archiving related)
+
+// Executed for all requests to ensure consistency.
+// This function will recover data from an interrupted/failed Xml Archiving operation.
+SMShopXmlArchivingEnsureConsistency($dsDef);
 
 // Sanitize input
 
