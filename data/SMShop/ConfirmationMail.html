@@ -10,11 +10,11 @@ Order confirmation
 
 <div>
 
-{FirstName} {LastName}, thank you for placing an order with us.
+{[FirstName]} {[LastName]}, thank you for placing an order with us.
 
 <br><br>
 
-Attached you'll find the order confirmation for order {OrderId}.
+Attached you'll find the order confirmation for order {[OrderId]}.
 
 <br><br>
 
@@ -24,36 +24,36 @@ The webshop
 </div>
 
 
-<!-- PDF:Order-{OrderId} -->
+<!-- PDF:Order-{[OrderId]} -->
 
-<b>Confirmation for order {OrderId}</b>
+<b>Confirmation for order {[OrderId]}</b>
 
 <br><br>
 
 <table border="0" cellpadding="3" cellspacing="0" width="75%">
     <tr>
         <td style="border-bottom: 1px solid #CCCCCC;" width="30%">Purchased by</td>
-        <td style="border-bottom: 1px solid #CCCCCC;" width="70%">{FirstName} {LastName}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="70%">{[FirstName]} {[LastName]}</td>
     </tr>
     <tr>
         <td style="border-bottom: 1px solid #CCCCCC;">Delivery to</td>
-        <td style="border-bottom: 1px solid #CCCCCC;">{DeliveryAddress}<br>{DeliveryZipCode} {DeliveryCity}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[DeliveryAddress]}<br>{[DeliveryZipCode]} {[DeliveryCity]}</td>
     </tr>
     <tr>
         <td style="border-bottom: 1px solid #CCCCCC;">Phone</td>
-        <td style="border-bottom: 1px solid #CCCCCC;">{Phone}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[Phone]}</td>
     </tr>
     <tr>
         <td style="border-bottom: 1px solid #CCCCCC;">E-mail</td>
-        <td style="border-bottom: 1px solid #CCCCCC;">{Email}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[Email]}</td>
     </tr>
     <tr>
         <td style="border-bottom: 1px solid #CCCCCC;">Date of purchase</td>
-        <td style="border-bottom: 1px solid #CCCCCC;">{OrderDay}/{OrderMonth}/{OrderYear}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[OrderDay]}/{[OrderMonth]}/{[OrderYear]}</td>
     </tr>
     <tr>
         <td style="border-bottom: 1px solid #CCCCCC;">Payment method</td>
-        <td style="border-bottom: 1px solid #CCCCCC;">{PaymentMethod}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[PaymentMethod]}</td>
     </tr>
 </table>
 
@@ -85,17 +85,17 @@ The webshop
 <table cellspacing="0" cellpadding="3" border="0">
     <tr>
         <td width="50%"><b>Total incl. VAT</b></td>
-        <td width="50%" align="right"><b>{Currency} {Price}</b></td>
+        <td width="50%" align="right"><b>{[Currency]} {[Price]}</b></td>
     </tr>
     <tr>
         <td><b>VAT</b></td>
-        <td align="right">{Currency} {Vat}</td>
+        <td align="right">{[Currency]} {[Vat]}</td>
     </tr>
 </table>
 
 <br><br>
 
 Customer message:
-{Message}
+{[Message]}
 
-<!-- /PDF:Order-{OrderId} -->
+<!-- /PDF:Order-{[OrderId]} -->

@@ -271,7 +271,7 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 	}
 }
 
-function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyValueCollection $additionalArgs = null)
+function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyValueCollection $additionalArgs = null) // $additionalArgs may be used by e.g. PSPM modules to send an e-mail with additional data - not pretty depending on the inners of SMShop though!
 {
 	SMTypeCheck::CheckObject(__METHOD__, "asInvoice", $asInvoice, SMTypeCheckType::$Boolean);
 
@@ -329,7 +329,7 @@ function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyVa
 	{
 		foreach ($additionalArgs as $key => $value)
 		{
-			if (strpos($key, "{") === 0 && strrpos($key, "}") === strlen($key) - 1) // E.g. {placeholder}
+			if (strpos($key, "{[") === 0 && strrpos($key, "]}") === strlen($key) - 2) // E.g. {[placeholder]}
 			{
 				$content = str_replace($key, $value, $content);
 			}
@@ -482,60 +482,60 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 	}
 
 	// Notice: These placeholders are based on a syntax different from expressions used above ( e.g. ${[..]} ) and placeholders used to populate order line data (see further down where {[Placeholder]} syntax is used)
-	$content = str_replace("{Company}", $order["Company"], $content);
-	$content = str_replace("{FirstName}", $order["FirstName"], $content);
-	$content = str_replace("{LastName}", $order["LastName"], $content);
-	$content = str_replace("{Address}", $order["Address"], $content);
-	$content = str_replace("{ZipCode}", $order["ZipCode"], $content);
-	$content = str_replace("{City}", $order["City"], $content);
-	$content = str_replace("{Phone}", $order["Phone"], $content);
-	$content = str_replace("{Email}", $order["Email"], $content);
-	$content = str_replace("{Message}", SMStringUtilities::NewLineToHtmlLineBreak($order["Message"]), $content);
-	$content = str_replace("{AltCompany}", $order["AltCompany"], $content);
-	$content = str_replace("{AltFirstName}", $order["AltFirstName"], $content);
-	$content = str_replace("{AltLastName}", $order["AltLastName"], $content);
-	$content = str_replace("{AltAddress}", $order["AltAddress"], $content);
-	$content = str_replace("{AltZipCode}", $order["AltZipCode"], $content);
-	$content = str_replace("{AltCity}", $order["AltCity"], $content);
-	$content = str_replace("{DeliveryCompany}", (($order["AltAddress"] !== "") ? $order["AltCompany"] : $order["Company"]), $content); // Use AltCompany (which is optional) only if AltAddress is set
-	$content = str_replace("{DeliveryFirstName}", (($order["AltFirstName"] !== "") ? $order["AltFirstName"] : $order["FirstName"]), $content);
-	$content = str_replace("{DeliveryLastName}", (($order["AltLastName"] !== "") ? $order["AltLastName"] : $order["LastName"]), $content);
-	$content = str_replace("{DeliveryAddress}", (($order["AltAddress"] !== "") ? $order["AltAddress"] : $order["Address"]), $content);
-	$content = str_replace("{DeliveryZipCode}", (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $content);
-	$content = str_replace("{DeliveryCity}", (($order["AltCity"] !== "") ? $order["AltCity"] : $order["City"]), $content);
-	$content = str_replace("{OrderId}", $order["Id"], $content);
-	$content = str_replace("{InvoiceId}", $order["InvoiceId"], $content);
-	$content = str_replace("{Currency}", $order["Currency"], $content);
-	$content = str_replace("{Vat}", number_format((float)$order["Vat"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
-	$content = str_replace("{Price}", number_format((float)$order["Price"] + (float)$order["Vat"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
-	$content = str_replace("{Weight}", number_format((float)$order["Weight"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
-	$content = str_replace("{WeightUnit}", $order["WeightUnit"], $content);
-	$content = str_replace("{CostCorrection1}", number_format((float)$order["CostCorrection1"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
-	$content = str_replace("{CostCorrectionVat1}", number_format((float)$order["CostCorrectionVat1"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
-	$content = str_replace("{CostCorrectionMessage1}", $order["CostCorrectionMessage1"], $content);
-	$content = str_replace("{CostCorrection2}", number_format((float)$order["CostCorrection2"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
-	$content = str_replace("{CostCorrectionVat2}", number_format((float)$order["CostCorrectionVat2"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
-	$content = str_replace("{CostCorrectionMessage2}", $order["CostCorrectionMessage2"], $content);
-	$content = str_replace("{CostCorrection3}", number_format((float)$order["CostCorrection3"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
-	$content = str_replace("{CostCorrectionVat3}", number_format((float)$order["CostCorrectionVat3"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
-	$content = str_replace("{CostCorrectionMessage3}", $order["CostCorrectionMessage3"], $content);
-	$content = str_replace("{PaymentMethod}", $order["PaymentMethod"], $content);
-	$content = str_replace("{TransactionId}", $order["TransactionId"], $content);
-	$content = str_replace("{PromoCode}", $order["PromoCode"], $content);
-	$content = str_replace("{CustData1}", $order["CustData1"], $content);
-	$content = str_replace("{CustData2}", $order["CustData2"], $content);
-	$content = str_replace("{CustData3}", $order["CustData3"], $content);
-	$content = str_replace("{OrderYear}", date("Y", ((int)$order["Time"])/1000), $content);
-	$content = str_replace("{OrderMonth}", date("m", ((int)$order["Time"])/1000), $content);
-	$content = str_replace("{OrderDay}", date("d", ((int)$order["Time"])/1000), $content);
-	$content = str_replace("{InvoiceYear}", date("Y", ((int)$order["InvoiceTime"])/1000), $content);
-	$content = str_replace("{InvoiceMonth}", date("m", ((int)$order["InvoiceTime"])/1000), $content);
-	$content = str_replace("{InvoiceDay}", date("d", ((int)$order["InvoiceTime"])/1000), $content);
-	$content = str_replace("{DateYear}", date("Y"), $content);
-	$content = str_replace("{DateMonth}", date("m"), $content);
-	$content = str_replace("{DateDay}", date("d"), $content);
-	$content = str_replace("{OrderDetails}", $orderDetails, $content); // Can be used to quickly get a simple text list of items purchased - quick and dirty
-	$content = str_replace("{WebsiteUrl}", SMEnvironment::GetExternalUrl(), $content);
+	$content = str_replace("{[Company]}", $order["Company"], $content);
+	$content = str_replace("{[FirstName]}", $order["FirstName"], $content);
+	$content = str_replace("{[LastName]}", $order["LastName"], $content);
+	$content = str_replace("{[Address]}", $order["Address"], $content);
+	$content = str_replace("{[ZipCode]}", $order["ZipCode"], $content);
+	$content = str_replace("{[City]}", $order["City"], $content);
+	$content = str_replace("{[Phone]}", $order["Phone"], $content);
+	$content = str_replace("{[Email]}", $order["Email"], $content);
+	$content = str_replace("{[Message]}", SMStringUtilities::NewLineToHtmlLineBreak($order["Message"]), $content);
+	$content = str_replace("{[AltCompany]}", $order["AltCompany"], $content);
+	$content = str_replace("{[AltFirstName]}", $order["AltFirstName"], $content);
+	$content = str_replace("{[AltLastName]}", $order["AltLastName"], $content);
+	$content = str_replace("{[AltAddress]}", $order["AltAddress"], $content);
+	$content = str_replace("{[AltZipCode]}", $order["AltZipCode"], $content);
+	$content = str_replace("{[AltCity]}", $order["AltCity"], $content);
+	$content = str_replace("{[DeliveryCompany]}", (($order["AltAddress"] !== "") ? $order["AltCompany"] : $order["Company"]), $content); // Use AltCompany (which is optional) only if AltAddress is set
+	$content = str_replace("{[DeliveryFirstName]}", (($order["AltFirstName"] !== "") ? $order["AltFirstName"] : $order["FirstName"]), $content);
+	$content = str_replace("{[DeliveryLastName]}", (($order["AltLastName"] !== "") ? $order["AltLastName"] : $order["LastName"]), $content);
+	$content = str_replace("{[DeliveryAddress]}", (($order["AltAddress"] !== "") ? $order["AltAddress"] : $order["Address"]), $content);
+	$content = str_replace("{[DeliveryZipCode]}", (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $content);
+	$content = str_replace("{[DeliveryCity]}", (($order["AltCity"] !== "") ? $order["AltCity"] : $order["City"]), $content);
+	$content = str_replace("{[OrderId]}", $order["Id"], $content);
+	$content = str_replace("{[InvoiceId]}", $order["InvoiceId"], $content);
+	$content = str_replace("{[Currency]}", $order["Currency"], $content);
+	$content = str_replace("{[Vat]}", number_format((float)$order["Vat"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
+	$content = str_replace("{[Price]}", number_format((float)$order["Price"] + (float)$order["Vat"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
+	$content = str_replace("{[Weight]}", number_format((float)$order["Weight"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
+	$content = str_replace("{[WeightUnit]}", $order["WeightUnit"], $content);
+	$content = str_replace("{[CostCorrection1]}", number_format((float)$order["CostCorrection1"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
+	$content = str_replace("{[CostCorrectionVat1]}", number_format((float)$order["CostCorrectionVat1"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
+	$content = str_replace("{[CostCorrectionMessage1]}", $order["CostCorrectionMessage1"], $content);
+	$content = str_replace("{[CostCorrection2]}", number_format((float)$order["CostCorrection2"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
+	$content = str_replace("{[CostCorrectionVat2]}", number_format((float)$order["CostCorrectionVat2"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
+	$content = str_replace("{[CostCorrectionMessage2]}", $order["CostCorrectionMessage2"], $content);
+	$content = str_replace("{[CostCorrection3]}", number_format((float)$order["CostCorrection3"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
+	$content = str_replace("{[CostCorrectionVat3]}", number_format((float)$order["CostCorrectionVat3"], 2, $lang->GetTranslation("DecimalSeparator"), ""), $content);
+	$content = str_replace("{[CostCorrectionMessage3]}", $order["CostCorrectionMessage3"], $content);
+	$content = str_replace("{[PaymentMethod]}", $order["PaymentMethod"], $content);
+	$content = str_replace("{[TransactionId]}", $order["TransactionId"], $content);
+	$content = str_replace("{[PromoCode]}", $order["PromoCode"], $content);
+	$content = str_replace("{[CustData1]}", $order["CustData1"], $content);
+	$content = str_replace("{[CustData2]}", $order["CustData2"], $content);
+	$content = str_replace("{[CustData3]}", $order["CustData3"], $content);
+	$content = str_replace("{[OrderYear]}", date("Y", ((int)$order["Time"])/1000), $content);
+	$content = str_replace("{[OrderMonth]}", date("m", ((int)$order["Time"])/1000), $content);
+	$content = str_replace("{[OrderDay]}", date("d", ((int)$order["Time"])/1000), $content);
+	$content = str_replace("{[InvoiceYear]}", date("Y", ((int)$order["InvoiceTime"])/1000), $content);
+	$content = str_replace("{[InvoiceMonth]}", date("m", ((int)$order["InvoiceTime"])/1000), $content);
+	$content = str_replace("{[InvoiceDay]}", date("d", ((int)$order["InvoiceTime"])/1000), $content);
+	$content = str_replace("{[DateYear]}", date("Y"), $content);
+	$content = str_replace("{[DateMonth]}", date("m"), $content);
+	$content = str_replace("{[DateDay]}", date("d"), $content);
+	$content = str_replace("{[OrderDetails]}", $orderDetails, $content); // Can be used to quickly get a simple text list of items purchased - quick and dirty
+	$content = str_replace("{[WebsiteUrl]}", SMEnvironment::GetExternalUrl(), $content);
 	//$content = preg_replace('/{\S+}/', "", $content); // Remove unsupported place holders
 
 	$t = new SMTemplate();
