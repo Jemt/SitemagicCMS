@@ -13,7 +13,6 @@
 	<!-- Basket -->
 	<entry key="Basket" value="Basket" />
 	<entry key="BasketEmpty" value="The shopping basket is empty" />
-	<entry key="BasketUpdated" value="Basket was updated" />
 
 	<!-- Confirmation and Invoice mail -->
 	<entry key="DecimalSeparator" value="." />

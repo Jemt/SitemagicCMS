@@ -445,6 +445,80 @@ JSShop.Presenters.OrderForm = function()
 		restoreValues();
 	}
 
+	this.BindBasket = function(basket) // Used when displaying OrderForm and Basket on the same page
+	{
+		Fit.Validation.ExpectInstance(basket, JSShop.Presenters.Basket);
+
+		// Disable continue button until basket is updated
+
+		cmdContinue.Enabled(false);
+
+		// Update basket with ZipCode and PaymentMethod which may have been restored from cookie store
+
+		basket.ZipCode(((chkAlternativeAddress.Checked() === false) ? txtZipCode.Value() : txtAltZipCode.Value()));
+
+		if (lstPaymentMethod !== null && lstPaymentMethod.GetSelections().length !== 0)
+			basket.PaymentMethod(lstPaymentMethod.GetSelections()[0].Value);
+
+		// Disable Continue button on OrderForm while Basket is reloading which happens when ZipCode, PaymentMethod, or PromoCode is changed.
+		// Display a dialog informing the user that the price has been changed whenever that's the case.
+
+		var prevPricing = null;
+
+		basket.OnUpdate(function(sender)
+		{
+			cmdContinue.Enabled(false);
+		});
+		basket.OnUpdated(function(sender)
+		{
+			if (prevPricing !== null && Fit.Core.IsEqual(prevPricing, basket.GetPricing()) === false)
+			{
+				var focused = Fit.Dom.GetFocused();
+				Fit.Controls.Dialog.Alert(lang.OrderForm.BasketUpdated, function() { focused.focus(); });
+			}
+
+			prevPricing = basket.GetPricing();
+			cmdContinue.Enabled(true);
+		});
+
+		// Refresh Basket when zip code is known - it might be used to calculate shipping expense
+
+		var updateZipCode = function(sender)
+		{
+			if (chkAlternativeAddress.Checked() === false)
+				basket.ZipCode(txtZipCode.Value());
+			else if (txtAltZipCode.Value() !== "")
+				basket.ZipCode(txtAltZipCode.Value());
+		}
+
+		txtZipCode.OnBlur(updateZipCode);
+		txtAltZipCode.OnBlur(updateZipCode);
+		chkAlternativeAddress.OnChange(updateZipCode);
+
+		// Refresh Basket when promotion code is changed
+
+		if (txtPromoCode !== null)
+		{
+			txtPromoCode.OnChange(function(sender)
+			{
+				basket.PromoCode(txtPromoCode.Value());
+			});
+		}
+
+		// Refresh Basket when payment method is changed
+
+		if (lstPaymentMethod !== null)
+		{
+			lstPaymentMethod.OnChange(function(sender)
+			{
+				if (lstPaymentMethod.GetSelections().length === 0)
+					return;
+
+				basket.PaymentMethod(lstPaymentMethod.GetSelections()[0].Value);
+			});
+		}
+	}
+
 	this.GetDomElement = function()
 	{
 		return view;

@@ -13,7 +13,6 @@
 	<!-- Basket -->
 	<entry key="Basket" value="Indkøbskurv" />
 	<entry key="BasketEmpty" value="Indkøbskurven er tom" />
-	<entry key="BasketUpdated" value="Indkøbskurven blev opdateret" />
 
 	<!-- Confirmation and Invoice mail -->
 	<entry key="DecimalSeparator" value="," />
