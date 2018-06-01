@@ -14,6 +14,7 @@ class SMEnvironment
 {
 	private static $masterTemplate = null;
 	private static $formInstance = null;
+	private static $sessionClosed = false;
 
 	public static function Initialize() // Invoked by SMController
 	{
@@ -261,6 +262,22 @@ class SMEnvironment
 		session_start(); // Start session - make $_SESSION available
 	}
 
+	/// <function container="base/SMEnvironment" name="CloseSession" access="public" static="true">
+	/// 	<description>
+	/// 		Closes session. This will prevent additional data from being persisted to session
+	/// 		state, but will allow another concurrent request to be performed from the same session.
+	/// 	</description>
+	/// </function>
+	public static function CloseSession()
+	{
+		// From the PHP manual - http://php.net/manual/en/function.session-write-close.php
+		// "Session data is usually stored after your script terminated without the
+		// need to call session_write_close(), but as session data is locked to prevent
+		// concurrent writes only one script may operate on a session at any time".
+		session_write_close();
+		self::$sessionClosed = true;
+	}
+
 	/// <function container="base/SMEnvironment" name="GetSessionValue" access="public" static="true" returns="object">
 	/// 	<description>
 	/// 		Get session value - returns Null if not found.
@@ -287,6 +304,9 @@ class SMEnvironment
 	// DEPRECATED - use SetSession instead
 	public static function SetSessionValue(SMKeyValue $data)
 	{
+		if (self::$sessionClosed === true)
+			throw new Exception("Session state has been disabled for this request");
+
 		SMLog::LogDeprecation(__CLASS__, __FUNCTION__, __CLASS__, "SetSession");
 		$_SESSION[$data->GetKey()] = $data->GetValue();
 	}
@@ -294,6 +314,9 @@ class SMEnvironment
 	// DEPRECATED - use DestroySession instead
 	public static function DestroySessionValue($key)
 	{
+		if (self::$sessionClosed === true)
+			throw new Exception("Session state has been disabled for this request");
+
 		SMTypeCheck::CheckObject(__METHOD__, "key", $key, SMTypeCheckType::$String);
 		SMLog::LogDeprecation(__CLASS__, __FUNCTION__, __CLASS__, "DestroySession");
 		unset($_SESSION[$key]);
@@ -314,6 +337,9 @@ class SMEnvironment
 		SMTypeCheck::CheckObject(__METHOD__, "key", $key, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "value", $value, SMTypeCheckType::$String);
 
+		if (self::$sessionClosed === true)
+			throw new Exception("Session state has been disabled for this request");
+
 		$_SESSION[$key] = $value;
 	}
 
@@ -324,6 +350,10 @@ class SMEnvironment
 	public static function DestroySession($key) // Replaces DestroySessionValue
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "key", $key, SMTypeCheckType::$String);
+
+		if (self::$sessionClosed === true)
+			throw new Exception("Session state has been disabled for this request");
+
 		unset($_SESSION[$key]);
 	}
 

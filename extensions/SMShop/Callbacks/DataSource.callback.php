@@ -8,6 +8,11 @@ if ($SMCallback !== true)
 	exit;
 }
 
+// Stateless HTTP request!
+// Immediately close session to allow multiple concurrent requests from the same
+// session/browser. Storing data in session state will NOT work from this point on!
+SMEnvironment::CloseSession();
+
 $ip = SMEnvironment::GetEnvironmentValue("REMOTE_ADDR");
 $ip = (($ip !== null) ? $ip : "");
 
@@ -806,7 +811,7 @@ if ($toXmlArchive !== null)
 		// The user triggering Xml Archiving will not be able to load new pages
 		// while the XML Archiving operation is running, unless we "unlock" the session.
 		// But obviously session state will not work properly from this point on !
-		session_write_close();
+		//session_write_close(); // DISABLED, SMEnvironment::CloseSession() is now always called in the beginning of this file
 
 		SMShopXmlArchiving($dataSourcesAllowed[$toXmlArchive]);
 	}
