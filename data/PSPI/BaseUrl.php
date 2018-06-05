@@ -1,1 +1,4 @@
-<?php $smShopPspiBaseUrl = ""; ?>
+<?php
+$smShopPspiBaseUrl = "";
+$smShopPspiEncKey = "";
+?>

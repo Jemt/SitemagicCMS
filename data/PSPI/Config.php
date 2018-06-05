@@ -4,9 +4,10 @@
 // The file is dynamically loaded by PSPI when needed. The code below
 // is used to construct the necessary configuration.
 
-require_once(dirname(__FILE__) . "/BaseUrl.php"); // defines $smShopPspiBaseUrl
+require_once(dirname(__FILE__) . "/BaseUrl.php"); // defines $smShopPspiBaseUrl and $smShopPspiEncKey
 
 $baseUrl = null;
+$encKey = $smShopPspiEncKey;
 
 if (class_exists("SMController") === true && class_exists("SMEnvironment") === true && class_exists("SMTextFileWriter") === true)
 {
@@ -20,9 +21,13 @@ if (class_exists("SMController") === true && class_exists("SMEnvironment") === t
 	{
 		// Update URL in BaseUrl.php to make sure it is current, in case
 		// Sitemagic CMS is moved to a different folder or even a different domain.
+		// EncryptionKey is also updated to make sure two installations do not share
+		// the same key if copied around.
+
+		$encKey = SMRandom::CreateText(SMRandom::CreateNumber(5, 10)) . SMRandom::CreateGuid() . SMRandom::CreateText(SMRandom::CreateNumber(5, 10));
 
 		$writer = new SMTextFileWriter(dirname(__FILE__) . "/BaseUrl.php", SMTextFileWriteMode::$Overwrite);
-		$writer->Write("<?php \$smShopPspiBaseUrl = \"" . $baseUrl . "\"; ?>");
+		$writer->Write("<?php\n\$smShopPspiBaseUrl = \"" . $baseUrl . "\";\n\$smShopPspiEncKey = \"" . $encKey . "\";\n?>");
 		$writer->Close();
 	}
 }
@@ -42,8 +47,8 @@ $config = array
 	"TestMode"			=> true,
 	"LogFile"			=> dirname(__FILE__) . "/../PSPI.log",
 	"LogMode"			=> "Full",
-	"EncryptionKey"		=> "fU7#24d/81LGf-f4dy@y0=-Ir9it2h-78823HK367?_1gu7YW38yHEptG'.218_!IHU8g",
-	"BaseUrl"			=> $baseUrl // "http://domain.com/extensions/SMShop/PSPI"
+	"EncryptionKey"		=> $encKey, // Random string
+	"BaseUrl"			=> $baseUrl // E.g. "http://domain.com/extensions/SMShop/PSPI"
 );
 
 ?>
