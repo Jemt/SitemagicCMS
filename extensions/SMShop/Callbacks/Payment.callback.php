@@ -60,12 +60,34 @@ if ($operation === null) // Step 1: Redirect to payment window
 }
 else if ($operation === "Auth") // Step 2: Handle response from PSP - Callback invoked through PSPI
 {
+	// NOTICE:
+	// This call might stall for 1-10-20-60-120 seconds if XML Archiving is running (depending
+	// on amount of data and processing power of course). Most PSPs need a 200 HTTP response within
+	// a limited amount of time (e.g. 15 seconds), otherwise it might retry the call later. Actually
+	// it doesn't matter if the PSP gives up after some time - it might log an error in the PSP's control
+	// panel, but SMShop have still received the new state, even though the Auth request
+	// timed out on the PSP's server. The request still finishes here.
+	// But we SHOULD make sure any subsequent attempt does not change the state from
+	// e.g. Captured back to Authorized!
+
 	$data = PSP::GetCallbackData(); // Securely obtain data passed to callback
 
 	$transactionId = $data["TransactionId"];	// String
 	$orderId = $data["OrderId"];				// String
 
 	$order = getOrder($orderId);
+
+	if ($order["State"] !== "Initial")
+	{
+		// Skip, order is no longer in Initial state. This may happen if PSP performs this call multiple times,
+		// which may happen if SMShop was not able to return a valid response within a certain amount of time,
+		// last time this call was made, e.g. due to XML Archiving running simultaneously which locks the SMShopOrders
+		// DataSource while running - potentially for a fairly long time. In such case the state is actually updated in
+		// SMShop, but the PSP retries the call after some time. If the order has been captured in the
+		// meantime, we do not want the PSP to change the state from Captured to Authorized again.
+
+		return;
+	}
 
 	$order["TransactionId"] = $transactionId;
 	$order["State"] = "Authorized";
