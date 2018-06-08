@@ -430,16 +430,33 @@ function SMShopXmlArchiving($dsDef)
 
 			foreach ($toCommit as $tc)
 			{
-				$tc->Commit();
+				$tc->Commit(false); // false = do not release lock
 			}
 
-			$state->Commit();
+			$state->Commit(false); // false = do not release lock
 
 			// At this point all DataSources have been committed and it is safe to assume that everything
 			// went well. Remove transaction log which is used to determine whether data is in an inconsistent state.
 
 			$lockSource->Delete();
-			$lockSource->Commit();
+			$lockSource->Commit(false); // false = do not release lock
+		}
+
+		// Release all locks
+
+		$source->Unlock();
+		$archive->Unlock();
+
+		if (isset($dsDef["XmlArchive"]["Relations"]) === true)
+		{
+			foreach ($dsDef["XmlArchive"]["Relations"] as $relation)
+			{
+				$relationSource = new SMDataSource($relation["DataSource"]);
+				$relationArchive = new SMDataSource($relation["DataSource"] . "_archive");
+
+				$relationSource->Unlck();
+				$relationArchive->Unlck();
+			}
 		}
 
 		$state->Unlock();
@@ -545,6 +562,11 @@ function SMShopXmlArchivingEnsureConsistency($dsDef)
 				SMFileSystem::Copy(SMEnvironment::GetDataDirectory() . "/" . $dsName . "_archive.xml.php.backup", SMEnvironment::GetDataDirectory() . "/" . $dsName . "_archive.xml.php", true);
 		}
 
+		// Clear transaction history
+
+		$lockSource->Delete();
+		$lockSource->Commit(false); // false = do not release lock
+
 		// Release locks
 
 		foreach ($sources as $dsName => $ds)
@@ -552,10 +574,7 @@ function SMShopXmlArchivingEnsureConsistency($dsDef)
 			$ds->Unlock();
 		}
 
-		// Clear transaction history
-
-		$lockSource->Delete();
-		$lockSource->Commit();
+		$lockSource->Unlock();
 
 		SMLog::Log(__FILE__, __LINE__, "Restoring SMShop data after failed Xml Archiving: Done");
 	}
