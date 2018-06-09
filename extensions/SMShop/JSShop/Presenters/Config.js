@@ -310,7 +310,7 @@ JSShop.Presenters.Config = function()
 
 		var options = [];
 
-		Fit.Array.Add(options, (!config.MailTemplates.Templates || config.MailTemplates.Templates.length === 0 ? "!" : "") + lang.Config.EmailTemplates);
+		Fit.Array.Add(options, (!config.MailTemplates.Templates || config.MailTemplates.Templates.length === 0 || config.MailTemplates.Templates.length === 2 ? "!" : "") + lang.Config.EmailTemplates);
 
 		for (var i = 0 ; i < 3 ; i++)
 		{
