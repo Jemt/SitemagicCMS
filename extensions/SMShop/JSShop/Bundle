@@ -26,12 +26,21 @@ echo "Fit._internal.Validation.DebugMode = false;" >> JSShopBundle.temp.js
 
 # Minify
 
-curl -X POST -s --data-urlencode "input@JSShopBundle.temp.js" https://javascript-minifier.com/raw > JSShopBundle.js
-rm JSShopBundle.temp.js
+if [[ -x "$(command -v uglifyjs)" ]] ; then
+	echo "Minifying using Uglify"
 
-jssize=$(du -k JSShopBundle.js | cut -f 1)	# Usually about 90-100 KB
-if [[ $jssize -lt 50 ]] ; then
-		echo "Minified JSShopBundle seems too small. Please verify content before proceeding!"
-		echo "Press ENTER to continue."
-		read
+	uglifyjs JSShopBundle.temp.js --output JSShopBundle.js
+	rm JSShopBundle.temp.js
+else
+	echo "Minifying using javascript-minifier.com"
+
+	curl -X POST -s --data-urlencode "input@JSShopBundle.temp.js" https://javascript-minifier.com/raw > JSShopBundle.js
+	rm JSShopBundle.temp.js
+
+	jssize=$(du -k JSShopBundle.js | cut -f 1)	# Usually about 90-100 KB
+	if [[ $jssize -lt 50 ]] ; then
+			echo "Minified JSShopBundle seems too small. Please verify content before proceeding!"
+			echo "Press ENTER to continue."
+			read
+	fi
 fi
