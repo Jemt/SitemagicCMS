@@ -703,7 +703,7 @@ JSShop.Presenters.OrderList = function()
 					curItemHtml = curItemHtml.replace(/{\[Title\]}/g, ((entry.Product !== null) ? entry.Product.Title() : entry.ProductId()));
 					curItemHtml = curItemHtml.replace(/{\[UnitPrice\]}/g, Fit.Math.Format(pricing.UnitPriceInclVat, 2, lang.Locale.DecimalSeparator));
 					curItemHtml = curItemHtml.replace(/{\[DiscountMessage\]}/g, entry.DiscountMessage());
-					curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, ((pricing.DiscountInclVat > 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator) : ""));
+					curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, ((pricing.DiscountInclVat > 0 || pricing.DiscountInclVat < 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator) : ""));
 					curItemHtml = curItemHtml.replace(/{\[Units\]}/g, entry.Units());
 					curItemHtml = curItemHtml.replace(/{\[Currency\]}/g, entry.Currency());
 					curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(pricing.TotalInclVat, 2, lang.Locale.DecimalSeparator));

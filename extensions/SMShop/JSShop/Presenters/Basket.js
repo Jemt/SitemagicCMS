@@ -135,8 +135,8 @@ JSShop.Presenters.Basket = function()
 
 								curItemHtml = curItemHtml.replace(/{\[Title\]}/g, item.Product.Title());
 								curItemHtml = curItemHtml.replace(/{\[UnitPrice\]}/g, Fit.Math.Format(pricing.UnitPriceInclVat, 2, lang.Locale.DecimalSeparator));
-								curItemHtml = curItemHtml.replace(/{\[DiscountMessage\]}/g, ((pricing.DiscountInclVat > 0) ? item.Product.CalculateDiscountMessage(item.Units) : ""));
-								curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, ((pricing.DiscountInclVat > 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator) : ""));
+								curItemHtml = curItemHtml.replace(/{\[DiscountMessage\]}/g, ((pricing.DiscountInclVat > 0 || pricing.DiscountInclVat < 0) ? item.Product.CalculateDiscountMessage(item.Units) : ""));
+								curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, ((pricing.DiscountInclVat > 0 || pricing.DiscountInclVat < 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator) : ""));
 								curItemHtml = curItemHtml.replace(/{\[Units\]}/g, "<div id='JSShopBasketItem" + item.ProductId + "'></div>");
 								curItemHtml = curItemHtml.replace(/{\[Currency\]}/g, item.Product.Currency());
 								curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(pricing.TotalInclVat, 2, lang.Locale.DecimalSeparator));

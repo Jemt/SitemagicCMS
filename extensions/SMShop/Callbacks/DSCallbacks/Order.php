@@ -123,7 +123,7 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 		{
 			$discount = SMShopHandleExpression($config, $entry["Units"], $product["Price"], $product["Vat"], $product["Currency"], $product["Weight"], $product["WeightUnit"], null, null, null, null, null, null, $product["DiscountExpression"], "number");
 
-			if ($discount !== 0 && $product["DiscountMessage"] !== "")
+			if (($discount > 0 || $discount < 0) && $product["DiscountMessage"] !== "")
 			{
 				$discountMessage = SMShopHandleExpression($config, $entry["Units"], $product["Price"], $product["Vat"], $product["Currency"], $product["Weight"], $product["WeightUnit"], null, null, null, null, null, null, $product["DiscountMessage"], "string");
 			}
@@ -131,7 +131,7 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 
 		// Totals
 
-		// Important: Calculations MUST be identical to the onces done client side
+		// Important: Calculations MUST be identical to those done client side
 		// to make sure the results are exactly the same. The code below is based
 		// on the JS code found in JSShop/JSShop.js => JSShop.CalculatePricing(..)
 
