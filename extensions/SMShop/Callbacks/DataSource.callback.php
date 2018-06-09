@@ -50,6 +50,7 @@ $dataSourcesAllowed = array
 			)
 		),
 		"OrderBy"			=> "",		// Required
+		"Sanitize"			=> false,	// Optional, defaults to True if not defined
 		"Fields"			=> array	// Required
 		(
 			// Id field is required.
@@ -81,6 +82,7 @@ $dataSourcesAllowed = array
 		"XmlTimeOut"		=> -1,
 		"XmlMemoryRequired"	=> -1,
 		"OrderBy"			=> "Category ASC, Title ASC",
+		"Sanitize"			=> false, // Do not sanitize - allow HTML in description and expressions where e.g. (X <= Y) would trigger sanitation
 		"Fields"			=> array
 		(
 			"Id"					=> array("DataType" => "string", "MaxLength" => 30*8),
@@ -874,10 +876,13 @@ SMShopXmlArchivingEnsureConsistency($dsDef);
 
 // Sanitize input
 
-foreach ($props as $prop => $val)
+if (isset($dsDef["Sanitize"]) === false || $dsDef["Sanitize"] === true)
 {
-	if ($dsDef["Fields"][$prop]["DataType"] === "string")
-		$props[$prop] = strip_tags($val);
+	foreach ($props as $prop => $val)
+	{
+		if ($dsDef["Fields"][$prop]["DataType"] === "string")
+			$props[$prop] = strip_tags($val);
+	}
 }
 
 // Initialize data source
