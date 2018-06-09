@@ -19,30 +19,43 @@ function SMShopGetConfiguration($pspmHardcodedSettings)
 
 	$path = SMEnvironment::GetDataDirectory() . "/SMShop";
 	$configuration = new SMConfiguration($path . "/Config.xml.php");
+
+	// Load e-mail templates
+
 	$files = SMFileSystem::GetFiles($path);
+	$templateFiles = array();
 
 	$mailTemplates = "";
 	$reader = null;
 	$fileData = null;
+	$title = null;
 	$subject = null;
 	$content = null;
 
-	// Load e-mail templates
+	$lang = new SMLanguageHandler("SMShop");
 
 	foreach ($files as $file)
 	{
 		if (strpos($file, ".html") === strlen($file) - 5)
 		{
-			$reader = new SMTextFileReader($path . "/" . $file);
-			$content = $reader->ReadAll();
-			$fileData = explode("\n", $content);
-
-			$subject = $fileData[0];
-			$content = implode("\n", array_slice($fileData, 1));
-
-			$mailTemplates .= (($mailTemplates !== "") ? ", " : "");
-			$mailTemplates .= '{ "Title": "' . $file . '", "Subject": "' . SMStringUtilities::JsonEncode($subject) . '", "Content": "' . SMStringUtilities::JsonEncode($content) . '" }';
+			$templateFiles[] = $file;
 		}
+	}
+
+	foreach ($templateFiles as $file)
+	{
+		$reader = new SMTextFileReader($path . "/" . $file);
+		$content = $reader->ReadAll();
+		$fileData = explode("\n", $content);
+
+		$title = ((count($templateFiles) === 2) ? $lang->GetTranslation("File:" . $file) : null);
+		$title = (($title !== null) ? $title : $file);
+
+		$subject = $fileData[0];
+		$content = implode("\n", array_slice($fileData, 1));
+
+		$mailTemplates .= (($mailTemplates !== "") ? ", " : "");
+		$mailTemplates .= '{ "Name": "' . $file . '", "Title": "' . $title . '", "Subject": "' . SMStringUtilities::JsonEncode($subject) . '", "Content": "' . SMStringUtilities::JsonEncode($content) . '" }';
 	}
 
 	// Load payment modules and associated settings
@@ -147,6 +160,7 @@ function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 			"Confirmation"	=> array("DataType" => "string"),
 			"Invoice"		=> array("DataType" => "string"),
 			"Templates"		=> array("DataType" => "object[]", "Schema" => array(
+				"Name"			=> array("DataType" => "string"),
 				"Title"			=> array("DataType" => "string"),
 				"Subject"		=> array("DataType" => "string"),
 				"Content"		=> array("DataType" => "string")
@@ -230,7 +244,7 @@ function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 
 	foreach ($data["MailTemplates"]["Templates"] as $mt)
 	{
-		$writer = new SMTextFileWriter($path . "/" . $mt["Title"], SMTextFileWriteMode::$Overwrite);
+		$writer = new SMTextFileWriter($path . "/" . $mt["Name"], SMTextFileWriteMode::$Overwrite);
 		$writer->Write($mt["Subject"] . "\n" . $mt["Content"]);
 	}
 

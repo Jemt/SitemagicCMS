@@ -14,6 +14,10 @@
 	<entry key="Basket" value="Indkøbskurv" />
 	<entry key="BasketEmpty" value="Indkøbskurven er tom" />
 
+	<!-- E-mail templates -->
+	<entry key="File:ConfirmationMail.html" value="Bekræftelses e-mail" />
+	<entry key="File:InvoiceMail.html" value="Faktura e-mail" />
+
 	<!-- Confirmation and Invoice mail -->
 	<entry key="DecimalSeparator" value="," />
 

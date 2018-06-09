@@ -26,8 +26,8 @@ JSShop.Models.Config = function(id)
 			Invoice: "",		// Required - Expression enabled
 			Templates:			// Required - but must be an array if defined and contained objects must define all properties
 			[
-				//{ Title: "Confirmation.html", Subject: "Confirmation", Content: "" },	// Subject and Content may contain place holders
-				//{ Title: "Invoice.html", Subject: "Invoice", Content: "" }			// Subject and Content may contain place holders
+				//{ Name: "Confirmation.html", Title: "Confirmation e-mail", Subject: "Confirmation", Content: "" },	// Subject and Content may contain place holders
+				//{ Name: "Invoice.html", Title: "Invoice e-mail", Subject: "Invoice", Content: "" }					// Subject and Content may contain place holders
 			]
 		},
 		PaymentMethods: // Required array - any contained object must define all properties
@@ -136,6 +136,7 @@ JSShop.Models.Config = function(id)
 
 				Fit.Array.ForEach(props.MailTemplates.Templates, function(t)
 				{
+					Fit.Validation.ExpectString(t.Name);
 					Fit.Validation.ExpectString(t.Title);
 					Fit.Validation.ExpectString(t.Subject);
 					Fit.Validation.ExpectString(t.Content);
