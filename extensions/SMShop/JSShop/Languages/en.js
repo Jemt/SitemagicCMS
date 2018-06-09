@@ -118,6 +118,8 @@
 			StateCanceled:		"Rejected",
 			SelectOrders:		"Please select one or multiple orders",
 			ConfirmAction:		"Please confirm action",
+			Processing:			"Please wait while processing data..",
+			NavigateAway:		"You are about to cancel data processing!",
 			DoneSuccess:		"Done - all orders processed",
 			DoneFailure:		"Done - the following orders failed",
 			Loading:			"Loading, please wait..",

@@ -448,7 +448,7 @@ JSShop.Presenters.OrderList = function()
 
 		var processing = [];
 		var failed = [];
-		var skipped = [];
+		//var skipped = [];
 		var scheduled = 0;
 		var processed = 0;
 
@@ -456,18 +456,24 @@ JSShop.Presenters.OrderList = function()
 		{
 			if ((model.State() === "Captured" && type === "Capture") || (model.State() === "Canceled" && type === "Reject"))
 			{
-				Fit.Array.Add(skipped, model.Id());
+				//Fit.Array.Add(skipped, model.Id());
 				return; // Skip, already in desired state
 			}
 
 			Fit.Array.Add(processing, model);
 		});
 
-		if (skipped.length > 0)
-			Fit.Controls.Dialog.Alert(lang.OrderList.OrdersSkipped + ":<br><br>" + skipped.join(((skipped.length <= 10) ? "<br>" : ", ")));
+		//if (skipped.length > 0)
+		//	Fit.Controls.Dialog.Alert("Skipped:<br><br>" + skipped.join(((skipped.length <= 10) ? "<br>" : ", ")));
 
 		if (processing.length === 0)
 			return;
+
+		var statusDialog = new JSShop.Presenters.StatusDialog();
+		statusDialog.Text(lang.OrderList.Processing);
+		statusDialog.Modal(true);
+		statusDialog.WarnOnExit(true, lang.OrderList.NavigateAway);
+		statusDialog.Open();
 
 		var scheduled = processing.length;
 
@@ -481,6 +487,7 @@ JSShop.Presenters.OrderList = function()
 			method(function(req, m) // Success handler
 			{
 				processed++;
+				statusDialog.Progress(Fit.Math.Round((processed/scheduled) * 100));
 
 				model._presenter.StateElement.innerHTML = getStateTitle(model.State());
 
@@ -488,6 +495,8 @@ JSShop.Presenters.OrderList = function()
 				{
 					if (processed === scheduled) // All responses have been received
 					{
+						statusDialog.Dispose();
+
 						if (failed.length === 0)
 							Fit.Controls.Dialog.Alert(lang.OrderList.DoneSuccess);
 						else
@@ -506,11 +515,15 @@ JSShop.Presenters.OrderList = function()
 				Fit.Array.Add(failed, model.Id());
 
 				processed++;
+				statusDialog.Progress(Fit.Math.Round((processed/scheduled) * 100));
 
 				if (processing.length === 0) // No more requests to be made
 				{
 					if (processed === scheduled) // All responses have been received
+					{
+						statusDialog.Dispose();
 						Fit.Controls.Dialog.Alert(lang.OrderList.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
+					}
 				}
 				else // More requests to be made
 				{
@@ -1102,6 +1115,12 @@ JSShop.Presenters.OrderList = function()
 
 		var scheduled = processing.length;
 
+		var statusDialog = new JSShop.Presenters.StatusDialog();
+		statusDialog.Text(lang.OrderList.Processing);
+		statusDialog.Modal(true);
+		statusDialog.WarnOnExit(true, lang.OrderList.NavigateAway);
+		statusDialog.Open();
+
 		var execute = null;
 		execute = function(model)
 		{
@@ -1110,11 +1129,14 @@ JSShop.Presenters.OrderList = function()
 			model.SendInvoice(function(req, m) // Success handler
 			{
 				processed++;
+				statusDialog.Progress(Fit.Math.Round((processed/scheduled) * 100));
 
 				if (processing.length === 0) // No more requests to be made
 				{
 					if (processed === scheduled) // All responses have been received
 					{
+						statusDialog.Dispose();
+
 						if (failed.length === 0)
 							Fit.Controls.Dialog.Alert(lang.OrderList.DoneSuccess);
 						else
@@ -1142,11 +1164,15 @@ JSShop.Presenters.OrderList = function()
 				Fit.Array.Add(failed, model.Id());
 
 				processed++;
+				statusDialog.Progress(Fit.Math.Round((processed/scheduled) * 100));
 
 				if (processing.length === 0) // No more requests to be made
 				{
 					if (processed === scheduled) // All responses have been received
+					{
+						statusDialog.Dispose();
 						Fit.Controls.Dialog.Alert(lang.OrderList.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
+					}
 				}
 				else // More requests to be made
 				{

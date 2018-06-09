@@ -118,6 +118,8 @@
 			StateCanceled:		"Afvist",
 			SelectOrders:		"Vælg venligst en eller flere ordre",
 			ConfirmAction:		"Bekræft venligst handlingen",
+			Processing:			"Vent venlist mens data behandles..",
+			NavigateAway:		"Du er ved at annullere behandling af data!",
 			DoneSuccess:		"Færdig - alle ordre behandlet",
 			DoneFailure:		"Færdig - følgende ordre fejlede",
 			Loading:			"Indlæser, vent venligst..",

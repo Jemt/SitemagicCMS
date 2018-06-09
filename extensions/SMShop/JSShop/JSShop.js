@@ -314,7 +314,8 @@ JSShop.Initialize = function(cb)
 			{ source: JSShop.GetPath() + "/Presenters/Basket.js?CacheKey=" + cacheKey },
 			{ source: JSShop.GetPath() + "/Presenters/OrderForm.js?CacheKey=" + cacheKey },
 			{ source: JSShop.GetPath() + "/Presenters/OrderList.js?CacheKey=" + cacheKey },
-			{ source: JSShop.GetPath() + "/Presenters/Config.js?CacheKey=" + cacheKey }
+			{ source: JSShop.GetPath() + "/Presenters/Config.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Presenters/StatusDialog.js?CacheKey=" + cacheKey }
 		]
 	}
 	else
