@@ -162,6 +162,9 @@
 			VatExpression:		"VAT expression",
 			MessageExpression:	"Message expression",
 			AdditionalDataJson:	"Additional data (JSON object)",
+			Identifiers:		"Identifiers",
+			NextOrderId:		"Next order number",
+			NextInvoiceId:		"Next invoice number",
 			InvalidJson:		"Invalid JSON object",
 			InvalidExpression:	"Invalid expression"
 		},

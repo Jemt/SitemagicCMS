@@ -101,6 +101,18 @@ function SMShopGetConfiguration($pspmHardcodedSettings)
 		$costCorrections .= '{ "CostCorrection": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("CostCorrection" . $i)) . '", "Vat": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("CostCorrectionVat" . $i)) . '", "Message": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("CostCorrectionMessage" . $i)) . '" }';
 	}
 
+	// Get NextOrderId and NextInvoiceId
+
+	$state = new SMDataSource("SMShopState"); // IMPORTANT: Always lock on this DS when writing data! It contains important data such as NextOrderId and NextInvoiceId! ONLY lock for a very small amount of time - it is constantly being used!
+
+	$items = $state->Select("*", "key = 'NextOrderId'");
+	$nextOrderId = ((count($items) > 0) ? $items[0]["value"] : "1");
+
+	$items = $state->Select("*", "key = 'NextInvoiceId'");
+	$nextInvoiceId = ((count($items) > 0) ? $items[0]["value"] : "1");
+
+	$state = null; // Prevent further use! If we need it to write data, make sure it is locked first!
+
 	// Return data as JSON
 
 	$json = '
@@ -113,7 +125,8 @@ function SMShopGetConfiguration($pspmHardcodedSettings)
 	},
 	"PaymentMethods": [' . $paymentModulesStr . '],
 	"CostCorrections": [ ' . $costCorrections . ' ],
-	"AdditionalData": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("AdditionalData")) . '"';
+	"AdditionalData": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("AdditionalData")) . '",
+	"Identifiers": { "NextOrderId": { "Value": ' . $nextOrderId . ', "Dirty": false }, "NextInvoiceId": { "Value": ' . $nextInvoiceId . ', "Dirty": false } }';
 
 	return "{" . $json . "\n}";
 }
@@ -153,7 +166,17 @@ function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 			"Vat"				=> array("DataType" => "string"),
 			"Message"			=> array("DataType" => "string")
 		)),
-		"AdditionalData"	=> array("DataType" => "string")
+		"AdditionalData"	=> array("DataType" => "string"),
+		"Identifiers"		=> array("DataType" => "object", "Schema" => array(
+			"NextOrderId"		=> array("DataType" => "object", "Schema" => array(
+				"Value"				=> array("DataType" => "number"),
+				"Dirty"				=> array("DataType" => "boolean")
+			)),
+			"NextInvoiceId"		=> array("DataType" => "object", "Schema" => array(
+				"Value"				=> array("DataType" => "number"),
+				"Dirty"				=> array("DataType" => "boolean")
+			))
+		))
 	);
 
 	SMTypeCheck::ValidateObjectArray($data, $dataSchema);
@@ -163,6 +186,34 @@ function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 
 	$path = SMEnvironment::GetDataDirectory() . "/SMShop";
 	$configuration = new SMConfiguration($path . "/Config.xml.php", true);
+
+	if ($data["Identifiers"]["NextOrderId"]["Dirty"] === true || $data["Identifiers"]["NextInvoiceId"]["Dirty"] === true)
+	{
+		$state = new SMDataSource("SMShopState"); // IMPORTANT: Always lock on this DS when writing data! It contains important data such as NextOrderId and NextInvoiceId! ONLY lock for a very small amount of time - it is constantly being used!
+		$state->Lock();
+
+		$update = null;
+
+		if ($data["Identifiers"]["NextOrderId"]["Dirty"] === true)
+		{
+			$update = new SMKeyValueCollection();
+			$update["key"] = "NextOrderId";
+			$update["value"] = (string)$data["Identifiers"]["NextOrderId"]["Value"];
+
+			$state->Update($update, "key = '" . $update["key"] . "'");
+		}
+
+		if ($data["Identifiers"]["NextInvoiceId"]["Dirty"] === true)
+		{
+			$update = new SMKeyValueCollection();
+			$update["key"] = "NextInvoiceId";
+			$update["value"] = (string)$data["Identifiers"]["NextInvoiceId"]["Value"];
+
+			$state->Update($update, "key = '" . $update["key"] . "'");
+		}
+
+		$state->Commit();
+	}
 
 	// Basic
 

@@ -319,6 +319,8 @@ JSShop.Presenters.Config = function()
 
 		Fit.Array.Add(options, (config.CostCorrections.length === 0 ? "!" : "") + lang.Config.AdditionalData);
 
+		Fit.Array.Add(options, lang.Config.Identifiers);
+
 		showOptions(btn, options, function(selectedValue)
 		{
 			loadAdvanced(btn, selectedValue);
@@ -384,6 +386,18 @@ JSShop.Presenters.Config = function()
 					JSShop.Settings.AdditionalData = (val !== "" ? JSON.parse(val) : {});
 				}
 			});
+		}
+		else if (section === lang.Config.Identifiers)
+		{
+			var orgNextOrderId = config.Identifiers.NextOrderId.Value.toString();
+			itm = tpl.Content.Properties.AddItem();
+			itm.PropertyName = lang.Config.NextOrderId;
+			itm.PropertyValue = createInput(orgNextOrderId, function(sender, val) { if (parseInt(val).toString() === val && parseInt(val) > 0 && orgNextOrderId !== val) { config.Identifiers.NextOrderId.Value = parseInt(val); config.Identifiers.NextOrderId.Dirty = true; } else { config.Identifiers.NextOrderId.Value = parseInt(orgNextOrderId); config.Identifiers.NextOrderId.Dirty = false; } });
+
+			var orgNextInvoiceId = config.Identifiers.NextInvoiceId.Value.toString();
+			itm = tpl.Content.Properties.AddItem();
+			itm.PropertyName = lang.Config.NextInvoiceId;
+			itm.PropertyValue = createInput(orgNextInvoiceId, function(sender, val) { if (parseInt(val).toString() === val && parseInt(val) > 0 && orgNextInvoiceId !== val) { config.Identifiers.NextInvoiceId.Value = parseInt(val); config.Identifiers.NextInvoiceId.Dirty = true; } else { config.Identifiers.NextInvoiceId.Value = parseInt(orgNextInvoiceId); config.Identifiers.NextInvoiceId.Dirty = false; } });
 		}
 
 		tpl.Update();

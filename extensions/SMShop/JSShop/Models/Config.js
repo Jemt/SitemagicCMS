@@ -16,27 +16,27 @@ JSShop.Models.Config = function(id)
 
 		Basic: // Required object
 		{
-			TermsPage: "",		// Optional
-			ReceiptPage: "",	// Options
-			ShopBccEmail: ""	// Optional
+			TermsPage: "",		// Required
+			ReceiptPage: "",	// Required
+			ShopBccEmail: ""	// Required
 		},
 		MailTemplates: // Required object
 		{
-			Confirmation: "",	// Optional - Expression enabled
-			Invoice: "",		// Optional - Expression enabled
-			Templates:			// Optional - but must be an array if defined and contained objects must define all properties
+			Confirmation: "",	// Required - Expression enabled
+			Invoice: "",		// Required - Expression enabled
+			Templates:			// Required - but must be an array if defined and contained objects must define all properties
 			[
 				//{ Title: "Confirmation.html", Subject: "Confirmation", Content: "" },	// Subject and Content may contain place holders
 				//{ Title: "Invoice.html", Subject: "Invoice", Content: "" }			// Subject and Content may contain place holders
 			]
 		},
-		PaymentMethods: // Required array - any contained object must define all properties except Settings which is optional
+		PaymentMethods: // Required array - any contained object must define all properties
 		[
 			/*{
 				Module: "DIBS",
 				Title: "Credit Card",
 				Enabled: true,
-				Settings: // Optional - but must be an array if defined and contained objects must define all properties
+				Settings:
 				[
 					{ Title: "Merchant ID", Value: "39461770" },
 					{ Title: "Encryption Key", Value: "JFq9w72d3kh:f-2863@s.3l:l62kjfo-oo_u623467GhS" }
@@ -61,7 +61,17 @@ JSShop.Models.Config = function(id)
 				Message: ""
 			}*/
 		],
-		AdditionalData: "" // Required JSON string (can be empty but must be set like the other outer properties for consistency) - value exposed as JSON object to expression enabled fields as the 'data' variable
+		AdditionalData: "", // Required JSON string (can be empty but must be set like the other outer properties for consistency) - value exposed as JSON object to expression enabled fields as the 'data' variable
+		Identifiers: // Required object, including all contained objects and properties
+		{
+			// Dirty flag is used to tell backend whether to update Value or not.
+			// If Config model was loaded yesterday, 10 orders have been placed since,
+			// and Config model is updated (pushed to backend) today, then NextOrderId would
+			// be updated with an outdated value unless the Dirty flag prevents it by default.
+
+			NextOrderId:	{ Value: 1, Dirty: false },
+			NextInvoiceId:	{ Value: 1, Dirty: false }
+		}
 	};
 
 	function init()
@@ -85,6 +95,7 @@ JSShop.Models.Config = function(id)
 				Fit.Validation.ExpectArray(props.PaymentMethods);
 				Fit.Validation.ExpectArray(props.CostCorrections);
 				Fit.Validation.ExpectString(props.AdditionalData);
+				Fit.Validation.ExpectObject(props.Identifiers);
 
 				// Validate inner properties
 				Fit.Validation.ExpectString(props.Basic.TermsPage);
@@ -93,6 +104,12 @@ JSShop.Models.Config = function(id)
 				Fit.Validation.ExpectString(props.MailTemplates.Confirmation);
 				Fit.Validation.ExpectString(props.MailTemplates.Invoice);
 				Fit.Validation.ExpectArray(props.MailTemplates.Templates);
+				Fit.Validation.ExpectObject(props.Identifiers.NextOrderId);
+				Fit.Validation.ExpectInteger(props.Identifiers.NextOrderId.Value);
+				Fit.Validation.ExpectBoolean(props.Identifiers.NextOrderId.Dirty);
+				Fit.Validation.ExpectObject(props.Identifiers.NextInvoiceId);
+				Fit.Validation.ExpectInteger(props.Identifiers.NextInvoiceId.Value);
+				Fit.Validation.ExpectBoolean(props.Identifiers.NextInvoiceId.Dirty);
 
 				// Validate arrays and contained objects
 
@@ -123,6 +140,16 @@ JSShop.Models.Config = function(id)
 					Fit.Validation.ExpectString(t.Subject);
 					Fit.Validation.ExpectString(t.Content);
 				});
+			}
+			else if (operation === "Update")
+			{
+				var props = me.GetProperties();
+
+				// Always assume NextOrderId and NextInvoiceId is not dirty
+				// to prevent old values from being send to backend in case Config
+				// model is updated multiple times over a period of time.
+				props.Identifiers.NextOrderId.Dirty = false;
+				props.Identifiers.NextInvoiceId.Dirty = false;
 			}
 		})
 	}

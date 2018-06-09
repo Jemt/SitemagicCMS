@@ -162,6 +162,9 @@
 			VatExpression:		"Moms-udtryk",
 			MessageExpression:	"Besked-udtryk",
 			AdditionalDataJson:	"Yderligere data (JSON objekt)",
+			Identifiers:		"Identifikatorer",
+			NextOrderId:		"Næste ordrenummer",
+			NextInvoiceId:		"Næste fakturanummer",
 			InvalidJson:		"Ugyldigt JSON objekt",
 			InvalidExpression:	"Ugyldigt udtryk"
 		},
