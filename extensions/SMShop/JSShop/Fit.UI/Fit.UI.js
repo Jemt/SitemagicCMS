@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 0, Patch: 23 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 0, Patch: 24 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -4847,12 +4847,30 @@ Fit.Events.AddHandler = function()
 
 	// Fire event function for onload event if document in window/iframe has already been loaded.
 	// Notice that no event argument is passed to function since we don't have one.
+	// BE AWARE that contentDocument is replaced when loading another document (URL) within a frame!
+	// Do not register onload on iFrame.contentDocument prior to starting loading content - it will never fire.
+	// Instead register OnLoad on contentDocument afterwards, or register OnLoad on the iFrame element. The latter
+	// will always fire, every time the document is replaced (URL changed / navigation occur).
+	// Also be aware that a frame without a src attribute will always be considered loaded (readyState === "complete")
+	// because it already has a contentDocument ready to be used. Therefore we only immediately fire onload for a
+	// frame that has readyState "complete" IF it also has a src attribute set. If no src attribute is set, we
+	// assume it will be set later, in which case the onload event will fire normally. It simply doesn't make sense to
+	// register an OnLoad handler for a frame that is dynamically populated (which has no src attribute) - it will always be ready ("complete").
 	if (event.toLowerCase() === "load" && element.nodeType === 9 && element.readyState === "complete") // Element is a Document (window.document or iframe.contentDocument)
+	{
 		eventFunction();
-	else if (event.toLowerCase() === "load" && element.contentDocument && element.contentDocument.readyState === "complete") // Element is an iFrame
+	}
+	else if (event.toLowerCase() === "load" && (typeof(element.contentDocument) === "object" && element.contentDocument !== null) && element.src && element.contentDocument.readyState === "complete") // Element is an iFrame
+	{
+		// MSIE 8 requires use of typeof(element.contentDocument) - accessing element.contentDocument without typeof results in an "unspecified error" if
+		// the iFrame is not rooted in DOM. This has been fixed in MSIE 9 where contentDocument on the other hand remains Null until rooted in DOM.
+
 		eventFunction();
+	}
 	else if (event.toLowerCase() === "load" && element === window && Fit._internal.Events.OnReadyFired === true) // Element is the current Window instance
+	{
 		eventFunction();
+	}
 
 	return eventId;
 }
@@ -10587,7 +10605,7 @@ Fit.Controls.DropDown = function(ctlId)
 	var onPasteHandlers = [];					// Invoked when a value is pasted - takes two arguments (sender (this), text value)
 	var onOpenHandlers = [];					// Invoked when drop down is opened - takes one argument (sender (this))
 	var onCloseHandlers = [];					// Invoked when drop down is closed - takes one argument (sender (this))
-
+	
 	function init()
 	{
 		invalidMessage = Fit.Language.Translations.InvalidSelection;
@@ -10825,7 +10843,7 @@ Fit.Controls.DropDown = function(ctlId)
 			if ((rtn.Unit === "%" || rtn.Unit === "em" || rtn.Unit === "rem") && widthObserverId === -1)
 			{
 				var prevWidth = me.GetDomElement().offsetWidth;
-				var moTimeout = null;
+				var moTimeout = -1;
 
 				widthObserverId = Fit.Events.AddMutationObserver(me.GetDomElement(), function(elm)
 				{
@@ -10835,14 +10853,19 @@ Fit.Controls.DropDown = function(ctlId)
 					{
 						prevWidth = newWidth;
 
-						if (moTimeout !== null) // Clear pending optimization
+						if (moTimeout !== -1) // Clear pending optimization
 							clearTimeout(moTimeout);
 
 						// Schedule optimization to prevent too many identical operations
 						// in case observer fires several times almost simultaneously.
 						moTimeout = setTimeout(function()
 						{
-							moTimeout = null;
+							if (me === null)
+							{
+								return; // Control has been disposed
+							}
+
+							moTimeout = -1;
 							optimizeTabOrder();
 						}, 250);
 					}
@@ -11027,14 +11050,21 @@ Fit.Controls.DropDown = function(ctlId)
 		}
 
 		if (widthObserverId !== -1)
+		{
 			Fit.Events.RemoveMutationObserver(widthObserverId);
+		}
+
+		if (tabOrderObserverId !== -1)
+		{
+			Fit.Events.RemoveMutationObserver(tabOrderObserverId);
+		}
 
 		Fit.Array.ForEach(closeHandlers, function(eventId)
 		{
 			Fit.Events.RemoveHandler(document, eventId);
 		});
 
-		me = itemContainer = arrow = hidden = spanFitWidth = txtPrimary = txtCssWidth = txtActive = txtEnabled = dropDownMenu = picker = orgSelections = invalidMessage = initialFocus = maxHeight = prevValue = focusAssigned = visibilityObserverId = widthObserverId = partiallyHidden = closeHandlers = dropZone = isMobile = focusInputOnMobile = onInputChangedHandlers = onPasteHandlers = onOpenHandlers = onCloseHandlers = null;
+		me = itemContainer = arrow = hidden = spanFitWidth = txtPrimary = txtCssWidth = txtActive = txtEnabled = dropDownMenu = picker = orgSelections = invalidMessage = initialFocus = maxHeight = prevValue = focusAssigned = visibilityObserverId = widthObserverId = tabOrderObserverId = partiallyHidden = closeHandlers = dropZone = isMobile = focusInputOnMobile = onInputChangedHandlers = onPasteHandlers = onOpenHandlers = onCloseHandlers = null;
 
 		base();
 	});
@@ -11918,7 +11948,7 @@ Fit.Controls.DropDown = function(ctlId)
 			focusAssigned = false;
 		}
 
-		var timeOutId = null;
+		var timeOutId = -1;
 
 		txt.onkeydown = function(e) // Fires continuously for any key pressed - both characters and e.g backspace/delete/arrows etc. Key press may be canceled (change has not yet occured)
 		{
@@ -12024,14 +12054,23 @@ Fit.Controls.DropDown = function(ctlId)
 				}
 				else
 				{
-					if (timeOutId !== null)
+					if (timeOutId !== -1)
 						clearTimeout(timeOutId);
 
 					// New length is not known when removing characters until OnKeyUp is fired.
 					// We won't wait for that. Instead we calculate the width "once in a while".
 					// Passing txt instance rather than txtActive, as the latter may change before
 					// timeout is reached and delegate is executed.
-					timeOutId = setTimeout(function() { fitWidthToContent(txt); timeOutId = null; }, 50);
+					timeOutId = setTimeout(function()
+					{
+						if (me === null)
+						{
+							return; // Control was disposed shortly after removing characters
+						}
+
+						fitWidthToContent(txt);
+						timeOutId = -1;
+					}, 50);
 				}
 			}
 			else if (ev.keyCode === 46) // Delete - remove selection
@@ -13869,6 +13908,13 @@ Fit.Controls.FilePicker = function(ctlId)
 
 				interval = setInterval(function()
 				{
+					if (me === null)
+					{
+						// Control was disposed while uploading file
+						clearInterval(interval);
+						return;
+					}
+
 					progress = progress + 5;
 					fireEvent(onProgressHandlers, file, progress);
 
@@ -14553,8 +14599,16 @@ Fit.Controls.Input = function(ctlId)
 				}
 				else if (window.CKEDITOR === null)
 				{
-					var iId = setInterval(function()
+					var iId = -1;
+					iId = setInterval(function()
 					{
+						if (me === null)
+						{
+							// Control was disposed while waiting for CKEditor to finish loading
+							clearInterval(iId);
+							return;
+						}
+
 						if (window.CKEDITOR !== null)
 						{
 							clearInterval(iId);
@@ -14596,7 +14650,16 @@ Fit.Controls.Input = function(ctlId)
 		// It seems CKEDITOR is not happy about initializing multiple instances at once.
 		if (CKEDITOR._loading === true)
 		{
-			setTimeout(createEditor, 100);
+			setTimeout(function()
+			{
+				if (me === null)
+				{
+					return; // Control was disposed while waiting for another editor to finish initialization - stop waiting
+				}
+
+				createEditor();
+			}, 100);
+			
 			return;
 		}
 		CKEDITOR._loading = true;
@@ -15999,7 +16062,7 @@ Fit.Controls.TreeView = function(ctlId)
 			}
 		});
 
-		var touchTimeout = null;
+		var touchTimeout = -1;
 		Fit.Events.AddHandler(me.GetDomElement(), "touchstart", function(e)
 		{
 			var target = Fit.Events.GetTarget(e);
@@ -16008,10 +16071,15 @@ Fit.Controls.TreeView = function(ctlId)
 			{
 				touchTimeout = setTimeout(function()
 				{
+					if (me === null)
+					{
+						return; // Control was disposed while holding down finger to trigger ContextMenu (unlikely though)
+					}
+
 					var node = ((target.tagName === "LI") ? target._internal.Node : Fit.Dom.GetParentOfType(target, "li")._internal.Node);
 					openContextMenu(node);
 
-					touchTimeout = null;
+					touchTimeout = -1;
 				}, 500);
 			}
 		});
@@ -16019,10 +16087,10 @@ Fit.Controls.TreeView = function(ctlId)
 		{
 			var elm = Fit.Events.GetTarget(e);
 
-			if (touchTimeout !== null)
+			if (touchTimeout !== -1)
 			{
 				clearTimeout(touchTimeout);
-				touchTimeout = null;
+				touchTimeout = -1;
 			}
 		});
 	}
@@ -16531,6 +16599,11 @@ Fit.Controls.TreeView = function(ctlId)
 		{
 			rootNode.Dispose();
 		});
+
+		if (ctx !== null)
+		{
+			ctx.Hide();
+		}
 
 		me = rootContainer = rootNode = selectable = multiSelect = showSelectAll = selected = selectedOrg = ctx = onContextMenuHandlers = onSelectHandlers = onSelectedHandlers = onToggleHandlers = onToggledHandlers = isPicker = activeNode = isIe8 = null;
 		baseDispose();
