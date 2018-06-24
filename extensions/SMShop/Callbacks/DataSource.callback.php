@@ -214,6 +214,26 @@ $dataSourcesAllowed = array
 			"Discount"				=> array("DataType" => "number", "MaxLength" => 15),
 			"DiscountMessage"		=> array("DataType" => "string", "MaxLength" => 250*8)
 		)
+	),
+	"SMShopTags" => array
+	(
+		"Name"				=> "SMShopTags",
+		"AuthRequired"		=> array("Create", "Retrieve", "Update", "Delete", "RetrieveAll"),
+		"XmlLockRequired"  	=> array("Create", "Update", "Delete"),
+		"OrderBy"			=> "Title ASC",
+		"Fields"			=> array
+		(
+			"Id"					=> array("DataType" => "string", "MaxLength" => 50),
+			"Category"				=> array("DataType" => "string", "MaxLength" => 30*8),
+			"Title"					=> array("DataType" => "string", "MaxLength" => 30*8)
+		),
+		"Callbacks"			=> array(
+			"File"				=> dirname(__FILE__) . "/DSCallbacks/Tags.php",
+			"Functions"			=> array
+			(
+				"Create"				=> "SMShopProcessNewTag" // Receives SMKeyValueCollection item
+			)
+		)
 	)
 );
 
@@ -221,7 +241,8 @@ $dataSourcesAllowed = array
 $modelDataSources = array(
 	"Product"			=> $dataSourcesAllowed["SMShopProducts"],
 	"Order"				=> $dataSourcesAllowed["SMShopOrders"],
-	"OrderEntry"		=> $dataSourcesAllowed["SMShopOrderEntries"]
+	"OrderEntry"		=> $dataSourcesAllowed["SMShopOrderEntries"],
+	"Tag"				=> $dataSourcesAllowed["SMShopTags"]
 );
 
 // ==================================================================

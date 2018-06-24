@@ -187,6 +187,13 @@ CREATE TABLE IF NOT EXISTS SMShopOrderEntries
 	`discountmessage`		text							DEFAULT NULL
 ) ENGINE = InnoDB CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 
+CREATE TABLE IF NOT EXISTS SMShopTags
+(
+	`id`					varchar(255)					DEFAULT NULL,
+	`category`				varchar(240)					DEFAULT NULL,
+	`title`					varchar(240)					DEFAULT NULL
+) ENGINE = InnoDB CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+
 
 /* ================================================================================== */
 /* Upgrade procedures */
