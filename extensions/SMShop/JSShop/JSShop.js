@@ -75,6 +75,11 @@ JSShop.WebService.OrderEntries.Create = null;
 JSShop.WebService.OrderEntries.Retrieve = null;
 JSShop.WebService.OrderEntries.Update = null;
 JSShop.WebService.OrderEntries.Delete = null;
+JSShop.WebService.Tags = {};
+JSShop.WebService.Tags.Create = null;
+JSShop.WebService.Tags.Retrieve = null;
+JSShop.WebService.Tags.Update = null;
+JSShop.WebService.Tags.Delete = null;
 
 // ======================================================
 // Cross model event handlers
@@ -117,6 +122,12 @@ JSShop.Events.OnError = null;
 	// Calculate Base Path - e.g. /libs/jsshop
 	var path = JSShop._internal.BaseUrl.replace("http://", "").replace("https://", "");
 	JSShop._internal.BasePath = path.substring(path.indexOf("/"));
+
+	// Optimize if debug mode is not enabled
+	if (JSShop.Settings.Debug === false)
+	{
+		Fit.Validation.Enabled(false);
+	}
 })();
 
 JSShop.GetUrl = function()
@@ -306,6 +317,7 @@ JSShop.Initialize = function(cb)
 			{ source: JSShop.GetPath() + "/Models/Basket.js?CacheKey=" + cacheKey },
 			{ source: JSShop.GetPath() + "/Models/Order.js?CacheKey=" + cacheKey },
 			{ source: JSShop.GetPath() + "/Models/OrderEntry.js?CacheKey=" + cacheKey },
+			{ source: JSShop.GetPath() + "/Models/Tag.js?CacheKey=" + cacheKey },
 
 			// Load presenters
 			{ source: JSShop.GetPath() + "/Presenters/Base.js?CacheKey=" + cacheKey },
