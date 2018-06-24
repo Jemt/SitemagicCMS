@@ -715,8 +715,8 @@ class SMDataSource implements SMIDataSource
 				// case sensitive name of an attribute from a case insensitive attribute.
 				$orderbyField = $this->getCaseSensitiveAttribute($entry, $orderbyInfo[0]);
 
-				$orderbyValue = (($orderbyField !== null) ? $entry->getAttribute($orderbyField) : null);
-				$orderData[$countOrder][] = (($orderbyValue !== null) ? strtolower($this->decode($orderbyValue)) : null);
+				$orderbyValue = $entry->getAttribute($orderbyField); // Empty string if attribute does not exist
+				$orderData[$countOrder][] = strtolower($this->decode($orderbyValue));
 			}
 		}
 
@@ -781,7 +781,7 @@ class SMDataSource implements SMIDataSource
 			if (strtolower($attr->name) === strtolower($attribute))
 				return $attr->name;
 
-		return null;
+		return $attribute; // Attribute does not exist, return as-is
 	}
 
 	private function limitEntries($entries, $limit, $offset)
