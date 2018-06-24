@@ -4,10 +4,10 @@ Stacking context, Z-index:
 
  - Error indicator			: 500
  - Calendar					: 1000
- - Context menu				: 1000
  - Drop down				: 1000
  - Dialog					: 1200
    - Modal BG layer			: 1100
+ - Context menu				: 1300
  - Dragging					: 99999
 
 */
@@ -3024,7 +3024,7 @@ div.FitUiControlContextMenu.FitUiControlTreeView
 	color: #333333;
 	padding: 10px;
 	position: absolute; /* top/left set using JS */
-	z-index: 1000;
+	z-index: 1300;
 	cursor: pointer; /* Prevent arrow being shown between items (padding) */
 }
 
@@ -3080,7 +3080,7 @@ div.FitUiControlContextMenu.FitUiControlTreeView
 	{
 		display: inline-block;
 		position: absolute;
-		z-index: 1000;
+		z-index: 1300;
 
 		border: 1px solid #A9A9A9;
 		background-color: #FFFFFF;
