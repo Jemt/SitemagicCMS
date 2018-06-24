@@ -45,6 +45,7 @@ JSShop.Models.Order = function(orderId)
 		PaymentMethod: "",					// string
 		TransactionId: "",					// string
 		State: "",							// string (Initial | Authorized | Captured | Canceled)
+		TagIds: "",							// string
 		PromoCode: "",						// string
 		CustData1: "",						// string
 		CustData2: "",						// string

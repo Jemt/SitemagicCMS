@@ -164,6 +164,7 @@ $dataSourcesAllowed = array
 			"PaymentMethod"			=> array("DataType" => "string", "MaxLength" => 50),
 			"TransactionId"			=> array("DataType" => "string", "MaxLength" => 100),
 			"State"					=> array("DataType" => "string", "MaxLength" => 20),
+			"TagIds"				=> array("DataType" => "string", "MaxLength" => 255),
 			"PromoCode"				=> array("DataType" => "string", "MaxLength" => 30*8),
 			"CustData1"				=> array("DataType" => "string", "MaxLength" => 250*8),
 			"CustData2"				=> array("DataType" => "string", "MaxLength" => 250*8),

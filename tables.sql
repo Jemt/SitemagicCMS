@@ -166,6 +166,7 @@ CREATE TABLE IF NOT EXISTS SMShopOrders
 	`paymentmethod`			varchar(50)						DEFAULT NULL,
 	`transactionid`			varchar(100)					DEFAULT NULL,
 	`state`					varchar(20)						DEFAULT NULL,
+	`tagids`				varchar(255)					DEFAULT NULL,
 	`promocode`				varchar(240)					DEFAULT NULL,
 	`custdata1`				text							DEFAULT NULL,
 	`custdata2`				text							DEFAULT NULL,
