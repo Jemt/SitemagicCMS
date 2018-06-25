@@ -225,7 +225,8 @@ $dataSourcesAllowed = array
 		"Fields"			=> array
 		(
 			"Id"					=> array("DataType" => "string", "MaxLength" => 50),
-			"Category"				=> array("DataType" => "string", "MaxLength" => 30*8),
+			"Type"					=> array("DataType" => "string", "MaxLength" => 50),
+			"ParentId"				=> array("DataType" => "string", "MaxLength" => 50),
 			"Title"					=> array("DataType" => "string", "MaxLength" => 30*8)
 		),
 		"Callbacks"			=> array(

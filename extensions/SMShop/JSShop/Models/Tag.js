@@ -11,7 +11,7 @@ JSShop.Models.Tag = function(tagId)
 	var properties =
 	{
 		Id: tagId,				// string
-		Category: "",			// string
+		Type: "",				// string
 		Title: ""				// string
 	};
 
@@ -46,12 +46,12 @@ JSShop.Models.Tag = function(tagId)
 
 	init();
 }
-JSShop.Models.Tag.RetrieveAll = function(category, cbSuccess, cbFailure)
+JSShop.Models.Tag.RetrieveAll = function(type, cbSuccess, cbFailure)
 {
-	Fit.Validation.ExpectString(category);
+	Fit.Validation.ExpectString(type);
 	Fit.Validation.ExpectFunction(cbSuccess);
 	Fit.Validation.ExpectFunction(cbFailure, true);
 
-	var match = [[{ Field: "Category", Operator: "=", Value: category }]]; // Multi dimensional: [ [match1 AND match2] OR [matchA AND matchB] OR ... ]
+	var match = [[{ Field: "Type", Operator: "=", Value: type }]]; // Multi dimensional: [ [match1 AND match2] OR [matchA AND matchB] OR ... ]
 	JSShop.Models.Base.RetrieveAll(JSShop.Models.Tag, "Id", match, cbSuccess, cbFailure);
 }

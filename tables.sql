@@ -190,8 +190,9 @@ CREATE TABLE IF NOT EXISTS SMShopOrderEntries
 
 CREATE TABLE IF NOT EXISTS SMShopTags
 (
-	`id`					varchar(255)					DEFAULT NULL,
-	`category`				varchar(240)					DEFAULT NULL,
+	`id`					varchar(50)						DEFAULT NULL,
+	`type`					varchar(50)						DEFAULT NULL,
+	`parentid`				varchar(50)						DEFAULT NULL,
 	`title`					varchar(240)					DEFAULT NULL
 ) ENGINE = InnoDB CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 
