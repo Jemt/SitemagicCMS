@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 0, Patch: 29 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 0, Patch: 37 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -2216,7 +2216,7 @@ Fit.Controls.ControlBase = function(controlId)
 
 	/// <function container="Fit.Controls.ControlBase" name="SetValidationExpression" access="public">
 	/// 	<description> Set regular expression used to perform on-the-fly validation against control value </description>
-	/// 	<param name="regEx" type="RegExp"> Regular expression to validate against </param>
+	/// 	<param name="regEx" type="RegExp" nullable="true"> Regular expression to validate against </param>
 	/// 	<param name="errorMsg" type="string" default="undefined">
 	/// 		If defined, specified error message is displayed when user clicks or hovers validation error indicator
 	/// 	</param>
@@ -2234,7 +2234,7 @@ Fit.Controls.ControlBase = function(controlId)
 
 	/// <function container="Fit.Controls.ControlBase" name="SetValidationCallback" access="public">
 	/// 	<description> Set callback function used to perform on-the-fly validation against control value </description>
-	/// 	<param name="cb" type="function"> Function receiving control value - must return True if value is valid, otherwise False </param>
+	/// 	<param name="cb" type="function" nullable="true"> Function receiving control value - must return True if value is valid, otherwise False </param>
 	/// 	<param name="errorMsg" type="string" default="undefined">
 	/// 		If defined, specified error message is displayed when user clicks or hovers validation error indicator
 	/// 	</param>
@@ -6038,7 +6038,7 @@ Fit.Http.Request = function(uri)
 	}
 }
 
-/// <container name="Fit.Http.JsonRequest">
+/// <container name="Fit.Http.JsonRequest" extends="Fit.Http.Request">
 /// 	Asynchronous HTTP request functionality (AJAX/WebService)
 /// 	optimized for exchanging data with the server in JSON format.
 /// 	Extending from Fit.Http.Request.
@@ -10335,6 +10335,10 @@ Fit.Controls.Dialog = function()
 	var modal = false;
 	var layer = null;
 
+	var width = null;
+	var minWidth = null;
+	var maxWidth = null;
+
 	// ============================================
 	// Init
 	// ============================================
@@ -10407,6 +10411,116 @@ Fit.Controls.Dialog = function()
 	// ============================================
 	// Public
 	// ============================================
+
+	/// <function container="Fit.Controls.Dialog" name="Width" access="public" returns="object">
+	/// 	<description> Get/set dialog width - returns object with Value and Unit properties </description>
+	/// 	<param name="val" type="number" default="undefined"> If defined, dialog width is updated to specified value. A value of -1 resets width (auto sizing). </param>
+	/// 	<param name="unit" type="string" default="px"> If defined, dialog width is updated to specified CSS unit </param>
+	/// </function>
+	this.Width = function(val, unit)
+	{
+		Fit.Validation.ExpectNumber(val, true);
+		Fit.Validation.ExpectStringValue(unit, true);
+
+		// defaultValue must match width (for both modern browsers and legacy IE) in Dialog.css
+		var defaultValue = (Fit.Browser.GetInfo().Name !== "MSIE" || Fit.Browser.GetInfo().Version >= 9 ? { Value: -1, Unit: "px" } : { Value: 50, Unit: "%" });
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (val > -1)
+			{
+				width = { Value: val, Unit: ((Fit.Validation.IsSet(unit) === true) ? unit : "px") };
+				dialog.style.width = width.Value + width.Unit;
+
+				if (minWidth === null)
+				{
+					dialog.style.minWidth = "0";
+				}
+
+				if (maxWidth === null)
+				{
+					dialog.style.maxWidth = "none";
+				}
+			}
+			else
+			{
+				width = null;
+				dialog.style.width = "";
+
+				if (minWidth === null)
+				{
+					dialog.style.minWidth = "";
+				}
+
+				if (maxWidth === null)
+				{
+					dialog.style.maxWidth = "";
+				}
+			}
+		}
+
+		return (width !== null ? width : defaultValue);
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="MinimumWidth" access="public" returns="object">
+	/// 	<description> Get/set dialog minimum width - returns object with Value and Unit properties </description>
+	/// 	<param name="val" type="number" default="undefined"> If defined, dialog minimum width is updated to specified value. A value of -1 resets minimum width. </param>
+	/// 	<param name="unit" type="string" default="px"> If defined, dialog minimum width is updated to specified CSS unit </param>
+	/// </function>
+	this.MinimumWidth = function(val, unit)
+	{
+		Fit.Validation.ExpectNumber(val, true);
+		Fit.Validation.ExpectStringValue(unit, true);
+
+		// defaultValue must match min-width in Dialog.css
+		var defaultValue = { Value: 280, Unit: "px" };
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (val > -1)
+			{
+				minWidth = { Value: val, Unit: ((Fit.Validation.IsSet(unit) === true) ? unit : "px") };
+				dialog.style.minWidth = minWidth.Value + minWidth.Unit;
+			}
+			else
+			{
+				minWidth = null;
+				dialog.style.minWidth = (width !== null ? "0" : ""); // Apply "0" (no min-width) if width is set
+			}
+		}
+
+		return (minWidth !== null ? minWidth : (width !== null ? width : defaultValue));
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="MaximumWidth" access="public" returns="object">
+	/// 	<description> Get/set dialog maximum width - returns object with Value and Unit properties </description>
+	/// 	<param name="val" type="number" default="undefined"> If defined, dialog maximum width is updated to specified value. A value of -1 resets maximum width. </param>
+	/// 	<param name="unit" type="string" default="px"> If defined, dialog maximum width is updated to specified CSS unit </param>
+	/// </function>
+	this.MaximumWidth = function(val, unit)
+	{
+		Fit.Validation.ExpectNumber(val, true);
+		Fit.Validation.ExpectStringValue(unit, true);
+
+		// defaultValue must match max-width in Dialog.css
+		var defaultValue = { Value: 800, Unit: "px" };
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (val > -1)
+			{
+				maxWidth = { Value: val, Unit: ((Fit.Validation.IsSet(unit) === true) ? unit : "px") };
+				dialog.style.maxWidth = maxWidth.Value + maxWidth.Unit;
+			}
+			else
+			{
+				maxWidth = null;
+				dialog.style.maxWidth = (width !== null ? "none" : ""); // Apply "none" (no max-width) if width is set
+			}
+		}
+
+		return (maxWidth !== null ? maxWidth : (width !== null ? width : defaultValue));
+	}
 
 	/// <function container="Fit.Controls.Dialog" name="Modal" access="public" returns="boolean">
 	/// 	<description> Get/set value indicating whether dialog is modal or not </description>
@@ -11123,7 +11237,7 @@ Fit.Controls.DropDown = function(ctlId)
 
 	/// <function container="Fit.Controls.DropDown" name="SetPicker" access="public">
 	/// 	<description> Set picker control used to add items to drop down control </description>
-	/// 	<param name="pickerControl" type="Fit.Controls.PickerBase"> Picker control extending from PickerBase </param>
+	/// 	<param name="pickerControl" type="Fit.Controls.PickerBase" nullable="true"> Picker control extending from PickerBase </param>
 	/// </function>
 	this.SetPicker = function(pickerControl)
 	{
@@ -16422,7 +16536,7 @@ Fit.Controls.TreeView = function(ctlId)
 
 	/// <function container="Fit.Controls.TreeView" name="ContextMenu" access="public" returns="Fit.Controls.ContextMenu">
 	/// 	<description> Get/set instance of ContextMenu control triggered when right clicking nodes in TreeView </description>
-	/// 	<param name="contextMenu" type="Fit.Controls.ContextMenu" default="undefined"> If defined, assignes ContextMenu control to TreeView </param>
+	/// 	<param name="contextMenu" type="Fit.Controls.ContextMenu" nullable="true"> If defined, assignes ContextMenu control to TreeView </param>
 	/// </function>
 	this.ContextMenu = function(contextMenu)
 	{
@@ -16621,7 +16735,7 @@ Fit.Controls.TreeView = function(ctlId)
 
 		if (ctx !== null)
 		{
-			ctx.Hide();
+			ctx.Dispose(); //ctx.Hide();
 		}
 
 		me = rootContainer = rootNode = selectable = multiSelect = showSelectAll = selected = selectedOrg = ctx = onContextMenuHandlers = onSelectHandlers = onSelectedHandlers = onToggleHandlers = onToggledHandlers = isPicker = activeNode = isIe8 = null;
