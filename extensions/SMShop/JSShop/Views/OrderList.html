@@ -1,20 +1,31 @@
-<div id="JSShopOrderListButtons"></div>
+<div class="JSShopOrderListButtons">
+	{[ToolbarFromDateField]}
+	{[ToolbarToDateField]}
+	{[ToolbarSearchField]}
+	{[ToolbarUpdateButton]}
+	{[ToolbarExportButton]}
+	{[ToolbarInvoiceButton]}
+	{[ToolbarCaptureButton]}
+	{[ToolbarRejectButton]}
+	{[ToolbarConfigButton]}
+</div>
 
 <table class="JSShopOrderList">
 	<tr class="JSShopOrderListHeader">
-		<td id="JSShop-Select" style="width: 25px; padding-right: 0em"></td>
-		<td id="JSShop-OrderId"></td>
-		<td id="JSShop-Time"></td>
-		<td id="JSShop-Customer"></td>
-		<td id="JSShop-Currency" style="width: 1px; padding-right: 0.5em;"></td>
-		<td id="JSShop-Amount" style="text-align: right"></td>
-		<td id="JSShop-PaymentMethod"></td>
-		<td id="JSShop-State"></td>
-		<td id="JSShop-InvoiceId"></td>
+		<td style="width: 25px; padding-right: 0em">{[HeaderSelectAll]}</td>
+		<td>{[HeaderOrderId]}</td>
+		<td>{[HeaderTime]}</td>
+		<td>{[HeaderCustomer]}</td>
+		<td style="width: 1px; padding-right: 0.5em;">&nbsp;</td>
+		<td style="text-align: right">{[HeaderAmount]}</td>
+		<td>{[HeaderPaymentMethod]}</td>
+		<td>{[HeaderState]}</td>
+		<td>{[HeaderInvoiceId]}</td>
 	</tr>
 
-	<tr id="JSShopOrderEntry">
-		<td style="width: 25px; padding-right: 0em">{[CheckBox]}</td>
+	<!-- LIST Orders -->
+	<tr>
+		<td style="width: 25px; padding-right: 0em">{[Select]}</td>
 		<td>{[OrderId]}</td>
 		<td>{[Time]}</td>
 		<td>{[Customer]}</td>
@@ -24,4 +35,5 @@
 		<td>{[State]}</td>
 		<td>{[InvoiceId]}</td>
 	</tr>
+	<!-- /LIST Orders -->
 </table>

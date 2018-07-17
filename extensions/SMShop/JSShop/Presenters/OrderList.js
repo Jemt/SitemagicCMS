@@ -5,13 +5,10 @@ JSShop.Presenters.OrderList = function()
 {
 	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
 
+	var dom = null;
 	var view = null;
 	var models = [];
 	var lang = JSShop.Language.Translations;
-
-	var orderEntryTemplate = null;
-	var entriesParent = null
-	var entriesIndex = -1;
 
 	var process = [];
 
@@ -27,177 +24,35 @@ JSShop.Presenters.OrderList = function()
 	var cmdConfig = null;
 	var chkSelectAll = null;
 
-	view = document.createElement("div");
-
 	function init()
 	{
-		// Load view
+		dom = document.createElement("div");
 
-		var loadData = function(cb)
+		loadView(function()
 		{
-			Fit.Validation.ExpectFunction(cb, true);
+			loadData();
+			populateToolbarAndColumnsToView();
+		});
 
-			Fit.Array.ForEach(models, function(model)
-			{
-				model._presenter.CheckBox.Dispose();
-			});
+		createControls();
+	}
 
-			chkSelectAll.Checked(false);
+	this.GetDomElement = function()
+	{
+		return dom;
+	}
 
-			var oldModels = models;
+	//#region Initialization helpers (data and view)
 
-			models = [];
-			process = [];
-
-			if (document.querySelector("link[href*='/Views/OrderList.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
-				Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
-
-			var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderList.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
-			req.OnSuccess(function(sender)
-			{
-				var initialLoad = (view.innerHTML === "");
-
-				if (initialLoad === true)
-				{
-					view.innerHTML = req.GetResponseText();
-
-					txtFrom.Render(view.querySelector("#JSShopOrderListButtons"));
-					txtTo.Render(view.querySelector("#JSShopOrderListButtons"));
-					txtSearch.Render(view.querySelector("#JSShopOrderListButtons"));
-					cmdUpdate.Render(view.querySelector("#JSShopOrderListButtons"));
-
-					cmdExport.Render(view.querySelector("#JSShopOrderListButtons"));
-					cmdInvoice.Render(view.querySelector("#JSShopOrderListButtons"));
-
-					if (cmdCapture !== null)
-						cmdCapture.Render(view.querySelector("#JSShopOrderListButtons"));
-
-					if (cmdReject !== null)
-						cmdReject.Render(view.querySelector("#JSShopOrderListButtons"));
-
-					if (cmdConfig !== null)
-						cmdConfig.Render(view.querySelector("#JSShopOrderListButtons"));
-
-					Fit.Dom.Add(view.querySelector("#JSShop-Select"), chkSelectAll.GetDomElement());
-					Fit.Dom.Add(view.querySelector("#JSShop-OrderId"), document.createTextNode(lang.OrderList.OrderId));
-					Fit.Dom.Add(view.querySelector("#JSShop-Time"), document.createTextNode(lang.OrderList.Time));
-					Fit.Dom.Add(view.querySelector("#JSShop-Customer"), document.createTextNode(lang.OrderList.Customer));
-					Fit.Dom.Add(view.querySelector("#JSShop-Amount"), document.createTextNode(lang.OrderList.Amount));
-					Fit.Dom.Add(view.querySelector("#JSShop-PaymentMethod"), document.createTextNode(lang.OrderList.PaymentMethod));
-					Fit.Dom.Add(view.querySelector("#JSShop-State"), document.createTextNode(lang.OrderList.State));
-					Fit.Dom.Add(view.querySelector("#JSShop-InvoiceId"), document.createTextNode(lang.OrderList.InvoiceId));
-
-					orderEntryTemplate = view.querySelector("#JSShopOrderEntry");
-					Fit.Dom.Attribute(orderEntryTemplate, "id", null);
-					entriesParent = orderEntryTemplate.parentElement;
-					entriesIndex = Fit.Dom.GetIndex(orderEntryTemplate);
-
-					Fit.Dom.Remove(orderEntryTemplate);
-				}
-
-				// Remove any previous loaded entries
-
-				Fit.Array.ForEach(oldModels, function(model)
-				{
-					Fit.Dom.Remove(model._presenter.DomElement);
-				});
-
-				var from = Fit.Date.Parse(txtFrom.Value() + " 00:00:00", lang.Locale.DateFormat + " hh:mm:ss").getTime();
-				var to = Fit.Date.Parse(txtTo.Value() + " 23:59:59", lang.Locale.DateFormat + " hh:mm:ss").getTime();
-
-				JSShop.Models.Order.RetrieveAll(txtSearch.Value(), from, to, function(request, mdls)
-				{
-					models = mdls;
-
-					var previousEntry = null;
-
-					Fit.Array.ForEach(models, function(model)
-					{
-						var entryHtml = orderEntryTemplate.outerHTML;
-
-						entryHtml = entryHtml.replace(/{\[CheckBox\]}/g, "<div id='JSShopOrderCheckBox" + model.Id() + "'></div>");
-						entryHtml = entryHtml.replace(/{\[OrderId\]}/g, model.Id());
-						entryHtml = entryHtml.replace(/{\[Time\]}/g, Fit.Date.Format(new Date(model.Time()), lang.Locale.DateFormat + " " + lang.Locale.TimeFormat));
-						entryHtml = entryHtml.replace(/{\[Customer\]}/g, "<div id='JSShopCustomerDetails" + model.Id() + "'></div>");
-						entryHtml = entryHtml.replace(/{\[Currency\]}/g, model.Currency());
-						entryHtml = entryHtml.replace(/{\[Amount\]}/g, "<div id='JSShopOrderEntries" + model.Id() + "'></div>");
-						entryHtml = entryHtml.replace(/{\[State\]}/g, "<span id='JSShopOrderState" + model.Id() + "'></span>");
-						entryHtml = entryHtml.replace(/{\[InvoiceId\]}/g, "<span id='JSShopOrderInvoice" + model.Id() + "'></span>");
-						entryHtml = entryHtml.replace(/{\[PaymentMethod\]}/g, model.PaymentMethod());
-
-						var entry = Fit.Dom.CreateElement(entryHtml);
-
-						if (previousEntry === null)
-						{
-							Fit.Dom.InsertAt(entriesParent, entriesIndex, entry);
-						}
-						else
-						{
-							Fit.Dom.InsertAfter(previousEntry, entry);
-						}
-
-						previousEntry = entry;
-
-						var chk = new Fit.Controls.CheckBox("JSShopOrder" + model.Id());
-						chk.OnChange(function(sender)
-						{
-							if (chk.Checked() === true)
-								Fit.Array.Add(process, model);
-							else
-								Fit.Array.Remove(process, model);
-
-							if (chk.Focused() === true)
-								updateSelectAll();
-						});
-						Fit.Dom.Replace(entry.querySelector("#JSShopOrderCheckBox" + model.Id()), chk.GetDomElement());
-
-						var lnkCustomerDetails = document.createElement("a");
-						lnkCustomerDetails.href = "javascript:";
-						lnkCustomerDetails.onclick = function(e)
-						{
-							displayCustomerDetails(model);
-						}
-						lnkCustomerDetails.innerHTML = model.FirstName() + " " + model.LastName();
-						Fit.Dom.Replace(entry.querySelector("#JSShopCustomerDetails" + model.Id()), lnkCustomerDetails);
-
-						var lnkOrderEntries = document.createElement("a");
-						lnkOrderEntries.href = "javascript:";
-						lnkOrderEntries.onclick = function(e)
-						{
-							displayOrderEntries(model);
-						}
-						lnkOrderEntries.innerHTML = Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator);
-						Fit.Dom.Replace(entry.querySelector("#JSShopOrderEntries" + model.Id()), lnkOrderEntries);
-
-						var stateElm = document.createElement("span");
-						stateElm.innerHTML = getStateTitle(model.State());
-						Fit.Dom.Replace(entry.querySelector("#JSShopOrderState" + model.Id()), stateElm);
-
-						var invoiceElm = document.createElement("span");
-						invoiceElm.innerHTML = model.InvoiceId();
-						Fit.Dom.Replace(entry.querySelector("#JSShopOrderInvoice" + model.Id()), invoiceElm);
-
-						model._presenter = {};
-						model._presenter.StateElement = stateElm;
-						model._presenter.InvoiceElement = invoiceElm;
-						model._presenter.CheckBox = chk;
-						model._presenter.DomElement = entry;
-					});
-
-					if (cb)
-						cb();
-				});
-			});
-			req.Start();
-		}
-
+	function createControls()
+	{
 		txtSearch = new Fit.Controls.Input("JSShopSearch");
 		txtSearch.Width(120);
 		txtSearch.GetDomElement().title = lang.OrderList.Search;
 		txtSearch.Placeholder(lang.OrderList.Search + "..");
 
-		var now = new Date();
-		var yesterday = new Date(((new Date()).setDate(now.getDate() - 1)));
+		//var now = new Date();
+		//var yesterday = new Date(((new Date()).setDate(now.getDate() - 1)));
 
 		txtFrom = new Fit.Controls.Input("JSShopFromDate");
 		txtFrom.Required(true);
@@ -270,7 +125,6 @@ JSShop.Presenters.OrderList = function()
 		cmdUpdate = new Fit.Controls.Button("JSShopUpdateButton");
 		cmdUpdate.Icon("fa-refresh");
 		cmdUpdate.Type(Fit.Controls.Button.Type.Primary);
-		cmdUpdate.Enabled(false); // Will be automatically enabled when initial data is loaded
 		cmdUpdate.OnClick(function(sender)
 		{
 			cmdUpdate.Enabled(false);
@@ -412,19 +266,155 @@ JSShop.Presenters.OrderList = function()
 			{
 				Fit.Array.ForEach(models, function(model)
 				{
-					if (model._presenter.DomElement.style.display !== "none")
-						model._presenter.CheckBox.Checked(chkSelectAll.Checked());
+					model._presenter.checkBox.Checked(chkSelectAll.Checked());
 				});
 			}
 		});
-
-		loadData(function() { cmdUpdate.Enabled(true); });
 	}
 
-	this.GetDomElement = function()
+	function loadView(onComplete)
 	{
-		return view;
+		Fit.Validation.ExpectFunction(onComplete);
+
+		if (document.querySelector("link[href*='/Views/OrderList.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+
+		var tpl = new Fit.Template(true);
+		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
+		{
+			view = sender;
+			onComplete();
+		});
+		tpl.Render(dom);
 	}
+
+	function loadData(onComplete) // This function can be called multiple times - use it to reload data
+	{
+		Fit.Validation.ExpectFunction(onComplete, true);
+
+		cmdUpdate.Enabled(false); // Will be enabled again when data is done loading
+
+		var oldModels = models;
+		models = [];
+		process = [];
+
+		var from = Fit.Date.Parse(txtFrom.Value() + " 00:00:00", lang.Locale.DateFormat + " hh:mm:ss").getTime();
+		var to = Fit.Date.Parse(txtTo.Value() + " 23:59:59", lang.Locale.DateFormat + " hh:mm:ss").getTime();
+
+		loadOrderModels(txtSearch.Value(), from, to, function()
+		{
+			Fit.Array.ForEach(oldModels, function(model)
+			{
+				if (model._presenter)
+				{
+					model._presenter.checkBox.Dispose();
+				}
+			});
+
+			populateOrderDataToView();
+
+			cmdUpdate.Enabled(true);
+
+			if (onComplete)
+			{
+				onComplete();
+			}
+		});
+	}
+
+	function loadOrderModels(search, fromTimeStamp, toTimeStamp, onComplete)
+	{
+		Fit.Validation.ExpectString(search);
+		Fit.Validation.ExpectInteger(fromTimeStamp);
+		Fit.Validation.ExpectInteger(toTimeStamp);
+		Fit.Validation.ExpectFunction(onComplete);
+
+		JSShop.Models.Order.RetrieveAll(search, fromTimeStamp, toTimeStamp, function(req, modelInstances)
+		{
+			models = modelInstances;
+			onComplete();
+		} );
+	}
+
+	function populateToolbarAndColumnsToView()
+	{
+		view.Content.ToolbarFromDateField = txtFrom.GetDomElement();
+		view.Content.ToolbarToDateField = txtTo.GetDomElement();
+		view.Content.ToolbarSearchField = txtSearch.GetDomElement();
+		view.Content.ToolbarUpdateButton = cmdUpdate.GetDomElement();
+		view.Content.ToolbarExportButton = cmdExport.GetDomElement();
+		view.Content.ToolbarInvoiceButton = cmdInvoice.GetDomElement();
+		view.Content.ToolbarCaptureButton = cmdCapture.GetDomElement();
+		view.Content.ToolbarRejectButton = cmdReject.GetDomElement();
+		view.Content.ToolbarConfigButton = cmdConfig.GetDomElement();
+
+		view.Content.HeaderSelectAll = chkSelectAll.GetDomElement();
+		view.Content.HeaderHeaderOrderId = lang.OrderList.OrderId;
+		view.Content.HeaderTime = lang.OrderList.Time;
+		view.Content.HeaderCustomer = lang.OrderList.Customer;
+		view.Content.HeaderAmount = lang.OrderList.Amount;
+		view.Content.HeaderPaymentMethod = lang.OrderList.PaymentMethod;
+		view.Content.HeaderState = lang.OrderList.State;
+		view.Content.HeaderInvoiceId = lang.OrderList.InvoiceId;
+	}
+
+	function populateOrderDataToView()
+	{
+		view.Content.Orders.Clear();
+		chkSelectAll.Checked(false);
+
+		Fit.Array.ForEach(models, function(model)
+		{
+			model._presenter = {};
+
+			model._presenter.checkBox = new Fit.Controls.CheckBox("JSShopOrder" + model.Id());
+			model._presenter.checkBox.OnChange(function(sender)
+			{
+				if (sender.Checked() === true)
+					Fit.Array.Add(process, model);
+				else
+					Fit.Array.Remove(process, model);
+
+				if (sender.Focused() === true)
+					updateSelectAll();
+			});
+
+			model._presenter.lnkCustomerDetails = document.createElement("a");
+			model._presenter.lnkCustomerDetails.href = "javascript:";
+			model._presenter.lnkCustomerDetails.onclick = function(e)
+			{
+				displayCustomerDetails(model);
+			}
+			model._presenter.lnkCustomerDetails.innerHTML = model.FirstName() + " " + model.LastName();
+
+			model._presenter.lnkAmountWithDetails = document.createElement("a");
+			model._presenter.lnkAmountWithDetails.href = "javascript:";
+			model._presenter.lnkAmountWithDetails.onclick = function(e)
+			{
+				displayOrderEntries(model);
+			}
+			model._presenter.lnkAmountWithDetails.innerHTML = Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator);
+
+			model._presenter.stateElm = document.createElement("span");
+			model._presenter.stateElm.innerHTML = getStateTitle(model.State());
+
+			var item = view.Content.Orders.AddItem();
+
+			item.Select = model._presenter.checkBox.GetDomElement();
+			item.OrderId = model.Id();
+			item.Time = Fit.Date.Format(new Date(model.Time()), lang.Locale.DateFormat + " " + lang.Locale.TimeFormat);
+			item.Customer = model._presenter.lnkCustomerDetails;
+			item.Currency = model.Currency();
+			item.Amount = model._presenter.lnkAmountWithDetails;
+			item.PaymentMethod = model.PaymentMethod();
+			item.State = model._presenter.stateElm;
+			item.InvoiceId = model.InvoiceId();
+		});
+
+		view.Update();
+	}
+
+	//#endregion
 
 	function getStateTitle(state)
 	{
@@ -565,7 +555,7 @@ JSShop.Presenters.OrderList = function()
 
 		Fit.Array.ForEach(models, function(model)
 		{
-			if (model._presenter.DomElement.style.display !== "none" && model._presenter.CheckBox.Checked() === false)
+			if (model._presenter.checkBox.Checked() === false)
 			{
 				allSelected = false;
 				return false;
