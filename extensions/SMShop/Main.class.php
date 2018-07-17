@@ -211,6 +211,12 @@ class SMShop extends SMExtension
 		JSShop.WebService.OrderEntries.Update = \"" . $dsCallback . "\";
 		JSShop.WebService.OrderEntries.Delete = \"" . $dsCallback . "\";
 
+		JSShop.WebService.Tags.Create = \"" . $dsCallback . "\";
+		JSShop.WebService.Tags.Retrieve = \"" . $dsCallback . "\";
+		JSShop.WebService.Tags.RetrieveAll = \"" . $dsCallback . "\";
+		JSShop.WebService.Tags.Update = \"" . $dsCallback . "\";
+		JSShop.WebService.Tags.Delete = \"" . $dsCallback . "\";
+
 		JSShop.WebService.Configuration.Retrieve = \"" . $cfgCallback . "\";
 		JSShop.WebService.Configuration.Update = \"" . $cfgCallback . "\";
 
