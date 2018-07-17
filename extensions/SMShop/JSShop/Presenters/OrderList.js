@@ -280,11 +280,11 @@ JSShop.Presenters.OrderList = function()
 	{
 		Fit.Validation.ExpectFunction(onComplete);
 
-		if (document.querySelector("link[href*='/Views/OrderList.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
-			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+		if (document.querySelector("link[href*='/Views/OrderList/OrderList.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/OrderList.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
 		var tpl = new Fit.Template(true);
-		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
+		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/OrderList.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
 			view = sender;
 			onComplete();
@@ -663,10 +663,10 @@ JSShop.Presenters.OrderList = function()
 		dia.AddButton(cmdOk);
 		cmdOk.Focused(true);
 
-		if (document.querySelector("link[href*='/Views/DialogCustomerDetails.css']") === null)
-			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/DialogCustomerDetails.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+		if (document.querySelector("link[href*='/Views/OrderList/DialogCustomerDetails.css']") === null)
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/DialogCustomerDetails.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 		req.OnSuccess(function(sender)
 		{
 			var html = req.GetResponseText();
@@ -728,10 +728,10 @@ JSShop.Presenters.OrderList = function()
 		dia.AddButton(cmdOk);
 		cmdOk.Focused(true);
 
-		if (document.querySelector("link[href*='/Views/DialogOrderEntries.css']") === null)
-			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/DialogOrderEntries.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+		if (document.querySelector("link[href*='/Views/OrderList/DialogOrderEntries.css']") === null)
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/DialogOrderEntries.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/DialogOrderEntries.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderList/DialogOrderEntries.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 		req.OnSuccess(function(sender)
 		{
 			var html = req.GetResponseText();
@@ -1131,11 +1131,11 @@ JSShop.Presenters.OrderList = function()
 
 		// Load dialog content
 
-		if (document.querySelector("link[href*='/Views/OrderTags.css']") === null)
-			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderTags.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+		if (document.querySelector("link[href*='/Views/OrderList/OrderTags.css']") === null)
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/OrderTags.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
 		var tpl = new Fit.Template();
-		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderTags.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
+		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/OrderTags.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
 			dia.Content("");
 			cmdOk.Enabled(true);
