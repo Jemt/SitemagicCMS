@@ -136,7 +136,14 @@
 			Units:				"Units",
 			Price:				"Price",
 			TotalVat:			"VAT",
-			TotalPrice:			"Price incl. VAT"
+			TotalPrice:			"Price incl. VAT",
+
+			// Dialog: Alternative state (tags)
+			PaymentState:		"Payment state",
+			CustomState:		"Custom state (tags)",
+			RenameTag:			"Rename the tag '{0}' to:",
+			UnknownTag:			"UNKNOWN",
+			DeleteTagWarning:	"Are you absolutely sure you want to remove the tag '{0}'? It may be used on other orders where the tag going forward will be shown as UNKNOWN."
 		},
 
 		Config:

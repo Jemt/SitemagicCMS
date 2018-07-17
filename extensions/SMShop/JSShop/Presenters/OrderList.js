@@ -8,6 +8,7 @@ JSShop.Presenters.OrderList = function()
 	var dom = null;
 	var view = null;
 	var models = [];
+	var tagModels = [];
 	var lang = JSShop.Language.Translations;
 
 	var process = [];
@@ -30,8 +31,11 @@ JSShop.Presenters.OrderList = function()
 
 		loadView(function()
 		{
-			loadData();
-			populateToolbarAndColumnsToView();
+			loadTagModels(function()
+			{
+				loadData();
+				populateToolbarAndColumnsToView();
+			});
 		});
 
 		createControls();
@@ -336,6 +340,17 @@ JSShop.Presenters.OrderList = function()
 		} );
 	}
 
+	function loadTagModels(onComplete)
+	{
+		Fit.Validation.ExpectFunction(onComplete);
+
+		JSShop.Models.Tag.RetrieveAll("Order", function(req, modelInstances)
+		{
+			tagModels = modelInstances;
+			onComplete();
+		});
+	}
+
 	function populateToolbarAndColumnsToView()
 	{
 		view.Content.ToolbarFromDateField = txtFrom.GetDomElement();
@@ -358,45 +373,78 @@ JSShop.Presenters.OrderList = function()
 		view.Content.HeaderInvoiceId = lang.OrderList.InvoiceId;
 	}
 
-	function populateOrderDataToView()
+	function populateOrderDataToView() // May be invoked multiple times to refresh the view (e.g. to refresh tags when renamed/deleted)
 	{
 		view.Content.Orders.Clear();
-		chkSelectAll.Checked(false);
+		var allSelected = (models.length > 0);
 
 		Fit.Array.ForEach(models, function(model)
 		{
-			model._presenter = {};
-
-			model._presenter.checkBox = new Fit.Controls.CheckBox("JSShopOrder" + model.Id());
-			model._presenter.checkBox.OnChange(function(sender)
+			if (!model._presenter)
 			{
-				if (sender.Checked() === true)
-					Fit.Array.Add(process, model);
-				else
-					Fit.Array.Remove(process, model);
+				model._presenter = {};
 
-				if (sender.Focused() === true)
-					updateSelectAll();
-			});
+				model._presenter.checkBox = new Fit.Controls.CheckBox("JSShopOrder" + model.Id());
+				model._presenter.checkBox.OnChange(function(sender)
+				{
+					if (sender.Checked() === true)
+						Fit.Array.Add(process, model);
+					else
+						Fit.Array.Remove(process, model);
 
-			model._presenter.lnkCustomerDetails = document.createElement("a");
-			model._presenter.lnkCustomerDetails.href = "javascript:";
-			model._presenter.lnkCustomerDetails.onclick = function(e)
-			{
-				displayCustomerDetails(model);
+					if (sender.Focused() === true)
+						updateSelectAll();
+				});
+
+				model._presenter.lnkCustomerDetails = document.createElement("a");
+				model._presenter.lnkCustomerDetails.href = "javascript:";
+				model._presenter.lnkCustomerDetails.onclick = function(e)
+				{
+					displayCustomerDetails(model);
+				}
+				model._presenter.lnkCustomerDetails.innerHTML = model.FirstName() + " " + model.LastName();
+
+				model._presenter.lnkAmountWithDetails = document.createElement("a");
+				model._presenter.lnkAmountWithDetails.href = "javascript:";
+				model._presenter.lnkAmountWithDetails.onclick = function(e)
+				{
+					displayOrderEntries(model);
+				}
+				model._presenter.lnkAmountWithDetails.innerHTML = Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator);
+
+				model._presenter.stateElm = document.createElement("a");
+				model._presenter.stateElm.href = "javascript:";
+				model._presenter.stateElm.innerHTML = getStateTitle(model.State());
+				model._presenter.stateElm.onclick = function(e)
+				{
+					displayStateDialog(model, function(tagsChanged)
+					{
+						// Callback invoked if changes were made to tags on order, or if tags were renamed/removed
+
+						if (tagsChanged === true)
+						{
+							// Tags were renamed or deleted - reload entire view as other orders may reference updated tags
+
+							populateOrderDataToView();
+						}
+						else
+						{
+							// Tags were added/removed from order - affects only current order
+
+							var newAltStateText = getTagTitlesByIds(model.TagIds() !== "" ? model.TagIds().split(";") : []);
+							model._presenter.stateElm.innerHTML = (newAltStateText !== "" ? newAltStateText : getStateTitle(model.State()));
+						}
+					});
+				}
 			}
-			model._presenter.lnkCustomerDetails.innerHTML = model.FirstName() + " " + model.LastName();
 
-			model._presenter.lnkAmountWithDetails = document.createElement("a");
-			model._presenter.lnkAmountWithDetails.href = "javascript:";
-			model._presenter.lnkAmountWithDetails.onclick = function(e)
+			var altStateText = getTagTitlesByIds(model.TagIds() !== "" ? model.TagIds().split(";") : []);
+			model._presenter.stateElm.innerHTML = (altStateText !== "" ? altStateText : getStateTitle(model.State()));
+
+			if (model._presenter.checkBox.Checked() === false)
 			{
-				displayOrderEntries(model);
+				allSelected = false;
 			}
-			model._presenter.lnkAmountWithDetails.innerHTML = Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator);
-
-			model._presenter.stateElm = document.createElement("span");
-			model._presenter.stateElm.innerHTML = getStateTitle(model.State());
 
 			var item = view.Content.Orders.AddItem();
 
@@ -410,6 +458,8 @@ JSShop.Presenters.OrderList = function()
 			item.State = model._presenter.stateElm;
 			item.InvoiceId = model.InvoiceId();
 		});
+
+		chkSelectAll.Checked(allSelected);
 
 		view.Update();
 	}
@@ -430,6 +480,34 @@ JSShop.Presenters.OrderList = function()
 			return lang.OrderList.StateCanceled;
 
 		return "UNKNOWN";
+	}
+
+	function getTagTitlesByIds(ids)
+	{
+		Fit.Validation.ExpectTypeArray(ids, Fit.Validation.ExpectString);
+
+		var titles = [];
+		var existingTagsIds = [];
+
+		Fit.Array.ForEach(tagModels, function(tag)
+		{
+			Fit.Array.Add(existingTagsIds, tag.Id());
+
+			if (Fit.Array.Contains(ids, tag.Id()) === true)
+			{
+				Fit.Array.Add(titles, tag.Title());
+			}
+		});
+
+		Fit.Array.ForEach(ids, function(id)
+		{
+			if (Fit.Array.Contains(existingTagsIds, id) === false)
+			{
+				Fit.Array.Add(titles, lang.OrderList.UnknownTag);
+			}
+		});
+
+		return titles.join(", ");
 	}
 
 	function processPayments(type)
@@ -775,11 +853,311 @@ JSShop.Presenters.OrderList = function()
 		req.Start();
 	}
 
+	function displayStateDialog(model, updateStateCallback)
+	{
+		Fit.Validation.ExpectInstance(model, JSShop.Models.Order);
+		Fit.Validation.ExpectFunction(updateStateCallback);
+
+		// TODO at some point (low priority) - inconsistency:
+		// It's kind of odd that renaming/deleting a tag happens instantly while
+		// new tags on the other hand are first created when the OK button is clicked.
+
+		var dia = new Fit.Controls.Dialog();
+		dia.Modal(true);
+		dia.Content(lang.OrderList.Loading);
+		dia.Open();
+
+		var tagsCreated = {};
+		var tagsChanged = false;
+
+		var treeview = new Fit.Controls.TreeView("JSShopStateDialogTreeViewPicker");
+		var dropdown = new Fit.Controls.DropDown("JSShopStateDialogDropDown");
+		dropdown.Width(100, "%");
+		dropdown.MultiSelectionMode(true);
+		dropdown.SetPicker(treeview);
+		dropdown.InputEnabled(true);
+		dropdown.OnInputChanged(function(sender, value)
+		{
+			dropdown.CloseDropDown();
+		});
+		dropdown.OnBlur(function(sender)
+		{
+			var text = dropdown.GetInputValue();
+
+			if (text !== "")
+			{
+				var existing = null;
+
+				Fit.Array.ForEach(treeview.GetChildren(), function(node)
+				{
+					if (node.Title().toLowerCase() === text.toLowerCase())
+					{
+						existing = node;
+						return false; // Break loop
+					}
+				});
+
+				if (existing === null)
+				{
+					var id = Fit.Data.CreateGuid();
+					dropdown.AddSelection(text, id);
+					tagsCreated[id] = { Id: id, Title: text, Type: "Order" };
+				}
+				else
+				{
+					dropdown.AddSelection(existing.Title(), existing.Value());
+				}
+			}
+		});
+
+		// Add context menu to picker control (tree view)
+		// which allows us to rename and remove tags.
+
+		var ctx = new Fit.Controls.ContextMenu();
+		treeview.OnContextMenu(function(sender, node)
+		{
+			ctx.RemoveAllChildren(true);
+			ctx.AddChild(new Fit.Controls.ContextMenuItem("<span style='display: inline-block; width: 1.1em;' class='fa fa-edit'></span> Rename", "Rename;" + node.Title() + ";" + node.Value()));
+			ctx.AddChild(new Fit.Controls.ContextMenuItem("<span style='display: inline-block; width: 1.1em; color: red;' class='fa fa-remove'></span> Delete", "Delete;" + node.Title() + ";" + node.Value()));
+
+			ctx.Show();
+		});
+		ctx.OnSelect(function(sender, item)
+		{
+			ctx.Hide();
+
+			var info = item.Value().split(";"); // 0 = Command, 1 = Tag name, 2 = Tag ID
+
+			if (info[0] === "Delete")
+			{
+				Fit.Controls.Dialog.Confirm(lang.OrderList.DeleteTagWarning.replace("{0}", info[1]), function(res)
+				{
+					if (res === false)
+						return;
+
+					tagsChanged = true;
+
+					Fit.Array.ForEach(tagModels, function(tagModel)
+					{
+						if (info[2] === tagModel.Id())
+						{
+							tagModel.Delete(function()
+							{
+								dropdown.RemoveSelection(info[2]);
+								treeview.RemoveChild(treeview.GetChild(info[2]));
+
+								Fit.Array.Remove(tagModels, tagModel);
+							});
+
+							return false; // Break loop
+						}
+					});
+
+					if (tagsCreated[info[2]])
+					{
+						delete tagsCreated[info[2]];
+					}
+				});
+			}
+			else if (info[0] === "Rename")
+			{
+				Fit.Controls.Dialog.Prompt(lang.OrderList.RenameTag.replace("{0}", info[1]), info[1], function(newTitle)
+				{
+					if (newTitle === null || newTitle === "" || newTitle === info[1])
+					{
+						return;
+					}
+
+					tagsChanged = true;
+
+					Fit.Array.ForEach(tagModels, function(tagModel)
+					{
+						if (info[2] === tagModel.Id())
+						{
+							tagModel.Title(newTitle);
+							tagModel.Update(function()
+							{
+								if (dropdown.GetSelectionByValue(info[2]) !== null)
+								{
+									dropdown.RemoveSelection(info[2]);
+									dropdown.AddSelection(tagModel.Title(), tagModel.Id());
+								}
+
+								treeview.GetChild(info[2]).Title(newTitle);
+							});
+
+							return false; // Break loop
+						}
+					});
+
+					if (tagsCreated[info[2]])
+					{
+						tagsCreated[info[2]].Title = newTitle;
+					}
+				});
+			}
+		});
+
+		treeview.Width(100, "%");
+		treeview.ContextMenu(ctx);
+		treeview.Selectable(true, dropdown.MultiSelectionMode());
+
+		// Add selections to dropdown and all tags to picker control
+
+		var selected = (model.TagIds() !== "" ? model.TagIds().split(";") : []);
+
+		Fit.Array.ForEach(tagModels, function(tag)
+		{
+			var node = new Fit.Controls.TreeViewNode(tag.Title(), tag.Id());
+			treeview.AddChild(node);
+
+			if (Fit.Array.Contains(selected, tag.Id()) === true)
+			{
+				dropdown.AddSelection(tag.Title(), tag.Id());
+			}
+		});
+
+		Fit.Array.ForEach(selected, function(tagId)
+		{
+			if (treeview.GetChild(tagId) === null)
+			{
+				dropdown.AddSelection(lang.OrderList.UnknownTag, tagId);
+			}
+		});
+
+		// Helper functions
+
+		var disposeControls = function()
+		{
+			// No need to dispose buttons, treeview, or context menu.
+			// They are automatically disposed when calling Dialog.Dispose()
+			// and DropDown.Dispose().
+
+			dia.Dispose();
+			dropdown.Dispose();
+		}
+
+		// Create OK and Cancel buttons
+
+		var cmdOk = new Fit.Controls.Button("JSShopStateDialogOkButton");
+		cmdOk.Title(lang.Common.Ok);
+		cmdOk.Type(Fit.Controls.Button.Type.Success);
+		cmdOk.Enabled(false);
+		cmdOk.OnClick(function(sender)
+		{
+			// Callback responsible for updating order with selected tags
+
+			var updateOrder = function(tags)
+			{
+				cmdOk.Enabled(false);
+
+				model.TagIds(tags.join(";"));
+				model.Update(function(sender, orderModel)
+				{
+					updateStateCallback(tagsChanged);
+					disposeControls();
+				});
+			};
+
+			// Get IDs for selected tags
+
+			var selections = dropdown.GetSelections();
+			var selectedTags = [];
+
+			Fit.Array.ForEach(selections, function(selection)
+			{
+				if (tagsCreated[selection.Value] === undefined) // Skip new tags - must first be created server side (see further down)
+				{
+					Fit.Array.Add(selectedTags, selection.Value);
+				}
+			});
+
+			// Handle non-existing (new) tags if any is added
+
+			if (Fit.Array.Count(tagsCreated) === 0)
+			{
+				// No new tags added - update order
+
+				updateOrder(selectedTags);
+			}
+			else
+			{
+				// Create non-existing tags
+
+				tagsChanged = true;
+
+				Fit.Array.ForEach(tagsCreated, function(tagId)
+				{
+					var tagInfo = tagsCreated[tagId];
+
+					var tagModel = new JSShop.Models.Tag(tagInfo.Id);
+					tagModel.Type(tagInfo.Type);
+					tagModel.Title(tagInfo.Title);
+					tagModel.Create(function(req, tModel)
+					{
+						Fit.Array.Add(tagModels, tagModel);
+
+						// Notice: Backend may have updated model (tag) - e.g. replaced Id (GUID) with something else.
+						// That's why we are waiting for tags to complete creation before updating Order. At this point
+						// the Model mechanism will have received any changes and updated the internal model data, making
+						// such changes available by now.
+
+						Fit.Array.Add(selectedTags, tagModel.Id());
+
+						if (selections.length === selectedTags.length)
+						{
+							updateOrder(selectedTags);
+						}
+					});
+				});
+			}
+		});
+		dia.AddButton(cmdOk);
+
+		var cmdCancel = new Fit.Controls.Button("JSShopStateDialogCancelButton");
+		cmdCancel.Title(lang.Common.Cancel);
+		cmdCancel.Type(Fit.Controls.Button.Type.Danger);
+		cmdCancel.OnClick(function(sender)
+		{
+			disposeControls();
+
+			if (tagsChanged === true)
+			{
+				// Tags were renamed or removed
+				updateStateCallback(true);
+			}
+		});
+		dia.AddButton(cmdCancel);
+
+		// Load dialog content
+
+		if (document.querySelector("link[href*='/Views/OrderTags.css']") === null)
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderTags.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+
+		var tpl = new Fit.Template();
+		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderTags.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
+		{
+			dia.Content("");
+			cmdOk.Enabled(true);
+
+			tpl.Content.Headline = lang.OrderList.State;
+			tpl.Content.PaymentText = lang.OrderList.PaymentState + ": ";
+			tpl.Content.PaymentValue = getStateTitle(model.State());
+			tpl.Content.TagText = lang.OrderList.CustomState;
+			tpl.Content.TagValue = dropdown.GetDomElement();
+
+			tpl.Render(dia.ContentDomElement());
+
+			dropdown.Focused(true);
+		});
+	}
+
 	function exportData()
 	{
 		var execute = function()
 		{
-			var data = [ "Id", "Time", "ClientIp", "Company", "FirstName", "LastName", "Address", "ZipCode", "City", "Email", "Phone", "Message", "AltCompany", "AltFirstName", "AltLastName", "AltAddress", "AltZipCode", "AltCity", "Price", "Vat", "Currency", "Weight", "WeightUnit", "CostCorrection1", "CostCorrectionVat1", "CostCorrectionMessage1", "CostCorrection2", "CostCorrectionVat2", "CostCorrectionMessage2", "CostCorrection3", "CostCorrectionVat3", "CostCorrectionMessage3", "PaymentMethod", "TransactionId", "State", "PromoCode", "CustData1", "CustData2", "CustData3" ];
+			var data = [ "Id", "Time", "ClientIp", "Company", "FirstName", "LastName", "Address", "ZipCode", "City", "Email", "Phone", "Message", "AltCompany", "AltFirstName", "AltLastName", "AltAddress", "AltZipCode", "AltCity", "Price", "Vat", "Currency", "Weight", "WeightUnit", "CostCorrection1", "CostCorrectionVat1", "CostCorrectionMessage1", "CostCorrection2", "CostCorrectionVat2", "CostCorrectionMessage2", "CostCorrection3", "CostCorrectionVat3", "CostCorrectionMessage3", "PaymentMethod", "TransactionId", "State", "TagIds", "PromoCode", "CustData1", "CustData2", "CustData3" ];
+			var renames = { "TagIds": "Tags" };
 			var items = [];
 
 			Fit.Array.ForEach(process, function(model)
@@ -797,6 +1175,10 @@ JSShop.Presenters.OrderList = function()
 					{
 						Fit.Array.Add(item, "\"" + getStateTitle(model.State()) + "\"");
 					}
+					else if (key === "TagIds")
+					{
+						Fit.Array.Add(item, "\"" + getTagTitlesByIds(model.TagIds() !== "" ? model.TagIds().split(";") : []) + "\"");
+					}
 					else
 					{
 						if (typeof(model[key]()) === "number")
@@ -809,7 +1191,11 @@ JSShop.Presenters.OrderList = function()
 				Fit.Array.Add(items, item);
 			});
 
-			var content = "\"" + data.join("\",\"") + "\"";
+			var content = "";
+			Fit.Array.ForEach(data, function(key)
+			{
+				content += (content !== "" ? "," : "") + "\"" + (renames[key] ? renames[key] : key) + "\"";;
+			});
 
 			Fit.Array.ForEach(items, function(item)
 			{

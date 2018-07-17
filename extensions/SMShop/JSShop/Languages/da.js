@@ -136,7 +136,14 @@
 			Units:				"Antal",
 			Price:				"Pris",
 			TotalVat:			"Moms",
-			TotalPrice:			"Pris inkl. moms"
+			TotalPrice:			"Pris inkl. moms",
+
+			// Dialog: Alternative state (tags)
+			PaymentState:		"Betalingstilstand",
+			CustomState:		"Brugerdefineret tilstand (tags)",
+			RenameTag:			"Omdøb tagget '{0}' til:",
+			UnknownTag:			"UKENDT",
+			DeleteTagWarning:	"Er du fuldstændig sikker på at du vil slette tagget '{0}'? Det kan være i brug på andre ordre hvor det fremadrettet vil blive vist som UKENDT."
 		},
 
 		Config:
