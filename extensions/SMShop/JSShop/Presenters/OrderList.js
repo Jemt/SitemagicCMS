@@ -740,93 +740,61 @@ JSShop.Presenters.OrderList = function()
 		if (document.querySelector("link[href*='/Views/OrderList/DialogOrderEntries.css']") === null)
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/DialogOrderEntries.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderList/DialogOrderEntries.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
-		req.OnSuccess(function(sender)
+		var tpl = new Fit.Template();
+		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/DialogOrderEntries.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
-			var html = req.GetResponseText();
-
 			// Headers
 
-			html = html.replace(/{\[HeaderProduct\]}/g, lang.OrderList.Product);
-			html = html.replace(/{\[HeaderUnitPrice\]}/g, lang.OrderList.UnitPrice);
-			html = html.replace(/{\[HeaderUnits\]}/g, lang.OrderList.Units);
-			html = html.replace(/{\[HeaderPrice\]}/g, lang.OrderList.Price);
-			html = html.replace(/{\[HeaderTotalVat\]}/g, lang.OrderList.TotalVat);
-			html = html.replace(/{\[HeaderTotalPrice\]}/g, lang.OrderList.TotalPrice);
-
-			// Extract item HTML
-
-			var startTag = "<!-- REPEAT Items -->";
-			var endTag = "<!-- /REPEAT Items -->";
-
-			var regEx = new RegExp(startTag + "[\\s\\S]*" + endTag);
-			var res = regEx.exec(html);
-
-			if (res === null)
-				return;
-
-			// Remove <!-- REPEAT Items --> block from HTML
-
-			var itemHtml = res[0];
-
-			var posStart = itemHtml.indexOf(startTag) + startTag.length;
-			var posEnd = itemHtml.indexOf(endTag);
-
-			itemHtml = itemHtml.substring(posStart, posEnd);
+			tpl.Content.HeaderProduct = lang.OrderList.Product;
+			tpl.Content.HeaderUnitPrice = lang.OrderList.UnitPrice;
+			tpl.Content.HeaderUnits = lang.OrderList.Units;
+			tpl.Content.HeaderPrice = lang.OrderList.Price;
+			tpl.Content.HeaderTotalVat = lang.OrderList.TotalVat;
+			tpl.Content.HeaderTotalPrice = lang.OrderList.TotalPrice;
 
 			// Populate data
 
 			var populateEntries = function(entryModels)
 			{
-				var allItemsHtml = "";
-				var curItemHtml = null;
-
-				var vatTotal = 0.0;
-				var priceTotal = 0.0;
+				var item = null;
 
 				Fit.Array.ForEach(entryModels, function(entry)
 				{
-					curItemHtml = itemHtml;
-
 					var pricing = JSShop.CalculatePricing(entry.UnitPrice(), entry.Units(), entry.Vat(), entry.Discount());
 
-					curItemHtml = curItemHtml.replace(/{\[Title\]}/g, ((entry.Product !== null) ? entry.Product.Title() : entry.ProductId()));
-					curItemHtml = curItemHtml.replace(/{\[UnitPrice\]}/g, Fit.Math.Format(pricing.UnitPriceInclVat, 2, lang.Locale.DecimalSeparator));
-					curItemHtml = curItemHtml.replace(/{\[DiscountMessage\]}/g, entry.DiscountMessage());
-					curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, ((pricing.DiscountInclVat > 0 || pricing.DiscountInclVat < 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator) : ""));
-					curItemHtml = curItemHtml.replace(/{\[Units\]}/g, entry.Units());
-					curItemHtml = curItemHtml.replace(/{\[Currency\]}/g, entry.Currency());
-					curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(pricing.TotalInclVat, 2, lang.Locale.DecimalSeparator));
-
-					allItemsHtml += curItemHtml;
+					item = tpl.Content.OrderEntries.AddItem();
+					item.Title = ((entry.Product !== null) ? entry.Product.Title() : entry.ProductId());
+					item.UnitPrice = Fit.Math.Format(pricing.UnitPriceInclVat, 2, lang.Locale.DecimalSeparator);
+					item.DiscountMessage = entry.DiscountMessage();
+					item.Discount = ((pricing.DiscountInclVat > 0 || pricing.DiscountInclVat < 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator) : "");
+					item.Units = entry.Units();
+					item.Currency = entry.Currency();
+					item.Price = Fit.Math.Format(pricing.TotalInclVat, 2, lang.Locale.DecimalSeparator);
 				});
 
 				for (var i = 1 ; i <= 3 ; i++)
 				{
 					if (model["CostCorrection" + i]() > 0 || model["CostCorrection" + i]() < 0)
 					{
-						curItemHtml = itemHtml;
-
-						curItemHtml = curItemHtml.replace(/{\[Title\]}/g, model["CostCorrectionMessage" + i]());
-						curItemHtml = curItemHtml.replace(/{\[UnitPrice\]}/g, "");
-						curItemHtml = curItemHtml.replace(/{\[DiscountMessage\]}/g, "");
-						curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, "");
-						curItemHtml = curItemHtml.replace(/{\[Units\]}/g, "");
-						curItemHtml = curItemHtml.replace(/{\[Currency\]}/g, model.Currency());
-						curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(model["CostCorrection" + i]() + model["CostCorrectionVat" + i](), 2, lang.Locale.DecimalSeparator));
-
-						allItemsHtml += curItemHtml;
+						item = tpl.Content.OrderEntries.AddItem();
+						item.Title = model["CostCorrectionMessage" + i]();
+						item.UnitPrice = "";
+						item.DiscountMessage = "";
+						item.Discount = "";
+						item.Units = "";
+						item.Currency = model.Currency();
+						item.Price = Fit.Math.Format(model["CostCorrection" + i]() + model["CostCorrectionVat" + i](), 2, lang.Locale.DecimalSeparator);
 					}
 				}
 
-				html = html.replace(res[0], allItemsHtml);
-
-				html = html.replace(/{\[Currency\]}/g, model.Currency());
-				html = html.replace(/{\[TotalVat\]}/g, Fit.Math.Format(model.Vat(), 2, lang.Locale.DecimalSeparator));
-				html = html.replace(/{\[TotalPrice\]}/g, Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator));
+				tpl.Content.Currency = model.Currency();
+				tpl.Content.TotalVat = Fit.Math.Format(model.Vat(), 2, lang.Locale.DecimalSeparator);
+				tpl.Content.TotalPrice = Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator);
 
 				cmdOk.Enabled(true);
-				dia.Content(html);
+
+				dia.Content("");
+				tpl.Render(dia.ContentDomElement());
 			}
 
 			// Load order entries
@@ -859,7 +827,6 @@ JSShop.Presenters.OrderList = function()
 				});
 			});
 		});
-		req.Start();
 	}
 
 	function displayStateDialog(model, updateStateCallback)
