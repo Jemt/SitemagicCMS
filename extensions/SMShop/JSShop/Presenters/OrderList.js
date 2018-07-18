@@ -666,45 +666,54 @@ JSShop.Presenters.OrderList = function()
 		if (document.querySelector("link[href*='/Views/OrderList/DialogCustomerDetails.css']") === null)
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
-		req.OnSuccess(function(sender)
+		var tpl = new Fit.Template();
+		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
-			var html = req.GetResponseText();
+			dia.Content("");
 
-			html = html.replace(/{\[CustomerDetailsHeadline\]}/, lang.OrderList.CustomerDetails);
-			html = html.replace(/{\[AlternativeAddressHeadline\]}/, lang.OrderList.AlternativeAddress);
-			html = html.replace(/{\[CustomerMessageHeadline\]}/, lang.OrderList.Message);
+			// Headlines
+
+			tpl.Content.CustomerDetailsHeadline = lang.OrderList.CustomerDetails;
+			tpl.Content.AlternativeAddressHeadline = lang.OrderList.AlternativeAddress;
+			tpl.Content.CustomerMessageHeadline = lang.OrderList.Message;
+			tpl.Content.CustomDataHeadline = lang.OrderList.CustomData;
+
+			// Data that maps directly from model to view
 
 			var data = [ "Company", "FirstName", "LastName", "Address", "ZipCode", "City", "Phone", "Email", "Message" ];
 			data = Fit.Array.Merge(data, [ "AltCompany", "AltFirstName", "AltLastName", "AltAddress", "AltZipCode", "AltCity" ]);
 
 			Fit.Array.ForEach(data, function(d)
 			{
-				html = html.replace(new RegExp("{\\[" + d + "\\]}", "g"), model[d]().replace("\n", "<br>"));
+				tpl.Content[d] = model[d]().replace(/\n/g, "<br>");
 			});
 
-			cmdOk.Enabled(true);
-			dia.Content(html);
-
-			var altAddress = dia.GetDomElement().querySelector("#JSShopAlternativeAddress");
-			altAddress.style.display = ((model.AltAddress() !== "") ? "block" : "none");
+			// Custom data
 
 			var custData = "";
-
 			for (var i = 1 ; i <= 3 ; i++)
 			{
 				if (model["CustData" + i]() !== "")
+				{
+					if (model["CustData" + i]() === "")
+						continue;
+
 					custData += ((custData !== "") ? "<br>" : "") + model["CustData" + i]();
+				}
 			}
+			tpl.Content.CustomData = custData;
 
-			var msg = dia.GetDomElement().querySelector("#JSShopCustomerMessage");
+			// Determine whether to hide certain sections or not
 
-			if (custData !== "")
-				msg.innerHTML = msg.innerHTML + "<br><br>" + custData;
+			tpl.Content.AltAddressDisplay = ((model.AltAddress() !== "") ? "block" : "none");
+			tpl.Content.MessageDisplay = ((model.Message() !== "") ? "block" : "none");
+			tpl.Content.CustomDataDisplay = ((custData !== "") ? "block" : "none");
 
-			msg.style.display = ((model.Message() !== "" || custData !== "") ? "block" : "none");
+			// Finalize
+
+			cmdOk.Enabled(true);
+			tpl.Render(dia.ContentDomElement());
 		});
-		req.Start();
 	}
 
 	function displayOrderEntries(model)

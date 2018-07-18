@@ -129,6 +129,7 @@
 			CustomerDetails:	"Kundedetaljer",
 			AlternativeAddress:	"Alternativ leveringsadresse",
 			Message:			"Besked",
+			CustomData:			"Brugerdefineret data",
 
 			// Dialog: Order Entries
 			Product:			"Produkt",

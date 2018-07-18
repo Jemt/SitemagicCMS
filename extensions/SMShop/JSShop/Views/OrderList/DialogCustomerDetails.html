@@ -1,4 +1,4 @@
-<div id="JSShopCustomerDetails">
+<div>
 	<b>{[CustomerDetailsHeadline]}</b>
 
 	<div>{[Company]}</div>
@@ -9,7 +9,7 @@
 	<div><i class="fa fa-envelope" style="width: 1.2em"></i> <a href="mailto:{[Email]}">{[Email]}</a></div>
 </div>
 
-<div id="JSShopAlternativeAddress" style="margin-top: 1.5em">
+<div style="margin-top: 1.5em; display: {[AltAddressDisplay]}">
 	<b>{[AlternativeAddressHeadline]}</b>
 
 	<div>{[AltCompany]}</div>
@@ -18,8 +18,14 @@
 	<div>{[AltZipCode]} {[AltCity]}</div>
 </div>
 
-<div id="JSShopCustomerMessage" style="margin-top: 1.5em">
+<div style="margin-top: 1.5em; display: {[MessageDisplay]}">
 	<b>{[CustomerMessageHeadline]}</b>
 
 	<div>{[Message]}</div>
+</div>
+
+<div style="margin-top: 1.5em; display: {[CustomDataDisplay]}">
+	<b>{[CustomDataHeadline]}</b>
+
+	<div>{[CustomData]}</div>
 </div>

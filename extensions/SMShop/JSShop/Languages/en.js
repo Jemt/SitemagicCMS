@@ -129,6 +129,7 @@
 			CustomerDetails:	"Customer details",
 			AlternativeAddress:	"Alternative delivery address",
 			Message:			"Message",
+			CustomData:			"Custom data",
 
 			// Dialog: Order Entries
 			Product:			"Product",
