@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 0, Patch: 41 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 0, Patch: 42 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -9363,6 +9363,14 @@ Fit.Controls.DatePicker = function(ctlId)
 
 		input.onchange = function() // OnKeyUp does not catch changes made using mouse (e.g. cut)
 		{
+			if (me === null)
+			{
+				// Fix for Chrome which fires OnChange and OnBlur (in both capturering and bubbling phase)
+				// if control has focus while being removed from DOM, e.g. if used in a dialog closed using ESC.
+				// More details here: https://bugs.chromium.org/p/chromium/issues/detail?id=866242
+				return;
+			}
+
 			input.onkeyup();
 		}
 
@@ -9416,6 +9424,14 @@ Fit.Controls.DatePicker = function(ctlId)
 
 		input.onblur = function()
 		{
+			if (me === null)
+			{
+				// Fix for Chrome which fires OnChange and OnBlur (in both capturering and bubbling phase)
+				// if control has focus while being removed from DOM, e.g. if used in a dialog closed using ESC.
+				// More details here: https://bugs.chromium.org/p/chromium/issues/detail?id=866242
+				return;
+			}
+
 			// Make sure date entered is properly formatted (e.g. 1-1-2012 transforms to 01-01-2012)
 
 			if (open === true)
@@ -9966,6 +9982,14 @@ Fit.Controls.DatePicker = function(ctlId)
 
 				inputTime.onchange = function()
 				{
+					if (me === null)
+					{
+						// Fix for Chrome which fires OnChange and OnBlur (in both capturering and bubbling phase)
+						// if control has focus while being removed from DOM, e.g. if used in a dialog closed using ESC.
+						// More details here: https://bugs.chromium.org/p/chromium/issues/detail?id=866242
+						return;
+					}
+
 					inputTime.onkeyup(null); // In case mouse was used to cut a value
 				}
 
@@ -9979,6 +10003,14 @@ Fit.Controls.DatePicker = function(ctlId)
 
 				inputTime.onblur = function()
 				{
+					if (me === null)
+					{
+						// Fix for Chrome which fires OnChange and OnBlur (in both capturering and bubbling phase)
+						// if control has focus while being removed from DOM, e.g. if used in a dialog closed using ESC.
+						// More details here: https://bugs.chromium.org/p/chromium/issues/detail?id=866242
+						return;
+					}
+
 					if (inputTime.value === "")
 					{
 						inputTime.value = ((input.value !== "") ? "00:00" : "");
@@ -12136,6 +12168,14 @@ Fit.Controls.DropDown = function(ctlId)
 
 		txt.onblur = function(e)
 		{
+			if (me === null)
+			{
+				// Fix for Chrome which fires OnChange and OnBlur (in both capturering and bubbling phase)
+				// if control has focus while being removed from DOM, e.g. if used in a dialog closed using ESC.
+				// More details here: https://bugs.chromium.org/p/chromium/issues/detail?id=866242
+				return;
+			}
+
 			focusAssigned = false;
 		}
 
@@ -14342,6 +14382,14 @@ Fit.Controls.Input = function(ctlId)
 		}
 		input.onchange = function() // OnKeyUp does not catch changes by mouse (e.g. paste or moving selected text)
 		{
+			if (me === null)
+			{
+				// Fix for Chrome which fires OnChange and OnBlur (in both capturering and bubbling phase)
+				// if control has focus while being removed from DOM, e.g. if used in a dialog closed using ESC.
+				// More details here: https://bugs.chromium.org/p/chromium/issues/detail?id=866242
+				return;
+			}
+
 			input.onkeyup();
 		}
 		me._internal.AddDomElement(input);
