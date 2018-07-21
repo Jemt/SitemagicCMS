@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 0, Patch: 42 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 0, Patch: 43 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -7438,7 +7438,7 @@ Fit.Template = function(refreshable) // http://fiddle.jshell.net/5sb97qtn/28/  -
 					}
 					else // String value
 					{
-						itemHtml = itemHtml.replace("{[" + prop + "]}", obj);
+						itemHtml = itemHtml.replace(new RegExp("{\\[" + prop + "\\]}", "g"), obj);
 					}
 				});
 
