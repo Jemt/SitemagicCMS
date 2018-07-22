@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 0, Patch: 43 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 0, Patch: 44 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -10684,7 +10684,7 @@ Fit.Controls.Dialog._internal.BaseDialog = function(content, showCancel, cb)
 	cmdOk.Type(Fit.Controls.ButtonType.Success);
 	cmdOk.OnClick(function(sender)
 	{
-		d.Close();
+		d.Dispose();
 
 		if (Fit.Validation.IsSet(cb) === true)
 			cb(true);
@@ -10699,7 +10699,7 @@ Fit.Controls.Dialog._internal.BaseDialog = function(content, showCancel, cb)
 		cmdCancel.Type(Fit.Controls.ButtonType.Danger);
 		cmdCancel.OnClick(function(sender)
 		{
-			d.Close();
+			d.Dispose();
 
 			if (Fit.Validation.IsSet(cb) === true)
 				cb(false);
@@ -10767,6 +10767,8 @@ Fit.Controls.Dialog.Prompt = function(content, defaultValue, cb)
 
 	var dia = Fit.Controls.Dialog._internal.BaseDialog(content + "<br><br>", true, function(res)
 	{
+		// Notice: Dialog is disposed at this point!
+		
 		var val = txt.Value();
 		txt.Dispose();
 
