@@ -26,6 +26,22 @@ JSShop.Presenters.Basket = function()
 
 	function init()
 	{
+		// Dispose controls in view (UI updates) - e.g. buttons used to adjust number of units
+
+		var domControls = view.querySelectorAll("div.FitUiControl");
+
+		Fit.Array.ForEach(domControls, function(domControl)
+		{
+			var control = (domControl.id ? Fit.Controls.Find(domControl.id) : null);
+
+			if (control !== null && control.Dispose)
+			{
+				control.Dispose();
+			}
+		});
+
+		// Get items from basket
+
 		var items = basket.GetItems();
 
 		// Fire OnUpdate
@@ -341,7 +357,7 @@ JSShop.Presenters.Basket = function()
 								dialog.Open();
 								txtUnits.Focused(true);
 							});
-							item.View.Units = cmdUnits.GetDomElement(); // TODO: Is not being disposed when basket is updated!!! Memory leak!
+							item.View.Units = cmdUnits.GetDomElement();
 						});
 
 						tpl.Render(view);
