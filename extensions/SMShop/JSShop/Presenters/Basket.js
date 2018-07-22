@@ -50,45 +50,25 @@ JSShop.Presenters.Basket = function()
 
 		// Load view and data
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/Basket/Basket.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
-		req.OnSuccess(function(sender)
+		var tpl = new Fit.Template();
+		tpl.LoadUrl(JSShop.GetPath() + "/Views/Basket/Basket.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
-			var htmlView = req.GetResponseText();
-
 			// Populate header titles
 
-			htmlView = htmlView.replace(/{\[HeaderProduct\]}/g, lang.Basket.Product);
-			htmlView = htmlView.replace(/{\[HeaderUnitPrice\]}/g, lang.Basket.UnitPrice);
-			htmlView = htmlView.replace(/{\[HeaderUnits\]}/g, lang.Basket.Units);
-			htmlView = htmlView.replace(/{\[HeaderDiscount\]}/g, lang.Basket.Discount);
-			htmlView = htmlView.replace(/{\[HeaderPrice\]}/g, lang.Basket.Price);
-			htmlView = htmlView.replace(/{\[HeaderTotalVat\]}/g, lang.Basket.TotalVat);
-			htmlView = htmlView.replace(/{\[HeaderTotalPrice\]}/g, lang.Basket.TotalPrice);
+			tpl.Content.HeaderProduct = lang.Basket.Product;
+			tpl.Content.HeaderUnitPrice = lang.Basket.UnitPrice;
+			tpl.Content.HeaderUnits = lang.Basket.Units;
+			tpl.Content.HeaderDiscount = lang.Basket.Discount;
+			tpl.Content.HeaderPrice = lang.Basket.Price;
+			tpl.Content.HeaderTotalVat = lang.Basket.TotalVat;
+			tpl.Content.HeaderTotalPrice = lang.Basket.TotalPrice;
 
-			// Extract item HTML
-
-			var startTag = "<!-- REPEAT Items -->";
-			var endTag = "<!-- /REPEAT Items -->";
-
-			var regEx = new RegExp(startTag + "[\\s\\S]*" + endTag);
-			var res = regEx.exec(htmlView);
-
-			if (res !== null)
+			if (true) // TODO: REMOVE THIS
 			{
-				var allItemsHtml = "";
 				var totalVat = 0.0;
 				var totalPrice = 0.0;
 				var totalDiscount = 0.0;
 				var totalWeight = 0.0;
-
-				// Remove <!-- REPEAT Items --> block from item HTML
-
-				var itemHtml = res[0];
-
-				var posStart = itemHtml.indexOf(startTag) + startTag.length;
-				var posEnd = itemHtml.indexOf(endTag);
-
-				itemHtml = itemHtml.substring(posStart, posEnd);
 
 				// Load product details
 
@@ -102,15 +82,22 @@ JSShop.Presenters.Basket = function()
 
 				Fit.Array.ForEach(items, function(item)
 				{
-					var product = new JSShop.Models.Product(item.ProductId);
+					item.Product = new JSShop.Models.Product(item.ProductId);
+					item.View = tpl.Content.ProductEntries.AddItem();
+
+					var product = item.Product;
+
 					product.Retrieve(function(req, model)
 					{
 						itemCount--;
-						item.Product = product;
 
 						if (itemCount === 0) // All products loaded
 						{
-							// Populate item HTML
+							view.innerHTML = ""; // TODO: Refactor to allow use of template's update mechanism instead
+
+							// Populate template
+
+							var productEntry = null;
 
 							Fit.Array.ForEach(items, function(item)
 							{
@@ -126,22 +113,20 @@ JSShop.Presenters.Basket = function()
 								if (item.Product.WeightUnit() !== weightUnit)
 									weightUnitError = true;
 
-								// Populate HTML
+								// Add to template
 
-								var curItemHtml = itemHtml;
+								productEntry = item.View;
 
 								var discountExclVat = Fit.Math.Round(item.Product.CalculateDiscount(item.Units), 2);
 								var pricing = JSShop.CalculatePricing(item.Product.Price(), item.Units, item.Product.Vat(), discountExclVat);
 
-								curItemHtml = curItemHtml.replace(/{\[Title\]}/g, item.Product.Title());
-								curItemHtml = curItemHtml.replace(/{\[UnitPrice\]}/g, Fit.Math.Format(pricing.UnitPriceInclVat, 2, lang.Locale.DecimalSeparator));
-								curItemHtml = curItemHtml.replace(/{\[DiscountMessage\]}/g, ((pricing.DiscountInclVat > 0 || pricing.DiscountInclVat < 0) ? item.Product.CalculateDiscountMessage(item.Units) : ""));
-								curItemHtml = curItemHtml.replace(/{\[Discount\]}/g, ((pricing.DiscountInclVat > 0 || pricing.DiscountInclVat < 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator) : ""));
-								curItemHtml = curItemHtml.replace(/{\[Units\]}/g, "<div id='JSShopBasketItem" + item.ProductId + "'></div>");
-								curItemHtml = curItemHtml.replace(/{\[Currency\]}/g, item.Product.Currency());
-								curItemHtml = curItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(pricing.TotalInclVat, 2, lang.Locale.DecimalSeparator));
-
-								allItemsHtml += curItemHtml;
+								productEntry.Title = item.Product.Title();
+								productEntry.UnitPrice = Fit.Math.Format(pricing.UnitPriceInclVat, 2, lang.Locale.DecimalSeparator);
+								productEntry.DiscountMessage = ((pricing.DiscountInclVat > 0 || pricing.DiscountInclVat < 0) ? item.Product.CalculateDiscountMessage(item.Units) : "");
+								productEntry.Discount = ((pricing.DiscountInclVat > 0 || pricing.DiscountInclVat < 0) ? Fit.Math.Format(pricing.DiscountInclVat * -1, 2, lang.Locale.DecimalSeparator) : "");
+								productEntry.Units = null; // Set to button further down
+								productEntry.Currency = item.Product.Currency();
+								productEntry.Price = Fit.Math.Format(pricing.TotalInclVat, 2, lang.Locale.DecimalSeparator);
 
 								// Calculate totals
 
@@ -208,16 +193,14 @@ JSShop.Presenters.Basket = function()
 									if (cc.Msg)
 										correctionMessage = JSShop.Models.Order.CalculateExpression(totalPrice - totalVat, totalVat, currency, totalWeight, weightUnit, zipCode, paymentMethod, promoCode, custData1, custData2, custData3, cc.Msg, "string");
 
-									var correctionItemHtml = itemHtml;
-									correctionItemHtml = correctionItemHtml.replace(/{\[Title\]}/g, correctionMessage);
-									correctionItemHtml = correctionItemHtml.replace(/{\[UnitPrice\]}/g, "&nbsp;");
-									correctionItemHtml = correctionItemHtml.replace(/{\[Discount\]}/g, "");
-									correctionItemHtml = correctionItemHtml.replace(/{\[DiscountMessage\]}/g, "");
-									correctionItemHtml = correctionItemHtml.replace(/{\[Units\]}/g, "&nbsp;");
-									correctionItemHtml = correctionItemHtml.replace(/{\[Currency\]}/g, currency);
-									correctionItemHtml = correctionItemHtml.replace(/{\[Price\]}/g, Fit.Math.Format(correctionInclVat, 2, lang.Locale.DecimalSeparator));
-
-									allItemsHtml += correctionItemHtml;
+									productEntry = tpl.Content.ProductEntries.AddItem();
+									productEntry.Title = correctionMessage;
+									productEntry.UnitPrice = "&nbsp;";
+									productEntry.DiscountMessage = "";
+									productEntry.Discount = "";
+									productEntry.Units = "&nbsp;";
+									productEntry.Currency = currency;
+									productEntry.Price = Fit.Math.Format(correctionInclVat, 2, lang.Locale.DecimalSeparator);
 
 									// Results are added to totals later, to prevent CostCorrections from affecting each other
 									cc.CostCorrectionExVat = correctionExclVat;
@@ -249,13 +232,10 @@ JSShop.Presenters.Basket = function()
 
 							// Add totals and update view
 
-							htmlView = htmlView.replace(res[0], allItemsHtml);
-							htmlView = htmlView.replace(/{\[Currency\]}/g, items[0].Product.Currency());
-							htmlView = htmlView.replace(/{\[TotalVat\]}/g, Fit.Math.Format(totalVat, 2, lang.Locale.DecimalSeparator));
-							htmlView = htmlView.replace(/{\[TotalPrice\]}/g, Fit.Math.Format(totalPrice, 2, lang.Locale.DecimalSeparator));
-							htmlView = htmlView.replace(/{\[TotalDiscount\]}/g, Fit.Math.Format(totalDiscount, 2, lang.Locale.DecimalSeparator));
-
-							view.innerHTML = htmlView;
+							tpl.Content.Currency = items[0].Product.Currency();
+							tpl.Content.TotalVat = Fit.Math.Format(totalVat, 2, lang.Locale.DecimalSeparator);
+							tpl.Content.TotalPrice = Fit.Math.Format(totalPrice, 2, lang.Locale.DecimalSeparator);
+							tpl.Content.TotalDiscount = Fit.Math.Format(totalDiscount, 2, lang.Locale.DecimalSeparator);
 
 							// Create unit updator controls
 
@@ -266,7 +246,6 @@ JSShop.Presenters.Basket = function()
 								cmdUnits.Type(Fit.Controls.Button.Type.Default);
 								cmdUnits.GetDomElement().style.cssText = "font-size: 0.9em; padding: 2px 10px 2px 10px;";
 								cmdUnits.Width(4, "em");
-								cmdUnits.Render(view.querySelector("#JSShopBasketItem" + item.ProductId));
 								cmdUnits.OnClick(function(sender)
 								{
 									// Create dialog
@@ -311,13 +290,19 @@ JSShop.Presenters.Basket = function()
 
 									// Create dialog buttons
 
+									var dispose = function()
+									{
+										txtUnits.Dispose();
+										dialog.Dispose(); // Will also dispose buttons added to dialog
+									}
+
 									var cmdSave = new Fit.Controls.Button(Fit.Data.CreateGuid());
 									cmdSave.Title(lang.Common.Ok);
 									cmdSave.Type(Fit.Controls.Button.Type.Success);
 									cmdSave.OnClick(function(sender)
 									{
 										basket.Update(item.ProductId, parseInt(txtUnits.Value()));
-										dialog.Close();
+										dispose();
 										init();
 									});
 									dialog.AddButton(cmdSave);
@@ -327,7 +312,7 @@ JSShop.Presenters.Basket = function()
 									cmdCancel.Type(Fit.Controls.Button.Type.Danger);
 									cmdCancel.OnClick(function(sender)
 									{
-										dialog.Close();
+										dispose();
 									});
 									dialog.AddButton(cmdCancel);
 
@@ -350,13 +335,18 @@ JSShop.Presenters.Basket = function()
 										var ev = Fit.Events.GetEvent(e);
 
 										if (ev.keyCode === 27) // ESC
-											dialog.Close();
+										{
+											cmdCancel.Click();
+										}
 									});
 
 									dialog.Open();
 									txtUnits.Focused(true);
 								});
+								item.View.Units = cmdUnits.GetDomElement(); // TODO: Is not being disposed when basket is updated!!! Memory leak!
 							});
+
+							tpl.Render(view);
 
 							// Display warnings
 
@@ -376,7 +366,6 @@ JSShop.Presenters.Basket = function()
 				})
 			}
 		});
-		req.Start();
 	}
 
 	// Public members
