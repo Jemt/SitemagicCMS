@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 0, Patch: 45 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 1, Patch: 1 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -1806,17 +1806,98 @@ Fit.Controls = {};
 Fit._internal.Controls = {}
 Fit._internal.ControlBase = { Controls: {} };
 
-/// <container name="Fit.Controls.ControlBase">
-/// 	Class from which all UI Controls extend
+/// <container name="Fit.Controls.Component">
+/// 	Class from which all UI components extend
+/// </container>
+Fit.Controls.Component = function(controlId)
+{
+	Fit.Validation.ExpectStringValue(controlId, true);
+
+	var me = this;
+	var id = null;
+	var container = null;
+
+	function init()
+	{
+		Fit._internal.Core.EnsureStyles();
+
+		id = (Fit.Validation.IsSet(controlId) === true ? controlId : "Ctl" + Fit.Data.CreateGuid());
+
+		if (Fit._internal.ControlBase.Controls[id] !== undefined)
+			Fit.Validation.ThrowError("Control with ID '" + id + "' has already been defined - Control IDs must be unique!");
+
+		Fit._internal.ControlBase.Controls[id] = me;
+
+		container = document.createElement("div");
+		container.id = id;
+		container._internal = { Instance: me };
+	}
+
+	/// <function container="Fit.Controls.Component" name="GetId" access="public" returns="string">
+	/// 	<description> Get unique Control ID </description>
+	/// </function>
+	this.GetId = function()
+	{
+		return id;
+	}
+
+   	/// <function container="Fit.Controls.Component" name="GetDomElement" access="public" returns="DOMElement">
+	/// 	<description> Get DOMElement representing control </description>
+	/// </function>
+	this.GetDomElement = function()
+	{
+		return container;
+	}
+	
+	/// <function container="Fit.Controls.Component" name="Render" access="public">
+	/// 	<description> Render control, either inline or to element specified </description>
+	/// 	<param name="toElement" type="DOMElement" default="undefined"> If defined, control is rendered to this element </param>
+	/// </function>
+	this.Render = function(toElement)
+	{
+		Fit.Validation.ExpectDomElement(toElement, true);
+
+		if (Fit.Validation.IsSet(toElement) === true)
+		{
+			Fit.Dom.Add(toElement, me.GetDomElement()); // Using GetDomElement() which may have been overridden, e.g. by ControlBase which does some validation when GetDomElement() is called, or by ContextMenu which returns a different element
+		}
+		else
+		{
+			var script = document.scripts[document.scripts.length - 1];
+			Fit.Dom.InsertBefore(script, me.GetDomElement()); // Using GetDomElement() which may have been overridden, e.g. by ControlBase which does some validation when GetDomElement() is called, or by ContextMenu which returns a different element
+		}
+	}
+
+	/// <function container="Fit.Controls.Component" name="Dispose" access="public">
+	/// 	<description>
+	/// 		Destroys control to free up memory.
+	/// 		Make sure to call Dispose() on Component which can be done like so:
+	/// 		this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
+	/// 		{
+	/// 			&#160;&#160;&#160;&#160; // Add control specific dispose logic here
+	/// 			&#160;&#160;&#160;&#160; base(); // Call Dispose on Component
+	/// 		});
+	/// 	</description>
+	/// </function>
+	this.Dispose = function()
+	{
+		// This will destroy control - it will no longer work!
+
+		Fit.Dom.Remove(container); // Dispose 'container' rather than object returned from GetDomElement() which may have been overridden and potentially returning a different object, in which case the derivative should dispose the object
+		delete Fit._internal.ControlBase.Controls[id];
+		me = id = container = null;
+	}
+
+	init();
+}
+
+/// <container name="Fit.Controls.ControlBase" extends="Fit.Controls.Component">
+/// 	Class from which all editable controls extend
 /// </container>
 Fit.Controls.ControlBase = function(controlId)
 {
-	Fit.Validation.ExpectStringValue(controlId);
-
-	if (Fit._internal.ControlBase.Controls[controlId] !== undefined)
-		Fit.Validation.ThrowError("Control with ID '" + controlId + "' has already been defined - Control IDs must be unique!");
-
-	Fit._internal.ControlBase.Controls[controlId] = this;
+	Fit.Validation.ExpectStringValue(controlId, true);
+	Fit.Core.Extend(this, Fit.Controls.Component).Apply(controlId);
 
 	// ============================================
 	// Interface - must be overridden
@@ -1874,8 +1955,8 @@ Fit.Controls.ControlBase = function(controlId)
 	// ============================================
 
 	var me = this;
-	var id = controlId;
-	var container = null;
+	var id = me.GetId();
+	var container = me.GetDomElement();
 	var width = { Value: 200, Unit: "px" }; // Any changes to this line must be dublicated to Width(..)
 	var height = { Value: -1, Unit: "px" };
 	var scope = null;
@@ -1903,10 +1984,6 @@ Fit.Controls.ControlBase = function(controlId)
 
 	function init()
 	{
-		Fit._internal.Core.EnsureStyles();
-
-		container = document.createElement("div");
-		container.id = id;
 		container.style.width = width.Value + width.Unit;
 		Fit.Dom.AddClass(container, "FitUiControl");
 
@@ -1988,18 +2065,7 @@ Fit.Controls.ControlBase = function(controlId)
 		return (me._internal.Data("autopost") === "true");
 	}
 
-	/// <function container="Fit.Controls.ControlBase" name="GetId" access="public" returns="string">
-	/// 	<description> Get unique Control ID </description>
-	/// </function>
-	this.GetId = function()
-	{
-		return id;
-	}
-
-	/// <function container="Fit.Controls.ControlBase" name="GetDomElement" access="public" returns="DOMElement">
-	/// 	<description> Get DOMElement representing control </description>
-	/// </function>
-	this.GetDomElement = function()
+	this.GetDomElement = Fit.Core.CreateOverride(this.GetDomElement, function()
 	{
 		if (hasValidated === false)
 		{
@@ -2008,28 +2074,15 @@ Fit.Controls.ControlBase = function(controlId)
 			updateInternalState(); // Make sure state posted to server is up to date (Dirty and Valid flags) in case a control value has not been assigned
 		}
 
-		return container;
-	}
+		return base();
+	});
 
-	/// <function container="Fit.Controls.ControlBase" name="Dispose" access="public">
-	/// 	<description>
-	/// 		Destroys control to free up memory.
-	/// 		Make sure to call Dispose() on ControlBase which can be done like so:
-	/// 		this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
-	/// 		{
-	/// 			&#160;&#160;&#160;&#160; // Add control specific dispose logic here
-	/// 			&#160;&#160;&#160;&#160; base(); // Call Dispose on ControlBase
-	/// 		});
-	/// 	</description>
-	/// </function>
-	this.Dispose = function()
+	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
-		// This will destroy control - it will no longer work!
-
-		Fit.Dom.Remove(container);
 		me = id = container = width = height = scope = required = validationExpr = validationError = validationErrorType = validationCallbackFunc = validationCallbackError = lazyValidation = hasValidated = blockAutoPostBack = onChangeHandlers = onFocusHandlers = onBlurHandlers = hasFocus = onBlurTimeout = ensureFocusFires = waitingForFocus = txtValue = txtDirty = txtValid = isIe8 = null;
-		delete Fit._internal.ControlBase.Controls[controlId];
-	}
+		base();
+	});
+
 
 	/// <function container="Fit.Controls.ControlBase" name="Width" access="public" returns="object">
 	/// 	<description> Get/set control width - returns object with Value and Unit properties </description>
@@ -2193,25 +2246,6 @@ Fit.Controls.ControlBase = function(controlId)
 		}
 
 		return (orgDirtyFunction !== null);
-	}
-
-	/// <function container="Fit.Controls.ControlBase" name="Render" access="public">
-	/// 	<description> Render control, either inline or to element specified </description>
-	/// 	<param name="toElement" type="DOMElement" default="undefined"> If defined, control is rendered to this element </param>
-	/// </function>
-	this.Render = function(toElement)
-	{
-		Fit.Validation.ExpectDomElement(toElement, true);
-
-		if (Fit.Validation.IsSet(toElement) === true)
-		{
-			Fit.Dom.Add(toElement, me.GetDomElement()); // GetDomElement() calls Validate()
-		}
-		else
-		{
-			var script = document.scripts[document.scripts.length - 1];
-			Fit.Dom.InsertBefore(script, me.GetDomElement()); // GetDomElement() calls Validate()
-		}
 	}
 
 	/// <function container="Fit.Controls.ControlBase" name="SetValidationExpression" access="public">
@@ -6958,8 +6992,13 @@ Fit.Loader.LoadStyleSheets = function(cfg, callback)
 /// 		to DOM. A value of True results in template being wrapped in a div container
 /// 		controlled by the templating system.
 /// 	</param>
+/// 	<param name="autoDispose" type="boolean" default="true">
+/// 		Flag indicating whether Fit.UI controls should be automatically disposed
+/// 		when removed from view. Controls are disposed once changes are pushed to
+/// 		DOM using the Update() function.
+/// 	</param>
 /// </function>
-Fit.Template = function(refreshable) // http://fiddle.jshell.net/5sb97qtn/28/  --  http://fiddle.jshell.net/3rbq1r13/3/
+Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5sb97qtn/28/  --  http://fiddle.jshell.net/3rbq1r13/3/
 {
 	Fit.Validation.ExpectBoolean(refreshable, true);
 
@@ -6968,6 +7007,7 @@ Fit.Template = function(refreshable) // http://fiddle.jshell.net/5sb97qtn/28/  -
 	var container = null;
 	var elements = [];		// Holds references to all DOMElements added to template
 	var eventHandlers = []; // Holds references to all event handler functions associated with DOM elements
+	var controls = [];		// Holds references to all Fit.UI controls rendered to DOM view
 
 	function init()
 	{
@@ -7152,10 +7192,13 @@ Fit.Template = function(refreshable) // http://fiddle.jshell.net/5sb97qtn/28/  -
 
 		// Turn Template into DOM element
 
-		var html = me.toString();
+		var html = me.toString(); // Also populates 'elements' array containing DOMElements to be added further down
 		var dom = Fit.Dom.CreateElement("<div>" + html + "</div>");
 
 		// Inject DOMElements
+
+		var oldControls = controls;
+		controls = [];
 
 		Fit.Array.ForEach(elements, function(elm)
 		{
@@ -7165,7 +7208,26 @@ Fit.Template = function(refreshable) // http://fiddle.jshell.net/5sb97qtn/28/  -
 			{
 				Fit.Dom.Replace(element, elm.Element);
 			}
+
+			if (elm.Element._internal !== undefined && elm.Element._internal.Instance !== undefined) // Fit.UI control inheriting from Fit.Controls.Component which is disposable
+			{
+				Fit.Array.Add(controls, elm.Element._internal.Instance);
+			}
 		});
+
+		// Auto dispose controls previously added to template if now left out
+
+		if (autoDispose !== false)
+		{
+			Fit.Array.ForEach(oldControls, function(oldControl)
+			{
+				// Dispose control if no longer found in view
+				if (Fit.Array.Contains(controls, oldControl) === false)
+				{
+					oldControl.Dispose();
+				}
+			});
+		}
 
 		// Register event handlers
 
@@ -7216,7 +7278,14 @@ Fit.Template = function(refreshable) // http://fiddle.jshell.net/5sb97qtn/28/  -
 			}
 			else
 			{
-				if (typeof(obj) === "object" && (obj instanceof Element || obj instanceof Text)) // DOM
+				if (Fit.Core.InstanceOf(obj, Fit.Controls.Component) === true) // Fit.UI Control
+				{
+					var id = Fit.Data.CreateGuid();
+					Fit.Array.Add(elements, { Id: id, Element: obj.GetDomElement() });
+
+					newHtml = newHtml.replace("{[" + key + "]}", "<var class='FitTemplate' id='PH" + id + "'></var>");
+				}
+				else if (typeof(obj) === "object" && (obj instanceof Element || obj instanceof Text)) // DOM
 				{
 					var id = Fit.Data.CreateGuid();
 					Fit.Array.Add(elements, { Id: id, Element: obj });
@@ -7425,6 +7494,17 @@ Fit.Template = function(refreshable) // http://fiddle.jshell.net/5sb97qtn/28/  -
 
 						itemHtml = itemHtml.replace(obj._internal.Block, allSubItems);
 					}
+					else if (Fit.Core.InstanceOf(obj, Fit.Controls.Component) === true) // Fit.UI Control
+					{
+						var id = Fit.Data.CreateGuid();
+						Fit.Array.Add(res._internal.Elements, { Id: id, Element: obj.GetDomElement() });
+
+						// Notice: Placeholders to be replaced by DOM elements should only
+						// be declared once - a DOM element cannot be added multiple times!
+						// Theoretically placeholders for string values could be used multiple times, but
+						// for the sake of consistency we only replace the first occurrence in this case too.
+						itemHtml = itemHtml.replace("{[" + prop + "]}", "<var class='FitTemplate' id='PH" + id + "'></var>");
+					}
 					else if (typeof(obj) === "object" && (obj instanceof Element || obj instanceof Text)) // DOM
 					{
 						var id = Fit.Data.CreateGuid();
@@ -7460,7 +7540,7 @@ Fit.Template = function(refreshable) // http://fiddle.jshell.net/5sb97qtn/28/  -
 
 	init();
 }
-/// <container name="Fit.Controls.Button">
+/// <container name="Fit.Controls.Button" extends="Fit.Controls.Component">
 /// 	Button control with support for Font Awesome icons
 /// </container>
 
@@ -7468,30 +7548,18 @@ Fit.Template = function(refreshable) // http://fiddle.jshell.net/5sb97qtn/28/  -
 
 /// <function container="Fit.Controls.Button" name="Button" access="public">
 /// 	<description> Create instance of Button control </description>
-/// 	<param name="controlId" type="string" default="undefined">
-/// 		Unique control ID. If specified, control will be
-/// 		accessible using the Fit.Controls.Find(..) function.
-/// 	</param>
+/// 	<param name="controlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.Button = function(controlId)
 {
 	Fit.Validation.ExpectStringValue(controlId, true);
-
-	// Support for Fit.Controls.Find(..)
-
-	if (Fit.Validation.IsSet(controlId) === true)
-	{
-		if (Fit._internal.ControlBase.Controls[controlId] !== undefined)
-			Fit.Validation.ThrowError("Control with ID '" + controlId + "' has already been defined - Control IDs must be unique!");
-
-		Fit._internal.ControlBase.Controls[controlId] = this;
-	}
+	Fit.Core.Extend(this, Fit.Controls.Component).Apply(controlId);
 
 	// Internals
 
 	var me = this;
-	var id = (controlId ? controlId : null);
-	var element = null;
+	var id = me.GetId();
+	var element = me.GetDomElement();
 	var wrapper = null;
 	var icon = null;
 	var label = null;
@@ -7501,13 +7569,6 @@ Fit.Controls.Button = function(controlId)
 
 	function init()
 	{
-		Fit._internal.Core.EnsureStyles();
-
-		element = document.createElement("div");
-
-		if (id !== null)
-			element.id = id;
-
 		Fit.Events.AddHandler(element, "click", function(e)
 		{
 			if (me.Enabled() === true)
@@ -7538,14 +7599,6 @@ Fit.Controls.Button = function(controlId)
 
 		me.Enabled(true);
 		me.Type(Fit.Controls.ButtonType.Default);
-	}
-
-	/// <function container="Fit.Controls.Button" name="GetId" access="public" returns="string">
-	/// 	<description> Get unique Control ID - returns Null if not set </description>
-	/// </function>
-	this.GetId = function()
-	{
-		return id;
 	}
 
 	/// <function container="Fit.Controls.Button" name="Title" access="public" returns="string">
@@ -7730,44 +7783,11 @@ Fit.Controls.Button = function(controlId)
 		});
 	}
 
-	/// <function container="Fit.Controls.Button" name="GetDomElement" access="public" returns="DOMElement">
-	/// 	<description> Get DOMElement representing control </description>
-	/// </function>
-	this.GetDomElement = function()
+	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
-		return element;
-	}
-
-	/// <function container="Fit.Controls.Button" name="Render" access="public">
-	/// 	<description> Render control, either inline or to element specified </description>
-	/// 	<param name="toElement" type="DOMElement" default="undefined"> If defined, control is rendered to this element </param>
-	/// </function>
-	this.Render = function(toElement)
-	{
-		Fit.Validation.ExpectDomElement(toElement, true);
-
-		if (Fit.Validation.IsSet(toElement) === true)
-		{
-			Fit.Dom.Add(toElement, element);
-		}
-		else
-		{
-			var script = document.scripts[document.scripts.length - 1];
-			Fit.Dom.InsertBefore(script, element);
-		}
-	}
-
-	/// <function container="Fit.Controls.Button" name="Dispose" access="public">
-	/// 	<description> Destroys control to free up memory </description>
-	/// </function>
-	this.Dispose = function()
-	{
-		Fit.Dom.Remove(element);
 		me = id = element = wrapper = icon = label = width = height = onClickHandlers = null;
-
-		if (Fit.Validation.IsSet(controlId) === true)
-			delete Fit._internal.ControlBase.Controls[controlId];
-	}
+		base();
+	});
 
 	init();
 }
@@ -7816,11 +7836,11 @@ Fit.Controls.Button.Type = Fit.Controls.ButtonType; // Backward compatibility
 
 /// <function container="Fit.Controls.CheckBox" name="CheckBox" access="public">
 /// 	<description> Create instance of CheckBox control </description>
-/// 	<param name="ctlId" type="string"> Unique control ID </param>
+/// 	<param name="ctlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.CheckBox = function(ctlId)
 {
-	Fit.Validation.ExpectStringValue(ctlId);
+	Fit.Validation.ExpectStringValue(ctlId, true);
 	Fit.Core.Extend(this, Fit.Controls.ControlBase).Apply(ctlId);
 
 	var me = this;
@@ -8083,15 +8103,19 @@ Fit.Controls.CheckBox = function(ctlId)
 
 	init();
 }
-/// <container name="Fit.Controls.ContextMenu">
+/// <container name="Fit.Controls.ContextMenu" extends="Fit.Controls.Component">
 /// 	ContextMenu control allowing for quick access to select features.
 /// </container>
 
 /// <function container="Fit.Controls.ContextMenu" name="ContextMenu" access="public">
 /// 	<description> Create instance of ContextMenu control </description>
+/// 	<param name="controlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
-Fit.Controls.ContextMenu = function()
+Fit.Controls.ContextMenu = function(controlId)
 {
+	Fit.Validation.ExpectStringValue(controlId, true);
+	Fit.Core.Extend(this, Fit.Controls.Component).Apply(controlId);
+
 	var me = this;
 	var tree = new Fit.Controls.TreeView("ContextMenuTreeView_" + Fit.Data.CreateGuid());
 	var prevFocused = null;
@@ -8110,8 +8134,6 @@ Fit.Controls.ContextMenu = function()
 
 	function init()
 	{
-		Fit._internal.Core.EnsureStyles();
-
 		Fit.Dom.Data(tree.GetDomElement(), "keynav", "false");				// True when navigating using keyboard
 		Fit.Dom.Data(tree.GetDomElement(), "sticky", "false");				// True when user toggles node
 		Fit.Dom.Data(tree.GetDomElement(), "viewportcollision", "false");	// True when context menu collides with viewport boundaries
@@ -8476,12 +8498,14 @@ Fit.Controls.ContextMenu = function()
 		return (tree.GetDomElement().parentElement !== null);
 	}
 
-	/// <function container="Fit.Controls.ContextMenu" name="GetDomElement" access="public" returns="DOMElement">
-	/// 	<description> Get DOMElement representing context menu </description>
-	/// </function>
-	this.GetDomElement = function()
+	this.GetDomElement = function() // Override GetDomElement() on Fit.Controls.Component
 	{
 		return tree.GetDomElement();
+	}
+
+	this.Render = function(toElement) // Override Render() on Fit.Controls.Component
+	{
+		Fit.Validation.ThrowError("Use Show function to open ContextMenu");
 	}
 
 	/// <function container="Fit.Controls.ContextMenu" name="AddChild" access="public">
@@ -8584,17 +8608,16 @@ Fit.Controls.ContextMenu = function()
 		return tree.Focused(value);
 	}
 
-	/// <function container="Fit.Controls.ContextMenu" name="Dispose" access="public">
-	/// 	<description> Destroys component to free up memory </description>
-	/// </function>
-	this.Dispose = function()
+	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
 		if (me === Fit._internal.ContextMenu.Current) // In case ContextMenu is being disposed while being used
 			Fit._internal.ContextMenu.Current = null;
 
 		tree.Dispose();
 		me = tree = prevFocused = detectBoundaries = highlightOnInitKeyStroke = isIe8 = onShowing = onShown = onHide = onSelect = null;
-	}
+
+		base();
+	});
 
 	// ============================================
 	// Events
@@ -8940,10 +8963,12 @@ Fit.Events.OnReady(function()
 
 /// <function container="Fit.Controls.WSContextMenu" name="WSContextMenu" access="public">
 /// 	<description> Create instance of WSContextMenu control </description>
+/// 	<param name="controlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
-Fit.Controls.WSContextMenu = function()
+Fit.Controls.WSContextMenu = function(controlId)
 {
-	Fit.Core.Extend(this, Fit.Controls.ContextMenu).Apply();
+	Fit.Validation.ExpectStringValue(controlId, true);
+	Fit.Core.Extend(this, Fit.Controls.ContextMenu).Apply(controlId);
 
 	var me = this;
 	var url = null;
@@ -9280,11 +9305,11 @@ Fit.Controls.WSContextMenu = function()
 
 /// <function container="Fit.Controls.DatePicker" name="DatePicker" access="public">
 /// 	<description> Create instance of DatePicker control </description>
-/// 	<param name="ctlId" type="string"> Unique control ID </param>
+/// 	<param name="ctlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.DatePicker = function(ctlId)
 {
-	Fit.Validation.ExpectStringValue(ctlId);
+	Fit.Validation.ExpectStringValue(ctlId, true);
 	Fit.Core.Extend(this, Fit.Controls.ControlBase).Apply(ctlId);
 
 	var me = this;
@@ -10350,17 +10375,21 @@ Fit.Controls.DatePicker = function(ctlId)
 }
 
 Fit._internal.Controls.DatePicker = {};
-/// <container name="Fit.Controls.Dialog">
+/// <container name="Fit.Controls.Dialog" extends="Fit.Controls.Component">
 /// 	Simple Dialog control with support for Fit.UI buttons.
 /// </container>
 
 /// <function container="Fit.Controls.Dialog" name="Dialog" access="public">
 /// 	<description> Create instance of Dialog control </description>
+/// 	<param name="controlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
-Fit.Controls.Dialog = function()
+Fit.Controls.Dialog = function(controlId)
 {
+	Fit.Validation.ExpectStringValue(controlId, true);
+	Fit.Core.Extend(this, Fit.Controls.Component).Apply(controlId);
+
 	var me = this;
-	var dialog = null;
+	var dialog = me.GetDomElement();
 	var content = null;
 	var buttons = null;
 	var modal = false;
@@ -10376,9 +10405,6 @@ Fit.Controls.Dialog = function()
 
 	function init()
 	{
-		Fit._internal.Core.EnsureStyles();
-
-		dialog = document.createElement("div");
 		Fit.Dom.AddClass(dialog, "FitUiControl");
 		Fit.Dom.AddClass(dialog, "FitUiControlDialog");
 
@@ -10636,31 +10662,25 @@ Fit.Controls.Dialog = function()
 			Fit.Dom.Remove(layer);
 	}
 
-	/// <function container="Fit.Controls.Dialog" name="GetDomElement" access="public" returns="DOMElement">
-	/// 	<description> Get DOMElement representing control </description>
-	/// </function>
-	this.GetDomElement = function()
+	this.Render = function(toElement) // Override Render() on Fit.Controls.Component
 	{
-		return dialog;
+		Fit.Validation.ThrowError("Use Open function to open Dialog");
 	}
 
-	/// <function container="Fit.Controls.Dialog" name="Dispose" access="public">
-	/// 	<description> Destroys component to free up memory, including associated buttons </description>
-	/// </function>
-	this.Dispose = function()
+	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
-		Fit.Dom.Remove(dialog);
-
 		if (layer !== null)
 			Fit.Dom.Remove(layer);
 
 		Fit.Array.ForEach(Fit.Array.Copy(buttons.children), function(buttonElm) // Using Copy(..) since Dispose() modifies children collection
 		{
-			Fit.Controls.Find(buttonElm.id).Dispose();
+			buttonElm._internal.Instance.Dispose();
 		});
 
-		me = dialog = content = buttons = modal = layer = null;
-	}
+		me = dialog = content = buttons = modal = layer = width = minWidth = maxWidth = null;
+
+		base();
+	});
 
 	init();
 }
@@ -10793,11 +10813,11 @@ Fit.Controls.Dialog.Prompt = function(content, defaultValue, cb)
 
 /// <function container="Fit.Controls.DropDown" name="DropDown" access="public">
 /// 	<description> Create instance of DropDown control </description>
-/// 	<param name="ctlId" type="string"> Unique control ID </param>
+/// 	<param name="ctlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.DropDown = function(ctlId)
 {
-	Fit.Validation.ExpectStringValue(ctlId);
+	Fit.Validation.ExpectStringValue(ctlId, true);
 	Fit.Core.Extend(this, Fit.Controls.ControlBase).Apply(ctlId);
 
 	var me = this;								// Access to members from event handlers (where "this" may have a different meaning)
@@ -12769,24 +12789,11 @@ Fit._internal.DropDown.Current = null;
 /// 	OnItemSelectionComplete should only fire if a change was made (changes can be canceled using
 /// 	OnItemSelectionChanging).
 /// </container>
-Fit.Controls.PickerBase = function(controlId)
+Fit.Controls.PickerBase = function()
 {
-	Fit.Validation.ExpectStringValue(controlId, true);
-
-	// Support for Fit.Controls.Find(..)
-
-	if (Fit.Validation.IsSet(controlId) === true)
-	{
-		if (Fit._internal.ControlBase.Controls[controlId] !== undefined)
-			Fit.Validation.ThrowError("Control with ID '" + controlId + "' has already been defined - Control IDs must be unique!");
-
-		Fit._internal.ControlBase.Controls[controlId] = this;
-	}
-
 	// Private variables
 
 	var me = this;
-	var id = (controlId ? controlId : null);
 
 	var onShowHandlers = [];
 	var onHideHandlers = [];
@@ -12797,14 +12804,6 @@ Fit.Controls.PickerBase = function(controlId)
 	// ============================================
 	// Public
 	// ============================================
-
-	/// <function container="Fit.Controls.PickerBase" name="GetId" access="public" returns="string">
-	/// 	<description> Get unique Control ID </description>
-	/// </function>
-	this.GetId = function()
-	{
-		return id;
-	}
 
 	/// <function container="Fit.Controls.PickerBase" name="MaxHeight" access="public" returns="object">
 	/// 	<description> Get/set max height of control - returns object with Value (number) and Unit (string) properties </description>
@@ -13023,10 +13022,7 @@ Fit.Controls.PickerBase = function(controlId)
 	/// </function>
 	this.Destroy = function() // Must be overridden - remember to call base !
 	{
-		me = id = onShowHandlers = onHideHandlers = onChangingHandlers = onChangeHandlers = onCompleteHandlers = null;
-
-		if (Fit.Validation.IsSet(controlId) === true)
-			delete Fit._internal.ControlBase.Controls[controlId];
+		me = onShowHandlers = onHideHandlers = onChangingHandlers = onChangeHandlers = onCompleteHandlers = null;
 	}
 
 	// ============================================
@@ -13102,11 +13098,11 @@ Fit.Controls.PickerBase = function(controlId)
 
 /// <function container="Fit.Controls.WSDropDown" name="WSDropDown" access="public">
 /// 	<description> Create instance of WSDropDown control </description>
-/// 	<param name="ctlId" type="string"> Unique control ID </param>
+/// 	<param name="ctlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.WSDropDown = function(ctlId)
 {
-	Fit.Validation.ExpectStringValue(ctlId);
+	Fit.Validation.ExpectStringValue(ctlId, true);
 	Fit.Core.Extend(this, Fit.Controls.DropDown).Apply(ctlId);
 
 	var me = this;
@@ -13526,11 +13522,11 @@ Fit.Controls.WSDropDown = function(ctlId)
 
 /// <function container="Fit.Controls.FilePicker" name="FilePicker" access="public">
 /// 	<description> Create instance of FilePicker control </description>
-/// 	<param name="ctlId" type="string"> Unique control ID </param>
+/// 	<param name="ctlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.FilePicker = function(ctlId)
 {
-	Fit.Validation.ExpectStringValue(ctlId);
+	Fit.Validation.ExpectStringValue(ctlId, true);
 	Fit.Core.Extend(this, Fit.Controls.ControlBase).Apply(ctlId);
 
 	var me = this;
@@ -14344,11 +14340,11 @@ Fit.Controls.FilePicker = function(ctlId)
 
 /// <function container="Fit.Controls.Input" name="Input" access="public">
 /// 	<description> Create instance of Input control </description>
-/// 	<param name="ctlId" type="string"> Unique control ID </param>
+/// 	<param name="ctlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.Input = function(ctlId)
 {
-	Fit.Validation.ExpectStringValue(ctlId);
+	Fit.Validation.ExpectStringValue(ctlId, true);
 	Fit.Core.Extend(this, Fit.Controls.ControlBase).Apply(ctlId);
 
 	var me = this;
@@ -15100,34 +15096,28 @@ Fit.Controls.Input.Type = Fit.Controls.InputType; // Backward compatibility
 
 Fit._internal.Controls.Input = {};
 Fit._internal.Controls.Input.DefaultSkin = null; // Notice: CKEditor does not support multiple different skins on the same page - do not change value once an editor has been created
-/// <container name="Fit.Controls.ListView" extends="Fit.Controls.PickerBase">
+/// <container name="Fit.Controls.ListView" extends="Fit.Controls.PickerBase;Fit.Controls.Component">
 /// 	Picker control which allows for entries
 /// 	to be selected in the DropDown control.
 /// </container>
 
 /// <function container="Fit.Controls.ListView" name="ListView" access="public">
 /// 	<description> Create instance of ListView control </description>
-/// 	<param name="controlId" type="string" default="undefined">
-/// 		Unique control ID. if specified, control will be
-/// 		accessible using the Fit.Controls.Find(..) function.
-/// 	</param>
+/// 	<param name="controlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.ListView = function(controlId)
 {
 	Fit.Validation.ExpectStringValue(controlId, true);
-
-	Fit.Core.Extend(this, Fit.Controls.PickerBase).Apply(controlId);
+	Fit.Core.Extend(this, Fit.Controls.PickerBase).Apply();
+	Fit.Core.Extend(this, Fit.Controls.Component).Apply(controlId);
 
 	var me = this;
-	var list = null;
+	var list = me.GetDomElement();
 	var active = null;
 	var isIe8 = (Fit.Browser.GetInfo().Name === "MSIE" && Fit.Browser.GetInfo().Version === 8);
 
 	function init()
 	{
-		Fit._internal.Core.EnsureStyles();
-		
-		list = document.createElement("div");
 		list.tabIndex = "0";
 		Fit.Dom.AddClass(list, "FitUiControlListView");
 
@@ -15300,11 +15290,6 @@ Fit.Controls.ListView = function(controlId)
 	// PickerBase interface
 	// ============================================
 
-	this.GetDomElement = function()
-	{
-		return list;
-	}
-
     this.HandleEvent = function(e)
     {
 		Fit.Validation.ExpectEvent(e, true);
@@ -15348,15 +15333,34 @@ Fit.Controls.ListView = function(controlId)
 				Fit.Events.PreventDefault(ev);
             }
         }
-    }
-
-	this.Destroy = Fit.Core.CreateOverride(this.Destroy, function()
+	}
+	
+	this.Destroy = Fit.Core.CreateOverride(this.Destroy, function(calledInternally)
 	{
+		Fit.Validation.ExpectBoolean(calledInternally, true);
+
 		// This will destroy control - it will no longer work!
 
-		Fit.Dom.Remove(list);
+		if (calledInternally !== true)
+		{
+			me.Dispose(true); // Component.Dispose()
+		}
+
+		base(); // PickerBase.Destroy()
+	});
+
+	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function(calledInternally)
+	{
+		Fit.Validation.ExpectBoolean(calledInternally, true);
+		
+		base(); // Component.Dispose()
+		
+		if (calledInternally !== true)
+		{
+			me.Destroy(true); // PickerBase.Destroy()
+		}
+
 		me = list = active = isIe8 = null;
-		base();
 	});
 
     // ============================================
@@ -15445,10 +15449,7 @@ Fit.Controls.ListView = function(controlId)
 
 /// <function container="Fit.Controls.WSListView" name="WSListView" access="public">
 /// 	<description> Create instance of WSListView control </description>
-/// 	<param name="controlId" type="string" default="undefined">
-/// 		Unique control ID. if specified, control will be
-/// 		accessible using the Fit.Controls.Find(..) function.
-/// 	</param>
+/// 	<param name="ctlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.WSListView = function(ctlId)
 {
@@ -15746,36 +15747,24 @@ Fit.Controls.WSListView = function(ctlId)
 
 	init();
 }
-/// <container name="Fit.Controls.ProgressBar">
+/// <container name="Fit.Controls.ProgressBar" extends="Fit.Controls.Component">
 /// 	ProgressBar control useful for indicating progress.
 /// </container>
 
 /// <function container="Fit.Controls.ProgressBar" name="ProgressBar" access="public">
 /// 	<description> Create instance of ProgressBar control </description>
-/// 	<param name="controlId" type="string" default="undefined">
-/// 		Unique control ID. if specified, control will be
-/// 		accessible using the Fit.Controls.Find(..) function.
-/// 	</param>
+/// 	<param name="controlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.ProgressBar = function(controlId)
 {
 	Fit.Validation.ExpectStringValue(controlId, true);
-
-	// Support for Fit.Controls.Find(..)
-
-	if (Fit.Validation.IsSet(controlId) === true)
-	{
-		if (Fit._internal.ControlBase.Controls[controlId] !== undefined)
-			Fit.Validation.ThrowError("Control with ID '" + controlId + "' has already been defined - Control IDs must be unique!");
-
-		Fit._internal.ControlBase.Controls[controlId] = this;
-	}
+	Fit.Core.Extend(this, Fit.Controls.Component).Apply(controlId);
 
 	// Internals
 
 	var me = this;
-	var id = (controlId ? controlId : null);
-	var element = null;
+	var id = me.GetId();
+	var element = me.GetDomElement();
 	var status = null;
 	var title = "";
 	var width = { Value: 200, Unit: "px" }; // Any changes to this line must be dublicated to Width(..)
@@ -15783,13 +15772,6 @@ Fit.Controls.ProgressBar = function(controlId)
 
 	function init()
 	{
-		Fit._internal.Core.EnsureStyles();
-		
-		element = document.createElement("div");
-
-		if (id !== null)
-			element.id = id;
-
 		Fit.Dom.AddClass(element, "FitUiControl");
 		Fit.Dom.AddClass(element, "FitUiControlProgressBar");
 
@@ -15800,14 +15782,6 @@ Fit.Controls.ProgressBar = function(controlId)
 
 		title = document.createElement("span");
 		Fit.Dom.Add(status, title);
-	}
-
-	/// <function container="Fit.Controls.ProgressBar" name="GetId" access="public" returns="string">
-	/// 	<description> Get unique Control ID - returns Null if not set </description>
-	/// </function>
-	this.GetId = function()
-	{
-		return id;
 	}
 
 	/// <function container="Fit.Controls.ProgressBar" name="Title" access="public" returns="string">
@@ -15853,33 +15827,6 @@ Fit.Controls.ProgressBar = function(controlId)
 		return width;
 	}
 
-	/// <function container="Fit.Controls.ProgressBar" name="GetDomElement" access="public" returns="DOMElement">
-	/// 	<description> Get DOMElement representing control </description>
-	/// </function>
-	this.GetDomElement = function()
-	{
-		return element;
-	}
-
-	/// <function container="Fit.Controls.ProgressBar" name="Render" access="public">
-	/// 	<description> Render control, either inline or to element specified </description>
-	/// 	<param name="toElement" type="DOMElement" default="undefined"> If defined, control is rendered to this element </param>
-	/// </function>
-	this.Render = function(toElement)
-	{
-		Fit.Validation.ExpectDomElement(toElement, true);
-
-		if (Fit.Validation.IsSet(toElement) === true)
-		{
-			Fit.Dom.Add(toElement, element);
-		}
-		else
-		{
-			var script = document.scripts[document.scripts.length - 1];
-			Fit.Dom.InsertBefore(script, element);
-		}
-	}
-
 	/// <function container="Fit.Controls.ProgressBar" name="Progress" access="public" returns="integer">
 	/// 	<description> Get/set progress - a value between 0 and 100 </description>
 	/// 	<param name="val" type="integer" default="undefined"> If defined, progress is set to specified value (0-100) </param>
@@ -15913,17 +15860,11 @@ Fit.Controls.ProgressBar = function(controlId)
 		Fit.Array.Add(onProgressHandlers, cb);
 	}
 
-	/// <function container="Fit.Controls.ProgressBar" name="Dispose" access="public">
-	/// 	<description> Destroys control to free up memory </description>
-	/// </function>
-	this.Dispose = function()
+	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
-		Fit.Dom.Remove(element);
 		me = id = element = status = title = width = onProgressHandlers = null;
-
-		if (Fit.Validation.IsSet(controlId) === true)
-			delete Fit._internal.ControlBase.Controls[controlId];
-	}
+		base();
+	});
 
 	init();
 }
@@ -15960,11 +15901,11 @@ Fit.Controls.ProgressBar = function(controlId)
 
 /// <function container="Fit.Controls.TreeView" name="TreeView" access="public">
 /// 	<description> Create instance of TreeView control </description>
-/// 	<param name="ctlId" type="string"> Unique control ID </param>
+/// 	<param name="ctlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.TreeView = function(ctlId)
 {
-	Fit.Validation.ExpectStringValue(ctlId);
+	Fit.Validation.ExpectStringValue(ctlId, true);
 	Fit.Core.Extend(this, Fit.Controls.PickerBase).Apply();
 	Fit.Core.Extend(this, Fit.Controls.ControlBase).Apply(ctlId);
 
@@ -16831,9 +16772,10 @@ Fit.Controls.TreeView = function(ctlId)
 	}
 
 	// See documentation on ControlBase
-	var baseDispose = me.Dispose;
-	this.Dispose = function()
+	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function(calledInternally)
 	{
+		Fit.Validation.ExpectBoolean(calledInternally, true);
+
 		// This will destroy control - it will no longer work!
 
 		me._internal.ExecuteWithNoOnChange(function() // Prevent Dispose() on nodes from firing OnChange when they are removed from hierarchy
@@ -16846,9 +16788,15 @@ Fit.Controls.TreeView = function(ctlId)
 			ctx.Dispose(); //ctx.Hide();
 		}
 
+		base();
+
+		if (calledInternally !== true)
+		{
+			me.Destroy(true); // PickerBase.Destroy()
+		}
+
 		me = rootContainer = rootNode = selectable = multiSelect = showSelectAll = selected = selectedOrg = ctx = onContextMenuHandlers = onSelectHandlers = onSelectedHandlers = onToggleHandlers = onToggledHandlers = isPicker = activeNode = isIe8 = null;
-		baseDispose();
-	}
+	});
 
 	// ============================================
 	// Events (OnChange defined on BaseControl)
@@ -17067,12 +17015,18 @@ Fit.Controls.TreeView = function(ctlId)
 		}
     }
 
-	this.Destroy = Fit.Core.CreateOverride(this.Destroy, function()
+	this.Destroy = Fit.Core.CreateOverride(this.Destroy, function(calledInternally)
 	{
+		Fit.Validation.ExpectBoolean(calledInternally, true);
+
 		// This will destroy control - it will no longer work!
 
-		me.Dispose();
-		base();
+		if (calledInternally !== true)
+		{
+			me.Dispose(true); // Component.Dispose()
+		}
+
+		base(); // PickerBase.Destroy()
 	});
 
 	// ============================================
@@ -17933,11 +17887,11 @@ Fit.Controls.TreeView.Node = Fit.Controls.TreeViewNode; // Backward compatibilit
 
 /// <function container="Fit.Controls.WSTreeView" name="WSTreeView" access="public">
 /// 	<description> Create instance of WSTreeView control </description>
-/// 	<param name="ctlId" type="string"> Unique control ID </param>
+/// 	<param name="ctlId" type="string" default="undefined"> Unique control ID that can be used to access control using Fit.Controls.Find(..) </param>
 /// </function>
 Fit.Controls.WSTreeView = function(ctlId)
 {
-	Fit.Validation.ExpectStringValue(ctlId);
+	Fit.Validation.ExpectStringValue(ctlId, true);
 	Fit.Core.Extend(this, Fit.Controls.TreeView).Apply(ctlId);
 
 	var me = this;
