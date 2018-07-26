@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 1, Patch: 2 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 1, Patch: 4 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -1884,7 +1884,7 @@ Fit.Controls.Component = function(controlId)
 		// This will destroy control - it will no longer work!
 
 		Fit.Dom.Remove(container); // Dispose 'container' rather than object returned from GetDomElement() which may have been overridden and potentially returning a different object, in which case the derivative should dispose the object
-		delete container._internal; // Removed in case external code holds a reference to DOMElement. Also allows us to internally determine whether control has been disposed or not, since it will always be presented unless disposed.
+		delete container._internal; // Removed in case external code holds a reference to DOMElement. Also allows us to internally determine whether control has been disposed or not (e.g. in Fit.Template), since it will always be presented unless disposed.
 		delete Fit._internal.ControlBase.Controls[id];
 		me = id = container = null;
 	}
@@ -7008,7 +7008,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 	var container = null;
 	var elements = [];		// Holds references to all DOMElements added to template
 	var eventHandlers = []; // Holds references to all event handler functions associated with DOM elements
-	var controls = [];		// Holds references to all Fit.UI controls rendered to DOM view
+	var controls = [];		// Holds references to all Fit.UI controls (DOMElements) rendered to DOM view
 
 	function init()
 	{
@@ -7212,7 +7212,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 
 			if (elm.Element._internal !== undefined && elm.Element._internal.Instance !== undefined) // Fit.UI control inheriting from Fit.Controls.Component which is disposable
 			{
-				Fit.Array.Add(controls, elm.Element._internal.Instance);
+				Fit.Array.Add(controls, elm.Element);
 			}
 		});
 
@@ -7222,10 +7222,10 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 		{
 			Fit.Array.ForEach(oldControls, function(oldControl)
 			{
-				// Dispose control if no longer found in view
-				if (Fit.Array.Contains(controls, oldControl) === false)
+				// Dispose control if no longer found in view, unless manually disposed by external code in which case the _internal property no longer exists
+				if (Fit.Array.Contains(controls, oldControl) === false && oldControl._internal !== undefined)
 				{
-					oldControl.Dispose();
+					oldControl._internal.Instance.Dispose();
 				}
 			});
 		}
@@ -8446,7 +8446,6 @@ Fit.Controls.ContextMenu = function(controlId)
 		if (me.IsVisible() === true)
 		{
 			Fit.Dom.Remove(tree.GetDomElement());
-			fireEventHandlers(onHide);
 
 			Fit.Array.ForEach(tree.GetChildren(), function(n) // OnToggled handler makes sure to collapse nodes recursively
 			{
@@ -8462,6 +8461,8 @@ Fit.Controls.ContextMenu = function(controlId)
 			{
 				Fit.Dom.Data(ul, "viewportcollision", null);
 			});
+
+			fireEventHandlers(onHide); // Should be last in case a handler disposes ContextMenu
 		}
 	}
 
