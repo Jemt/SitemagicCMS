@@ -7,7 +7,8 @@ JSShop.Presenters.Basket = function()
 
 	var me = this;
 
-	var view = null;
+	var dom = null;
+	var tpl = null;
 	var basket = JSShop.Models.Basket;
 	var lang = JSShop.Language.Translations;
 
@@ -22,23 +23,59 @@ JSShop.Presenters.Basket = function()
 
 	var result = { Price: -1, Vat: -1 };
 
-	view = document.createElement("div");
-
-	function init()
+	function init(cb)
 	{
-		// Dispose controls in view (UI updates) - e.g. buttons used to adjust number of units
-
-		var domControls = view.querySelectorAll("div.FitUiControl");
-
-		Fit.Array.ForEach(domControls, function(domControl)
+		loadView(function()
 		{
-			var control = (domControl.id ? Fit.Controls.Find(domControl.id) : null);
-
-			if (control !== null && control.Dispose)
-			{
-				control.Dispose();
-			}
+			populateView();
 		});
+	}
+
+	function loadView(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+
+		dom = document.createElement("div");
+
+		// Load CSS
+
+		if (document.querySelector("link[href*='/Views/Basket/Basket.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
+		{
+			Fit.Browser.Log("Lazy loading Basket.css");
+			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/Basket/Basket.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+		}
+
+		// Load view
+
+		tpl = new Fit.Template(true);
+		tpl.LoadUrl(JSShop.GetPath() + "/Views/Basket/Basket.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
+		{
+			// Populate header titles
+
+			tpl.Content.HeaderProduct = lang.Basket.Product;
+			tpl.Content.HeaderUnitPrice = lang.Basket.UnitPrice;
+			tpl.Content.HeaderUnits = lang.Basket.Units;
+			tpl.Content.HeaderDiscount = lang.Basket.Discount;
+			tpl.Content.HeaderPrice = lang.Basket.Price;
+			tpl.Content.HeaderTotalVat = lang.Basket.TotalVat;
+			tpl.Content.HeaderTotalPrice = lang.Basket.TotalPrice;
+
+			cb();
+		});
+
+		tpl.Render(dom);
+	}
+
+	function populateView() // May be called multiple times to update basket
+	{
+		if (tpl.Content === null)
+		{
+			// Skip, external code tried to update basket while still loading,
+			// e.g. by calling ZipCode(..), PaymentMethod(..), Update(), or something
+			// else that calls this function. It is safe to just ignore it (return out)
+			// as the most recent data will be loaded once the template is done loading.
+			return;
+		}
 
 		// Get items from basket
 
@@ -60,25 +97,15 @@ JSShop.Presenters.Basket = function()
 
 		if (items.length === 0)
 		{
-			view.innerHTML = lang.Basket.BasketEmpty;
+			dom.innerHTML = lang.Basket.BasketEmpty;
 			return;
 		}
 
+		tpl.Content.ProductEntries.Clear();
+
 		// Load view and data
 
-		var tpl = new Fit.Template();
-		tpl.LoadUrl(JSShop.GetPath() + "/Views/Basket/Basket.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
-		{
-			// Populate header titles
-
-			tpl.Content.HeaderProduct = lang.Basket.Product;
-			tpl.Content.HeaderUnitPrice = lang.Basket.UnitPrice;
-			tpl.Content.HeaderUnits = lang.Basket.Units;
-			tpl.Content.HeaderDiscount = lang.Basket.Discount;
-			tpl.Content.HeaderPrice = lang.Basket.Price;
-			tpl.Content.HeaderTotalVat = lang.Basket.TotalVat;
-			tpl.Content.HeaderTotalPrice = lang.Basket.TotalPrice;
-
+		// TODO: REMOVE EXTRA INDENTATION
 			var totalVat = 0.0;
 			var totalPrice = 0.0;
 			var totalDiscount = 0.0;
@@ -107,8 +134,6 @@ JSShop.Presenters.Basket = function()
 
 					if (itemCount === 0) // All products loaded
 					{
-						view.innerHTML = ""; // TODO: Refactor to allow use of template's update mechanism instead
-
 						// Populate template
 
 						var productEntry = null;
@@ -317,7 +342,7 @@ JSShop.Presenters.Basket = function()
 								{
 									basket.Update(item.ProductId, parseInt(txtUnits.Value()));
 									dispose();
-									init();
+									populateView();
 								});
 								dialog.AddButton(cmdSave);
 
@@ -360,7 +385,7 @@ JSShop.Presenters.Basket = function()
 							item.View.Units = cmdUnits.GetDomElement();
 						});
 
-						tpl.Render(view);
+						tpl.Update();
 
 						// Display warnings
 
@@ -377,8 +402,8 @@ JSShop.Presenters.Basket = function()
 						});
 					}
 				});
-			})
-		});
+			});
+		// /TODO: REMOVE EXTRA INDENTATION
 	}
 
 	// Public members
@@ -392,7 +417,7 @@ JSShop.Presenters.Basket = function()
 			if (zip !== zipCode && expressionsContain("zipcode") === true)
 			{
 				zipCode = zip;
-				init(); // Update - zip code may influence cost corrections
+				populateView(); // Update - zip code may influence cost corrections
 			}
 		}
 
@@ -408,7 +433,7 @@ JSShop.Presenters.Basket = function()
 			if (pm !== paymentMethod && expressionsContain("paymentmethod") === true)
 			{
 				paymentMethod = pm;
-				init(); // Update - payment method may influence cost corrections
+				populateView(); // Update - payment method may influence cost corrections
 			}
 		}
 
@@ -424,7 +449,7 @@ JSShop.Presenters.Basket = function()
 			if (val !== promoCode && expressionsContain("promocode") === true)
 			{
 				promoCode = val;
-				init(); // Update - promocode may influence cost corrections
+				populateView(); // Update - promocode may influence cost corrections
 			}
 		}
 
@@ -440,7 +465,7 @@ JSShop.Presenters.Basket = function()
 			if (val !== custData1 && expressionsContain("custdata1") === true)
 			{
 				custData1 = val;
-				init(); // Update - custdata1 may influence cost corrections
+				populateView(); // Update - custdata1 may influence cost corrections
 			}
 		}
 
@@ -456,7 +481,7 @@ JSShop.Presenters.Basket = function()
 			if (val !== custData2 && expressionsContain("custdata2") === true)
 			{
 				custData2 = val;
-				init(); // Update - custdata2 may influence cost corrections
+				populateView(); // Update - custdata2 may influence cost corrections
 			}
 		}
 
@@ -472,7 +497,7 @@ JSShop.Presenters.Basket = function()
 			if (val !== custData3 && expressionsContain("custdata3") === true)
 			{
 				custData3 = val;
-				init(); // Update - custdata3 may influence cost corrections
+				populateView(); // Update - custdata3 may influence cost corrections
 			}
 		}
 
@@ -486,14 +511,14 @@ JSShop.Presenters.Basket = function()
 
 	this.GetDomElement = function()
 	{
-		return view;
+		return dom;
 	}
 
 	this.Update = function()
 	{
-		if (Fit.Dom.IsRooted(view) === true)
+		if (Fit.Dom.IsRooted(dom) === true)
 		{
-			init();
+			populateView();
 		}
 	}
 
