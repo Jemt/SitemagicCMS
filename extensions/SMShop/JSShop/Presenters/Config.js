@@ -10,13 +10,18 @@ JSShop.Presenters.Config = function()
 	var config = null;
 	var lang = JSShop.Language.Translations;
 	var buttons = [];
+	var ctx = null;
+	var ctxCallback = null;
 	var cmdSave = null;
 	var codeMirrorLoadState = -1; // -1 = Not loaded, 0 = loading, 1 = loaded
 
 	function init()
 	{
 		if (document.querySelector("link[href*='/Views/Config/Config.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
+		{
+			Fit.Browser.Log("Lazy loading Config.css");
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/Config/Config.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+		}
 
 		view = document.createElement("div");
 
@@ -33,6 +38,13 @@ JSShop.Presenters.Config = function()
 				var cmdMails = createTabButton(lang.Config.EmailTemplates, function(sender) { showMailTemplates(sender); });
 				var cmdPayMethods = createTabButton(lang.Config.PaymentMethods, function(sender) { showPayMethods(sender); });
 				var cmdAdvanced = createTabButton(lang.Config.Advanced, function(sender) { showAdvanced(sender); });
+
+				ctx = new Fit.Controls.ContextMenu();
+				ctx.OnSelect(function(sender, item)
+				{
+					ctxCallback(item.Value());
+					ctx.Hide();
+				});
 
 				cmdMails.Enabled(((config.MailTemplates.Templates && config.MailTemplates.Templates.length > 0) ? true : false));
 				cmdPayMethods.Enabled((config.PaymentMethods.length > 0 ? true : false));
@@ -88,22 +100,11 @@ JSShop.Presenters.Config = function()
 		return b;
 	}
 
-	function disposeControls()
-	{
-		var items = tpl.Content.Properties.GetItems();
-
-		Fit.Array.ForEach(items, function(item)
-		{
-			item.PropertyValue.FitControl.Dispose();
-		});
-	}
-
 	function loadBasicConfig(sender)
 	{
 		Fit.Validation.ExpectInstance(sender, Fit.Controls.Button);
 
 		setActiveTabButton(sender);
-		disposeControls();
 
 		tpl.Content.Properties.Clear();
 
@@ -164,7 +165,6 @@ JSShop.Presenters.Config = function()
 		Fit.Validation.ExpectString(tplName);
 
 		setActiveTabButton(btn);
-		disposeControls();
 
 		tpl.Content.Properties.Clear();
 
@@ -260,7 +260,6 @@ JSShop.Presenters.Config = function()
 		Fit.Validation.ExpectString(moduleName);
 
 		setActiveTabButton(btn);
-		disposeControls();
 
 		tpl.Content.Properties.Clear();
 
@@ -333,7 +332,6 @@ JSShop.Presenters.Config = function()
 		Fit.Validation.ExpectString(section);
 
 		setActiveTabButton(btn);
-		disposeControls();
 
 		tpl.Content.Properties.Clear();
 
@@ -409,7 +407,7 @@ JSShop.Presenters.Config = function()
 		Fit.Validation.ExpectTypeArray(options, Fit.Validation.ExpectString);
 		Fit.Validation.ExpectFunction(cb);
 
-		var ctx = new Fit.Controls.ContextMenu();
+		ctx.RemoveAllChildren(true);
 
 		Fit.Array.ForEach(options, function(opt)
 		{
@@ -422,11 +420,7 @@ JSShop.Presenters.Config = function()
 			ctx.AddChild(item);
 		});
 
-		ctx.OnSelect(function(sender, item)
-		{
-			cb(item.Value());
-			ctx.Hide();
-		});
+		ctxCallback = cb;
 
 		var el = btn.GetDomElement();
 		var pos = Fit.Dom.GetPosition(el);
