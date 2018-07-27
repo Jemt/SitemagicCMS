@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 1, Patch: 4 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 1, Patch: 5 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -8446,6 +8446,7 @@ Fit.Controls.ContextMenu = function(controlId)
 		if (me.IsVisible() === true)
 		{
 			Fit.Dom.Remove(tree.GetDomElement());
+			fireEventHandlers(onHide);
 
 			Fit.Array.ForEach(tree.GetChildren(), function(n) // OnToggled handler makes sure to collapse nodes recursively
 			{
@@ -8461,8 +8462,6 @@ Fit.Controls.ContextMenu = function(controlId)
 			{
 				Fit.Dom.Data(ul, "viewportcollision", null);
 			});
-
-			fireEventHandlers(onHide); // Should be last in case a handler disposes ContextMenu
 		}
 	}
 
