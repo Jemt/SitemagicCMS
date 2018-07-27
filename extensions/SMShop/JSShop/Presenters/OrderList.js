@@ -281,7 +281,10 @@ JSShop.Presenters.OrderList = function()
 		Fit.Validation.ExpectFunction(onComplete);
 
 		if (document.querySelector("link[href*='/Views/OrderList/OrderList.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
+		{
+			Fit.Browser.Log("Lazy loading OrderList.css");
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/OrderList.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+		}
 
 		var tpl = new Fit.Template(true);
 		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/OrderList.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)

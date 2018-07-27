@@ -41,7 +41,10 @@ JSShop.Presenters.OrderForm = function()
 			return;
 
 		if (document.querySelector("link[href*='/Views/OrderForm/OrderForm.css']") === null) // Might have been loaded by CMS to prevent flickering (FOUC - flash of unstyled content)
+		{
+			Fit.Browser.Log("Lazy loading OrderForm.css");
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderForm/OrderForm.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
+		}
 
 		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderForm/OrderForm.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 		req.OnSuccess(function(sender)
