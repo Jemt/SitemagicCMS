@@ -411,7 +411,7 @@ class SMDataSource implements SMIDataSource
 
 	public static function GetDataSourceVersion()
 	{
-		return "20150926";
+		return "20180821"; //"20150926";
 	}
 
 	private function getEntries($whereStr)
@@ -484,14 +484,16 @@ class SMDataSource implements SMIDataSource
 
 					// Remove pings surrounding search expression (use of pings is optional for numeric values)
 
-					$whereExpr = str_replace("\\'", "'", $whereExpr); // allows for single quotes to be used within search expression
-
 					if (strlen($whereExpr) >= 2 && SMStringUtilities::StartsWith($whereExpr, "'") === true && SMStringUtilities::EndsWith($whereExpr, "'") === true)
 						$whereExpr = substr($whereExpr, 1, strlen($whereExpr) - 2);
 
+					$whereExpr = str_replace("\\'", "'", $whereExpr);	// allows for single quotes to be used within search expression
+					$whereExpr = str_replace("\\\\", "\\", $whereExpr);	// Keep last (!!) - allows for backspace to be used within search expression - must be last to prevent this from transforming e.g. \\' to \' which is also an escape sequence
+
 					// Prepare values to be compared
 
-					$whereExpr = strtolower($whereExpr);
+					$whereExpr = $this->normalize($whereExpr); // Unicode lower cased string (HTML and HEX entities are translated into Unicode characters)
+
 					$dbValue = null;
 
 					foreach ($entry->attributes as $attrName => $attrValue)
@@ -501,7 +503,7 @@ class SMDataSource implements SMIDataSource
 					if ($dbValue !== null)
 					{
 						$dbValue = $this->decode($dbValue);
-						$dbValue = strtolower($dbValue);
+						$dbValue = $this->normalize($dbValue); // Unicode lower cased string (HTML and HEX entities are translated into Unicode characters)
 					}
 
 					// Do actual comparison
@@ -620,17 +622,26 @@ class SMDataSource implements SMIDataSource
 		return $entriesMatching;
 	}
 
-	private function likeMatched($whereExpr, $dbValue)
+	private function likeMatched($whereExpr, $dbValue) // Expects unicode strings
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "whereExpr", $whereExpr, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "dbValue", $dbValue, SMTypeCheckType::$String);
 
-		if ($whereExpr !== "" && str_replace("%", "", $whereExpr) === "") // example:   name LIKE '%'   or   name LIKE '%%%'   (includes all records in MySQL, even though one would expect only records with an empty name to be included)
+		if ($whereExpr !== "" && mb_ereg_replace("%", "", $whereExpr) === "") // example:   name LIKE '%'   or   name LIKE '%%%'   (includes all records in MySQL, even though one would expect only records with an empty name to be included)
 			return true;
 
 		if ($whereExpr === "")
 			return ($dbValue === "");
 
+		$regex = "";
+
+		$regex .= "^";
+		$regex .= mb_ereg_replace("%", ".*", preg_quote($whereExpr));
+		$regex .= "$";
+
+		return (mb_eregi($regex, $dbValue) !== false);
+
+		/* // OLD LOGIC
 		$whereExprSearches = SMSqlParser::SplitSql($whereExpr, "%");
 		$whereExprOffset = 0;
 
@@ -658,7 +669,7 @@ class SMDataSource implements SMIDataSource
 			}
 		}
 
-		return true;
+		return true;*/
 	}
 
 	private function orderBy($entries, $orderStr)
@@ -699,7 +710,7 @@ class SMDataSource implements SMIDataSource
 			if (count($orderbyInfo) === 2)
 				$dataOrder[$countOrder] = (strtoupper($orderbyInfo[1]) === "DESC") ? SORT_DESC : SORT_ASC;
 
-			$orderData[$countOrder] = array();
+			$orderData[$countOrder] = array(); // Will hold unicode strings (notice call to normalize(..) where data is added to array)
 
 			foreach ($entries as $entry)
 			{
@@ -711,7 +722,7 @@ class SMDataSource implements SMIDataSource
 				$orderbyField = $this->getCaseSensitiveAttribute($entry, $orderbyInfo[0]);
 
 				$orderbyValue = (($orderbyField !== null) ? $entry->getAttribute($orderbyField) : null);
-				$orderData[$countOrder][] = (($orderbyValue !== null) ? strtolower($this->decode($orderbyValue)) : null);
+				$orderData[$countOrder][] = (($orderbyValue !== null) ? $this->normalize($this->decode($orderbyValue)) : null);
 			}
 		}
 
@@ -818,6 +829,24 @@ class SMDataSource implements SMIDataSource
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
 		return SMStringUtilities::HtmlEntityDecode($str);
+	}
+
+	private function normalize($str)
+	{
+		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
+
+		$val = $str;
+
+		// Returns lower cased string.
+		// HEX and HTML entities are decoded and lower cased too.
+		// This function returns a unicode string !
+
+		$val = SMStringUtilities::HtmlEntityDecode($val);
+		$uniVal = SMStringUtilities::UnicodeDecode($val); // Returns unicode string
+		$uniVal = mb_strtolower($uniVal);
+		//$val = SMStringUtilities::UnicodeEncode($uniVal);
+		//return $val;
+		return $uniVal;
 	}
 
 	private function ensureDomDocument()

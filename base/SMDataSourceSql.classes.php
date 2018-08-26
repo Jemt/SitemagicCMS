@@ -420,7 +420,7 @@ class SMDataSource implements SMIDataSource
 
 	public static function GetDataSourceVersion()
 	{
-		return "20150802";
+		return "20180821"; //"20150802";
 	}
 
 	private function getConnection($source)
@@ -520,6 +520,12 @@ class SMDataSource implements SMIDataSource
 				$info[0] = "`" . $info[0] . "`";
 
 				$whereOrs[$j] = implode(" ", $info);
+
+				// Make sure encoded unicode characters are decoded before comparison.
+				// WHERE statements such as: `field` LIKE '%search%'
+				// are transformed into this: `LOWER`(`sm_entity_decode`(`field`)) LIKE `LOWER`(`sm_entity_decode`('%search%'))
+				// https://regex101.com/r/fuqRWf/3/
+				$whereOrs[$j] = preg_replace('/^(.+?)( .*?)(([\'"]).*\4)$/', "`LOWER`(`sm_entity_decode`($1))$2`LOWER`(`sm_entity_decode`($3))", $whereOrs[$j]);
 			}
 
 			$whereAnds[$i] = implode(" OR ", $whereOrs);
@@ -545,7 +551,8 @@ class SMDataSource implements SMIDataSource
 			$orderbyInfo = explode(" ", $orderbys[$i]); // 0 = column name, 1 = DESC|ASC (optional)
 			$orderbyInfo[0] = "`" . $orderbyInfo[0] . "`";
 
-			$orderbys[$i] = $orderbyInfo[0];
+			// Decode HEX entities into unicode characters to make sure they are ordered properly
+			$orderbys[$i] = "`sm_entity_decode`(" . $orderbyInfo[0] . ")";
 
 			if (count($orderbyInfo) === 2)
 				$orderbys[$i] .= " " . $orderbyInfo[1];

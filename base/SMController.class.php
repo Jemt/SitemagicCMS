@@ -94,6 +94,11 @@ class SMController
 	{
 		SMEnvironment::Initialize(); // Initializes cookies and sessions (calls session_name(..) and session_start())
 
+		// Make sure multibyte functions and regular expressions
+		// work properly with unicode on PHP versions prior to 5.6.
+		mb_internal_encoding("UTF-8");
+		mb_regex_encoding("UTF-8");
+
 		$timezone = $this->config->GetEntry("DefaultTimeZoneOverride");
 		if ($timezone !== null && $timezone !== "")
 		{
