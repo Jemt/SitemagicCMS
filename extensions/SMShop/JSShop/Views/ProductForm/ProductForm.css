@@ -1,0 +1,75 @@
+/* =======================================*/
+/* ProductForm.html                       */
+/* =======================================*/
+
+/* Spacing between labels and controls */
+table.JSShopProductForm td
+{
+	padding-right: 50px;
+}
+table.JSShopProductForm td + td
+{
+	padding-right: 0px;
+}
+
+/* Float Price + Currency and Weight + WeightUnit controls next to each other */
+div#JSShop-Price-Control,
+div#JSShop-Weight-Control
+{
+	float: left;
+	margin-right: 10px;
+}
+div#JSShop-Currency-Control,
+div#JSShop-WeightUnit-Control
+{
+	float: left;
+	font-size: 0.80em;
+}
+
+/* Right align buttons */
+table.JSShopProductForm td#JSShop-Buttons
+{
+	text-align: right;
+	padding-right: 2em; /* Textarea's maximize button expand cells 2em */
+}
+table.JSShopProductForm td#JSShop-Buttons div.FitUiControlButton
+{
+	margin: 5px;
+}
+
+/* Float images next to form */
+table.JSShopProductForm
+{
+	float: left;
+	margin-right: 35px;
+}
+div.JSShopProductFormImages
+{
+	float: left;
+}
+div.JSShopProductFormFooter
+{
+	clear: both;
+}
+
+/* Image preview */
+div.JSShopFilePreview
+{
+	margin-bottom: 15px;
+	border: 1px solid #808080;
+	border-radius: 3px;
+	width: 200px;
+	height: 100px; /* MUST be half the value of width in order for aspect ration to be preserved in preview ! */
+	overflow: hidden;
+
+	position: relative; /* Allow delete button to be positioned within preview container */
+}
+div.JSShopFilePreview > span /* Delete button */
+{
+	position: absolute;
+	top: 3px;
+	right: 3px;
+	color: red;
+	font-size: 1.5em;
+	cursor: pointer;
+}

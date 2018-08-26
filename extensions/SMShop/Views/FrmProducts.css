@@ -1,0 +1,295 @@
+/* ======================================================== */
+/* Product list                                             */
+/* ======================================================== */
+
+div.SMShopProduct
+{
+	background-color: rgb(250, 250, 250); /* IE7-8 fallback */
+	border: 1px solid #333333; /* IE7-8 - removed further down for modern browsers */
+
+	background-color: rgba(250, 250, 250, 0.6);
+	box-shadow: 0px 0px 5px #333333;
+	border-radius: 3px;
+
+	width: 250px;
+	margin: 1em;
+	float: left;
+}
+div.SMShopProduct:not(#IE7IE8)
+{
+	border: none;
+}
+
+div.SMShopProduct > div /* Header, Images, Body, and Footer section */
+{
+	padding: 1.5em;
+	overflow: hidden;
+	position: relative; /* Allow positioning within sections */
+}
+
+/* Header  */
+
+div.SMShopProductHeader
+{
+	background-color: #333333;
+	color: whitesmoke;
+	height: 3em;
+}
+span.SMShopProductTitle
+{
+	font-weight: bold;
+}
+
+/* Images */
+
+div.SMShopProductImages
+{
+	height: 10em;
+}
+div.SMShopProductImages img
+{
+	max-height: 100%;
+	max-width: 100%;
+	margin: 0 auto;
+	display: none;
+}
+div.SMShopProductImages img:first-child
+{
+	display: block;
+}
+div.SMShopProductImages span.SMShopProductImagePlaceHolder
+{
+	display: block;
+	margin: 0 auto;
+	font-size: 5em;
+}
+div.SMShopProductImages img + i + i + span.SMShopProductImagePlaceHolder
+{
+	display: none;
+}
+i.SMShopNextImageButton,
+i.SMShopPrevImageButton
+{
+	display: none;
+}
+
+/* Description */
+
+div.SMShopProductBody
+{
+	padding-top: 0px;
+}
+span.SMShopProductDescription
+{
+	height: 7em;
+	display: block;
+	overflow: hidden;
+}
+
+/* Footer */
+
+div.SMShopProductFooter
+{
+	border-top: 1px solid silver;
+	height: 5.5em;
+}
+span.SMShopProductFullPrice
+{
+	display: block;
+	text-align: center;
+}
+span.SMShopProductPriceInfo
+{
+	display: block;
+	font-size: 0.8em;
+	color: #8C8C8C;
+	text-align: center;
+}
+
+span.SMShopProductWeight,
+span.SMShopProductDeliveryTime
+{
+	display: none;
+}
+
+div.SMShopProductButtons
+{
+	margin-top: 1.5em;
+	text-align: center;
+	white-space: nowrap;
+}
+span.JSShopBuyButton div.FitUiControlInput
+{
+	width: 1.75em !important;
+}
+
+span.SMShopProductWeight[data-weight="0"],
+span.SMShopProductDeliveryTime[data-delivery="0"],
+span.SMShopProductPriceInfo[data-price="0"],
+span.SMShopProductPriceInfo[data-vat="0"]
+{
+	visibility: hidden;
+}
+
+/* ======================================================== */
+/* Product dialog                                           */
+/* ======================================================== */
+
+div.SMShopBackgroundLayer
+{
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: 1000; /* Above SMCMS mobile menu (z-index: 999) and below Fit.UI dialogs (z-index: 1100) */
+	background-color: rgba(0, 0, 0, 0.4); /* IE8 not supported */
+	overflow: auto;
+}
+
+div.SMShopProductDialog
+{
+	width: 600px;
+	background-color: rgba(250, 250, 250, 0.9);
+	box-shadow: 0px 0px 50px 5px #464648;
+	z-index: 100;
+
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	margin: 0 auto;
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+div.SMShopProductDialog div.SMShopProductHeader,
+div.SMShopProductDialog div.SMShopProductBody,
+div.SMShopProductDialog span.SMShopProductDescription,
+div.SMShopProductDialog div.SMShopProductImages
+{
+	overflow: visible;
+	height: auto;
+}
+
+/* Close button */
+
+i.SMShopCloseDialogButton
+{
+	display: none;
+	cursor: pointer;
+}
+div.SMShopProductDialog i.SMShopCloseDialogButton
+{
+	display: inline;
+	position: absolute;
+	top: 0.5em;
+	right: 0.5em;
+	font-size: 2em;
+}
+div.SMShopProductDialog div.SMShopProductHeader
+{
+	padding-right: 4em;
+}
+
+/* Image switcher buttons (previous / next) */
+
+div.SMShopProductDialog img + img + i.SMShopPrevImageButton,
+div.SMShopProductDialog img + img + i + i.SMShopNextImageButton
+{
+	display: inline;
+	position: absolute;
+	top: 0.4em;
+	font-size: 3em;
+	cursor: pointer;
+}
+div.SMShopProductDialog img + img + i.SMShopPrevImageButton
+{
+	left: 0.4em;
+}
+div.SMShopProductDialog img + img + i + i.SMShopNextImageButton
+{
+	right: 0.4em;
+}
+div.SMShopProductDialog div.SMShopProductImages
+{
+	padding: 3em;
+}
+
+/* Info and Buy buttons */
+
+div.SMShopProductDialog span.JSShopInfoButton
+{
+	display: none;
+}
+div.SMShopProductDialog span.JSShopBuyButton
+{
+	font-size: 1.2em;
+}
+div.SMShopProductDialog span.JSShopBuyButton div.FitUiControlInput
+{
+	width: 2.5em !important;
+}
+
+/* Additional details in footer */
+
+div.SMShopProductDialog span.SMShopProductWeight,
+div.SMShopProductDialog span.SMShopProductDeliveryTime
+{
+	display: inline;
+	position: absolute;
+	top: 1.5em;
+	right: 1.5em;
+}
+div.SMShopProductDialog span.SMShopProductDeliveryTime
+{
+	top: 2.55em;
+}
+div.SMShopProductDialog span.SMShopProductFullPrice,
+div.SMShopProductDialog span.SMShopProductPriceInfo
+{
+	text-align: left;
+}
+
+/* ======================================================== */
+/* Mobile - responsiveness                                  */
+/* ======================================================== */
+
+@media (max-width: 900px)
+{
+	/*div.SMShopProductList
+	{
+		text-align: center;
+	}*/
+	div.SMShopProduct:not(.SMShopProductDialog)
+	{
+		/*display: inline-block;
+		text-align: left;
+		float: none;*/
+		width: 30%;
+		margin: 1.35%;
+	}
+}
+@media (max-width: 850px)
+{
+	div.SMShopProduct:not(.SMShopProductDialog)
+	{
+		width: 45%;
+		margin: 2%;
+	}
+	div.SMShopProductDialog
+	{
+		width: 90%;
+	}
+}
+@media (max-width: 580px)
+{
+	div.SMShopProduct:not(.SMShopProductDialog)
+	{
+		width: 95%;
+	}
+	div.SMShopProduct:not(.SMShopProductDialog) div.SMShopProductHeader
+	{
+		height: auto;
+		overflow: visible;
+	}
+}

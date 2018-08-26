@@ -136,7 +136,8 @@ class SMController
 
 		// Register meta tags, StyleSheets, and JavaScript
 
-		$charSet = ((strpos(strtolower($this->template->GetContent()), "<!doctype html>") === false) ? "ISO-8859-1" : "windows-1252");
+		$isHtml5 = $this->template->IsHtml5();
+		$charSet = (($isHtml5 === false) ? "ISO-8859-1" : "windows-1252");
 		$basicCss = SMTemplateInfo::GetBasicCssFile(SMTemplateInfo::GetCurrentTemplate());				// basic.css, style.css (preferred), or null
 		$basicCss = (($basicCss !== null) ? $basicCss . "?v=" . SMEnvironment::GetVersion() : null);
 		$indexCss = SMTemplateInfo::GetTemplateCssFile(SMTemplateInfo::GetCurrentTemplate());			// index.css, style.css (preferred), or null
@@ -146,7 +147,7 @@ class SMController
 
 		$head = "";
 		$head .= "\n\t<meta name=\"generator\" content=\"Sitemagic CMS\">";
-		$head .= "\n\t<meta http-equiv=\"content-type\" content=\"text/html;charset=" . $charSet . "\">";
+		//$head .= "\n\t<meta http-equiv=\"content-type\" content=\"text/html;charset=" . $charSet . "\">";
 		$head .= "\n\t<link rel=\"shortcut icon\" type=\"images/x-icon\" href=\"favicon.ico\">";
 		$head .= "\n\t<link rel=\"stylesheet\" type=\"text/css\" href=\"base/gui/gui.css?ver=" . SMEnvironment::GetVersion() . "\">";
 		if ($basicCss !== null)
@@ -214,6 +215,14 @@ class SMController
 		$this->template->ReplaceTag(new SMKeyValue("CurrentImageTheme", SMImageProvider::GetImageTheme()));
 		$this->template->ReplaceTag(new SMKeyValue("CurrentImageThemePath", SMEnvironment::GetImagesDirectory() . "/" . SMImageProvider::GetImageTheme()));
 		$this->template->ReplaceTag(new SMKeyValue("Language", SMLanguageHandler::GetSystemLanguage()));
+
+		// Convert HTML4 compliant markup to HTML5 compliant markup
+
+		if ($isHtml5 === true)
+		{
+			// Remove type attribute from script tags - https://regex101.com/r/FO5v8L/2
+			$this->template->SetContent(preg_replace('/(<script.*) type=([\'"]).*?\2(.*?>)/m', '${1}${3}', $this->template->GetContent()));
+		}
 
 		// Continue life cycle
 

@@ -1,13 +1,11 @@
 {
   "name": "sitemagic",
-  "version": "3.4.0",
+  "version": "4.4.0",
   "description": "User friendly, feature rich, extendable, and customizable Content Management System",
   "main": "index.php",
-  "dependencies": {
-    "fit-ui": "^1.0.15"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "fit-ui": "^1.0.15"
+    "fit-ui": "^1.0.24"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,5 +23,5 @@
   "bugs": {
     "url": "https://github.com/Jemt/SitemagicCMS/issues"
   },
-  "homepage": "https://github.com/Jemt/SitemagicCMS#readme"
+  "homepage": "https://sitemagic.org"
 }

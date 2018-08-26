@@ -363,6 +363,11 @@ class SMDataSource implements SMIDataSource
 		$this->ds->Unlock();
 	}
 
+	public function IsLocked()
+	{
+		return $this->ds->IsLocked();
+	}
+
 	public function Reload($unlock = true)
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "unlock", $unlock, SMTypeCheckType::$Boolean);
@@ -721,8 +726,8 @@ class SMDataSource implements SMIDataSource
 				// case sensitive name of an attribute from a case insensitive attribute.
 				$orderbyField = $this->getCaseSensitiveAttribute($entry, $orderbyInfo[0]);
 
-				$orderbyValue = (($orderbyField !== null) ? $entry->getAttribute($orderbyField) : null);
-				$orderData[$countOrder][] = (($orderbyValue !== null) ? $this->normalize($this->decode($orderbyValue)) : null);
+				$orderbyValue = $entry->getAttribute($orderbyField); // Empty string if attribute does not exist
+				$orderData[$countOrder][] = $this->normalize($this->decode($orderbyValue));
 			}
 		}
 
@@ -787,7 +792,7 @@ class SMDataSource implements SMIDataSource
 			if (strtolower($attr->name) === strtolower($attribute))
 				return $attr->name;
 
-		return null;
+		return $attribute; // Attribute does not exist, return as-is
 	}
 
 	private function limitEntries($entries, $limit, $offset)

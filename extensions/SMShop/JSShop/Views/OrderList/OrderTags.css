@@ -1,0 +1,13 @@
+div.JSShopStateTags
+{
+	width: 450px;
+}
+
+div.JSShopStateTags > div
+{
+	margin: 0.5em 0em;
+}
+div.JSShopStateTags > b + div
+{
+	margin-top: 1em;
+}
