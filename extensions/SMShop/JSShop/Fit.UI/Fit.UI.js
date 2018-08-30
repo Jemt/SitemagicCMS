@@ -475,7 +475,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 1, Patch: 5 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 2, Patch: 7 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -606,6 +606,35 @@ Fit.SetPath = function(basePath)
 		var curPath = location.pathname.substring(0, location.pathname.lastIndexOf("/")); // E.g. "" (empty for root) or /path/to/folder
 		Fit._internal.BaseUrlOverride = rootUrl + curPath + "/" + basePath;
 	}
+}
+
+/// <function container="Fit" name="SetUrl" access="public" static="true">
+/// 	<description>
+/// 		Set URL to Fit.UI on server - e.g. http://cdn/libs/fitui/.
+/// 		This may be necessary if Fit.UI is loaded dynamically
+/// 		from a foreign domain such as a CDN (Content Delivery Network).
+/// 		Changing the URL affects the return value of both
+/// 		GetUrl() and GetPath(), and from where Fit.UI will
+/// 		load resources dynamically.
+/// 	</description>
+/// 	<param name="baseUrl" type="string"> Full URL to folder containing Fit.UI </param>
+/// </function>
+Fit.SetUrl = function(baseUrl) // E.g. http://foreign-host/path/to/Fit.UI/
+{
+	Fit.Validation.ExpectStringValue((baseUrl === null ? "-" : baseUrl));
+
+	if (baseUrl === null)
+	{
+		Fit.SetPath(null); // Reset Path and URL overriding
+		return;
+	}
+
+	var url = Fit.Browser.ParseUrl(baseUrl);
+
+	Fit.SetPath(url.FullPath); // Using FullPath rather than Path in case URL has been specified using http://host/path/to/Fit.UI (without trailing slash which makes Fit.UI a resource and not a folder, resulting in it being excluded from Path)
+	
+	var newUrl = (url.Url.lastIndexOf("/") === url.Url.length - 1 ? url.Url.substring(0, url.Url.length - 1) : url.Url); // Both GetPath() and GetUrl() return values without trailing slashes - e.g. libs/fitui and http://host/libs/fitui - so make sure no trailing slash is present
+	Fit._internal.BaseUrlOverride = newUrl;
 }
 /// <container name="Fit.Validation">
 /// 	Validation logic
@@ -1592,7 +1621,7 @@ Fit.Browser.GetQueryString = function(alternativeUrl)
 		try
 		{
 			// Notice: decodeURIComponent(..) throws an error in case invalid encoding is used
-			qs.Parameters[keyval[0]] = ((keyval.length > 1) ? decodeURIComponent(keyval[1]) : "");
+			qs.Parameters[decodeURIComponent(keyval[0])] = ((keyval.length > 1) ? decodeURIComponent(keyval[1]) : "");
 		}
 		catch (err)
 		{
@@ -1602,6 +1631,121 @@ Fit.Browser.GetQueryString = function(alternativeUrl)
 	});
 
 	return qs;
+}
+
+/// <function container="Fit.Browser" name="ParseUrl" access="public" static="true" returns="object">
+/// 	<description>
+/// 		Parses well-formed URLs and returns an object containing the following properties:
+/// 		 - Url:string (URL passed to function)
+/// 		 - Protocol:string (e.g. ftp, http, https)
+/// 		 - Port:integer (returns -1 if not defined in URL)
+/// 		 - Auth:string (e.g. accessToken or user:pass)
+/// 		 - Host:string (e.g. localhost or fitui.org)
+/// 		 - Path:string (e.g. /path/to/)
+/// 		 - Resource:string (e.g. resource.php)
+/// 		 - FullPath:string (e.g. /path/to/resource.php)
+/// 		 - Parameters:object (associative object array with URL parameters as keys)
+/// 		 - Anchor:string
+/// 	</description>
+/// 	<param name="url" type="string"> Well-formed URL to parse </param>
+/// </function>
+Fit.Browser.ParseUrl = function(url)
+{
+	Fit.Validation.ExpectString(url);
+
+	// URLs are often concatenated incorrectly with double forward slashes.
+	// E.g. http://localhost//path/to//file.php
+	// Compensate for this problem to reduce risk of runtime parse errors.
+	// https://regex101.com/r/DMQs9A/1/
+	var doubleSlashes = /(^.*:\/\/.*?)\/\/(.*)/;
+	while (doubleSlashes.test(url) === true)
+	{
+		url = url.replace(doubleSlashes, "$1/$2");
+	}
+
+	// This function is not perfect.
+	// It will parse well-formed URLs properly
+	// but may be fooled by incorrecly formatted URLs,
+	// and does not currently support IPv6 addresses.
+	// But for a solution using Regular Expression it
+	// is works quite well and is very simple in its
+	// implementation.
+
+	// Using JS is possible although known to give slightly
+	// different results across different browsers - example:
+	//    var a = document.createElement("a");
+	//    console.log(a.pathname, a.host, a.port, a.protocol, a.username, a.password); // etc.
+	// On top of differences across browsers it also depends on DOM which is not available in Workers,
+	// it will automatically canonicalize the URL to the page (relative to domain, protocol, etc.),
+	// and some browsers (e.g. Legacy IE) does not parse IPv6 addresses either.
+	// See comments here: https://gist.github.com/jlong/2428561
+	// Solution must be cross browser and support Legacy IE !
+
+	// It is impossible to produce a perfect solution using a one-liner
+	// regular expression. Inventer of WWW, Tim Burners-Lee (TimBL / TBL),
+	// among many others, solves parsing programmatically: https://www.w3.org/wiki/UriTesting
+	// Such solutions tend to be much more complex though.
+	// Another example: https://github.com/unshiftio/url-parse
+
+	/* RegEx fiddle: https://regex101.com/r/poWR2S/14
+	0 = Full match
+	1 = Protocol (http/https/ftp/etc)
+	2 = Group used to exclude @ from auth in #3
+	3 = Auth
+	5 = Host followed by port in #7
+	6 = Group used to exclude / from port in #7
+	7 = Port
+	8 = Host NOT followed by port
+	9 = Host NOT followed by anything (end of string)
+	10 = Group used to wrap #11 #12 #13 #14 #15
+	11 = Path followed by QS (and possibly #hash) in #12
+	12 = QS (and possibly #hash)
+	13 = Path followed by #hash in #14
+	14 = #hash value
+	15 = Path NOT followed by anything (end of string) */
+	var regEx = /(.+):\/\/((.+)@)?((.+):((\d+)\/?)?|(.+?)\/|(.+?)$)((.*)\?(.+)|(.*)#(.*)|(.*)$)/;
+	var match = regEx.exec(url);
+	var result = { Url: null, Protocol: null, Port: null, Auth: null, Host: null, FullPath: null, Path: null, Resource: null, Parameters: {}, Anchor: null };
+
+	if (match === null)
+	{
+		Fit.Validation.ThrowError("Unable to parse invalid URL - valid example: schema://[auth@]host[:port][/path/resource[?parm=val[#hash]]]");
+	}
+
+	if (match.length !== 16) // RegExp should produce this amount of capture group results!
+	{
+		Fit.Validation.ThrowError("Unexpected parse error - internal error"); // Happens if RegExp is changed without adjusting code using it
+	}
+
+	var fullPath = (match[11] || match[13] || match[15] || ""); //var fullPath = (match[11] || match[13] || (match[15] && match[15] !== "?" ? match[15] : "") || "");
+	var qs = Fit.Browser.GetQueryString(url);
+
+	result.Url = url;
+	result.Protocol = match[1].toLowerCase();
+	result.Auth = match[3] || null;
+	result.Host = match[5] || match[8] || match[9];
+	result.Port = (match[7] ? parseInt(match[7]) : -1);
+	result.FullPath = "/" + fullPath;
+	result.Parameters = qs.Parameters;
+	result.Anchor = qs.Anchor;
+
+	result.Path = "/";
+	
+	if (fullPath !== "")
+	{
+		var pathInfo = fullPath.split("/");
+
+		// Construct path without resource (/path/to/resource.php => /path/to/)
+		result.Path += pathInfo.slice(0, -1).join("/") + (pathInfo.length > 0 ? "/" : "");
+
+		// Add resource (e.g. resource.php) if found in URL
+		if (pathInfo[pathInfo.length - 1] !== "")
+		{
+			result.Resource = pathInfo[pathInfo.length - 1];
+		}
+	}
+	
+	return result;
 }
 
 /// <function container="Fit.Browser" name="GetLanguage" access="public" static="true" returns="string">
@@ -1817,6 +1961,8 @@ Fit.Controls.Component = function(controlId)
 	var id = null;
 	var container = null;
 
+	var isIe8 = (Fit.Browser.GetInfo().Name === "MSIE" && Fit.Browser.GetInfo().Version === 8);
+
 	function init()
 	{
 		Fit._internal.Core.EnsureStyles();
@@ -1886,7 +2032,39 @@ Fit.Controls.Component = function(controlId)
 		Fit.Dom.Remove(container); // Dispose 'container' rather than object returned from GetDomElement() which may have been overridden and potentially returning a different object, in which case the derivative should dispose the object
 		delete container._internal; // Removed in case external code holds a reference to DOMElement. Also allows us to internally determine whether control has been disposed or not (e.g. in Fit.Template), since it will always be presented unless disposed.
 		delete Fit._internal.ControlBase.Controls[id];
-		me = id = container = null;
+		me = id = container = isIe8 = null;
+	}
+
+	// Internals
+
+	this._internal = (this._internal ? this._internal : {});
+
+	this._internal.Repaint = function(f) // Use callback function if a repaint is required both before and after a given operation, which often requires JS thread to be released on IE
+	{
+		Fit.Validation.ExpectFunction(f, true);
+
+		var cb = ((Fit.Validation.IsSet(f) === true) ? f : function() {});
+
+		if (isIe8 === false)
+		{
+			cb();
+		}
+		else
+		{
+			// Flickering may occure on IE8 when updating UI over time
+			// (UI update + JS thread released + UI updates again "later").
+
+			Fit.Dom.AddClass(me.GetDomElement(), "FitUi_Non_Existing_ControlBase_Class");
+			Fit.Dom.RemoveClass(me.GetDomElement(), "FitUi_Non_Existing_ControlBase_Class");
+
+			setTimeout(function()
+			{
+				cb();
+
+				Fit.Dom.AddClass(me.GetDomElement(), "FitUi_Non_Existing_ControlBase_Class");
+				Fit.Dom.RemoveClass(me.GetDomElement(), "FitUi_Non_Existing_ControlBase_Class");
+			}, 0);
+		}
 	}
 
 	init();
@@ -1981,7 +2159,6 @@ Fit.Controls.ControlBase = function(controlId)
 	var txtValue = null;
 	var txtDirty = null;
 	var txtValid = null;
-	var isIe8 = (Fit.Browser.GetInfo().Name === "MSIE" && Fit.Browser.GetInfo().Version === 8);
 
 	function init()
 	{
@@ -2080,7 +2257,7 @@ Fit.Controls.ControlBase = function(controlId)
 
 	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
-		me = id = container = width = height = scope = required = validationExpr = validationError = validationErrorType = validationCallbackFunc = validationCallbackError = lazyValidation = hasValidated = blockAutoPostBack = onChangeHandlers = onFocusHandlers = onBlurHandlers = hasFocus = onBlurTimeout = ensureFocusFires = waitingForFocus = txtValue = txtDirty = txtValid = isIe8 = null;
+		me = id = container = width = height = scope = required = validationExpr = validationError = validationErrorType = validationCallbackFunc = validationCallbackError = lazyValidation = hasValidated = blockAutoPostBack = onChangeHandlers = onFocusHandlers = onBlurHandlers = hasFocus = onBlurTimeout = ensureFocusFires = waitingForFocus = txtValue = txtDirty = txtValid = null;
 		base();
 	});
 
@@ -2492,8 +2669,6 @@ Fit.Controls.ControlBase = function(controlId)
 
 	// Private members (must be public in order to be accessible to controls extending from ControlBase)
 
-	this._internal = (this._internal ? this._internal : {});
-
 		this._internal.FireOnChange = function()
 		{
 			hasValidated = true;
@@ -2601,34 +2776,6 @@ Fit.Controls.ControlBase = function(controlId)
 			}
 
 			me._internal.Repaint();
-		}
-
-		this._internal.Repaint = function(f) // Use callback function if a repaint is required both before and after a given operation, which often requires JS thread to be released on IE
-		{
-			Fit.Validation.ExpectFunction(f, true);
-
-			var cb = ((Fit.Validation.IsSet(f) === true) ? f : function() {});
-
-			if (isIe8 === false)
-			{
-				cb();
-			}
-			else
-			{
-				// Flickering may occure on IE8 when updating UI over time
-				// (UI update + JS thread released + UI updates again "later").
-
-				Fit.Dom.AddClass(me.GetDomElement(), "FitUi_Non_Existing_ControlBase_Class");
-				Fit.Dom.RemoveClass(me.GetDomElement(), "FitUi_Non_Existing_ControlBase_Class");
-
-				setTimeout(function()
-				{
-					cb();
-
-					Fit.Dom.AddClass(me.GetDomElement(), "FitUi_Non_Existing_ControlBase_Class");
-					Fit.Dom.RemoveClass(me.GetDomElement(), "FitUi_Non_Existing_ControlBase_Class");
-				}, 0);
-			}
 		}
 
 	init();
@@ -2792,10 +2939,10 @@ Fit.Cookies = function()
 	this.Set = function(name, value, seconds)
 	{
 		Fit.Validation.ExpectStringValue(name);
-		Fit.Validation.ExpectString(name);
+		Fit.Validation.ExpectString(value);
 		Fit.Validation.ExpectInteger(seconds, true);
 
-		Fit.Cookies.Set(prefix + name, value, seconds, path);
+		Fit.Cookies.Set(prefix + name, value, seconds, (path !== "" ? path : null));
 	}
 
 	/// <function container="Fit.Cookies" name="Get" access="public" returns="string">
@@ -3104,6 +3251,22 @@ Fit.Math.Format = function(value, decimals, decimalSeparator)
         str += "0";
 
     return ((Fit.Validation.IsSet(decimalSeparator) === true) ? str.replace(".", decimalSeparator) : str);
+}
+
+/// <function container="Fit.Math" name="Random" access="public" static="true" returns="integer">
+/// 	<description> Get random integer value </description>
+/// 	<param name="min" type="integer" default="undefined"> Minimum value - assumes 0 if not defined </param>
+/// 	<param name="max" type="integer" default="undefined"> Maximum value - assumes Number.MAX_SAFE_INTEGER (9007199254740991) if not defined </param>
+/// </function>
+Fit.Math.Random = function(min, max)
+{
+	Fit.Validation.ExpectInteger(min, true);
+	Fit.Validation.ExpectInteger(max, true);
+
+	var mn = Fit.Validation.IsSet(min) === true ? min : 0;
+	var mx = Fit.Validation.IsSet(max) === true ? max : 9007199254740991; // Number.MAX_SAFE_INTEGER not supported by IE
+
+	return Math.floor(Math.random() * (mx - mn + 1)) + mn;
 }
 
 
@@ -3922,10 +4085,44 @@ Fit.Dom.Text = function(elm, value)
 	if (Fit.Validation.IsSet(value) === true)
 	{
 		if (elm.textContent)
+		{
 			elm.textContent = value;
+		}
 		else
+		{
+			// IE8 does not support textContent.
+			// https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent
+			// "Altering innerText in Internet Explorer (version 11 and below) removes child nodes from the element
+			// and permanently destroys all descendant text nodes. It is impossible to insert the nodes again into
+			// any other element or into the same element anymore."
+			// We therefore remove all nodes prior to changing the text value in Internet Explorer.
+			if (elm.children.length > 0)
+			{
+				Fit.Array.ForEach(Fit.Array.Copy(elm.children), function(c)
+				{
+					Fit.Dom.Remove(c);
+				});
+			}
+
 			elm.innerText = value;
+		}
 	}
+
+	// NOTICE: The properties textContent (requires IE9+) and innerText return very different values.
+	// https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent
+	// Code from script and style blocks are included with textContent, and while innerText
+	// does not, it also doesn't include text from elements hidden using CSS.
+	// But fortunately hidden elements are included in IE8, probably due to incorrect implementation.
+	// Since pretty much all browsers except for IE8 supports textContent,
+	// we allow the inconsistency; that innerText does not include code from script and style blocks.
+	// If we at some point realize that such behaviour is completely unacceptable, we can get a result
+	// very similar to textContent with IE8 using the code below:
+	// Fit.String.StripHtml(el.innerHTML).replace(/&nbsp;/g, " ");
+	// The only major difference is that line breaks and indentation is not identical.
+	// If we need even better consistency, we would need to make all browsers use the following code instead:
+	// Fit.String.StripHtml(el.innerHTML).replace(/^\s*([^\s].*?)\s*$/gm, "$1").replace(/\r/g, "").replace(/\n/g, " ").replace(/&nbsp;/g, " ");
+	// It takes innerHTML, removes all HTML, trims every line, remove line breaks between lines, and make sure non-breaking spaces are preserved.
+	// Both approaches come with a performance penelty, and frankly it's not worth it when IE9+ and all other browsers support textContent.
 
 	return (elm.textContent ? elm.textContent : elm.innerText);
 }
@@ -4390,6 +4587,7 @@ Fit.DragDrop.Draggable = function(domElm, domTriggerElm)
 		Fit._internal.Core.EnsureStyles();
 
         Fit.Dom.AddClass(elm, "FitDragDropDraggable");
+        Fit.Dom.AddClass((trgElm !== null ? trgElm : elm), "FitDragDropDraggableHandle");
 
         // Mouse down
 
@@ -7006,9 +7204,10 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 	var me = this;
 	var htmlContent = "";
 	var container = null;
-	var elements = [];		// Holds references to all DOMElements added to template
-	var eventHandlers = []; // Holds references to all event handler functions associated with DOM elements
-	var controls = [];		// Holds references to all Fit.UI controls (DOMElements) rendered to DOM view
+	var pendingElements = [];	// Holds references to all DOMElements to be rendered: { Id:string, Element:DOMElements }
+	var nodesRendered = [];		// Holds references to all DOMElements rendered to DOM
+	var eventHandlers = []; 	// Holds references to all event handler functions associated with DOM elements: { ElementId:string, EventType:string, Callback:function }
+	var controls = [];			// Holds references to all Fit.UI controls (DOMElements) rendered to DOM
 
 	function init()
 	{
@@ -7069,8 +7268,44 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 	/// </function>
 	this.Reset = function()
 	{
-		parse(htmlContent);
+		// Do NOT clear e.g. 'nodesRendered' or 'controls' as they are needed if template is disposed.
+		// The purpose of this function is to clear data added externally, not internal state.
+
+		parse(htmlContent); // Re-initializes Content property
 		eventHandlers = [];
+	}
+
+	/// <function container="Fit.Template" name="Dispose" access="public">
+	/// 	<description> Dispose template to free up memory </description>
+	/// </function>
+	this.Dispose = function()
+	{
+		if (autoDispose !== false)
+		{
+			Fit.Array.ForEach(controls, function(controlElm)
+			{
+				// Dispose control unless manually disposed by external code in which case the _internal property no longer exists
+				if (controlElm._internal !== undefined)
+				{
+					controlElm._internal.Instance.Dispose();
+				}
+			});
+		}
+
+		if (container !== null)
+		{
+			Fit.Dom.Remove(container);
+		}
+		else
+		{
+			Fit.Array.ForEach(nodesRendered, function(node)
+			{
+				Fit.Dom.Remove(node);
+			});
+		}
+
+		this.Content = null;
+		me = htmlContent = container = pendingElements = nodesRendered = eventHandlers = controls = null;
 	}
 
 	/// <function container="Fit.Template" name="GetHtml" access="public" returns="string">
@@ -7089,14 +7324,17 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 	{
 		Fit.Validation.ExpectDomElement(toElement, true);
 
+		if (nodesRendered.length > 0)
+			return; // Skip - already rendered - Update() should be used to push changes!
+
 		// Turn Template into DOM element
 
-		var html = me.toString();
+		var html = me.toString(); // Also populates 'pendingElements' array containing DOMElements to be added further down
 		var dom = Fit.Dom.CreateElement("<div>" + html + "</div>");
 
 		// Inject DOMElements
 
-		Fit.Array.ForEach(elements, function(elm)
+		Fit.Array.ForEach(pendingElements, function(elm)
 		{
 			var element = dom.querySelector("var.FitTemplate[id='PH" + elm.Id + "']");
 
@@ -7104,7 +7342,14 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 			{
 				Fit.Dom.Replace(element, elm.Element);
 			}
+
+			if (elm.Element._internal !== undefined && elm.Element._internal.Instance !== undefined) // Fit.UI control inheriting from Fit.Controls.Component which is disposable
+			{
+				Fit.Array.Add(controls, elm.Element);
+			}
 		});
+
+		pendingElements = []; // No longer needed
 
 		// Register event handlers
 
@@ -7123,12 +7368,15 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 
 		var renderTarget = ((container !== null) ? container : toElement);
 		var nodes = Fit.Array.Copy(dom.childNodes); // Copy to prevent "Collection was modified" error when rendering elements, which moves them to a new parent
+		
+		nodesRendered = [];
 
 		if (Fit.Validation.IsSet(renderTarget) === true)
 		{
 			Fit.Array.ForEach(nodes, function(n)
 			{
 				Fit.Dom.Add(renderTarget, n);
+				Fit.Array.Add(nodesRendered, n);
 			});
 		}
 		else
@@ -7138,6 +7386,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 			Fit.Array.ForEach(nodes, function(n)
 			{
 				Fit.Dom.InsertBefore(script, n);
+				Fit.Array.Add(nodesRendered, n);
 			});
 		}
 
@@ -7193,7 +7442,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 
 		// Turn Template into DOM element
 
-		var html = me.toString(); // Also populates 'elements' array containing DOMElements to be added further down
+		var html = me.toString(); // Also populates 'pendingElements' array containing DOMElements to be added further down
 		var dom = Fit.Dom.CreateElement("<div>" + html + "</div>");
 
 		// Inject DOMElements
@@ -7201,7 +7450,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 		var oldControls = controls;
 		controls = [];
 
-		Fit.Array.ForEach(elements, function(elm)
+		Fit.Array.ForEach(pendingElements, function(elm)
 		{
 			var element = dom.querySelector("var.FitTemplate[id='PH" + elm.Id + "']");
 
@@ -7215,6 +7464,8 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 				Fit.Array.Add(controls, elm.Element);
 			}
 		});
+
+		pendingElements = []; // No longer needed
 
 		// Auto dispose controls previously added to template if now left out
 
@@ -7250,10 +7501,12 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 		// Render to DOM
 
 		var nodes = Fit.Array.Copy(dom.childNodes); // Copy to prevent "Collection was modified" error when rendering elements, which moves them to a new parent
+		nodesRendered = [];
 
 		Fit.Array.ForEach(nodes, function(n)
 		{
 			Fit.Dom.Add(container, n);
+			Fit.Array.Add(nodesRendered, n);
 		});
 	}
 
@@ -7264,7 +7517,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 		// Corresponding, event handlers are registered later when template is rendered to real DOM.
 
 		var newHtml = htmlContent;
-		Fit.Array.Clear(elements); // Do not create new object - it will break references to collection on lists
+		Fit.Array.Clear(pendingElements); // Do not create new object - it will break references to collection on lists
 
 		Fit.Array.ForEach(me.Content, function(key)
 		{
@@ -7282,14 +7535,14 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 				if (Fit.Core.InstanceOf(obj, Fit.Controls.Component) === true) // Fit.UI Control
 				{
 					var id = Fit.Data.CreateGuid();
-					Fit.Array.Add(elements, { Id: id, Element: obj.GetDomElement() });
+					Fit.Array.Add(pendingElements, { Id: id, Element: obj.GetDomElement() });
 
 					newHtml = newHtml.replace("{[" + key + "]}", "<var class='FitTemplate' id='PH" + id + "'></var>");
 				}
 				else if (typeof(obj) === "object" && (obj instanceof Element || obj instanceof Text)) // DOM
 				{
 					var id = Fit.Data.CreateGuid();
-					Fit.Array.Add(elements, { Id: id, Element: obj });
+					Fit.Array.Add(pendingElements, { Id: id, Element: obj });
 
 					// Notice: Placeholders to be replaced by DOM elements should only
 					// be declared once - a DOM element cannot be added multiple times!
@@ -7392,9 +7645,9 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 		// on the 'res' object is not cloned - they keep pointing to the original
 		// functions, hence they will continue using the orignal 'res' object
 		// part of their closure.
-		// This can be fixed by refering to 'this' rather than 'res' within the
+		// This can be fixed by referring to 'this' rather than 'res' within the
 		// functions, but we also need to "fix" clones which holds a reference to
-		// 'elements' on the template instance, and needs to keep this reference
+		// 'pendingElements' on the template instance, and needs to keep this reference
 		// rather than having its own copy.
 		// Another issue is that the List object depends heavily on
 		// functionality on the Template object (e.g. handlePlaceHolders(..)
@@ -7416,7 +7669,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 		res._internal.Block = html;
 		res._internal.Html = html.replace("<!-- LIST " + name + " -->", "").replace("<!-- /LIST " + name + " -->", "");
 		res._internal.Items = [];
-		res._internal.Elements = elements;
+		res._internal.PendingElements = pendingElements;
 		res._internal.IsFitTemplate = true;
 
 		/// <function container="Fit.TemplateList" name="AddItem" access="public" returns="object">
@@ -7498,7 +7751,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 					else if (Fit.Core.InstanceOf(obj, Fit.Controls.Component) === true) // Fit.UI Control
 					{
 						var id = Fit.Data.CreateGuid();
-						Fit.Array.Add(res._internal.Elements, { Id: id, Element: obj.GetDomElement() });
+						Fit.Array.Add(res._internal.PendingElements, { Id: id, Element: obj.GetDomElement() });
 
 						// Notice: Placeholders to be replaced by DOM elements should only
 						// be declared once - a DOM element cannot be added multiple times!
@@ -7509,7 +7762,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 					else if (typeof(obj) === "object" && (obj instanceof Element || obj instanceof Text)) // DOM
 					{
 						var id = Fit.Data.CreateGuid();
-						Fit.Array.Add(res._internal.Elements, { Id: id, Element: obj });
+						Fit.Array.Add(res._internal.PendingElements, { Id: id, Element: obj });
 
 						// Notice: Placeholders to be replaced by DOM elements should only
 						// be declared once - a DOM element cannot be added multiple times!
@@ -10391,7 +10644,12 @@ Fit.Controls.Dialog = function(controlId)
 
 	var me = this;
 	var dialog = me.GetDomElement();
+	var title = null;
+	var titleButtons = null;
+	var cmdMaximize = null;
+	var cmdDismiss = null;
 	var content = null;
+	var iframe = null;
 	var buttons = null;
 	var modal = false;
 	var layer = null;
@@ -10399,6 +10657,13 @@ Fit.Controls.Dialog = function(controlId)
 	var width = null;
 	var minWidth = null;
 	var maxWidth = null;
+
+	var height = null;
+	var minHeight = null;
+	var maxHeight = null;
+	var mutationObserverId = -1;
+
+	var onDismissHandlers = [];
 
 	// ============================================
 	// Init
@@ -10408,14 +10673,11 @@ Fit.Controls.Dialog = function(controlId)
 	{
 		Fit.Dom.AddClass(dialog, "FitUiControl");
 		Fit.Dom.AddClass(dialog, "FitUiControlDialog");
+		Fit.Dom.Data(dialog, "framed", "false");
+		Fit.Dom.Data(dialog, "maximized", "false");
 
-		content = document.createElement("div");
-		Fit.Dom.AddClass(content, "FitUiControlDialogContent");
+		content = createContentElement();
 		Fit.Dom.Add(dialog, content);
-
-		buttons = document.createElement("div");
-		Fit.Dom.AddClass(buttons, "FitUiControlDialogButtons");
-		Fit.Dom.Add(dialog, buttons);
 
 		layer = document.createElement("div");
 		Fit.Dom.AddClass(layer, "FitUiControlDialogModalLayer");
@@ -10427,7 +10689,7 @@ Fit.Controls.Dialog = function(controlId)
 			var ev = Fit.Events.GetEvent(e);
 			var key = Fit.Events.GetModifierKeys();
 
-			if (modal === true && buttons.children.length > 0 && ev.keyCode === 9) // Tab key
+			if (modal === true && buttons !== null && ev.keyCode === 9) // Tab key
 			{
 				var buttonFocused = Fit.Dom.GetFocused();
 
@@ -10457,13 +10719,13 @@ Fit.Controls.Dialog = function(controlId)
 			if (me === null)
 				return; // Dialog was disposed when a button was clicked
 
-			if (buttons.children.length > 0 && (Fit.Dom.GetFocused() === null || Fit.Dom.Contained(dialog, Fit.Dom.GetFocused()) === false))
+			if (buttons !== null && (Fit.Dom.GetFocused() === null || Fit.Dom.Contained(dialog, Fit.Dom.GetFocused()) === false))
 				buttons.children[0].focus();
 		});
 
 		Fit.Events.AddHandler(layer, "click", function(e)
 		{
-			if (buttons.children.length > 0 && (Fit.Dom.GetFocused() === null || Fit.Dom.Contained(dialog, Fit.Dom.GetFocused()) === false))
+			if (buttons !== null && (Fit.Dom.GetFocused() === null || Fit.Dom.Contained(dialog, Fit.Dom.GetFocused()) === false))
 				buttons.children[0].focus();
 		});
 	}
@@ -10471,6 +10733,54 @@ Fit.Controls.Dialog = function(controlId)
 	// ============================================
 	// Public
 	// ============================================
+
+	/// <function container="Fit.Controls.Dialog" name="Title" access="public" returns="string">
+	/// 	<description> Get/set title - returns null if not set, and null can be passed to remove title </description>
+	/// 	<param name="val" type="string" default="undefined"> If specified, dialog title is updated with specified value </param>
+	/// </function>
+	this.Title = function(val)
+	{
+		Fit.Validation.ExpectString(val, true);
+
+		if (val !== undefined) // Allow null to remove title
+		{
+			if (val === null && title !== null)
+			{
+				if (titleButtons !== null)
+				{
+					Fit.Dom.Text(title, "");
+					Fit.Dom.Add(title, titleButtons);
+				}
+				else
+				{
+					Fit.Dom.Remove(title);
+					title = null;
+
+					setContentHeight();
+				}
+			}
+			else
+			{
+				if (title === null)
+				{
+					title = document.createElement("div");
+					Fit.Dom.AddClass(title, "FitUiControlDialogTitle");
+					Fit.Dom.InsertAt(dialog, 0, title);
+				}
+
+				Fit.Dom.Text(title, val);
+
+				if (titleButtons !== null)
+				{
+					Fit.Dom.Add(title, titleButtons);
+				}
+
+				setContentHeight();
+			}
+		}
+
+		return (title !== null ? Fit.Dom.Text(title) : null);
+	}
 
 	/// <function container="Fit.Controls.Dialog" name="Width" access="public" returns="object">
 	/// 	<description> Get/set dialog width - returns object with Value and Unit properties </description>
@@ -10582,6 +10892,102 @@ Fit.Controls.Dialog = function(controlId)
 		return (maxWidth !== null ? maxWidth : (width !== null ? width : defaultValue));
 	}
 
+	/// <function container="Fit.Controls.Dialog" name="Height" access="public" returns="object">
+	/// 	<description> Get/set dialog height - returns object with Value and Unit properties </description>
+	/// 	<param name="val" type="number" default="undefined"> If defined, dialog height is updated to specified value. A value of -1 resets height to default. </param>
+	/// 	<param name="unit" type="string" default="px"> If defined, dialog width is updated to specified CSS unit </param>
+	/// </function>
+	this.Height = function(val, unit)
+	{
+		Fit.Validation.ExpectNumber(val, true);
+		Fit.Validation.ExpectStringValue(unit, true);
+
+		// defaultValue must match height in Dialog.css
+		var defaultValue = (iframe !== null ? { Value: 40, Unit: "%" } : { Value: -1, Unit: "px" });
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (val > -1)
+			{
+				height = { Value: val, Unit: ((Fit.Validation.IsSet(unit) === true) ? unit : "px") };
+				dialog.style.height = height.Value + height.Unit;
+			}
+			else
+			{
+				height = null;
+				dialog.style.height = "";
+			}
+
+			setContentHeight();
+		}
+
+		return (height !== null ? height : defaultValue);
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="MinimumHeight" access="public" returns="object">
+	/// 	<description> Get/set dialog minimum height - returns object with Value and Unit properties </description>
+	/// 	<param name="val" type="number" default="undefined"> If defined, dialog minimum height is updated to specified value. A value of -1 resets minimum height. </param>
+	/// 	<param name="unit" type="string" default="px"> If defined, dialog minimum height is updated to specified CSS unit </param>
+	/// </function>
+	this.MinimumHeight = function(val, unit)
+	{
+		Fit.Validation.ExpectNumber(val, true);
+		Fit.Validation.ExpectStringValue(unit, true);
+
+		// defaultValue must match min-height in Dialog.css (which is not defined)
+		var defaultValue = { Value: -1, Unit: "px" };
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (val > -1)
+			{
+				minHeight = { Value: val, Unit: ((Fit.Validation.IsSet(unit) === true) ? unit : "px") };
+				dialog.style.minHeight = minHeight.Value + minHeight.Unit;
+			}
+			else
+			{
+				minHeight = null;
+				dialog.style.minHeight = "";
+			}
+
+			setContentHeight();
+		}
+
+		return (minHeight !== null ? minHeight : defaultValue);
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="MaximumHeight" access="public" returns="object">
+	/// 	<description> Get/set dialog maximum height - returns object with Value and Unit properties </description>
+	/// 	<param name="val" type="number" default="undefined"> If defined, dialog maximum height is updated to specified value. A value of -1 resets maximum height. </param>
+	/// 	<param name="unit" type="string" default="px"> If defined, dialog maximum height is updated to specified CSS unit </param>
+	/// </function>
+	this.MaximumHeight = function(val, unit)
+	{
+		Fit.Validation.ExpectNumber(val, true);
+		Fit.Validation.ExpectStringValue(unit, true);
+
+		// defaultValue must match max-height in Dialog.css (which is not defined)
+		var defaultValue = { Value: -1, Unit: "px" };
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (val > -1)
+			{
+				maxHeight = { Value: val, Unit: ((Fit.Validation.IsSet(unit) === true) ? unit : "px") };
+				dialog.style.maxHeight = maxHeight.Value + maxHeight.Unit;
+			}
+			else
+			{
+				maxHeight = null;
+				dialog.style.maxHeight = "";
+			}
+
+			setContentHeight();
+		}
+
+		return (maxHeight !== null ? maxHeight : defaultValue);
+	}
+
 	/// <function container="Fit.Controls.Dialog" name="Modal" access="public" returns="boolean">
 	/// 	<description> Get/set value indicating whether dialog is modal or not </description>
 	/// 	<param name="val" type="boolean" default="undefined"> If specified, True enables modal mode, False disables it </param>
@@ -10609,26 +11015,191 @@ Fit.Controls.Dialog = function(controlId)
 		if (Fit.Validation.IsSet(val) === true)
 		{
 			content.innerHTML = val;
+
+			if (iframe !== null)
+			{
+				Fit.Dom.Data(dialog, "framed", "false");
+				iframe = null;
+			}
+
+			setContentHeight();
 		}
 
 		return content.innerHTML;
 	}
 
-	/// <function container="Fit.Controls.Dialog" name="ContentDomElement" access="public" returns="DOMElement">
-	/// 	<description> Get/set dialog content element </description>
-	/// 	<param name="elm" type="DOMElement" default="undefined"> If specified, content element is replaced with the provided element </param>
+	/// <function container="Fit.Controls.Dialog" name="GetContentDomElement" access="public" returns="DOMElement">
+	/// 	<description> Get dialog content element </description>
 	/// </function>
-	this.ContentDomElement = function(elm)
+	this.GetContentDomElement = function()
 	{
-		Fit.Validation.ExpectElementNode(elm, true);
+		return content;
+	}
 
-		if (Fit.Validation.IsSet(elm) === true)
+	/// <function container="Fit.Controls.Dialog" name="ContentUrl" access="public" returns="string">
+	/// 	<description> Get/set content URL - returns null if not set </description>
+	/// 	<param name="url" type="string" default="undefined"> If specified, dialog is updated with content from specified URL </param>
+	/// 	<param name="onLoadHandler" type="function" default="undefined"> If specified, callback is invoked when content has been loaded </param>
+	/// </function>
+	this.ContentUrl = function(url, onLoadHandler)
+	{
+		Fit.Validation.ExpectString(url, true);
+		Fit.Validation.ExpectFunction(onLoadHandler, true);
+
+		if (Fit.Validation.IsSet(url) === true)
 		{
-			Fit.Dom.Replace(content, elm);
-			content = elm;
+			iframe = Fit.Dom.CreateElement("<iframe src='" + url + "' scrolling='yes' frameBorder='0' allowtransparency='true'></iframe>");
+			
+			if (Fit.Validation.IsSet(onLoadHandler) === true)
+			{
+				Fit.Events.AddHandler(iframe, "load", function(e)
+				{
+					onLoadHandler(me);
+				});
+			}
+
+			content.innerHTML = "";
+			Fit.Dom.Add(content, iframe);
+			Fit.Dom.Data(dialog, "framed", "true");
 		}
 
-		return content;
+		return (iframe !== null ? iframe.src : null);
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="Maximized" access="public" returns="boolean">
+	/// 	<description> Get/set flag indicating whether dialog is maximized or not </description>
+	/// 	<param name="val" type="boolean" default="undefined"> If defined, True maximizes dialog while False restores it </param>
+	/// </function>
+	this.Maximized = function(val)
+	{
+		Fit.Validation.ExpectBoolean(val, true);
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			Fit.Dom.Data(dialog, "maximized", (val === true ? "true" : "false"));
+
+			if (cmdMaximize !== null)
+			{
+				if (Fit.Dom.Data(dialog, "maximized") === "true")
+				{
+					cmdMaximize.Icon("compress");
+				}
+				else
+				{
+					cmdMaximize.Icon("expand");
+				}
+			}
+
+			me._internal.Repaint(function()
+			{
+				// Safari on iOS: Scroll does not work after resizing the
+				// dialog. Temporarily hiding the iframe solves the problem.
+				var b = Fit.Browser.GetInfo();
+				if (iframe !== null && b.Name === "Safari" && b.IsMobile === true)
+				{
+					iframe.style.display = "none";
+					setTimeout(function() { iframe.style.display = ""; }, 0);
+				}
+			});
+		}
+
+		return (Fit.Dom.Data(dialog, "maximized") === "true");
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="Maximizable" access="public" returns="boolean">
+	/// 	<description> Get/set flag indicating whether dialog is maximizable or not </description>
+	/// 	<param name="val" type="boolean" default="undefined"> If defined, a value of True makes dialog maximizable by adding a maximize button while False disables it </param>
+	/// </function>
+	this.Maximizable = function(val)
+	{
+		Fit.Validation.ExpectBoolean(val, true);
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (val === true && cmdMaximize === null)
+			{
+				cmdMaximize = new Fit.Controls.Button();
+				cmdMaximize.Icon((me.Maximized() === false ? "expand" : "compress"));
+				cmdMaximize.OnClick(function(sender)
+				{
+					if (me.Maximized() === false)
+					{
+						me.Maximized(true); // Also updates button icon
+					}
+					else
+					{
+						me.Maximized(false); // Also updates button icon
+					}
+				});
+
+				updateTitleButtons();
+			}
+			else if (val === false && cmdMaximize !== null)
+			{
+				cmdMaximize.Dispose();
+				cmdMaximize = null;
+				updateTitleButtons();
+			}
+		}
+
+		return (cmdMaximize !== null);
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="Dismissible" access="public" returns="boolean">
+	/// 	<description> Get/set flag indicating whether dialog is dismissible or not </description>
+	/// 	<param name="val" type="boolean" default="undefined"> If defined, a value of True makes dialog dismissible by adding a close button while False disables it </param>
+	/// 	<param name="disposeOnDismiss" type="boolean" default="undefined"> If defined, a value of True results in dialog being disposed (destroyed) when closed using dismiss/close button </param>
+	/// </function>
+	this.Dismissible = function(val, disposeOnDismiss)
+	{
+		Fit.Validation.ExpectBoolean(val, true);
+		Fit.Validation.ExpectBoolean(disposeOnDismiss, true);
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (val === true && cmdDismiss === null)
+			{
+				cmdDismiss = new Fit.Controls.Button();
+				cmdDismiss.Icon("close");
+				cmdDismiss.OnClick(function(sender)
+				{
+					var canceled = false;
+
+					Fit.Array.ForEach(onDismissHandlers, function(cb)
+					{
+						if (cb(me) === false)
+						{
+							canceled = true;
+							return false; // Break loop
+						}
+					});
+
+					if (canceled === true)
+					{
+						return;
+					}
+
+					if (disposeOnDismiss === true)
+					{
+						me.Dispose();
+					}
+					else
+					{
+						me.Close();
+					}
+				});
+
+				updateTitleButtons();
+			}
+			else if (val === false && cmdDismiss !== null)
+			{
+				cmdDismiss.Dispose();
+				cmdDismiss = null;
+				updateTitleButtons();
+			}
+		}
+
+		return (cmdDismiss !== null);
 	}
 
 	/// <function container="Fit.Controls.Dialog" name="AddButton" access="public">
@@ -10638,7 +11209,93 @@ Fit.Controls.Dialog = function(controlId)
 	this.AddButton = function(btn)
 	{
 		Fit.Validation.ExpectInstance(btn, Fit.Controls.Button);
+
+		if (buttons === null)
+		{
+			buttons = document.createElement("div");
+			Fit.Dom.AddClass(buttons, "FitUiControlDialogButtons");
+			Fit.Dom.Add(dialog, buttons);
+		}
+
 		Fit.Dom.Add(buttons, btn.GetDomElement());
+
+		setContentHeight();
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="RemoveButton" access="public">
+	/// 	<description> Remove button from dialog </description>
+	/// 	<param name="btn" type="Fit.Controls.Button"> Instance of Fit.Controls.Button </param>
+	/// 	<param name="dispose" type="boolean" default="undefined"> If defined, a value of True results in button being disposed (destroyed) </param>
+	/// </function>
+	this.RemoveButton = function(btn, dispose)
+	{
+		Fit.Validation.ExpectInstance(btn, Fit.Controls.Button);
+		Fit.Validation.ExpectBoolean(dispose, true);
+
+		if (buttons === null)
+			return;
+
+		Fit.Array.ForEach(buttons.children, function(elm)
+		{
+			if (elm === btn.GetDomElement())
+			{
+				if (dispose === true)
+				{
+					btn.Dispose();
+				}
+				else
+				{
+					Fit.Dom.Remove(btn.GetDomElement());
+				}
+
+				if (buttons.children.length === 0)
+				{
+					Fit.Dom.Remove(buttons);
+					buttons = null;
+				}
+
+				setContentHeight();
+
+				return false; // Break loop
+			}
+		});
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="RemoveAllButtons" access="public">
+	/// 	<description> Remove all buttons from dialog </description>
+	/// 	<param name="dispose" type="boolean" default="undefined"> If defined, a value of True results in buttons being disposed (destroyed) </param>
+	/// </function>
+	this.RemoveAllButtons = function(dispose)
+	{
+		Fit.Validation.ExpectBoolean(dispose, true);
+
+		if (buttons === null)
+			return;
+
+		Fit.Array.ForEach(Fit.Array.Copy(buttons.children), function(buttonElm) // Using Copy(..) since code modifies children collection
+		{
+			if (dispose === true)
+			{
+				buttonElm._internal.Instance.Dispose();
+			}
+			else
+			{
+				Fit.Dom.Remove(buttonElm);
+			}
+		});
+
+		Fit.Dom.Remove(buttons);
+		buttons = null;
+
+		setContentHeight();
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="IsOpen" access="public" returns="boolean">
+	/// 	<description> Get flag indicating whether dialog is open or not </description>
+	/// </function>
+	this.IsOpen = function()
+	{
+		return (dialog.parentElement === document.body);
 	}
 
 	/// <function container="Fit.Controls.Dialog" name="Open" access="public">
@@ -10650,6 +11307,12 @@ Fit.Controls.Dialog = function(controlId)
 
 		if (modal === true)
 			Fit.Dom.Add(document.body, layer);
+		
+		setContentHeight();
+		mutationObserverId = Fit.Events.AddMutationObserver(dialog, function(elm)
+		{
+			setContentHeight();
+		});
 	}
 
 	/// <function container="Fit.Controls.Dialog" name="Close" access="public">
@@ -10657,6 +11320,12 @@ Fit.Controls.Dialog = function(controlId)
 	/// </function>
 	this.Close = function()
 	{
+		if (me.IsOpen() === false)
+			return;
+
+		Fit.Events.RemoveMutationObserver(mutationObserverId);
+		mutationObserverId = -1;
+
 		Fit.Dom.Remove(dialog);
 
 		if (layer !== null)
@@ -10672,16 +11341,122 @@ Fit.Controls.Dialog = function(controlId)
 	{
 		if (layer !== null)
 			Fit.Dom.Remove(layer);
-
-		Fit.Array.ForEach(Fit.Array.Copy(buttons.children), function(buttonElm) // Using Copy(..) since Dispose() modifies children collection
+		
+		if (cmdMaximize !== null)
 		{
-			buttonElm._internal.Instance.Dispose();
-		});
+			cmdMaximize.Dispose();
+		}
 
-		me = dialog = content = buttons = modal = layer = width = minWidth = maxWidth = null;
+		if (cmdDismiss !== null)
+		{
+			cmdDismiss.Dispose();
+		}
+
+		if (buttons !== null)
+		{
+			Fit.Array.ForEach(Fit.Array.Copy(buttons.children), function(buttonElm) // Using Copy(..) since Dispose() modifies children collection
+			{
+				buttonElm._internal.Instance.Dispose();
+			});
+		}
+
+		if (mutationObserverId !== -1)
+		{
+			Fit.Events.RemoveMutationObserver(mutationObserverId);
+		}
+
+		me = dialog = title = titleButtons = cmdMaximize = cmdDismiss = content = buttons = modal = layer = width = minWidth = maxWidth = height = minHeight = maxHeight = mutationObserverId = onDismissHandlers = null;
 
 		base();
 	});
+
+	// ============================================
+	// Events
+	// ============================================
+
+	/// <function container="Fit.Controls.Dialog" name="OnDismiss" access="public">
+	/// 	<description>
+	/// 		Add event handler fired when dialog is being dismissed (closed).
+	/// 		Action can be suppressed by returning False.
+	/// 		Function receives one argument: Sender (Fit.Controls.Dialog)
+	/// 	</description>
+	/// 	<param name="cb" type="function"> Event handler function </param>
+	/// </function>
+	this.OnDismiss = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onDismissHandlers, cb);
+	}
+
+	// ============================================
+	// Private
+	// ============================================
+
+	function createContentElement()
+	{
+		var div = document.createElement("div");
+		Fit.Dom.AddClass(div, "FitUiControlDialogContent");
+		return div;
+	}
+
+	function setContentHeight()
+	{
+		if (me.IsOpen() === false)
+			return;
+
+		// By default the Dialog component adjusts its height to the content.
+		// But if Height/MinimumHeight/MaximumHeight is set, or dialog is maximized,
+		// then make sure to adjust the height of the content element if title/buttons
+		// are added. If no title/buttons are added, the content element simply adjusts
+		// to the height of the dialog since it has height:100%.
+
+		content.style.height = "";
+
+		if ((buttons !== null || title !== null) && (me.Maximized() === true || me.Height().Value !== -1 || me.MinimumHeight().Value !== -1 || me.MaximumHeight().Value !== -1))
+		{
+			var dh = dialog.offsetHeight;
+			var th = (title !== null ? title.offsetHeight : 0);
+			var bh = (buttons !== null ? buttons.offsetHeight : 0);
+
+			content.style.height = (dh - th - bh) + "px";
+		}
+	}
+
+	function updateTitleButtons()
+	{
+		// Remove title buttons container if no longer needed
+
+		if (titleButtons !== null && cmdMaximize === null && cmdDismiss === null)
+		{
+			Fit.Dom.Remove(titleButtons);
+			titleButtons = null;
+			return;
+		}
+
+		// Ensure title bar and container for title buttons
+
+		if (titleButtons === null && (cmdMaximize !== null || cmdDismiss !== null))
+		{
+			if (me.Title() === null)
+				me.Title("");
+
+			titleButtons = document.createElement("div");
+			Fit.Dom.AddClass(titleButtons, "FitUiControlDialogTitleButtons");
+			Fit.Dom.Add(title, titleButtons);
+		}
+
+		// Add/re-add to ensure proper order
+
+		if (cmdMaximize !== null)
+		{
+			Fit.Dom.Add(titleButtons, cmdMaximize.GetDomElement());
+		}
+
+		if (cmdDismiss !== null)
+		{
+			Fit.Dom.Add(titleButtons, cmdDismiss.GetDomElement());
+		}
+	}
 
 	init();
 }
@@ -10803,7 +11578,7 @@ Fit.Controls.Dialog.Prompt = function(content, defaultValue, cb)
 		}
 	});
 
-	Fit.Dom.Add(dia.ContentDomElement(), txt.GetDomElement());
+	Fit.Dom.Add(dia.GetContentDomElement(), txt.GetDomElement());
 	txt.Focused(true);
 }
 /// <container name="Fit.Controls.DropDown" extends="Fit.Controls.ControlBase">
@@ -14464,8 +15239,7 @@ Fit.Controls.Input = function(ctlId)
 	}
 
 	// See documentation on ControlBase
-	var baseDispose = me.Dispose;
-	this.Dispose = function()
+	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
 		// This will destroy control - it will no longer work!
 
@@ -14474,28 +15248,26 @@ Fit.Controls.Input = function(ctlId)
 
 		me = orgVal = preVal = input = cmdResize = designEditor = wasMultiLineBefore = minimizeHeight = maximizeHeight = minMaxUnit = mutationObserverId = isIe8 = null;
 
-		baseDispose();
-	}
+		base();
+	});
 
 	// See documentation on ControlBase
-	var baseWidth = me.Width;
-	this.Width = function(val, unit)
+	this.Width = Fit.Core.CreateOverride(this.Width, function(val, unit)
 	{
 		Fit.Validation.ExpectNumber(val, true);
 		Fit.Validation.ExpectStringValue(unit, true);
 
 		if (Fit.Validation.IsSet(val) === true)
 		{
-			baseWidth(val, unit);
+			base(val, unit);
 			updateDesignEditorSize();
 		}
 
-		return baseWidth();
-	}
+		return base();
+	});
 
 	// See documentation on ControlBase
-	var baseHeight = me.Height;
-	this.Height = function(val, unit, suppressMinMax)
+	this.Height = Fit.Core.CreateOverride(this.Height, function(val, unit, suppressMinMax)
 	{
 		Fit.Validation.ExpectNumber(val, true);
 		Fit.Validation.ExpectStringValue(unit, true);
@@ -14503,7 +15275,7 @@ Fit.Controls.Input = function(ctlId)
 
 		if (Fit.Validation.IsSet(val) === true)
 		{
-			var h = baseHeight(val, unit);
+			var h = base(val, unit);
 			updateDesignEditorSize(); // Throws error if in DesignMode and unit is not px
 
 			if (me.Maximizable() === true && suppressMinMax !== true)
@@ -14516,8 +15288,8 @@ Fit.Controls.Input = function(ctlId)
 			}
 		}
 
-		return baseHeight();
-	}
+		return base();
+	});
 
 	// ============================================
 	// Public
@@ -14832,6 +15604,11 @@ Fit.Controls.Input = function(ctlId)
 
 					Fit.Loader.LoadScript(Fit.GetUrl() + "/Resources/CKEditor/ckeditor.js", function(src) // Using Fit.GetUrl() rather than Fit.GetPath() to allow editor to be used on e.g. JSFiddle (Cross-Origin Resource Sharing policy)
 					{
+						if (Fit.Validation.IsSet(Fit._internal.Controls.Input.DefaultSkin) === true)
+						{
+							CKEDITOR.config.skin = Fit._internal.Controls.Input.DefaultSkin;
+						}
+						
 						createEditor();
 					});
 				}
@@ -14884,27 +15661,6 @@ Fit.Controls.Input = function(ctlId)
 
 	function createEditor()
 	{
-		// Prevent the following error: Uncaught TypeError: Cannot read property 'getEditor' of undefined
-		// It seems CKEDITOR is not happy about initializing multiple instances at once.
-		if (CKEDITOR._loading === true)
-		{
-			setTimeout(function()
-			{
-				if (me === null)
-				{
-					return; // Control was disposed while waiting for another editor to finish initialization - stop waiting
-				}
-
-				createEditor();
-			}, 100);
-			
-			return;
-		}
-		CKEDITOR._loading = true;
-		CKEDITOR.on("instanceLoaded", function () { CKEDITOR._loading = false; });
-
-		// Create editor
-
 		// NOTICE: CKEDITOR requires input control to be rooted in DOM.
 		// Creating the editor when Render(..) is called is not the solution, since the programmer
 		// may call GetDomElement() instead and root the element at any given time which is out of our control.
@@ -14916,14 +15672,12 @@ Fit.Controls.Input = function(ctlId)
 		// the size of objects while being invisible. The CKEditor team may also solve the bug in an update.
 		if (Fit.Dom.IsRooted(me.GetDomElement()) === false)
 		{
-			CKEDITOR._loading = false;
 			Fit.Validation.ThrowError("Control must be appended/rendered to DOM before DesignMode can be initialized");
 		}
 
 		designEditor = CKEDITOR.replace(me.GetId() + "_DesignMode",
 		{
 			//allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_allowed_content_rules and http://docs.ckeditor.com/#!/api/CKEDITOR.config-cfg-allowedContent
-			skin: ((Fit.Validation.IsSet(Fit._internal.Controls.Input.DefaultSkin) === true) ? Fit._internal.Controls.Input.DefaultSkin : "moono"),
 			language: ((Fit.Browser.GetInfo().Language === "da") ? "da" : "en"), // TODO: Ship with all language files and remove this entry to have CKEditor default to browser language
 			extraPlugins: "justify,pastefromword",
 			toolbar:
@@ -14952,6 +15706,8 @@ Fit.Controls.Input = function(ctlId)
 				{
 					var h = me.Height();
 					me.Height(((h.Value >= 150 && h.Unit === "px") ? h.Value : 150));
+
+					designEditor._isReadyForInteraction = true;
 				},
 				change: function()
 				{
@@ -14973,6 +15729,19 @@ Fit.Controls.Input = function(ctlId)
 	{
 		if (designEditor !== null)
 		{
+			if (designEditor._isReadyForInteraction !== true)
+			{
+				// Postpone, editor is not ready yet.
+				// This may happen when editor is created and Width(..) is
+				// immediately set after creating and mounting the control.
+				// https://github.com/Jemt/Fit.UI/issues/34
+				// This is a problem because CKEditor uses setTimeout(..) to for instance
+				// allow early registration of events, and because resources are loaded
+				// in an async. manner.
+				setTimeout(updateDesignEditorSize, 100);
+				return;
+			}
+
 			var w = me.Width();
 			var h = me.Height();
 
