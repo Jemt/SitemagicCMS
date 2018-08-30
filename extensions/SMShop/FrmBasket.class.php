@@ -31,6 +31,7 @@ class SMShopFrmBasket implements SMIExtensionForm
 	{
 		$extPath = SMExtensionManager::GetExtensionPath($this->context->GetExtensionName());
 		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$StyleSheet, $extPath . "/JSShop/Views/Basket/Basket.css?CacheKey=" . SMEnvironment::GetVersion(), true);
+		SMEnvironment::GetMasterTemplate()->RegisterResource(SMTemplateResource::$StyleSheet, $extPath . "/JSShop/Views/OrderForm/OrderForm.css?CacheKey=" . SMEnvironment::GetVersion(), true);
 
 		$output = "
 		<div id=\"" . $this->context->GetExtensionName() . "BasketContainer\"></div>
