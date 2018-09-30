@@ -3515,7 +3515,8 @@
 
 			if (borderPrimary !== null || backColorPrimary !== null || textPrimary !== null)
 			{
-				css += "a.SMPagesActionButtonPrimary[class]";
+				css += "html.SMPagesEditor.SMPagesContentPage body a.SMPagesActionButtonPrimary,"
+				css += "a.SMPagesActionButtonPrimary[class]"; // Added [class] to increase specificity, otherwise this will not take precedence in div.TPLContent
 				css += "{";
 				css += ((borderPrimary !== null) ? borderPrimary : "");
 				css += ((backColorPrimary !== null) ? backColorPrimary : "");
@@ -3525,6 +3526,7 @@
 
 			if (borderSecondary !== null || backColorSecondary !== null || textSecondary !== null)
 			{
+				css += "html.SMPagesEditor.SMPagesContentPage body a.SMPagesActionButtonSecondary,"
 				css += "a.SMPagesActionButtonSecondary[class]";
 				css += "{";
 				css += ((borderSecondary !== null) ? borderSecondary : "");
