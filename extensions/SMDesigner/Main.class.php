@@ -42,6 +42,12 @@ class SMDesigner extends SMExtension
 
 			$files = $this->getFiles(SMEnvironment::GetFilesDirectory() . "/images");
 
+			// Support for using images from a folder called resources within the template folder
+			/*$tplFiles = $this->getFiles($templatePath . "/resources");
+			for ($i = 0 ; $i < count($tplFiles) ; $i++)
+				$tplFiles[$i] = preg_replace('/^"templates\/.+?\/(.+)"$/', "\"$1\"", $tplFiles[$i]); // File paths are surrounded by quotes - remove "templates/TemplateName/" portion
+			$files = array_merge($files, $tplFiles);*/
+
 			// Disabled - difficult for the user to distinguish "images/xyz.jpg" (within template folder) from "files/images/xyz.jpg"
 			/*$tplFiles = $this->getFiles($templatePath . "/images");
 			for ($i = 0 ; $i < count($tplFiles) ; $i++)
