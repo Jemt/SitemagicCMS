@@ -167,7 +167,8 @@
 				},
 				"Text":
 				{
-					"Formatting": SMDesigner.Helpers.GetFontControls("Verdana", 2.2, "em", "#F0F0F0", "Normal", "Left")
+					"Formatting": SMDesigner.Helpers.GetFontControls("Verdana", 2.2, "em", "#F0F0F0", "Normal", "Left"),
+					"Shadow": SMDesigner.Helpers.GetTextShadowControls()
 				},
 				"Borders and colors":
 				{
@@ -1719,7 +1720,9 @@
 
 			// Text formatting
 			var text = SMDesigner.Helpers.GetFontCss(editors["Header"]["Text"]["Formatting"]);
+			var textShadow = SMDesigner.Helpers.GetShadowCss(editors["Header"]["Text"]["Shadow"], "text-shadow");
 			cssHeader += ((text !== null) ? text : "");
+			cssHeader += ((textShadow !== null) ? textShadow : "");
 
 			// Wrap CSS in selectors
 
