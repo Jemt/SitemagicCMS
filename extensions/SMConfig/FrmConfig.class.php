@@ -132,6 +132,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$this->txtDbUsername->SetAttribute(SMInputAttributeText::$MaxLength, "250");
 
 		$this->txtDbPassword = new SMInput("SMConfigDbPassword", SMInputType::$Password);
+		$this->txtDbPassword->SetValue((($this->context->GetForm()->PostBack() === true) ? $this->txtDbPassword->GetValue() : "")); // Disable security feature: Prevent password field from being cleared after postback
 		$this->txtDbPassword->SetAttribute(SMInputAttributeText::$Style, "width: 150px");
 		$this->txtDbPassword->SetAttribute(SMInputAttributeText::$MaxLength, "250");
 
