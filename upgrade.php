@@ -432,7 +432,9 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 		rename("data", "data." . $ts);
 		rename("templates", "templates." . $ts);
 		rename("extensions", "extensions." . $ts);
-		rename("sites", "sites." . $ts);
+
+		if (is_dir("sites") === true) // Does not exist on very old installations
+			rename("sites", "sites." . $ts);
 	}
 
 	logMsg("Moving files from temporary folder '" . $extDir . "' to active Sitemagic installation path");
@@ -516,23 +518,26 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 			}
 		}
 
-		logMsg("Restoring subsites");
-
-		foreach (scandir("sites." . $ts) as $site)
+		if (is_dir("sites." . $ts) === true)
 		{
-			if ($site === "." || $site === "..")
-				continue;
+			logMsg("Restoring subsites");
 
-			if (is_dir("sites." . $ts . "/" . $site) === true)
+			foreach (scandir("sites." . $ts) as $site)
 			{
-				rename("sites." . $ts . "/" . $site, "sites/" . $site);
+				if ($site === "." || $site === "..")
+					continue;
 
-				copy("index.php", "sites/" . $site . "/index.php");
+				if (is_dir("sites." . $ts . "/" . $site) === true)
+				{
+					rename("sites." . $ts . "/" . $site, "sites/" . $site);
 
-				if (is_file("sites/" . $site . "/files/.htaccess") === true)
-					copy("sites/htaccess.fls", "sites/" . $site . "/files/.htaccess");
-				if (is_file("sites/" . $site . "/templates/.htaccess") === true)
-					copy("sites/htaccess.tpls", "sites/" . $site . "/templates/.htaccess");
+					copy("index.php", "sites/" . $site . "/index.php");
+
+					if (is_file("sites/" . $site . "/files/.htaccess") === true)
+						copy("sites/htaccess.fls", "sites/" . $site . "/files/.htaccess");
+					if (is_file("sites/" . $site . "/templates/.htaccess") === true)
+						copy("sites/htaccess.tpls", "sites/" . $site . "/templates/.htaccess");
+				}
 			}
 		}
 
@@ -575,7 +580,9 @@ else if ($op === "extract") // Extract Sitemagic CMS to current directory
 		removeDir("base." . $ts);
 		removeDir("templates." . $ts);
 		removeDir("extensions." . $ts);
-		removeDir("sites." . $ts);
+
+		if (is_dir("sites." . $ts) === true)
+			removeDir("sites." . $ts);
 
 		if ($dsType === "MySQL")
 		{

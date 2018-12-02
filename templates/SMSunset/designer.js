@@ -167,7 +167,8 @@
 				},
 				"Text":
 				{
-					"Formatting": SMDesigner.Helpers.GetFontControls("Verdana", 2.2, "em", "#F0F0F0", "Normal", "Left")
+					"Formatting": SMDesigner.Helpers.GetFontControls("Verdana", 2.2, "em", "#F0F0F0", "Normal", "Left"),
+					"Shadow": SMDesigner.Helpers.GetTextShadowControls()
 				},
 				"Borders and colors":
 				{
@@ -1719,7 +1720,9 @@
 
 			// Text formatting
 			var text = SMDesigner.Helpers.GetFontCss(editors["Header"]["Text"]["Formatting"]);
+			var textShadow = SMDesigner.Helpers.GetShadowCss(editors["Header"]["Text"]["Shadow"], "text-shadow");
 			cssHeader += ((text !== null) ? text : "");
+			cssHeader += ((textShadow !== null) ? textShadow : "");
 
 			// Wrap CSS in selectors
 
@@ -3515,7 +3518,8 @@
 
 			if (borderPrimary !== null || backColorPrimary !== null || textPrimary !== null)
 			{
-				css += "a.SMPagesActionButtonPrimary[class]";
+				css += "html.SMPagesEditor.SMPagesContentPage body a.SMPagesActionButtonPrimary,"
+				css += "a.SMPagesActionButtonPrimary[class]"; // Added [class] to increase specificity, otherwise this will not take precedence in div.TPLContent
 				css += "{";
 				css += ((borderPrimary !== null) ? borderPrimary : "");
 				css += ((backColorPrimary !== null) ? backColorPrimary : "");
@@ -3525,6 +3529,7 @@
 
 			if (borderSecondary !== null || backColorSecondary !== null || textSecondary !== null)
 			{
+				css += "html.SMPagesEditor.SMPagesContentPage body a.SMPagesActionButtonSecondary,"
 				css += "a.SMPagesActionButtonSecondary[class]";
 				css += "{";
 				css += ((borderSecondary !== null) ? borderSecondary : "");
