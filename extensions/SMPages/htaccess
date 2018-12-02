@@ -111,7 +111,7 @@ RewriteRule . https://%{HTTP_HOST}%1/shop/Overview [R=301,L]
 
 # Shop - map product category to URL argument
 RewriteRule ^shop/([A-Za-z0-9_-]+)$ index.php?SMExt=SMShop&SMShopCategory=$1 [L]
-RewriteRule ^sites/([sS][hH][oO][pP])/shop/([A-Za-z0-9_-]+)$ sites/$1/index.php?SMExt=SMShop&SMShopCategory=$2 [L]
+RewriteRule ^sites/([A-Za-z0-9_-]+)/shop/([A-Za-z0-9_-]+)$ sites/$1/index.php?SMExt=SMShop&SMShopCategory=$2 [L]
 
 ##### Shop - redirect client requests to files found one level above shop directory
 ##### DISABLED - now handled by new rules further down

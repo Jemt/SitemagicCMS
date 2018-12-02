@@ -124,6 +124,14 @@ interface SMIDataSource
 	/// </function>
 	public function Unlock();
 
+	/// <function container="base/SMIDataSource" name="IsLocked" access="public" returns="boolean">
+	/// 	<description>
+	/// 		Get flag indicating whether DataSource is currently locked or not.
+	/// 		See Lock() function for more information.
+	/// 	</description>
+	/// </function>
+	public function IsLocked();
+
 	/// <function container="base/SMIDataSource" name="Reload" access="public">
 	/// 	<description> Reload data - uncommitted changes are discarded </description>
 	/// 	<param name="unlock" type="boolean" default="true"> True to release lock, false to keep lock </param>
@@ -213,6 +221,39 @@ abstract class SMDataSourceCacheItem
 
 			$this->lock = null;
 		}
+	}
+
+	public function IsLocked()
+	{
+		$lock = fopen(dirname(__FILE__) . "/../" . SMEnvironment::GetDataDirectory() . "/" . $this->name . ".lock", "w");
+
+		if ($lock === false)
+			throw new Exception("Unable to access lock file for data source '" . $this->name . "'");
+
+		$wouldBlock = 0;
+
+		if (flock($lock, LOCK_EX|LOCK_NB, $wouldBlock) === false) // Lock file but non-blocking
+		{
+			// File lock was not obtained
+
+			if ($wouldBlock === 1)
+			{
+				return true; // Another process holds a lock
+			}
+			else
+			{
+				throw new Exception("Unable to determine locked state for data source '" . $this->name . "'");
+			}
+		}
+		else
+		{
+			// File lock was obtained - immediately release it again
+
+			if (flock($lock, LOCK_UN) === false)
+				throw new Exception("Unable to release temporary lock on data source '" . $this->name . "'");
+		}
+
+		return false;
 	}
 
 	public function SetDirty($value)

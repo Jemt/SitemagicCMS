@@ -363,6 +363,11 @@ class SMDataSource implements SMIDataSource
 		$this->ds->Unlock();
 	}
 
+	public function IsLocked()
+	{
+		return $this->ds->IsLocked();
+	}
+
 	public function Reload($unlock = true)
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "unlock", $unlock, SMTypeCheckType::$Boolean);

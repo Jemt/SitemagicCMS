@@ -1,0 +1,111 @@
+Invoice
+<style type="text/stylesheet">
+    div.info
+    {
+        color: #333;
+        font-size: 14px;
+        font-family: verdana;
+    }
+</style>
+
+<div class="info">
+
+{[FirstName]} {[LastName]},
+
+We hereby send you the invoice associated with the order you placed with us {[OrderYear]}-{[OrderMonth]}-{[OrderDay]} with order number {[OrderId]}.
+
+<br><br>
+
+Thank you for shopping with us :-)
+
+<br><br>
+
+Best regards
+The webshop
+
+<br><br>
+
+</div>
+
+
+<!-- PDF:Invoice-{[InvoiceId]} -->
+
+<b>Invoice {[InvoiceId]} associated with order {[OrderId]}</b>.
+
+<br><br>
+
+<table border="0" cellpadding="3" cellspacing="0" width="75%">
+    <tr>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="30%">Purchased by</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="70%">{[FirstName]} {[LastName]}</td>
+    </tr>
+    <tr>
+        <td style="border-bottom: 1px solid #CCCCCC;">Delivery to</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[DeliveryAddress]}<br>{[DeliveryZipCode]} {[DeliveryCity]}</td>
+    </tr>
+    <tr>
+        <td style="border-bottom: 1px solid #CCCCCC;">Phone</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[Phone]}</td>
+    </tr>
+    <tr>
+        <td style="border-bottom: 1px solid #CCCCCC;">E-mail</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[Email]}</td>
+    </tr>
+    <tr>
+        <td style="border-bottom: 1px solid #CCCCCC;">Date of purchase</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[OrderDay]}/{[OrderMonth]}/{[OrderYear]}</td>
+    </tr>
+    <tr>
+        <td style="border-bottom: 1px solid #CCCCCC;">Payment method</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[PaymentMethod]}</td>
+    </tr>
+    <tr>
+        <td style="border-bottom: 1px solid #CCCCCC;">Transaction ID</td>
+        <td style="border-bottom: 1px solid #CCCCCC;">{[TransactionId]}</td>
+    </tr>
+</table>
+
+<br><br>
+
+<table border="0" cellpadding="3" cellspacing="0">
+    <tr>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="10%">Units</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="50%">Product</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="20%" align="right">Unit price</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" width="20%" align="right">Total</td>
+    </tr>
+    <!-- REPEAT OrderLines -->
+    <tr>
+        <td style="border-bottom: 1px solid #CCCCCC;" valign="top">{[OrderLineAmount]}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" valign="top">{[OrderLineProductTitle]}
+            <div style="color: #5E5E5E;">{[OrderLineProductDiscountMessage]}</div>
+        </td>
+        <td style="border-bottom: 1px solid #CCCCCC;" valign="top" align="right">{[OrderLineProductPriceInclVat]}</td>
+        <td style="border-bottom: 1px solid #CCCCCC;" valign="top" align="right">{[OrderLineTotalInclVat]}
+            <div style="color: #5E5E5E;">{[OrderLineProductDiscountInclVat]}</div>
+        </td>
+    </tr>
+    <!-- /REPEAT OrderLines -->
+</table>
+
+<br><br>
+
+<table cellspacing="0" cellpadding="3" border="0">
+    <tr>
+        <td width="50%"><b>Total incl. VAT</b></td>
+        <td width="50%" align="right"><b>{[Currency]} {[Price]}</b></td>
+    </tr>
+    <tr>
+        <td><b>VAT</b></td>
+        <td align="right">{[Currency]} {[Vat]}</td>
+    </tr>
+</table>
+
+<br><br>
+
+Customer message:
+{[Message]}
+
+<br><br>
+
+<!-- /PDF:Invoice-{[InvoiceId]} -->

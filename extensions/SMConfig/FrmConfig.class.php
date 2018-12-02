@@ -198,7 +198,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 		$this->populateSubSites();
 
-		$this->cmdNewSubSite = new SMLinkButton("SMConfigSave");
+		$this->cmdNewSubSite = new SMLinkButton("SMConfigNewSubSite");
 		$this->cmdNewSubSite->SetTitle("New subsite");
 		$this->cmdNewSubSite->SetIcon(SMImageProvider::GetImage(SMImageType::$Create));
 		$this->cmdNewSubSite->SetOnClick("var w = new SMWindow('SubsiteDialog'); w.SetUrl('" . SMExtensionManager::GetExtensionUrl($this->context->GetExtensionName(), SMTemplateType::$Basic, SMExecutionMode::$Dedicated) . "&SMConfigSubsiteForm'); w.SetSize(500, 500); w.Show(); return;");
@@ -755,7 +755,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 			$sessionToRestore = null;
 			if (SMFileSystem::FileExists($path . "/data/SMAttributes.xml.php") === true)
 			{
-				$sessionToRestore = SMAttributes::GetAttribute("SMEnvironmentSessionName" . SMEnvironment::GetRequestPath());
+				$sessionToRestore = SMAttributes::GetAttribute("SMEnvironmentSessionName" . md5(SMEnvironment::GetDocumentRoot()));
 			}
 
 			// Copy folders - will merge with existing folders but overwrite existing files
@@ -788,7 +788,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 			if ($sessionToRestore !== null)
 			{
-				$sessionToRestore = SMAttributes::SetAttribute("SMEnvironmentSessionName" . SMEnvironment::GetRequestPath(), $sessionToRestore);
+				$sessionToRestore = SMAttributes::SetAttribute("SMEnvironmentSessionName" . md5(SMEnvironment::GetDocumentRoot()), $sessionToRestore);
 			}
 		}
 

@@ -1,0 +1,100 @@
+div.JSShopAddress,
+div.JSShopAlternativeAddress,
+div.JSShopPaymentForm
+{
+	box-sizing: border-box;
+	float: left;
+	width: 50%;
+	min-width: 200px;
+
+}
+div.JSShopAddress
+{
+	padding-right: 2em;
+}
+div.JSShopAlternativeAddress
+{
+	display: none;
+}
+div.JSShopOrderForm:after
+{
+    content: "";
+    display: block;
+    clear: both;
+}
+
+div.JSShopOrderForm div[id*="JSShop-"][id*="-Control"]
+{
+	margin-bottom: 0.75em;
+}
+
+div.JSShopPair > div
+{
+    width: 48%;
+}
+div.JSShopPair > div.JSShopFirst
+{
+    float: left;
+}
+div.JSShopPair > div.JSShopSecond
+{
+    float: right;
+}
+div.JSShopPair:after
+{
+    content: "";
+    display: block;
+    clear: both;
+}
+
+div.JSShopOrderForm div.FitUiControlInput input,
+div.JSShopOrderForm div.FitUiControlInput textarea
+{
+	padding: 0.2em;
+}
+
+div#JSShop-Headline-Label,
+div#JSShop-AlternativeHeadline-Label,
+div#JSShop-Header-Label
+{
+	font-weight: bold;
+	margin: 1em 0em 1em 0em;
+}
+
+div#JSShop-Continue-Control
+{
+	float: right;
+	margin-top: 2em;
+}
+
+/* ======================================================== */
+/* Mobile - responsiveness                                  */
+/* ======================================================== */
+
+@media (max-width: 700px)
+{
+	div.JSShopAddress,
+	div.JSShopAlternativeAddress,
+	div.JSShopPaymentForm
+	{
+		float: none;
+		width: 95%;
+	}
+	div.JSShopAddress
+	{
+		padding-right: 0em;
+	}
+}
+
+@media (max-width: 380px)
+{
+	div.JSShopPair > div
+	{
+		width: auto;
+	}
+	div.JSShopPair > div.JSShopFirst,
+	div.JSShopPair > div.JSShopSecond
+	{
+		float: none;
+	}
+}
