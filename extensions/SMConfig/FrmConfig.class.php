@@ -702,7 +702,8 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$conf->SetEntry("TemplatePublic", $this->lstTemplates->GetSelectedValue());
 		$conf->SetEntry("TemplateAdmin", $admTpl);
 		//$conf->SetEntry("LicenseKey", $this->txtLicense->GetValue());
-		$conf->SetEntry("DatabaseConnection", $this->txtDbServer->GetValue() . ";" . $this->txtDbDatabase->GetValue() . ";" . $this->txtDbUsername->GetValue() . ";" . $this->txtDbPassword->GetValue());
+		if ($this->cloudMode === false)
+			$conf->SetEntry("DatabaseConnection", $this->txtDbServer->GetValue() . ";" . $this->txtDbDatabase->GetValue() . ";" . $this->txtDbUsername->GetValue() . ";" . $this->txtDbPassword->GetValue());
 		$conf->SetEntry("SMTPHost", $this->txtSmtpHost->GetValue());
 		$conf->SetEntry("SMTPPort", $this->txtSmtpPort->GetValue());
 		$conf->SetEntry("SMTPUser", $this->txtSmtpUser->GetValue());
