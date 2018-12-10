@@ -4,6 +4,7 @@ class SMPagesFrmPages implements SMIExtensionForm
 {
 	private $context;
 	private $lang;
+	private $cloudMode;
 
 	private $errorForm;
 	private $errorList;
@@ -56,6 +57,7 @@ class SMPagesFrmPages implements SMIExtensionForm
 	{
 		$this->context = $context;
 		$this->lang = new SMLanguageHandler("SMPages");
+		$this->cloudMode = SMEnvironment::GetCloudEnabled();
 
 		$this->errorForm = "";
 		$this->errorList = "";
@@ -306,6 +308,9 @@ class SMPagesFrmPages implements SMIExtensionForm
 
 	private function copyTemplate()
 	{
+		if ($this->cloudMode === true)
+			return; // Make sure function cannot be triggered programmatically client side
+
 		if ($this->lstTemplates->GetSelectedValue() === "")
 		{
 			$this->errorForm = $this->lang->GetTranslation("WarningTemplateNoSelection");
@@ -349,6 +354,9 @@ class SMPagesFrmPages implements SMIExtensionForm
 
 	private function deleteTemplate()
 	{
+		if ($this->cloudMode === true)
+			return; // Make sure function cannot be triggered programmatically client side
+
 		$tpl = $this->lstTemplates->GetSelectedValue();
 
 		if ($tpl === "")
@@ -616,7 +624,8 @@ class SMPagesFrmPages implements SMIExtensionForm
 		$page->SetFilename($this->txtFilename->GetValue());
 		$page->SetTitle($this->txtTitle->GetValue());
 		$page->SetAccessible($this->chkAccessible->GetChecked());
-		$page->SetTemplate($this->lstTemplates->GetSelectedValue());
+		if ($this->cloudMode === false)
+			$page->SetTemplate($this->lstTemplates->GetSelectedValue());
 		$page->SetKeywords($this->txtKeywords->GetValue());
 		$page->SetDescription($this->txtDescription->GetValue());
 		$page->SetAllowIndexing($this->chkAllowIndexing->GetChecked());
@@ -757,18 +766,27 @@ class SMPagesFrmPages implements SMIExtensionForm
 				<td style=\"width: 120px\">&nbsp;</td>
 				<td>&nbsp;</td>
 			</tr>
-			<tr" . (($showAll === false) ? " style=\"display: none\"" : "") . ">
-				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Template") . "</td>
-				<td>" . $this->lstTemplates->Render() . "</td>
-			</tr>
-			<tr" . (($showAll === false) ? " style=\"display: none\"" : "") . ">
-				<td style=\"width: 120px\">&nbsp;</td>
-				<td>" . $this->txtCopyTemplateName->Render() . $this->cmdCopyTemplate->Render() . " " . $this->cmdDeleteTemplate->Render() . "</td>
-			</tr>
-			<tr" . (($showAll === false) ? " style=\"display: none\"" : "") . ">
-				<td style=\"width: 120px\">&nbsp;</td>
-				<td>&nbsp;</td>
-			</tr>
+		";
+
+		if ($this->cloudMode === false)
+		{
+			$output .= "
+				<tr" . (($showAll === false) ? " style=\"display: none\"" : "") . ">
+					<td style=\"width: 120px\">" . $this->lang->GetTranslation("Template") . "</td>
+					<td>" . $this->lstTemplates->Render() . "</td>
+				</tr>
+				<tr" . (($showAll === false) ? " style=\"display: none\"" : "") . ">
+					<td style=\"width: 120px\">&nbsp;</td>
+					<td>" . $this->txtCopyTemplateName->Render() . $this->cmdCopyTemplate->Render() . " " . $this->cmdDeleteTemplate->Render() . "</td>
+				</tr>
+				<tr" . (($showAll === false) ? " style=\"display: none\"" : "") . ">
+					<td style=\"width: 120px\">&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+			";
+		}
+
+		$output .= "
 			<tr" . (($showAll === false) ? " style=\"display: none\"" : "") . ">
 				<td style=\"width: 120px\">" . $this->lang->GetTranslation("Keywords") . "</td>
 				<td>" . $this->txtKeywords->Render() . "</td>

@@ -667,6 +667,15 @@ class SMEnvironment
 		return ($cfg->GetEntry("Debug") !== null && strtolower($cfg->GetEntry("Debug")) === "true");
 	}
 
+	/// <function container="base/SMEnvironment" name="GetCloudEnabled" access="public" static="true" returns="boolean">
+	/// 	<description> Returns True if Cloud Mode has been enabled, otherwise False </description>
+	/// </function>
+	public static function GetCloudEnabled()
+	{
+		$cfg = self::GetConfiguration();
+		return ($cfg->GetEntry("CloudMode") !== null && strtolower($cfg->GetEntry("CloudMode")) === "true");
+	}
+
 	/// <function container="base/SMEnvironment" name="GetConfiguration" access="public" static="true" returns="SMConfiguration">
 	/// 	<description> Returns system configuration (config.xml.php) </description>
 	/// 	<param name="writable" type="boolean" default="false"> Set True to have writable configuration returned </param>
