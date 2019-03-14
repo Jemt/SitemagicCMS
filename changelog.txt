@@ -10,6 +10,7 @@ Changelog 2019-03-14
     - Improved unicode support in SQL DataSource layer.
  - Extensions
     - SMSearch: Fixes to make it match special characters better.
+    - SMFiles: Fixed XSS security vulnerability in file upload.
  - Templates
     - Added support for text shadows.
  - Installer
