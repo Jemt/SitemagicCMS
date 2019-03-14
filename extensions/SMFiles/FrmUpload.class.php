@@ -81,7 +81,7 @@ class SMFilesFrmUpload implements SMIExtensionForm
 		}
 		else if ($this->context->GetForm()->PostBack() === true)
 		{
-			$output .= SMNotify::Render($this->lang->GetTranslation("UploadSucceeded") . ":<br>" . $this->txtUpload->GetValue());
+			$output .= SMNotify::Render($this->lang->GetTranslation("UploadSucceeded") . ":<br>" . SMStringUtilities::HtmlEncode($this->txtUpload->GetValue()));
 		}
 
 		$output .= $this->txtUpload->Render();
