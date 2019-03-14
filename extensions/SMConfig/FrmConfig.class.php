@@ -6,6 +6,7 @@ class SMConfigFrmConfig implements SMIExtensionForm
 	private $lang;
 	private $msg;
 	private $defaultExtensions;
+	private $cloudMode;
 
 	private $txtUsername;
 	private $txtPassword;
@@ -54,6 +55,10 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$this->lang = new SMLanguageHandler("SMConfig");
 		$this->msg = "";
 		$this->defaultExtensions = array("SMAnnouncements", "SMAutoSeoUrls", "SMConfig", "SMExtensionCommon", "SMFiles", "SMLogin", "SMMenu", "SMPages");
+		$this->cloudMode = SMEnvironment::GetCloudEnabled();
+
+		if ($this->cloudMode === true)
+			$this->defaultExtensions[] = "SMCloudApp";
 
 		$this->context->GetTemplate()->ReplaceTag(new SMKeyValue("Title", $this->lang->GetTranslation("Title")));
 
@@ -97,7 +102,8 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 		$this->lstTemplates = new SMOptionList("SMConfigTemplates");
 		$this->lstTemplates->SetAttribute(SMOptionListAttribute::$Style, "width: 150px");
-		$this->lstTemplates->SetAttribute(SMOptionListAttribute::$OnChange, "smConfigTemplateChangeHandler(this);");
+		if ($this->cloudMode === false)
+			$this->lstTemplates->SetAttribute(SMOptionListAttribute::$OnChange, "smConfigTemplateChangeHandler(this);");
 		$this->populateTemplates();
 
 		$this->chkInstallWebsiteData = new SMInput("SMConfigInstallWebsiteData", SMInputType::$Checkbox);
@@ -208,7 +214,8 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 		$this->cmdSave = new SMLinkButton("SMConfigSave");
 		$this->cmdSave->SetTitle($this->lang->GetTranslation("Save"));
-		$this->cmdSave->SetOnClick("if (smConfigValidateBeforeSave() === false) { return; }");
+		if ($this->cloudMode === false)
+			$this->cmdSave->SetOnClick("if (smConfigValidateBeforeSave() === false) { return; }");
 		$this->cmdSave->SetIcon(SMImageProvider::GetImage(SMImageType::$Save));
 
 		$this->cmdCancel = new SMLinkButton("SMConfigCancel");
@@ -373,6 +380,11 @@ class SMConfigFrmConfig implements SMIExtensionForm
 				<td style=\"width: 200px\">" . $this->lang->GetTranslation("Template") . "</td>
 				<td>" . $this->lstTemplates->Render() . "</td>
 			</tr>
+		";
+
+		if ($this->cloudMode === false)
+		{
+			$tableAppearance .= "
 			<tr>
 				<td style=\"width: 200px\">" . $this->lang->GetTranslation("InstallWebsiteData") . "</td>
 				<td>" . $this->chkInstallWebsiteData->Render() . "</td>
@@ -380,7 +392,10 @@ class SMConfigFrmConfig implements SMIExtensionForm
 			<tr>
 				<td style=\"width: 200px\">&nbsp;</td>
 				<td>" . $this->txtCopyTemplateName->Render() . $this->cmdCopyTemplate->Render() . " " . $this->cmdDeleteTemplate->Render() . "</td>
-			</tr>
+			</tr>";
+		}
+
+		$tableAppearance .= "
 		</table>
 		";
 
@@ -516,9 +531,11 @@ class SMConfigFrmConfig implements SMIExtensionForm
 					";
 					/*<br><br>
 					" . $this->renderFieldset("License", $this->lang->GetTranslation("License"), $tableLicense) . "*/
+					if ($this->cloudMode === false)
+					{
+						$output .= "<br><br>" . $this->renderFieldset("Database", $this->lang->GetTranslation("DatabaseTitle"), $tableDatabase, true);
+					}
 					$output .= "
-					<br><br>
-					" . $this->renderFieldset("Database", $this->lang->GetTranslation("DatabaseTitle"), $tableDatabase, true) . "
 					<br><br>
 					" . $this->renderFieldset("Smtp", $this->lang->GetTranslation("SmtpTitle"), $tableSmtp, true) . "
 					" . /* SUBSITES - BETA SECTION - START */ ((SMEnvironment::IsSubSite() === false) ? "<br><br>" . $this->renderFieldset("Subsites", "Subsites (experimental)", $tableSubSites, true) : "") /* SUBSITES - BETA SECTION - END */ . "
@@ -589,10 +606,9 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		";
 
 		// Disable password storage prompts (not W3C compliant).
-		$output .= "
-		<script type=\"text/javascript\">SMEventHandler.AddEventHandler(window, \"load\", function() { SMDom.GetElement(\"" . $this->txtPassword->GetClientId() . "\").autocomplete = \"off\"; });</script>
-		<script type=\"text/javascript\">SMEventHandler.AddEventHandler(window, \"load\", function() { SMDom.GetElement(\"" . $this->txtDbPassword->GetClientId() . "\").autocomplete = \"off\"; });</script>
-		";
+		$output .= "<script type=\"text/javascript\">SMEventHandler.AddEventHandler(window, \"load\", function() { SMDom.GetElement(\"" . $this->txtPassword->GetClientId() . "\").autocomplete = \"off\"; });</script>";
+		if ($this->cloudMode === false)
+			$output .= "<script type=\"text/javascript\">SMEventHandler.AddEventHandler(window, \"load\", function() { SMDom.GetElement(\"" . $this->txtDbPassword->GetClientId() . "\").autocomplete = \"off\"; });</script>";
 
 		return $output;
 	}
@@ -686,7 +702,8 @@ class SMConfigFrmConfig implements SMIExtensionForm
 		$conf->SetEntry("TemplatePublic", $this->lstTemplates->GetSelectedValue());
 		$conf->SetEntry("TemplateAdmin", $admTpl);
 		//$conf->SetEntry("LicenseKey", $this->txtLicense->GetValue());
-		$conf->SetEntry("DatabaseConnection", $this->txtDbServer->GetValue() . ";" . $this->txtDbDatabase->GetValue() . ";" . $this->txtDbUsername->GetValue() . ";" . $this->txtDbPassword->GetValue());
+		if ($this->cloudMode === false)
+			$conf->SetEntry("DatabaseConnection", $this->txtDbServer->GetValue() . ";" . $this->txtDbDatabase->GetValue() . ";" . $this->txtDbUsername->GetValue() . ";" . $this->txtDbPassword->GetValue());
 		$conf->SetEntry("SMTPHost", $this->txtSmtpHost->GetValue());
 		$conf->SetEntry("SMTPPort", $this->txtSmtpPort->GetValue());
 		$conf->SetEntry("SMTPUser", $this->txtSmtpUser->GetValue());
@@ -844,6 +861,9 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 	private function copyTemplate()
 	{
+		if ($this->cloudMode === true)
+			return; // Make sure function cannot be triggered programmatically client side
+
 		$newName = $this->txtCopyTemplateName->GetValue();
 
 		if (SMStringUtilities::Validate($newName, SMValueRestriction::$AlphaNumeric) === false)
@@ -881,6 +901,9 @@ class SMConfigFrmConfig implements SMIExtensionForm
 
 	private function deleteTemplate()
 	{
+		if ($this->cloudMode === true)
+			return; // Make sure function cannot be triggered programmatically client side
+
 		$tpl = $this->lstTemplates->GetSelectedValue();
 
 		if (SMTemplateInfo::GetPublicTemplate() === $tpl || SMTemplateInfo::GetAdminTemplate() === $tpl || SMTemplateInfo::GetCurrentTemplate() === $tpl || $this->checkTemplateInUse($tpl) === true)
