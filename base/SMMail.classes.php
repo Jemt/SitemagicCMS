@@ -266,6 +266,7 @@ class SMMail
 		$usr		= $cfg->GetEntry("SMTPUser");
 		$psw		= $cfg->GetEntry("SMTPPass");
 		$sender		= $cfg->GetEntry("SMTPSender");
+		$fbSender	= $cfg->GetEntry("SMTPFallbackSender");
 		$headers	= $cfg->GetEntry("SMTPHeaders");
 		$dkimDomain	= $cfg->GetEntry("SMTPDKIMDomain");
 		$dkimKey	= $cfg->GetEntry("SMTPDKIMPrivateKeyPath");
@@ -382,7 +383,7 @@ class SMMail
 
 			// Sender and reply-to
 
-			$sender = (($sender !== null) ? $sender : "");
+			$sender = (($sender !== null && $sender !== "") ? $sender : ($fbSender !== null ? str_replace("%user", SMEnvironment::GetEnvironmentValue("USER"), str_replace("%hostname", SMEnvironment::GetEnvironmentValue("SERVER_NAME"), $fbSender)) : ""));
 
 			// NOTICE: Some mail servers refuse to send e-mails if spoofing incorrect sender information!
 			// In that case make sure Sender, From, and FromName is set to an empty string - PHPMailer assign

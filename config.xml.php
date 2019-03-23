@@ -58,6 +58,8 @@
 	<entry key="SMTPAllowSelfSignedSSL" value="False" />
 	<!-- optional, may be left out or empty - defaults to False -->
 	<entry key="SMTPDebug" value="False" />
+	<!-- optional, may be left out or empty - variable support: %user = $_SERVER["USER"], %hostname = $_SERVER["SERVER_NAME"] -->
+	<entry key="SMTPFallbackSender" value=""/>
 
 	<!-- optional, may be left out or empty - defaults to 'stable' - possible values are: stable, dev (NOT for production sites!) -->
 	<entry key="UpgradeMode" value="stable"/>
