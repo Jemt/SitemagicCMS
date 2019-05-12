@@ -2583,9 +2583,9 @@
 				css += "}";
 
 				// Indentation from top using margin-top on first child contained
-				for (var baseType in {"Desktop":"", "Tablet":"", "Mobile":""})
+				for (var baseType in indentFromTop !== null ? {"Desktop":"", "Tablet":"", "Mobile":""} : {})
 				{
-					var indentPixels = ((indentFromTop !== null) ? getHeightInPixels(indentFromTop, baseType) : 0);
+					var indentPixels = getHeightInPixels(indentFromTop, baseType); // ((indentFromTop !== null) ? getHeightInPixels(indentFromTop, baseType) : 0);
 					// /* Disabled - not worth it for just 0.02px */ indentPixels = (stretch === true ? indentPixels - 0.02 : indentPixels); // Compensate for padding-top:0.02px on div.SMExtension when stretched (applied further down) - not necessary when header image is positioned within div.TPLContent with top:0px
 
 					if (baseType === "Tablet")
