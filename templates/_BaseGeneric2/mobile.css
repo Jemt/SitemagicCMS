@@ -27,7 +27,19 @@ div.TPLMenuMobile
 	{
 		height:100%;
 		overflow: auto;
-		-webkit-overflow-scrolling: touch;
+		-webkit-overflow-scrolling: touch; /* Notice related fix on input controls below */
+	}
+	input:focus,
+	textarea:focus
+	{
+		/* -webkit-overflow-scrolling:touch added above is required to enable scrolling in Safari on iOS.
+		   But unfortunately it comes with other problems such as text being hidden while typing in input fields.
+		   Applying a negative z-index to input controls solve that particular problem.
+		   If this work around for some reason proves to cause other problems, another approach could be to
+		   change -webkit-overflow-scrolling to 'auto' on <body> while an input field has focus, although it will
+		   prevent scrolling until reverted to 'touch' again. Obviously it would also require JavaScript. */
+		position: relative;
+		z-index: -1;
 	}
 
 	div.TPLTop,
