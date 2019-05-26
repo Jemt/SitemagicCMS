@@ -39,7 +39,7 @@ div.TPLMenuMobile
 		   change -webkit-overflow-scrolling to 'auto' on <body> while an input field has focus, although it will
 		   prevent scrolling until reverted to 'touch' again. Obviously it would also require JavaScript. */
 		position: relative;
-		z-index: -1;
+		z-index: -1; /* NOTICE: Will make it impossible to place cursor or select text using long touch */
 	}
 
 	div.TPLTop,
