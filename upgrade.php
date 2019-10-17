@@ -171,7 +171,7 @@ function getUpgradeMode()
 
 	if ($val !== "stable" /*&& $val !== "beta"*/ && $val !== "dev")
 	{
-		fail("Unsupported Upgrade Mode '" . $val . "'");
+		fail("Unsupported Upgrade Mode");
 	}
 
 	return $val;
