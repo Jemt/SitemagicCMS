@@ -474,7 +474,7 @@ class SMEnvironment
 	/// </function>
 	public static function GetExternalUrl()
 	{
-		$ruri = $_SERVER["REQUEST_URI"];
+		$ruri = self::GetEnvironmentValue("REQUEST_URI");
 		$ruri = (strpos($ruri, "?") !== false ? substr($ruri, 0, strpos($ruri, "?")) : $ruri); // Remove query string parameters which may contain a slash (e.g. https://localhost/demo/?SMExt=SMDesigner&SMCallback=callbacks/test)
 		$ruri = substr($ruri, 0, strrpos($ruri, "/"));
 
@@ -530,7 +530,7 @@ class SMEnvironment
 		// Returns "/folder/subfolder/sites/demo" if subsite is installed in /folder/subfolder/sites/demo.
 		// Returns "/" if installed to /sites/test but accessed using test.domain.com subdomain
 
-		$path = $_SERVER["REQUEST_URI"]; // E.g. / or /index.php[?..] or /Test.html
+		$path = self::GetEnvironmentValue("REQUEST_URI"); // E.g. / or /index.php[?..] or /Test.html
 		$path = ((strpos($path, "?") !== false) ? substr($path, 0, strpos($path, "?")) : $path); // Remove URL arguments if defined
 		$path = substr($path, 0, strrpos($path, "/"));	// Remove last slash and everything after it, resulting in e.g. "" (empty) or / or /sites/demo
 		return (($path !== "") ? $path : "/");

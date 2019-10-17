@@ -76,6 +76,7 @@ class SMController
 	{
 		set_error_handler("SMErrorHandler");
 		set_exception_handler("SMExceptionHandler");
+		$this->securityValidation();
 		$this->disableMagicQuotes();
 
 		$this->config = SMEnvironment::GetConfiguration();
@@ -491,6 +492,25 @@ class SMController
 		{
 			$dataSource = new SMDataSource($dataSourceName);
 			$dataSource->Commit();
+		}
+	}
+
+	private function securityValidation()
+	{
+		// Protect against obvious improper use of the web application
+
+		// Protect against obvious injection attempt - e.g. https://server/index.php/'-alert(123)-'/abc/def
+		// We do not rely on the ability to have scripts executed as part of a folder structure like demonstrated above.
+
+		$requestUri = $_SERVER["REQUEST_URI"];
+
+		// Get rid of query string parameters if defined - no need to validate those as they may contain anything
+		$info = explode("?", $requestUri);
+		$requestUri = $info[0];
+
+		if (strpos($requestUri, "index.php/") !== false)
+		{
+			throw new Exception("Security exception - invalid and potentially unsafe Request URI detected");
 		}
 	}
 
