@@ -327,6 +327,26 @@ class SMEnvironment
 		unset($_SESSION[$key]);
 	}
 
+	/// <function container="base/SMEnvironment" name="GetRequestToken" access="public" static="true" returns="string">
+	/// 	<description>
+	/// 		Get request token unique to the current session.
+	/// 		This can be used as a CSRF (Cross-Site Request Forgery)
+	/// 		token to prevent cross-site requests.
+	/// 	</description>
+	/// </function>
+	public static function GetRequestToken()
+	{
+		$token = self::GetSessionValue("SMCSRFToken");
+
+		if ($token === null)
+		{
+			$token = SMRandom::CreateText(32);
+			self::SetSession("SMCSRFToken", $token);
+		}
+
+		return $token;
+	}
+
 	// Cookies
 
 	private static function initializeCookies()
