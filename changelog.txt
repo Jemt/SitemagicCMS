@@ -3,6 +3,25 @@
 ========================================================================================================================
 
 
+Changelog 2019-10-18 (commits from 2019-03-17 => 2019-10-17)
+ - Base
+    - Fixed SMEnvironment::GetExternalUrl() which could produce
+      an invalid URL if a QS parameter contained a slash.
+    - Added support for SMTP Sender fallback in config.xml.php.
+      This is useful in hosted/cloud environments.
+ - Extensions
+    - SMConfig: Fixed null pointer exception in Cloud Mode.
+    - Designer: Em unit fix for indentation and header image
+      height in page editor. Also fixed header image indentation.
+ - Templates
+    - Fixed invisible text in input fields on iOS.
+    - Fixed printing - all pages are now included, not just
+      the first page.
+ - Misc.
+    - Security fixes to several vulnerabilities found by
+      security expert Alessandro Magnosi (thank you very much).
+
+
 Changelog 2019-03-14
  - Base
     - Made sure multibyte functions and regular expressions
