@@ -357,6 +357,26 @@ class SMEnvironment
 		unset($_SESSION[$key]);
 	}
 
+	/// <function container="base/SMEnvironment" name="GetRequestToken" access="public" static="true" returns="string">
+	/// 	<description>
+	/// 		Get request token unique to the current session.
+	/// 		This can be used as a CSRF (Cross-Site Request Forgery)
+	/// 		token to prevent cross-site requests.
+	/// 	</description>
+	/// </function>
+	public static function GetRequestToken()
+	{
+		$token = self::GetSessionValue("SMCSRFToken");
+
+		if ($token === null)
+		{
+			$token = SMRandom::CreateText(32);
+			self::SetSession("SMCSRFToken", $token);
+		}
+
+		return $token;
+	}
+
 	// Cookies
 
 	private static function initializeCookies()
@@ -488,15 +508,18 @@ class SMEnvironment
 	/// </function>
 	public static function GetExternalUrl()
 	{
+		$ruri = self::GetEnvironmentValue("REQUEST_URI");
+		$ruri = (strpos($ruri, "?") !== false ? substr($ruri, 0, strpos($ruri, "?")) : $ruri); // Remove query string parameters which may contain a slash (e.g. https://localhost/demo/?SMExt=SMDesigner&SMCallback=callbacks/test)
+		$ruri = substr($ruri, 0, strrpos($ruri, "/"));
+
 		$url = "";
 		$url .= "http";
 		$url .= ((isset($_SERVER["HTTPS"]) === true && $_SERVER["HTTPS"] !== "off") ? "s://" : "://");
 		$url .= $_SERVER["SERVER_NAME"];
 		$url .= (($_SERVER["SERVER_PORT"] !== "80" && $_SERVER["SERVER_PORT"] !== "443") ? ":" . $_SERVER["SERVER_PORT"] : "");
-		$url .= $_SERVER["REQUEST_URI"];
-
-		$url = ((strpos($url, "?") !== false) ? substr($url, 0, strpos($url, "?")) : $url); // Remove query string parameters in case they contain a slash (e.g. http://domain.com/index.php?SMExt=MyExtension&SMCallback=Callbacks/ProcessData)
-		$url = substr($url, 0, strrpos($url, "/")); // Remove filename portion (e.g. /index.php)
+		$url .= $ruri;
+		//$url .= substr($_SERVER["REQUEST_URI"], 0, strrpos($_SERVER["REQUEST_URI"], "/"));
+		//$url .= substr($_SERVER["PHP_SELF"], 0, strrpos($_SERVER["PHP_SELF"], "/")); // Not reliable when URL Rewriting is used (e.g. sub.domain.com => domain.com/sites/sub)
 
 		return $url; // e.g. http://www.domain.com/demo/cms
 	}
@@ -541,7 +564,7 @@ class SMEnvironment
 		// Returns "/folder/subfolder/sites/demo" if subsite is installed in /folder/subfolder/sites/demo.
 		// Returns "/" if installed to /sites/test but accessed using test.domain.com subdomain
 
-		$path = $_SERVER["REQUEST_URI"]; // E.g. / or /index.php[?..] or /Test.html
+		$path = self::GetEnvironmentValue("REQUEST_URI"); // E.g. / or /index.php[?..] or /Test.html
 		$path = ((strpos($path, "?") !== false) ? substr($path, 0, strpos($path, "?")) : $path); // Remove URL arguments if defined
 		$path = substr($path, 0, strrpos($path, "/"));	// Remove last slash and everything after it, resulting in e.g. "" (empty) or / or /sites/demo
 		return (($path !== "") ? $path : "/");

@@ -16,6 +16,11 @@ class SMForm
 
 	public function __construct()
 	{
+		if ($this->PostBack() === true && SMEnvironment::GetPostValue("SMRequestToken") !== SMEnvironment::GetRequestToken())
+		{
+			throw new Exception("Security exception - Invalid or no request token received");
+		}
+
 		$this->render = true;
 		$this->contentType = SMFormContentType::$Default;
 	}
@@ -85,7 +90,7 @@ class SMForm
 		if ($this->render === false)
 			return "";
 
-		return "<div><input id=\"SMPostBackControl\" type=\"hidden\" name=\"SMPostBackControl\"></div>\n</form>"; // Input enclosed in div to satisfy W3C validator
+		return "<div><input id=\"SMPostBackControl\" type=\"hidden\" name=\"SMPostBackControl\"><input type=\"hidden\" name=\"SMRequestToken\" value=\"" . SMEnvironment::GetRequestToken() . "\"></div>\n</form>"; // Input enclosed in div to satisfy W3C validator
 	}
 }
 

@@ -1,5 +1,9 @@
 /*
 
+Notice: This file also contains optimizations for printing.
+		Be aware that media queries affect printing unless
+		specifically targeted for the screen.
+
 Notice: The !important statement is used a lot.
         The reason for this is that mobile.css needs to take precedence
         in almost every situation, even when template specific styles are
@@ -14,7 +18,7 @@ div.TPLMenuMobile
 
 /*@media (max-device-width: 768px)*/
 /*@media (max-width: 768px)*/
-@media (max-width: 900px)
+@media screen and (max-width: 900px)
 {
 	/* Make background image scale properly and prevent it from scrolling along with content on mobile devices with Android/iOS.
 	   Unfortunately this prevents us from using e.g. window.scrollTo(..) or document.body.scrollTop=0 in JavaScript - it no longer works. */
@@ -27,9 +31,19 @@ div.TPLMenuMobile
 	{
 		height:100%;
 		overflow: auto;
-		-webkit-overflow-scrolling: touch;
+		-webkit-overflow-scrolling: touch; /* Notice related fix on input controls below */
 	}
-
+	html.TplBrowserSafari.TplMobileDevice input:focus,
+	html.TplBrowserSafari.TplMobileDevice textarea:focus
+	{
+		/* -webkit-overflow-scrolling:touch added above is required to enable scrolling in Safari on iOS.
+		   But unfortunately it comes with other problems such as text being hidden while typing in input fields.
+		   Applying GPU rendering resolves that particular problem. */
+		-webkit-transform: translate3d(0, 0, 0);
+	}
+}
+@media (max-width: 900px)
+{
 	div.TPLTop,
 	div.TPLMiddle,
 	div.TPLBottom
@@ -295,5 +309,35 @@ div.TPLMenuMobile
 	div.TPLContent div.SMExternalModulesContentPageExtension iframe
 	{
 		width: 100% !important;
+	}
+}
+
+@media print
+{
+	/* Hide menus when printing */
+	div.TPLMenu, div.TPLMenuMobile
+	{
+		display: none;
+	}
+
+	/* Hide header image when printing */
+	div.SMExtension.SMPages:before
+	{
+		display: none !important;
+	}
+
+	/* Remove background colors, background images, and shadows when printing */
+	*
+	{
+		color: #333 !important;
+		text-shadow: none !important;
+		background: none !important;
+	}
+
+	/* Style links with underline when printing */
+	div.TPLContent a,
+	div.TPLFooter a
+	{
+		text-decoration: underline !important;
 	}
 }

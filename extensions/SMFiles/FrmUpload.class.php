@@ -40,6 +40,13 @@ class SMFilesFrmUpload implements SMIExtensionForm
 	{
 		$uploadPath = SMEnvironment::GetQueryValue("SMFilesUploadPath", SMValueRestriction::$SafePath);
 
+		// Guard against $uploadPath with a value of "." (web root) which is a safe path,
+		// just not meant for file uploads, and certainly not allowed in a hosted environment.
+		if (strpos($uploadPath, SMEnvironment::GetFilesDirectory()) !== 0)
+		{
+			throw new Exception("Security exception - attempt to upload file outside of target directory");
+		}
+
 		if ($uploadPath === null)
 			return;
 
