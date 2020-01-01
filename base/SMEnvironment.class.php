@@ -14,6 +14,7 @@ class SMEnvironment
 {
 	private static $masterTemplate = null;
 	private static $formInstance = null;
+	private static $sessionClosed = false;
 
 	public static function Initialize() // Invoked by SMController
 	{
@@ -241,7 +242,7 @@ class SMEnvironment
 		// We will let PHP work its magic, and simply make sure the site is given a unique session name (PHPSESSID is replaced with another name).
 		// That way we get a site specific session that is automatically renewed if the browser is restarted.
 
-		$path = self::GetRequestPath();
+		$path = md5(self::GetDocumentRoot());
 		$sessionName = SMAttributes::GetAttribute("SMEnvironmentSessionName" . $path); // Path is part of key to make sure a new unique session name is generated if site is copied/moved/renamed
 
 		if ($sessionName === null)
@@ -259,6 +260,22 @@ class SMEnvironment
 
 		session_name($sessionName);
 		session_start(); // Start session - make $_SESSION available
+	}
+
+	/// <function container="base/SMEnvironment" name="CloseSession" access="public" static="true">
+	/// 	<description>
+	/// 		Closes session. This will prevent additional data from being persisted to session
+	/// 		state, but will allow another concurrent request to be performed from the same session.
+	/// 	</description>
+	/// </function>
+	public static function CloseSession()
+	{
+		// From the PHP manual - http://php.net/manual/en/function.session-write-close.php
+		// "Session data is usually stored after your script terminated without the
+		// need to call session_write_close(), but as session data is locked to prevent
+		// concurrent writes only one script may operate on a session at any time".
+		session_write_close();
+		self::$sessionClosed = true;
 	}
 
 	/// <function container="base/SMEnvironment" name="GetSessionValue" access="public" static="true" returns="object">
@@ -287,6 +304,9 @@ class SMEnvironment
 	// DEPRECATED - use SetSession instead
 	public static function SetSessionValue(SMKeyValue $data)
 	{
+		if (self::$sessionClosed === true)
+			throw new Exception("Session state has been disabled for this request");
+
 		SMLog::LogDeprecation(__CLASS__, __FUNCTION__, __CLASS__, "SetSession");
 		$_SESSION[$data->GetKey()] = $data->GetValue();
 	}
@@ -294,6 +314,9 @@ class SMEnvironment
 	// DEPRECATED - use DestroySession instead
 	public static function DestroySessionValue($key)
 	{
+		if (self::$sessionClosed === true)
+			throw new Exception("Session state has been disabled for this request");
+
 		SMTypeCheck::CheckObject(__METHOD__, "key", $key, SMTypeCheckType::$String);
 		SMLog::LogDeprecation(__CLASS__, __FUNCTION__, __CLASS__, "DestroySession");
 		unset($_SESSION[$key]);
@@ -314,6 +337,9 @@ class SMEnvironment
 		SMTypeCheck::CheckObject(__METHOD__, "key", $key, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "value", $value, SMTypeCheckType::$String);
 
+		if (self::$sessionClosed === true)
+			throw new Exception("Session state has been disabled for this request");
+
 		$_SESSION[$key] = $value;
 	}
 
@@ -324,6 +350,10 @@ class SMEnvironment
 	public static function DestroySession($key) // Replaces DestroySessionValue
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "key", $key, SMTypeCheckType::$String);
+
+		if (self::$sessionClosed === true)
+			throw new Exception("Session state has been disabled for this request");
+
 		unset($_SESSION[$key]);
 	}
 
@@ -431,20 +461,24 @@ class SMEnvironment
 	/// 		Expiration time in seconds. A value of 0 makes it
 	/// 		a session cookie, a value of -1 removes the cookie.
 	/// 	</param>
+	/// 	<param name="path" type="string" default="null"> Path to which cookie is associated </param>
 	/// </function>
-	public static function SetCookie($key, $value, $expireSeconds) // Replaces SetCookieValue
+	public static function SetCookie($key, $value, $expireSeconds, $path = null) // Replaces SetCookieValue
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "key", $key, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "value", $value, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "expireSeconds", $expireSeconds, SMTypeCheckType::$Integer);
+		SMTypeCheck::CheckObject(__METHOD__, "path", (($path !== null) ? $path : ""), SMTypeCheckType::$String);
 
-		$path = self::GetRequestPath();
+		if ($path === null)
+			$path = self::GetRequestPath(false);
+
 		$internalKey = $key;
 
 		if (self::IsSubSite() === false)
 			$internalKey = "SM#/#" . $key; // Prevent conflicts with cookies on subsites - NOTICE: prefix MUST be identical to prefix used in SMClient.js client side!
 
-		if ($path !== "/") // e.g. /SitemagicDemo
+		if ($path !== "/" && SMStringUtilities::EndsWith($path, "/") === false) // e.g. /SitemagicDemo
 			$path .= "/";  // Must end with a slash to be compatible with path set by SMClient.js
 
 		// Set cookie client side (here we need the special internal key for cookies on root site to avoid conflicts with subsite cookies)
@@ -538,19 +572,41 @@ class SMEnvironment
 
 	/// <function container="base/SMEnvironment" name="GetDocumentRoot" access="public" static="true" returns="string">
 	/// 	<description>
-	/// 		Get absolute path to document root, e.g. /var/www/domain.com/web (installed to root) or
-	/// 		/var/www/domain.com/web/Sitemagic/sites/demo (demo subsite).
+	/// 		Get path to document root, e.g. /var/www/domain.com/web (installed to root)
+	/// 		or /var/www/domain.com/web/Sitemagic/sites/demo (demo subsite).
 	/// 	</description>
+	/// 	<param name="absolute" type="boolean" default="true"> Flag indicating whether to return document root as an absolute path (default) or not (relative path) </param>
 	/// </function>
-	public static function GetDocumentRoot()
+	public static function GetDocumentRoot($absolute = true)
 	{
 		//$root = $_SERVER["DOCUMENT_ROOT"];
 		//$root = str_replace("\\", "/", $root); // May contain backslashes on Windows Server
 		//$root = ((strrpos($root, "/") === strlen($root) - 1) ? substr($root, 0, strlen($root) - 1) : $root); // Remove trailing slash if found (better safe than sorry)
 
-		$root = $_SERVER["SCRIPT_FILENAME"];			// E.g. /var/www/domain.com/web/Sitemagic/index.php
+		$root = $_SERVER["SCRIPT_FILENAME"];			// E.g. /var/www/domain.com/web/Sitemagic/index.php - opposite to DOCUMENT_ROOT this value will always contain the name of the (sub-) folder containing the file
 		$root = str_replace("\\", "/", $root);			// In case backslashes are used on Windows Server
 		$root = substr($root, 0, strrpos($root, "/"));	// Remove last slash and filename (e.g. /index.php)
+
+		if ($absolute === false) // Relative path (e.g. /demo) requested rather than absolute path (e.g. /var/www/domain.com/web/demo)
+		{
+			// WARNING: Use relative path with caution - it may differ on different server systems!
+			// The relative document root is NOT suitable for use client side as it may differ from what the browser
+			// considers the root. For instance, mapping a subdomain to a sub folder will on some servers (e.g. MAMP Pro)
+			// result in the document root being considered / while on other servers the document root will still be reported
+			// as the sub folder, e.g. /demo.
+
+			$docRoot = $_SERVER["DOCUMENT_ROOT"];			// E.g. /var/www/domain.com/web (or it might be /var/www/domain.com/web/demo on some servers (e.g. MAMP Pro on MacOS) if a subdomain is mapped to the demo folder)
+			$docRoot = str_replace("\\", "/", $docRoot);	// In case backslashes are used on Windows Server
+
+			if ($root === $docRoot)
+			{
+				// This happens on e.g. MAMP Pro with a subdomain mapped to a folder.
+				// We have no way of determining whether Sitemagic is hosted in a sub folder or not.
+				return "/";
+			}
+
+			return substr($root, strlen($docRoot)); // Remove document root portion, leaving only installation folder behind (e.g. /demo)
+		}
 
 		return $root;
 	}
@@ -646,7 +702,7 @@ class SMEnvironment
 		return self::$version;
 	}
 
-	// <function container="base/SMEnvironment" name="GetClientCacheKey" access="public" static="true" returns="string">
+	/// <function container="base/SMEnvironment" name="GetClientCacheKey" access="public" static="true" returns="string">
 	/// 	<description>
 	/// 		Returns client cache key useful for forcing browser to reload CSS and JavaScript
 	/// 		when cache has been invalidated using SMEnvironment::UpdateClientCacheKey().
@@ -673,7 +729,7 @@ class SMEnvironment
 		return self::$cacheKey;
 	}
 
-	// <function container="base/SMEnvironment" name="UpdateClientCacheKey" access="public" static="true">
+	/// <function container="base/SMEnvironment" name="UpdateClientCacheKey" access="public" static="true">
 	/// 	<description> Update client cache key to force client resources to load latest version </description>
 	/// </function>
 	public static function UpdateClientCacheKey()

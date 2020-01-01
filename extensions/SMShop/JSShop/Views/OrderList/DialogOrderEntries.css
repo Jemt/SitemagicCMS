@@ -1,0 +1,38 @@
+table.JSShopOrderEntries
+{
+	width: 100%;
+	border-spacing: 0px;
+}
+
+table.JSShopOrderEntries td
+{
+	padding: 0.3em 0.5em 0.3em 0.5em;
+	vertical-align: top;
+	white-space: nowrap;
+}
+
+table.JSShopOrderEntries td + td
+{
+	padding-left: 3em;
+}
+
+tr.JSShopOrderEntriesHeader
+{
+	font-weight: bold;
+}
+tr.JSShopOrderEntriesHeader td
+{
+	border-bottom: 1px solid #8A8A8A;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.3)
+}
+
+div.JSShopOrderEntryDiscount
+{
+	font-size: 0.8em;
+}
+
+tr.JSShopOrderEntriesTotals td
+{
+	border-top: 1px solid #8A8A8A;
+	border-top: 1px solid rgba(0, 0, 0, 0.3)
+}
