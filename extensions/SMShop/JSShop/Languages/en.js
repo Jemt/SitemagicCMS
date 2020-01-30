@@ -77,6 +77,7 @@
 			Payment:			"Payment",
 			Terms:				"Terms",
 			PaymentAndTerms:	"Payment and terms",
+			PromotionCode:		"Promotion code",
 			PaymentMethod:		"Payment method",
 			AcceptTerms:		"I accept the terms and conditions",
 			TermsRequired:		"Please accept terms and conditions to continue",

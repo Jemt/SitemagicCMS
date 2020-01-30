@@ -77,6 +77,7 @@
 			Payment:			"Betaling",
 			Terms:				"Handelsbetingelser",
 			PaymentAndTerms:	"Betaling og handelsbetingelser",
+			PromotionCode:		"Rabatkode",
 			PaymentMethod:		"Betalingsmetode",
 			AcceptTerms:		"Jeg accepterer handelsbetingelserne",
 			TermsRequired:		"Accepterer venligst handelsbetingelserne for at fortsætte",
