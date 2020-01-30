@@ -363,9 +363,9 @@ JSShop.Presenters.OrderList = function()
 		view.Content.ToolbarUpdateButton = cmdUpdate.GetDomElement();
 		view.Content.ToolbarExportButton = cmdExport.GetDomElement();
 		view.Content.ToolbarInvoiceButton = cmdInvoice.GetDomElement();
-		view.Content.ToolbarCaptureButton = cmdCapture.GetDomElement();
-		view.Content.ToolbarRejectButton = cmdReject.GetDomElement();
-		view.Content.ToolbarConfigButton = cmdConfig.GetDomElement();
+		view.Content.ToolbarCaptureButton = cmdCapture && cmdCapture.GetDomElement() || null;
+		view.Content.ToolbarRejectButton = cmdReject && cmdReject.GetDomElement() || null;
+		view.Content.ToolbarConfigButton = cmdConfig && cmdConfig.GetDomElement() || null;
 
 		view.Content.HeaderSelectAll = chkSelectAll.GetDomElement();
 		view.Content.HeaderHeaderOrderId = lang.OrderList.OrderId;
@@ -440,6 +440,9 @@ JSShop.Presenters.OrderList = function()
 						}
 					});
 				}
+
+				model._presenter.invoiceElement = document.createElement("span");
+				model._presenter.invoiceElement.innerHTML = model.InvoiceId();
 			}
 
 			var altStateText = getTagTitlesByIds(model.TagIds() !== "" ? model.TagIds().split(";") : []);
@@ -460,7 +463,7 @@ JSShop.Presenters.OrderList = function()
 			item.Amount = model._presenter.lnkAmountWithDetails;
 			item.PaymentMethod = model.PaymentMethod();
 			item.State = model._presenter.stateElm;
-			item.InvoiceId = model.InvoiceId();
+			item.InvoiceId = model._presenter.invoiceElement;
 		});
 
 		chkSelectAll.Checked(allSelected);
@@ -1515,7 +1518,7 @@ JSShop.Presenters.OrderList = function()
 
 				model.Retrieve(function(req, m)
 				{
-					model._presenter.InvoiceElement.innerHTML = model.InvoiceId();
+					model._presenter.invoiceElement.innerHTML = model.InvoiceId();
 				});
 			},
 			function(req, m) // Error handler
