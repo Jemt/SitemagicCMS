@@ -26,6 +26,7 @@ JSShop.Presenters.Config = function()
 		view = document.createElement("div");
 
 		tpl = new Fit.Template(true);
+		tpl.AllowUnsafeContent(false);
 		tpl.Render(view);
 
 		JSShop.Models.Config.Current.Retrieve(function(sender)

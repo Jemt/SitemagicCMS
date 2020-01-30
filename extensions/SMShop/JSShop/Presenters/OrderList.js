@@ -287,6 +287,7 @@ JSShop.Presenters.OrderList = function()
 		}
 
 		var tpl = new Fit.Template(true);
+		tpl.AllowUnsafeContent(false);
 		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/OrderList.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
 			view = sender;
@@ -670,6 +671,7 @@ JSShop.Presenters.OrderList = function()
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
 		var tpl = new Fit.Template();
+		tpl.AllowUnsafeContent(false);
 		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
 			dia.Content("");
@@ -715,7 +717,7 @@ JSShop.Presenters.OrderList = function()
 			// Finalize
 
 			cmdOk.Enabled(true);
-			tpl.Render(dia.ContentDomElement());
+			tpl.Render(dia.GetContentDomElement());
 		});
 	}
 
@@ -744,6 +746,7 @@ JSShop.Presenters.OrderList = function()
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/DialogOrderEntries.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
 		var tpl = new Fit.Template();
+		tpl.AllowUnsafeContent(false);
 		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/DialogOrderEntries.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
 			// Headers
@@ -797,7 +800,7 @@ JSShop.Presenters.OrderList = function()
 				cmdOk.Enabled(true);
 
 				dia.Content("");
-				tpl.Render(dia.ContentDomElement());
+				tpl.Render(dia.GetContentDomElement());
 			}
 
 			// Load order entries
@@ -1114,6 +1117,7 @@ JSShop.Presenters.OrderList = function()
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/OrderTags.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
 		var tpl = new Fit.Template();
+		tpl.AllowUnsafeContent(false);
 		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/OrderTags.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
 			dia.Content("");
@@ -1125,7 +1129,7 @@ JSShop.Presenters.OrderList = function()
 			tpl.Content.TagText = lang.OrderList.CustomState;
 			tpl.Content.TagValue = dropdown.GetDomElement();
 
-			tpl.Render(dia.ContentDomElement());
+			tpl.Render(dia.GetContentDomElement());
 
 			dropdown.Focused(true);
 		});
