@@ -48,7 +48,7 @@ JSShop.Presenters.Basket = function()
 		// Load view
 
 		tpl = new Fit.Template(true);
-		tpl.AllowUnsafeContent(false);
+		tpl.AllowUnsafeContent(true);
 		tpl.LoadUrl(JSShop.GetPath() + "/Views/Basket/Basket.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
 			// Populate header titles
