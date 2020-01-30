@@ -65,7 +65,9 @@
 {
 	//"use strict"; // Not supported by IE9 and below - may cause different runtime behaviour - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode
 	var fitInstance =
+
 (function(){
+
 ;(function() // Terminate script if browser is not capable of running Fit.UI
 {
 	if (!window.JSON || !window.NodeList) // JSON and NodeList are not available on IE7 and older
@@ -279,7 +281,6 @@ Fit.Core.CreateOverride = function(originalFunction, newFunction)
 /// </function>
 Fit.Core.IsEqual = function(jsObj1, jsObj2)
 {
-
 	// TEST CASE: Example below is supposed to return: TRUE!
 	/*var f1 = function() { alert("Hello"); }
 	var f2 = f1;
@@ -378,10 +379,95 @@ Fit.Core.IsEqual = function(jsObj1, jsObj2)
 	return false;
 }
 
+/// <function container="Fit.Core" name="Merge" access="public" static="true" returns="object">
+/// 	<description>
+/// 		Deep merges two objects and returns the resulting object.
+/// 		Take notice of the behaviour and restriction of Fit.Core.Clone(..) since
+/// 		the target object is first cloned using that function. The resulting object is
+/// 		then enriched with the data from the merge object.
+/// 		Property values on the merge object takes precedence over property values on the
+/// 		target object. Arrays are not merged but merely replaced if defined on the merge object.
+/// 	</description>
+/// 	<param name="targetObject" type="object"> Target object </param>
+/// 	<param name="mergeObject" type="object"> Merge object </param>
+/// </function>
+Fit.Core.Merge = function(targetObject, mergeObject)
+{
+	Fit.Validation.ExpectObject(targetObject);
+	Fit.Validation.ExpectObject(mergeObject);
+
+	/* // Test data
+	f1 = function() { alert("Hello"); };
+	f2 = function() { alert("Hello2"); };
+	x = {
+		str: "Hello world",
+		num: 123,
+		dec: 123.321,
+		num2: 1,
+		num3: parseFloat("abc"),
+		date: new Date("2014-12-01 13:02:23"),
+		bool: true,
+		bool2: false,
+		arr: [100, 200, 250, 400],
+		arr2: ["Hello", "world"],
+		arr3: [123, "hello", true, false, new Date("1990-01-20"), [1,2,3], { x: { "hapsen": f1, "hello": new Array(1,2,3) } }],
+		obj: { a: 123, b: 123.321, c: true, d: false, e: new Date("1993-06-25"), f: "hello", g: null, h: undefined, propNotFoundOnMergeObj: { name: "one", age: 11 } },
+		specialProp: { x: true, y: undefined, z: null, date: new Date() },
+		oneUn: undefined
+	};
+	y = {
+		str: "Hello world 2",
+		num: 222,
+		dec: 222.222,
+		num2: parseInt("abc"),
+		num3: 22.2,
+		date: new Date("2222-02-02 22:22:22"),
+		bool: false,
+		bool2: true,
+		arr: [2, 22, 222, 2222, 22222, 2222222222],
+		arr2: ["Hello2", "world2"],
+		arr3: [222, "hello2", false, true, new Date("2002-02-02"), [2], { x: { "hapsen2": f2, "hello2": new Array(2,2,2,2,2,2,2,2,2,2) } }],
+		obj: { a: 2, b: 2.2, c: false, d: true, e: new Date("2202-02-22"), f: "hello2", g: {}, h: null, newProp: { name: "two", age: 22, gender: "female" } },
+		two: { x: 2, y: true, z: undefined },
+		twoUn: undefined
+	};
+	var backupX = Fit.Core.Clone(x);
+	var backupY = Fit.Core.Clone(y);
+	var merged1 = Fit.Core.Merge(x, y);
+	var merged2 = Fit.Core.Merge(y, x);
+	console.log(merged1);
+	console.log(merged2);
+	console.log("Merges equal:", Fit.Core.IsEqual(merged1, merged2)); // Expecting False
+	console.log("X untouched:", Fit.Core.IsEqual(x, backupX)); // Expecting True
+	console.log("Y untouched:", Fit.Core.IsEqual(y, backupY)); // Expecting True*/
+
+	var isObject = function(val)
+	{
+		return (val !== undefined && val !== null && typeof(val) === "object" && (val instanceof Date) === false && (val instanceof Array) === false);
+	}
+
+	var newObject = Fit.Core.Clone(targetObject);
+
+	Fit.Array.ForEach(mergeObject, function(prop)
+	{
+		if (isObject(newObject[prop]) && isObject(mergeObject[prop]))
+		{
+			newObject[prop] = Fit.Core.Merge(newObject[prop], mergeObject[prop]);
+		}
+		else
+		{
+			newObject[prop] = mergeObject[prop];
+		}
+	});
+
+	return newObject;
+}
+
 /// <function container="Fit.Core" name="Clone" access="public" static="true" returns="object">
 /// 	<description>
 /// 		Clone JavaScript object. Supported object types and values:
-/// 		String, Number, Boolean, Date, Array, (JSON) Object, Function, Undefined, Null, NaN.
+/// 		String, Number, Boolean, Date, Array, (JSON) Object, Function, Undefined, Null, NaN,
+/// 		Infinity.
 /// 		Variables defined as undefined are left out of clone,
 /// 		since an undefined variable is equal to a variable defined as undefined.
 /// 		Notice that Arrays and Objects can contain supported object types and values only.
@@ -452,6 +538,21 @@ Fit.Core.Clone = function(obj)
 		{
 			return Infinity;
 		}
+		else if (org instanceof RegExp)
+		{
+			var flags = "";
+
+			if (org.ignoreCase)
+				flags += "i";
+			if (org.global)
+				flags += "g";
+			if (org.multiline)
+				flags += "m";
+			if (org.sticky) // Notice that sticky is not supported in legacy IE
+				flags += "y";
+			
+			return new RegExp(org.source, flags);
+		}
 		else if (org && typeof(org) === "object") // Recursively fix children (object/array)
 		{
 			for (var p in org)
@@ -475,7 +576,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 2, Patch: 7 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 8, Patch: 26 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -486,16 +587,19 @@ Fit._internal.Core.EnsureStyles = function()
 
 	Fit._internal.Core.StylesEnsured = true;
 
-	var elm = Fit.Dom.CreateElement("<div class='FitUiStyleCheck'></div>");
-	Fit.Dom.Add(document.body, elm);
-
-	if (Fit.Dom.GetComputedStyle(elm, "width") !== "20px")
+	Fit.Events.OnDomReady(function() // In case function is called too early in which case document.body will be null
 	{
-		Fit.Browser.Log("Lazy loading Fit.UI stylesheet. It is recommended to add a stylesheet reference to Fit.UI.min.css to prevent temporarily unstyled content.");
-		Fit.Loader.LoadStyleSheet(Fit.GetUrl() + "/Fit.UI.min.css");
-	}
+		var elm = Fit.Dom.CreateElement("<div class='FitUiStyleCheck'></div>");
+		Fit.Dom.Add(document.body, elm);
 
-	Fit.Dom.Remove(elm);
+		if (Fit.Dom.GetComputedStyle(elm, "width") !== "20px")
+		{
+			Fit.Browser.Log("Lazy loading Fit.UI stylesheet. It is recommended to add a stylesheet reference to Fit.UI.min.css to prevent temporarily unstyled content.");
+			Fit.Loader.LoadStyleSheet(Fit.GetUrl() + "/Fit.UI.min.css");
+		}
+
+		Fit.Dom.Remove(elm);
+	});
 }
 
 ;(function()
@@ -636,6 +740,7 @@ Fit.SetUrl = function(baseUrl) // E.g. http://foreign-host/path/to/Fit.UI/
 	var newUrl = (url.Url.lastIndexOf("/") === url.Url.length - 1 ? url.Url.substring(0, url.Url.length - 1) : url.Url); // Both GetPath() and GetUrl() return values without trailing slashes - e.g. libs/fitui and http://host/libs/fitui - so make sure no trailing slash is present
 	Fit._internal.BaseUrlOverride = newUrl;
 }
+
 /// <container name="Fit.Validation">
 /// 	Validation logic
 /// </container>
@@ -644,6 +749,28 @@ Fit.Validation = {};
 Fit._internal.Validation = {};
 Fit._internal.Validation.DebugMode = true;
 Fit._internal.Validation.Clone = null;
+
+// Ensure object types not found in all browsers
+(function()
+{
+	// window.event is of type MSEventObj in IE9 and above.
+	// Type used by Fit.Validation.ExpectEvent.
+	if (!window.MSEventObj)
+		window.MSEventObj = function() {};
+
+	// StaticNodeList type is produced by document.querySelectorAll(..) in Legacy IE.
+	// FileList type is not defined in Legacy IE.
+	// These types are used by Fit._internal.Validation.IsCollectionType.
+	if (!window.StaticNodeList)
+		window.StaticNodeList = function() {};
+	if (!window.FileList)
+		window.FileList = function() {};
+	
+	// File type not defined in Legacy IE.
+	// Make sure we can use Fit.Validation.ExpectInstance(selectedFileFromInput, File, true)
+	if (!window.File)
+		window.File = function() {};
+})();
 
 // ==========================================================
 // Type checking
@@ -659,7 +786,7 @@ Fit.Validation.ExpectObject = function(val, allowNotSet)
 	if (allowNotSet === true && (val === undefined || val === null))
 		return;
 
-	if (val.constructor !== Object)
+	if (!val || val.constructor !== Object)
 		Fit.Validation.ThrowError("Value '" + val + "' is not a valid object");
 }
 
@@ -845,48 +972,67 @@ Fit.Validation.ExpectRegExp = function(val, allowNotSet)
 		Fit.Validation.ThrowError("Value '" + val + "' is not an instance of RegExp");
 }
 
-/// <function container="Fit.Validation" name="ExpectElementNode" access="public" static="true">
-/// 	<description> Throws error if passed object is not an instance of Element </description>
+/// <function container="Fit.Validation" name="ExpectElement" access="public" static="true">
+/// 	<description> Throws error if passed object is not an instance of HTMLElement </description>
 /// 	<param name="val" type="object"> Object to validate </param>
 /// 	<param name="allowNotSet" type="boolean" default="false"> Set True to allow object to be Null or Undefined </param>
 /// </function>
-Fit.Validation.ExpectElementNode = function(val, allowNotSet) // DOMElement
+Fit.Validation.ExpectElement = function(val, allowNotSet) // DOMElement (actually HTMLElement)
 {
+	// All elements within the HTML DOM tree inherits from Element except for Comments, CDATA, and Text nodes.
+	// But most elements from an XML document (also excluding Comments, CDATA, and Text nodes) also
+	// inherit from Element.
+	// (new DOMParser()).parseFromString("<root></root>", "text/xml").getElementsByTagName("root")[0] instanceof Element; // Returns true
+	// However, Fit.UI is for building HTML applications, and is therefore not expected to handle XML elements.
+	// Therefore, despite the function name ExpectElement, it actually ensures that the passed element is an instance of HTMLElement.
+	// (new DOMParser()).parseFromString("<root></root>", "text/xml").getElementsByTagName("root")[0] instanceof HTMLElement; // Returns false
+
+	// More about HTMLElement vs Element vs Node, as well as the nodeType property:
+	// https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement
+	// https://developer.mozilla.org/en-US/docs/Web/API/Element
+	// https://developer.mozilla.org/en-US/docs/Web/API/Node
+	// https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
+	// The inheritance chain looks like this: EventTarget <= Node <= Element <= HTMLElement
+
 	if (allowNotSet === true && (val === undefined || val === null))
 		return;
 
-	if ((val instanceof Element) === false)
-		Fit.Validation.ThrowError("Value '" + val + "' is not a DOMElement");
+	// The HTMLElement interface is not available in legacy IE, in which case we use feature detection instead
+	if ((window.HTMLElement && (val instanceof HTMLElement) === false) || (val instanceof Element) === false || (val.style instanceof CSSStyleDeclaration) === false)
+		Fit.Validation.ThrowError("Value '" + val + "' is not an HTMLElement");
 }
-Fit.Validation.ExpectDomElement = Fit.Validation.ExpectElementNode; // Backward compatibility
+Fit.Validation.ExpectDomElement = Fit.Validation.ExpectElement;		// Backward compatibility
+Fit.Validation.ExpectElementNode = Fit.Validation.ExpectElement;	// Backward compatibility
 
-/// <function container="Fit.Validation" name="ExpectTextNode" access="public" static="true">
-/// 	<description> Throws error if passed object is not an instance of Text </description>
-/// 	<param name="val" type="object"> Object to validate </param>
-/// 	<param name="allowNotSet" type="boolean" default="false"> Set True to allow object to be Null or Undefined </param>
-/// </function>
-Fit.Validation.ExpectTextNode = function(val, allowNotSet) // DOMText
+// DISABLED - not in use internally, and not supported by legacy IE
+// <function container="Fit.Validation" name="ExpectTextNode" access="public" static="true">
+// 	<description> Throws error if passed object is not an instance of Text </description>
+// 	<param name="val" type="object"> Object to validate </param>
+// 	<param name="allowNotSet" type="boolean" default="false"> Set True to allow object to be Null or Undefined </param>
+// </function>
+/*Fit.Validation.ExpectTextNode = function(val, allowNotSet) // DOMText
 {
 	if (allowNotSet === true && (val === undefined || val === null))
 		return;
 
 	if ((val instanceof Text) === false)
 		Fit.Validation.ThrowError("Value '" + val + "' is not a Text node");
-}
+}*/
 
-/// <function container="Fit.Validation" name="ExpectCommentNode" access="public" static="true">
-/// 	<description> Throws error if passed object is not an instance of Comment </description>
-/// 	<param name="val" type="object"> Object to validate </param>
-/// 	<param name="allowNotSet" type="boolean" default="false"> Set True to allow object to be Null or Undefined </param>
-/// </function>
-Fit.Validation.ExpectCommentNode = function(val, allowNotSet) // DOMComment
+// DISABLED - not in use internally, and not supported by legacy IE
+// <function container="Fit.Validation" name="ExpectCommentNode" access="public" static="true">
+// 	<description> Throws error if passed object is not an instance of Comment </description>
+// 	<param name="val" type="object"> Object to validate </param>
+// 	<param name="allowNotSet" type="boolean" default="false"> Set True to allow object to be Null or Undefined </param>
+// </function>
+/*Fit.Validation.ExpectCommentNode = function(val, allowNotSet) // DOMComment
 {
 	if (allowNotSet === true && (val === undefined || val === null))
 		return;
 
 	if ((val instanceof Comment) === false)
 		Fit.Validation.ThrowError("Value '" + val + "' is not a Comment node");
-}
+}*/
 
 /// <function container="Fit.Validation" name="ExpectNode" access="public" static="true">
 /// 	<description> Throws error if passed object is not an instance of Element, Text, or Comment </description>
@@ -898,7 +1044,11 @@ Fit.Validation.ExpectNode = function(val, allowNotSet) // DOMNode
 	if (allowNotSet === true && (val === undefined || val === null))
 		return;
 
-	if ((val instanceof Element) === false && (val instanceof Text) === false && (val instanceof Comment) === false)
+	// The Text and Comment interfaces are not available in legacy IE so we use feature detection instead.
+	// We assume we have a valid Node instance if it exposes common functions and properties of a Node instance,
+	// and has the appropriate nodeType: 1 = Element, 3 = Text, 8 = Comment. More on node types here:
+	// https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType
+	if (!val.cloneNode || !val.nodeName || !val.nodeType || (val.nodeType !== 1 && val.nodeType !== 3 && val.nodeType !== 8)) 
 		Fit.Validation.ThrowError("Value '" + val + "' is not a Node (Element, Text, or Comment)");
 }
 
@@ -969,9 +1119,6 @@ Fit.Validation.ExpectEvent = function(val, allowNotSet)
 {
 	if (allowNotSet === true && (val === undefined || val === null))
 		return;
-
-	if (!window.MSEventObj)
-		window.MSEventObj = function() {};
 
 	// IE9 and above: window.event is now of type MSEventObj (legacy),
 	// while an actual Event instance is passed to handlers as specified by W3C.
@@ -1089,11 +1236,6 @@ Fit.Validation.Enabled = function(val)
 
 Fit._internal.Validation.IsCollectionType = function(val) // Used by Fit.Validation and Fit.Array
 {
-	if (!window.StaticNodeList)
-		window.StaticNodeList = function() {};
-	if (!window.FileList)
-		window.FileList = function() {};
-
 	if (val === null || val === undefined)
 		return false;
 	else if (val instanceof Array)
@@ -1121,6 +1263,7 @@ Fit._internal.Validation.IsCollectionType = function(val) // Used by Fit.Validat
 		return false;
 	return true;*/
 }
+
 /// <container name="Fit.Array">
 /// 	Functionality extending the capabilities of native JS arrays
 /// </container>
@@ -1200,6 +1343,33 @@ Fit.Array.Count = function(obj)
 			count++;
 
 		return count;
+	}
+
+	Fit.Validation.ThrowError("Unsupported collection type passed - unable to determine number of contained elements");
+}
+
+/// <function container="Fit.Array" name="HasItems" access="public" static="true" returns="boolean">
+/// 	<description> Returns True if collection has items, otherwise False </description>
+/// 	<param name="arr" type="array"> Collection to investigate </param>
+/// </function>
+/// <function container="Fit.Array" name="HasItems" access="public" static="true" returns="boolean">
+/// 	<description> Returns True if collection has items, otherwise False </description>
+/// 	<param name="obj" type="object"> Object array to investigate </param>
+/// </function>
+Fit.Array.HasItems = function(obj)
+{
+	if (Fit._internal.Validation.IsCollectionType(obj) === true)
+	{
+		return obj.length > 0;
+	}
+	else if (typeof(obj) === "object")
+	{
+		for (var i in obj)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	Fit.Validation.ThrowError("Unsupported collection type passed - unable to determine number of contained elements");
@@ -1306,6 +1476,29 @@ Fit.Array.Insert = function(arr, idx, obj) // obj not validated - passing any ob
     arr.splice(idx, 0, obj);
 }
 
+/// <function container="Fit.Array" name="Move" access="public" static="true">
+/// 	<description> Move object within array from one position to another </description>
+/// 	<param name="arr" type="array"> Array to manipulate </param>
+/// 	<param name="fromIdx" type="integer"> Position of object to move </param>
+/// 	<param name="ToIdx" type="integer"> New object position </param>
+/// </function>
+Fit.Array.Move = function(arr, fromIdx, toIdx)
+{
+	Fit.Validation.ExpectArray(arr);
+	Fit.Validation.ExpectInteger(fromIdx);
+	Fit.Validation.ExpectInteger(toIdx);
+
+	if (fromIdx < arr.length)
+	{
+		// If toIdx is below 0 (zero) the object will be added at the beginning of the array.
+		// If toIdx is greater than the length of the array, the object will be added at the end of the array.
+
+		var obj = arr[fromIdx];
+		Fit.Array.RemoveAt(arr, fromIdx);
+		Fit.Array.Insert(arr, toIdx > 0 ? toIdx : 0, obj);
+	}
+}
+
 /// <function container="Fit.Array" name="Merge" access="public" static="true" returns="array">
 /// 	<description> Merge/join two arrays </description>
 /// 	<param name="arr1" type="array"> Array 1 to merge with array 2 </param>
@@ -1361,7 +1554,7 @@ Fit.Array.Clear = function(arr)
 /// </function>
 Fit.Array.GetIndex = function(arr, obj) // obj not validated - passing any object or undefined/null is allowed
 {
-	Fit.Validation.ExpectArray(arr);
+	Fit.Validation.ExpectCollection(arr);
 
     for (var i = 0 ; i < arr.length ; i++)
         if (arr[i] === obj)
@@ -1407,13 +1600,16 @@ Fit.Array.GetKeys = function(obj)
 /// </function>
 Fit.Array.Contains = function(arr, obj) // obj not validated - passing any object or undefined/null is allowed
 {
-	Fit.Validation.ExpectArray(arr);
+	Fit.Validation.ExpectCollection(arr);
     return (Fit.Array.GetIndex(arr, obj) > -1);
 }
 
 /// <function container="Fit.Array" name="Copy" access="public" static="true" returns="array">
 /// 	<description>
-/// 		Returns a shallow copy of the array - for a deep copy see Fit.Core.Clone(..)
+/// 		Returns a shallow copy of the array. Notice that collection type is not preserved,
+/// 		meaning e.g. a NodeList or FileList will be returned as a traditional array holding
+/// 		references to the objects - just like Fit.Array.ToArray(..) does.
+/// 		For a deep copy see Fit.Core.Clone(..)
 /// 	</description>
 /// 	<param name="arr" type="array"> Array to copy </param>
 /// </function>
@@ -1445,6 +1641,26 @@ Fit.Array.ToArray = function(coll)
 	return arr;
 }
 
+/// <function container="Fit.Array" name="Join" access="public" static="true" returns="string">
+/// 	<description> Join objects from an array into a string </description>
+/// 	<param name="arr" type="array"> Array containing objects </param>
+/// 	<param name="separator" type="string"> String used to glue values together </param>
+/// 	<param name="callback" type="function"> Callback returning string representation of objects passed from array in turn </param>
+/// </function>
+Fit.Array.Join = function(arr, separator, callback)
+{
+	Fit.Validation.ExpectCollection(arr);
+
+	var result = "";
+
+	Fit.Array.ForEach(arr, function(obj)
+	{
+		result += (result !== "" ? separator : "") + callback(obj);
+	});
+
+	return result;
+}
+
 /*
 // Difference between using ordinary for loop and Fit.Array.ForEach
 // can be easily demonstrated with the code below.
@@ -1465,6 +1681,7 @@ for (var i in vals = [1,3,6,8])
 	setTimeout(function() { console.log(vals[i]); }, 100);
 }
 */
+
 /// <container name="Fit.Browser">
 /// 	Provides access to various browser information.
 ///
@@ -1895,6 +2112,29 @@ Fit.Browser.Log = function(msg) // msg not validated - any object or value (incl
 		console.log(msg);
 }
 
+Fit.Browser.Debug = function(msg) // msg not validated - any object or value (including null/undefined) can be logged
+{
+	if (window.console && Fit._internal.Validation.DebugMode === true)
+		console.log(msg);
+}
+
+/// <function container="Fit.Browser" name="LogDeprecated" access="public" static="true">
+/// 	<description> Log message about use of deprecated feature </description>
+/// 	<param name="msg" type="string"> Message to log </param>
+/// </function>
+Fit.Browser.LogDeprecated = function(msg)
+{
+	Fit.Validation.ExpectString(msg);
+	
+	if (window.console && console.warn)
+		console.warn(msg);
+	else
+		Fit.Browser.Log(msg);
+	
+	//if (window.console && console.trace)
+		//console.trace();
+}
+
 /// <function container="Fit.Browser" name="GetInfo" access="public" static="true" returns="object">
 /// 	<description> Returns cached object with browser information available through Name, Version, and Language properties </description>
 /// </function>
@@ -1946,6 +2186,7 @@ Fit.Browser.IsStorageSupported = function()
 
 	return Fit._internal.Browser.StorageSupported;
 }
+
 Fit.Controls = {};
 Fit._internal.Controls = {}
 Fit._internal.ControlBase = { Controls: {} };
@@ -2059,6 +2300,9 @@ Fit.Controls.Component = function(controlId)
 
 			setTimeout(function()
 			{
+				if (me === null)
+					return; // Control has been disposed
+
 				cb();
 
 				Fit.Dom.AddClass(me.GetDomElement(), "FitUi_Non_Existing_ControlBase_Class");
@@ -2134,7 +2378,6 @@ Fit.Controls.ControlBase = function(controlId)
 	// ============================================
 
 	var me = this;
-	var id = me.GetId();
 	var container = me.GetDomElement();
 	var width = { Value: 200, Unit: "px" }; // Any changes to this line must be dublicated to Width(..)
 	var height = { Value: -1, Unit: "px" };
@@ -2144,8 +2387,10 @@ Fit.Controls.ControlBase = function(controlId)
 	var validationExpr = null;
 	var validationError = null;
 	var validationErrorType = -1; // 0 = Required, 1 = RegEx validation, 2 = Callback validation
-	var validationCallbackFunc = null;
-	var validationCallbackError = null;
+	var validationCallbackFunc = null;	// Obsolete - used by SetValidationCallback
+	var validationCallbackError = null;	// Obsolete - used by SetValidationCallback
+	var validationHandlerFunc = null;
+	var validationHandlerError = null;
 	var lazyValidation = false;
 	var hasValidated = false;
 	var blockAutoPostBack = false; // Used by AutoPostBack mechanism to prevent multiple postbacks, e.g on double click
@@ -2221,6 +2466,8 @@ Fit.Controls.ControlBase = function(controlId)
 			if (lazyValidation === true)
 				me._internal.Validate(true);
 		});
+
+		Fit.Internationalization.OnLocaleChanged(localize);
 	}
 
 	// ============================================
@@ -2257,7 +2504,8 @@ Fit.Controls.ControlBase = function(controlId)
 
 	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
-		me = id = container = width = height = scope = required = validationExpr = validationError = validationErrorType = validationCallbackFunc = validationCallbackError = lazyValidation = hasValidated = blockAutoPostBack = onChangeHandlers = onFocusHandlers = onBlurHandlers = hasFocus = onBlurTimeout = ensureFocusFires = waitingForFocus = txtValue = txtDirty = txtValid = null;
+		Fit.Internationalization.RemoveOnLocaleChanged(localize);
+		me = container = width = height = scope = required = validationExpr = validationError = validationErrorType = validationCallbackFunc = validationCallbackError = validationHandlerFunc = validationHandlerError = lazyValidation = hasValidated = blockAutoPostBack = onChangeHandlers = onFocusHandlers = onBlurHandlers = hasFocus = onBlurTimeout = ensureFocusFires = waitingForFocus = txtValue = txtDirty = txtValid = null;
 		base();
 	});
 
@@ -2445,7 +2693,10 @@ Fit.Controls.ControlBase = function(controlId)
 	}
 
 	/// <function container="Fit.Controls.ControlBase" name="SetValidationCallback" access="public">
-	/// 	<description> Set callback function used to perform on-the-fly validation against control value </description>
+	/// 	<description>
+	/// 		DEPRECATED! Please use SetValidationHandler(..) instead.
+	/// 		Set callback function used to perform on-the-fly validation against control value.
+	/// 	</description>
 	/// 	<param name="cb" type="function" nullable="true"> Function receiving control value - must return True if value is valid, otherwise False </param>
 	/// 	<param name="errorMsg" type="string" default="undefined">
 	/// 		If defined, specified error message is displayed when user clicks or hovers validation error indicator
@@ -2456,8 +2707,30 @@ Fit.Controls.ControlBase = function(controlId)
 		Fit.Validation.ExpectFunction(cb, true); // Allow Null/undefined which disables validation
 		Fit.Validation.ExpectString(errorMsg, true);
 
+		Fit.Browser.LogDeprecated("Use of deprecated function SetValidationCallback - please use SetValidationHandler instead");
+
+		validationHandlerFunc = null;
 		validationCallbackFunc = (cb ? cb : null);;
 		validationCallbackError = (errorMsg ? errorMsg : null);
+
+		me._internal.Validate();
+	}
+
+	/// <function container="Fit.Controls.ControlBase" name="SetValidationHandler" access="public">
+	/// 	<description> Set callback function used to perform on-the-fly validation against control value </description>
+	/// 	<param name="cb" type="function" nullable="true">
+	/// 		Function receiving an instance of the control and its value.
+	/// 		An error message string must be returned if value is invalid,
+	/// 		otherwise Null or an empty string if the value is valid.
+	/// 	</param>
+	/// </function>
+	this.SetValidationHandler = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb, true); // Allow Null/undefined which disables validation
+
+		validationCallbackFunc = null;
+		validationHandlerFunc = (cb ? cb : null);
+		validationHandlerError = null;
 
 		me._internal.Validate();
 	}
@@ -2473,7 +2746,7 @@ Fit.Controls.ControlBase = function(controlId)
 	{
 		validationErrorType = -1;
 
-		if (validationExpr === null && validationCallbackFunc === null && required === false)
+		if (validationExpr === null && validationCallbackFunc === null && validationHandlerFunc === null && required === false)
 			return true;
 
 		var obj = me.Value();
@@ -2491,16 +2764,36 @@ Fit.Controls.ControlBase = function(controlId)
 			return false;
 		}
 
-		if (validationCallbackFunc !== null && validationCallbackFunc(val) === false)
+		if (validationHandlerFunc !== null)
 		{
-			validationErrorType = 2;
+			validationHandlerError = null;
+			var errorMessage = validationHandlerFunc(me, val);
+
+			if (errorMessage !== null && errorMessage !== "" && typeof(errorMessage) === "string")
+			{
+				validationErrorType = 2;
+				validationHandlerError = errorMessage;
+				return false;
+			}
+		}
+		else if (validationCallbackFunc !== null && validationCallbackFunc(val) === false)
+		{
+			validationErrorType = 3;
 			return false;
 		}
 
 		return true;
 	}
 
-	this.LazyValidation = function(val) // Make control appear valid until user touches it, or until Fit.Controls.ValidateAll(..) is invoked
+	/// <function container="Fit.Controls.ControlBase" name="LazyValidation" access="public" returns="boolean">
+	/// 	<description>
+	/// 		Get/set value indicating whether control initially appears as valid, even
+	/// 		though it is not. It will appear invalid once the user touches the control,
+	/// 		or when control value is validated using Fit.Controls.ValidateAll(..).
+	/// 	</description>
+	/// 	<param name="val" type="boolean" default="undefined"> If defined, Lazy Validation is enabled/disabled </param>
+	/// </function>
+	this.LazyValidation = function(val)
 	{
 		Fit.Validation.ExpectBoolean(val, true);
 
@@ -2512,6 +2805,10 @@ Fit.Controls.ControlBase = function(controlId)
 			{
 				me._internal.Data("valid", "true");
 				me._internal.Data("errormessage", null);
+			}
+			else
+			{
+				this._internal.Validate();
 			}
 		}
 
@@ -2667,116 +2964,128 @@ Fit.Controls.ControlBase = function(controlId)
 		me._internal.Data("dirty", ((me.IsDirty() === true) ? "true" : "false"));
 	}
 
+	function localize()
+	{
+		if (validationErrorType === 0 /*&& me._internal.Data("errormessage") !== null*/)
+		{
+			var locale = Fit.Internationalization.GetSystemLocale();
+			me._internal.Data("errormessage", locale.Translations.Required);
+		}
+	}
+
 	// Private members (must be public in order to be accessible to controls extending from ControlBase)
 
-		this._internal.FireOnChange = function()
+	this._internal.FireOnChange = function()
+	{
+		hasValidated = true;
+		me._internal.Validate();
+		updateInternalState();
+
+		Fit.Array.ForEach(onChangeHandlers, function(cb)
 		{
-			hasValidated = true;
-			me._internal.Validate();
-			updateInternalState();
+			cb(me);
+		});
+	},
 
-			Fit.Array.ForEach(onChangeHandlers, function(cb)
-			{
-				cb(me);
-			});
-		},
+	this._internal.FireOnFocus = function()
+	{
+		me._internal.Data("focused", "true");
+		me._internal.Repaint();
 
-		this._internal.FireOnFocus = function()
+		Fit.Array.ForEach(onFocusHandlers, function(cb)
 		{
-			me._internal.Data("focused", "true");
-			me._internal.Repaint();
+			cb(me);
+		});
+	},
 
-			Fit.Array.ForEach(onFocusHandlers, function(cb)
-			{
-				cb(me);
-			});
-		},
+	this._internal.FireOnBlur = function()
+	{
+		me._internal.Data("focused", "false");
+		me._internal.Repaint();
 
-		this._internal.FireOnBlur = function()
+		Fit.Array.ForEach(onBlurHandlers, function(cb)
 		{
-			me._internal.Data("focused", "false");
-			me._internal.Repaint();
+			cb(me);
+		});
+	},
 
-			Fit.Array.ForEach(onBlurHandlers, function(cb)
-			{
-				cb(me);
-			});
-		},
+	this._internal.ExecuteWithNoOnChange = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
 
-		this._internal.ExecuteWithNoOnChange = function(cb)
+		var onChangeHandler = me._internal.FireOnChange;
+		me._internal.FireOnChange = function() {};
+
+		var error = null;
+
+		try // Try/catch to make absolutely sure OnChange handler is restored!
 		{
-			Fit.Validation.ExpectFunction(cb);
-
-			var onChangeHandler = me._internal.FireOnChange;
-			me._internal.FireOnChange = function() {};
-
-			var error = null;
-
-			try // Try/catch to make absolutely sure OnChange handler is restored!
-			{
-				cb();
-			}
-			catch (err)
-			{
-				error = err.message;
-			}
-
-			me._internal.FireOnChange = onChangeHandler;
-
-			if (error !== null)
-				Fit.Validation.ThrowError(error);
+			cb();
+		}
+		catch (err)
+		{
+			error = err.message;
 		}
 
-		this._internal.Data = function(key, val)
+		me._internal.FireOnChange = onChangeHandler;
+
+		if (error !== null)
+			Fit.Validation.ThrowError(error);
+	}
+
+	this._internal.Data = function(key, val)
+	{
+		Fit.Validation.ExpectStringValue(key);
+		Fit.Validation.ExpectString(val, true);
+
+		if (Fit.Validation.IsSet(val) === true || val === null)
+			Fit.Dom.Data(container, key, val);
+
+		return Fit.Dom.Data(container, key);
+	},
+
+	this._internal.AddDomElement = function(elm)
+	{
+		Fit.Validation.ExpectDomElement(elm);
+		Fit.Dom.InsertBefore(txtValue, elm); //Fit.Dom.Add(container, elm);
+	},
+
+	this._internal.RemoveDomElement = function(elm)
+	{
+		Fit.Validation.ExpectDomElement(elm);
+		Fit.Dom.Remove(elm);
+	},
+
+	this._internal.Validate = function(force)
+	{
+		Fit.Validation.ExpectBoolean(force, true);
+
+		// For LazyValidation the UI is only updated if control has focus, unless force is true
+		if (lazyValidation === true && me.Focused() === false && force !== true)
+			return;
+
+		var valid = me.IsValid();
+
+		me._internal.Data("valid", valid.toString());
+
+		if (valid === false)
 		{
-			Fit.Validation.ExpectStringValue(key);
-			Fit.Validation.ExpectString(val, true);
-
-			if (Fit.Validation.IsSet(val) === true || val === null)
-				Fit.Dom.Data(container, key, val);
-
-			return Fit.Dom.Data(container, key);
-		},
-
-		this._internal.AddDomElement = function(elm)
-		{
-			Fit.Validation.ExpectDomElement(elm);
-			Fit.Dom.InsertBefore(txtValue, elm); //Fit.Dom.Add(container, elm);
-		},
-
-		this._internal.RemoveDomElement = function(elm)
-		{
-			Fit.Validation.ExpectDomElement(elm);
-			Fit.Dom.Remove(elm);
-		},
-
-		this._internal.Validate = function(force)
-		{
-			Fit.Validation.ExpectBoolean(force, true);
-
-			if (lazyValidation === true && me.Focused() === false && force !== true)
-				return;
-
-			var valid = me.IsValid();
-
-			me._internal.Data("valid", valid.toString());
-
-			if (valid === false)
-			{
-				if (validationErrorType === 0)
-					me._internal.Data("errormessage", Fit.Language.Translations.Required);
-				else if (validationErrorType === 1 && validationError !== null)
-					me._internal.Data("errormessage", validationError.replace("\r", "").replace(/<br.*>/i, "\n"));
-				else if (validationErrorType === 2 && validationCallbackError !== null)
-					me._internal.Data("errormessage", validationCallbackError.replace("\r", "").replace(/<br.*>/i, "\n"));
-			}
-			else
-			{
-				me._internal.Data("errormessage", null);
-			}
-
-			me._internal.Repaint();
+			if (validationErrorType === 0)
+				me._internal.Data("errormessage", Fit.Internationalization.GetSystemLocale().Translations.Required);
+			else if (validationErrorType === 1 && validationError !== null)
+				me._internal.Data("errormessage", validationError.replace("\r", "").replace(/<br.*>/i, "\n"));
+			else if (validationErrorType === 2 && validationHandlerError !== null)
+				me._internal.Data("errormessage", validationHandlerError.replace("\r", "").replace(/<br.*>/i, "\n"));
+			else if (validationErrorType === 3 && validationCallbackError !== null)
+				me._internal.Data("errormessage", validationCallbackError.replace("\r", "").replace(/<br.*>/i, "\n"));
 		}
+		else
+		{
+			me._internal.Data("errormessage", null);
+		}
+
+		me._internal.Repaint();
+	}
 
 	init();
 }
@@ -2867,6 +3176,7 @@ Fit.Controls.DirtyCheckAll = function(scope)
 
 	return result;
 }
+
 /// <container name="Fit.Cookies">
 /// 	Cookie functionality.
 /// 	Set/Get/Remove functions can be invoked as static members, or an instance of Fit.Cookies
@@ -3046,6 +3356,7 @@ Fit.Cookies.Remove = function(name, path)
 
 	Fit.Cookies.Set(name, "", -1, path);
 }
+
 // =====================================
 // Data
 // =====================================
@@ -3660,6 +3971,7 @@ Fit.Color.ParseRgb = function(val)
 
 	return c;
 }
+
 /// <container name="Fit.Dom">
 /// 	DOM (Document Object Model) manipulation and helper functionality
 /// </container>
@@ -3798,12 +4110,32 @@ Fit.Dom.GetComputedStyle = function(elm, style)
 /// 	<description>
 /// 		Returns object with X and Y properties (integers) with inner dimensions of specified
 /// 		container. Inner dimensions are width and height with padding and borders substracted.
+/// 		Result returned will be as expected no matter the box-sizing model being used.
+/// 		The space consumed by scrollbars (if present) can optionally be substracted.
 /// 	</description>
 /// 	<param name="elm" type="DOMElement"> Element to get inner dimensions for </param>
+/// 	<param name="substractScrollbars" type="boolean" default="false"> Set True to substract space consumed by scrollbars </param>
 /// </function>
-Fit.Dom.GetInnerDimensions = function(elm)
+Fit.Dom.GetInnerDimensions = function(elm, substractScrollbars)
 {
 	Fit.Validation.ExpectDomElement(elm);
+	Fit.Validation.ExpectBoolean(substractScrollbars, true);
+
+	if (elm === document.documentElement) // If document element (<html>) is passed
+	{
+		// Measuring document.documentElement or anything else outside of document.body makes no sense.
+		// Content is added to document.body or children within, not within the document element. So the
+		// result returned for the document element would not give us any idea as to how much space is
+		// available in the document (body). Throw error to prevent programmers from creating unreliable apps.
+		Fit.Validation.ThrowError("Unable to determine inner dimensions for document element (<html>). Maybe you wanted Fit.Dom.GetInnerDimensions(document.body) or Fit.Browser.GetViewPortDimensions().");
+	}
+
+	// NOTICE:
+	// To get the inner dimensions of the document, pass document.body
+	// and not document.documentElement! But be aware that document.body
+	// does not have the document scrollbars - document.documentElement does.
+	// But the scrollbars may affect the amount of space available for document.body,
+	// which this function takes into account, just like any other scrollable container.
 
 	var width = elm.offsetWidth;
 	var height = elm.offsetHeight;
@@ -3812,16 +4144,50 @@ Fit.Dom.GetInnerDimensions = function(elm)
 	{
 		width -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "padding-left"));
 		width -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "padding-right"));
-		width -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "border-left-width"));
-		width -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "border-right-width"));
+
+		// Substract borders unless dimensions without scrollbars are being requested,
+		// in which case borders are not included with calculation based on offsetWidth
+		// and clientWidth further down.
+		if (elm === document.body || substractScrollbars !== true)
+		{
+			width -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "border-left-width"));
+			width -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "border-right-width"));
+		}
 	}
 
 	if (height !== 0) // Height is 0 if element is either not visible, or truly 0px
 	{
 		height -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "padding-top"));
 		height -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "padding-bottom"));
-		height -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "border-top-width"));
-		height -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "border-bottom-width"));
+
+		if (elm === document.body || substractScrollbars !== true)
+		{
+			// Substract borders unless dimensions without scrollbars are being requested,
+			// in which case borders are not included with calculation based on offsetHeight
+			// and clientHeight further down.
+			height -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "border-top-width"));
+			height -= Fit._internal.Dom.GetPx(Fit.Dom.GetComputedStyle(elm, "border-bottom-width"));
+		}
+	}
+
+	if (substractScrollbars === true)
+	{
+		if (elm === document.body)
+		{
+			// For document.body the scrollbars are added outside of document.body rather than inside of it,
+			// causing the container to be squeezed a bit.
+			// Therefore the width of the scrollbars must be added to the width of the container to get the
+			// width without scrollbars.
+			// A horizontal scrollbar does not affect the height since content just grows vertically.
+			// This is different from width where content just overflows the boundaries of document.body.
+			width += Fit.Browser.GetViewPortDimensions().Width - document.documentElement.offsetWidth;
+		}
+		else
+		{
+			// Substract scrollbars and borders
+			width -= elm.offsetWidth - elm.clientWidth;
+			height -= elm.offsetHeight - elm.clientHeight;
+		}
 	}
 
 	return { X: Math.floor(width), Y: Math.floor(height) };
@@ -4225,10 +4591,18 @@ Fit.Dom.IsVisible = function(elm)
 	// Determine visibility quickly using offsetParent if possible.
 	// Notice that offsetParent is always Null for an element with
 	// position:fixed, in which case this check will not suffice.
-	if (Fit._internal.Dom.IsOffsetParentSupported() === true && Fit.Dom.GetComputedStyle(elm, "position") !== "fixed" && elm !== document.body && elm !== document.body.parentElement) // <html>, <body>, and elements with position:fixed have no offsetParent
+	// Also <html> and <body> have no offsetParent (null).
+	if (Fit._internal.Dom.IsOffsetParentSupported() === true && Fit.Dom.GetComputedStyle(elm, "position") !== "fixed" && elm !== document.body && elm !== document.body.parentElement)
 	{
 		return (elm.offsetParent !== null);
 	}
+	/*if (Fit._internal.Dom.IsOffsetParentSupported() === true)
+	{
+		if (elm.offsetParent !== null)
+		{
+			return true;
+		}
+	}*/
 
 	// Traverse DOM bottom-up to determine whether element or any ancestors have display:none set
 
@@ -4367,6 +4741,36 @@ Fit.Dom.Wrap = function(elementToWrap, container)
 // https://code.google.com/p/chromium/issues/detail?id=323935
 // For consistency we use Math.round/floor to make sure integers are
 // always returned on both modern and legacy browsers.
+
+/// <function container="Fit.Dom" name="SetCaretPosition" access="public" static="true">
+/// 	<description> Set caret position for input control </description>
+/// 	<param name="input" type="DOMElement"> Input element </param>
+/// 	<param name="pos" type="integer"> Integer value specifying caret position in input control </param>
+/// </function>
+Fit.Dom.SetCaretPosition = function(input, pos)
+{
+	Fit.Validation.ExpectDomElement(input);
+	Fit.Validation.ExpectInteger(pos);
+
+	// Notice: This will - unfortunately - not make input fields scroll
+	// its content if cursor is positioned "outside" of input's viewport.
+	// In Chrome this can be solved by blurring and re-focusing control
+	// after setting caret position - but that will not work across all browsers.
+
+	if (input.setSelectionRange) // Modern browsers
+	{
+		input.focus();
+		input.setSelectionRange(pos, pos);
+	}
+	else if (input.createTextRange) // IE8 and below
+	{
+		var range = input.createTextRange();
+		range.collapse(true);
+		range.moveEnd("character", pos);
+		range.moveStart("character", pos);
+		range.select();
+	}
+}
 
 /// <function container="Fit.Dom" name="GetPosition" access="public" static="true" returns="object">
 /// 	<description>
@@ -4525,6 +4929,88 @@ Fit.Dom.GetScrollPosition = function(elm)
 	return pos;
 }
 
+/// <function container="Fit.Dom" name="GetScrollParent" access="public" static="true" returns="DOMElement">
+/// 	<description>
+/// 		Get element's scroll parent. Returns null if element passed
+/// 		is placed on its own stacking context (has position:fixed).
+/// 	</description>
+/// 	<param name="elm" type="DOMElement"> Element to get scroll parent for </param>
+/// </function>
+Fit.Dom.GetScrollParent = function(elm)
+{
+	Fit.Validation.ExpectDomElement(elm);
+
+	var pos = Fit.Dom.GetComputedStyle(elm, "position");
+
+	if (pos === "fixed")
+    {
+		return null; // No scroll parent when element has its own stacking context
+	}
+
+    while ((elm = elm.parentElement))
+    {
+		if (pos === "absolute" && Fit.Dom.GetComputedStyle(elm, "position") === "static") // static is default positioning
+        {
+			continue; // Skip parent if element is floating outside of it using absolute positioning
+		}
+
+		var regEx = /scroll|auto/;
+        var overflow = Fit.Dom.GetComputedStyle(elm, "overflow");
+		var overflowX = Fit.Dom.GetComputedStyle(elm, "overflow-x");
+		var overflowY = Fit.Dom.GetComputedStyle(elm, "overflow-y");
+
+		if (regEx.test(overflow) === true || regEx.test(overflowX) || regEx.test(overflowY))
+        {
+			return elm;
+		}
+	}
+
+	// Return document
+
+	return Fit.Dom.GetScrollDocument();
+}
+
+/// <function container="Fit.Dom" name="GetScrollDocument" access="public" static="true" returns="DOMElement">
+/// 	<description>
+/// 		Get scrolling document element. This is the cross browser
+/// 		equivalent of document.scrollingElement.
+/// 	</description>
+/// </function>
+Fit.Dom.GetScrollDocument = function()
+{
+	if (Fit._internal.Dom.ScrollDocument === undefined)
+	{
+		if (document.scrollingElement)
+		{
+			Fit._internal.Dom.ScrollDocument = document.scrollingElement;
+		}
+		else
+		{
+			var iframe = document.createElement("iframe");
+			iframe.style.cssText = "height: 1px; position: fixed; top: -100px; left: -100px;";
+
+			document.documentElement.appendChild(iframe);
+			
+			var doc = iframe.contentWindow.document;
+			doc.write("<!DOCTYPE html><div style='height: 100px'>&nbsp;</div>");
+			doc.close();
+
+			if (doc.documentElement.scrollHeight > doc.body.scrollHeight)
+			{
+				Fit._internal.Dom.ScrollDocument = document.documentElement;
+			}
+			else
+			{
+				Fit._internal.Dom.ScrollDocument = document.body;
+			}
+
+			iframe.parentNode.removeChild(iframe);
+		}
+	}
+
+	return Fit._internal.Dom.ScrollDocument;
+}
+
 // Internal members
 
 Fit._internal.Dom.IsOffsetParentSupported = function() // Returns True if offsetParent can be used to determine whether an element is visible or not
@@ -4556,6 +5042,7 @@ Fit._internal.Dom.GetPx = function(val)
 
 	return val;
 }
+
 Fit.DragDrop = {};
 
 // Draggable
@@ -4578,7 +5065,9 @@ Fit.DragDrop.Draggable = function(domElm, domTriggerElm)
 
     var onDragStart = null;
     var onDragging = null;
-    var onDragStop = null;
+	var onDragStop = null;
+
+	var mouseDownEventId = -1;
 
     // Construct
 
@@ -4591,7 +5080,7 @@ Fit.DragDrop.Draggable = function(domElm, domTriggerElm)
 
         // Mouse down
 
-        Fit.Events.AddHandler(((trgElm !== null) ? trgElm : elm), "mousedown", function(e)
+        mouseDownEventId = Fit.Events.AddHandler(((trgElm !== null) ? trgElm : elm), "mousedown", function(e)
         {
             var ev = e || window.event;
 
@@ -4736,7 +5225,7 @@ Fit.DragDrop.Draggable = function(domElm, domTriggerElm)
             Fit.Events.AddHandler(document, "mousemove", function(e)
             {
                 if (Fit.DragDrop.Draggable._internal.active === null)
-                    return;
+					return;
 
                 var ev = e || window.event;
 
@@ -4871,6 +5360,26 @@ Fit.DragDrop.Draggable = function(domElm, domTriggerElm)
 
 	this.GetElement = this.GetDomElement; // Backward compatibility
 
+	/// <function container="Fit.DragDrop.Draggable" name="Dispose" access="public">
+	/// 	<description> Free resources and disable dragging support for DOM element </description>
+	/// </function>
+	this.Dispose = function()
+	{
+		// Dispose should not be called while dragging element!
+		// To support this we would need to fire events, invoke Reset(),
+		// remove FitDragDropDragging class, unset Fit.DragDrop.Draggable._internal.active etc.
+
+		// For elements removed from DOM and memory, calling Dispose is not necessary to
+		// ensure memory is freed. There are no global resources associated with the DOM element.
+
+		Fit.Dom.RemoveClass(elm, "FitDragDropDraggable");
+		Fit.Dom.RemoveClass((trgElm !== null ? trgElm : elm), "FitDragDropDraggableHandle");
+
+		Fit.Events.RemoveHandler(((trgElm !== null) ? trgElm : elm), mouseDownEventId);
+
+		me = elm = trgElm = onDragStart = onDragging = onDragStop = mouseDownEventId = null;
+	}
+
     // Event handling
 
     /// <function container="Fit.DragDrop.Draggable" name="OnDragStart" access="public">
@@ -4891,11 +5400,11 @@ Fit.DragDrop.Draggable = function(domElm, domTriggerElm)
     {
 		Fit.Validation.ExpectFunction(cb);
         onDragging = cb;
-    }
+	}
 
     /// <function container="Fit.DragDrop.Draggable" name="OnDragStop" access="public">
 	/// 	<description> Add event handler which gets fired when dragging stops </description>
-	/// 	<param name="cb" type="function"> Callback (event handler) function - draggable DOM element is passed to function </param>
+	/// 	<param name="cb" type="function"> Callback (event handler) function - instance of Draggable is passed to function </param>
 	/// </function>
 	this.OnDragStop = function(cb)
     {
@@ -4934,14 +5443,29 @@ Fit.DragDrop.DropZone = function(domElm)
         OnEnter: null,
         OnDrop: null,
         OnLeave: null
-    };
+	};
 
     function init()
     {
 		Fit._internal.Core.EnsureStyles();
         Fit.Dom.AddClass(elm, "FitDragDropDropZone");
         Fit.DragDrop.DropZone._internal.dropzones.push(cfg);
-    }
+	}
+
+	/// <function container="Fit.DragDrop.DropZone" name="Dispose" access="public">
+	/// 	<description> Free resources and disable DropZone support for DOM element </description>
+	/// </function>
+	this.Dispose = function()
+	{
+		// Dispose should not be called while DropZone is active!
+		// To support this we would need to fire OnLeave and unset
+		// Fit.DragDrop.DropZone._internal.active. Draggable
+		// does not support being disposed while being dragged either.
+
+		Fit.Dom.RemoveClass(elm, "FitDragDropDropZone");
+		Fit.Array.Remove(Fit.DragDrop.DropZone._internal.dropzones, cfg);
+		elm = cfg = null;
+	}
 
 	/// <function container="Fit.DragDrop.DropZone" name="GetDomElement" access="public" returns="DOMElement">
 	/// 	<description> Get dropzone DOM element </description>
@@ -4992,6 +5516,7 @@ Fit.DragDrop.DropZone._internal =
     dropzones: [],
     active: null
 }
+
 /// <container name="Fit.Events">
 /// 	Event handler functionality
 /// </container>
@@ -5310,10 +5835,10 @@ Fit.Events.GetModifierKeys = function()
 {
 	if (window.event && (window.event.type === "keypress" || window.event.type === "keydown" || window.event.type === "keyup")) // Make sure state is current on IE8 which does not support event capturing
 	{
-		Fit._internal.Events.KeysDown.Shift = window.event.shiftKey;
-		Fit._internal.Events.KeysDown.Ctrl = window.event.ctrlKey;
-		Fit._internal.Events.KeysDown.Alt = window.event.altKey;
-		Fit._internal.Events.KeysDown.Meta = window.event.metaKey;
+		Fit._internal.Events.KeysDown.Shift = window.event.shiftKey === true;
+		Fit._internal.Events.KeysDown.Ctrl = window.event.ctrlKey === true;
+		Fit._internal.Events.KeysDown.Alt = window.event.altKey === true;
+		Fit._internal.Events.KeysDown.Meta = window.event.metaKey === true;
 	}
 
 	// Cloning to prevent external code from manipulating the object
@@ -5414,10 +5939,10 @@ Fit.Events.AddHandler(document, "keydown", true, function(e)
 {
 	var ev = Fit.Events.GetEvent(e);
 
-	Fit._internal.Events.KeysDown.Shift = ev.shiftKey;
-	Fit._internal.Events.KeysDown.Ctrl = ev.ctrlKey;
-	Fit._internal.Events.KeysDown.Alt = ev.altKey;
-	Fit._internal.Events.KeysDown.Meta = ev.metaKey;
+	Fit._internal.Events.KeysDown.Shift = ev.shiftKey === true;
+	Fit._internal.Events.KeysDown.Ctrl = ev.ctrlKey === true;
+	Fit._internal.Events.KeysDown.Alt = ev.altKey === true;
+	Fit._internal.Events.KeysDown.Meta = ev.metaKey === true;
 	Fit._internal.Events.KeysDown.KeyUp = -1;
 	Fit._internal.Events.KeysDown.KeyDown = ev.keyCode;
 });
@@ -5425,10 +5950,10 @@ Fit.Events.AddHandler(document, "keyup", true, function(e)
 {
 	var ev = Fit.Events.GetEvent(e);
 
-	Fit._internal.Events.KeysDown.Shift = ev.shiftKey;
-	Fit._internal.Events.KeysDown.Ctrl = ev.ctrlKey;
-	Fit._internal.Events.KeysDown.Alt = ev.altKey;
-	Fit._internal.Events.KeysDown.Meta = ev.metaKey;
+	Fit._internal.Events.KeysDown.Shift = ev.shiftKey === true;
+	Fit._internal.Events.KeysDown.Ctrl = ev.ctrlKey === true;
+	Fit._internal.Events.KeysDown.Alt = ev.altKey === true;
+	Fit._internal.Events.KeysDown.Meta = ev.metaKey === true;
 	Fit._internal.Events.KeysDown.KeyUp = ev.keyCode;
 	Fit._internal.Events.KeysDown.KeyDown = -1;
 });
@@ -5573,6 +6098,8 @@ Fit.Events.AddHandler(document, "touchmove", function(e)
 Fit._internal.Events.MutationObservers = [];
 Fit._internal.Events.MutationObserverIds = -1;
 Fit._internal.Events.MutationObserverIntervalId = -1;
+Fit._internal.Events.MutationCheckExecuting = false;
+Fit._internal.Events.MutationRegisterPostponed = [];
 
 /// <function container="Fit.Events" name="AddMutationObserver" access="public" static="true" returns="integer">
 /// 	<description>
@@ -5591,6 +6118,14 @@ Fit.Events.AddMutationObserver = function(elm, obs, deep)
 	Fit.Validation.ExpectDomElement(elm);
 	Fit.Validation.ExpectFunction(obs);
 	Fit.Validation.ExpectBoolean(deep, true);
+
+	// Postpone if check is running
+
+	if (Fit._internal.Events.MutationCheckExecuting === true)
+	{
+		Fit.Array.Add(Fit._internal.Events.MutationRegisterPostponed, { Task: "Add", Element: elm, Observer: obs, Deep: deep === true });
+		return;
+	}
 
 	// Configure event handlers responsible for triggering mutation check
 
@@ -5659,6 +6194,20 @@ Fit.Events.RemoveMutationObserver = function()
 		Fit.Validation.ExpectInteger(id);
 	}
 
+	if (Fit._internal.Events.MutationCheckExecuting === true)
+	{
+		if (Fit.Validation.IsSet(id) === true)
+		{
+			Fit.Array.Add(Fit._internal.Events.MutationRegisterPostponed, { Task: "Remove", Id: id });
+		}
+		else
+		{
+			Fit.Array.Add(Fit._internal.Events.MutationRegisterPostponed, { Task: "Remove", Element: elm, Observer: obs, Deep: deep === true });
+		}
+
+		return;
+	}
+
 	var found = null;
 
 	Fit.Array.ForEach(Fit._internal.Events.MutationObservers, function(mo)
@@ -5691,10 +6240,45 @@ Fit.Events.RemoveMutationObserver = function()
 
 Fit._internal.Events.CheckMutations = function()
 {
+	// Guard against changes to mutation observer collection while running CheckMutations().
+	// This is necessary in case a running mutation observer, triggered from CheckMutations(),
+	// results in another mutation observer being added/removed. We do not want to change a
+	// collection being iterated, and we do not want to risk invoking mutation observers that
+	// have been removed.
+	Fit._internal.Events.MutationCheckExecuting = true;
+	
 	var toRemove = [];
 
 	Fit.Array.ForEach(Fit._internal.Events.MutationObservers, function(mo)
 	{
+		// Skip mutation observers removed while CheckMutations() was running
+
+		var skipRemovedObserver = false;
+
+		Fit.Array.ForEach(Fit._internal.Events.MutationRegisterPostponed, function(mop)
+		{
+			if (mop.Task === "Add")
+			{
+				return; // Skip, only check for removals
+			}
+
+			if ((Fit.Validation.IsSet(mop.Id) === true && mop.Id === mo.Id) || (mop.Element === mo.Element && mop.Observer === mo.Observer && mo.Deep === ((Fit.Validation.IsSet(mo.Deep) === true) ? mo.Deep : false)))
+			{
+				// Observer has been scheduled for removal - do not invoke it
+
+				skipRemovedObserver = true;
+				return false; // Break loop
+			}
+
+		});
+
+		if (skipRemovedObserver === true)
+		{
+			return; // Skip, scheduled for removal
+		}
+
+		// Calculate and compare hashes revealing changes to element
+
 		var newHash = 0;
 		var dimensions = mo.Element.offsetWidth + "x" + mo.Element.offsetHeight;
 
@@ -5707,6 +6291,8 @@ Fit._internal.Events.CheckMutations = function()
 			var clone = mo.Element.cloneNode(false);
 			newHash = Fit.String.Hash(clone.outerHTML + dimensions)
 		}
+
+		// Trigger mutation observer if element has changed
 
 		if (mo.Hash !== newHash)
 		{
@@ -5757,10 +6343,38 @@ Fit._internal.Events.CheckMutations = function()
 		}
 	});
 
+	// Remove observers that called disconnect()
+
 	Fit.Array.ForEach(toRemove, function(mo)
 	{
 		Fit.Events.RemoveMutationObserver(mo.Element, mo.Observer, mo.Deep);
 	});
+
+	// Handle mutation observers that were added/removed
+	// while CheckMutations() invoked existing mutation observers.
+
+	Fit._internal.Events.MutationCheckExecuting = false;
+
+	Fit.Array.ForEach(Fit._internal.Events.MutationRegisterPostponed, function(mo)
+	{
+		if (mo.Task === "Add")
+		{
+			Fit.Events.AddMutationObserver(mo.Element, mo.Observer, mo.Deep);
+		}
+		else // if (mo.Task === "Remove")
+		{
+			if (Fit.Validation.IsSet(mo.Id) === true)
+			{
+				Fit.Events.RemoveMutationObserver(mo.Id);
+			}
+			else
+			{
+				Fit.Events.RemoveMutationObserver(mo.Element, mo.Observer, mo.Deep);
+			}
+		}
+	});
+
+	Fit._internal.Events.MutationRegisterPostponed = [];
 }
 
 // ==============================================
@@ -5826,6 +6440,7 @@ Fit.Events.AddHandler(document, "DOMContentLoaded", function()
 
 	Fit.Array.Clear(Fit._internal.Events.OnDomReadyHandlers);
 });
+
 Fit.Http = {};
 
 Fit._internal.Http = {};
@@ -5874,11 +6489,13 @@ Fit.Http.Request = function(uri)
 
 	var me = this;
 	var url = uri;
+	var async = -1; // -1 = not defined / enforced, 0 = sync, 1 = async
 	var httpRequest = getHttpRequestObject();
 	var customHeaders = {};
 	var customProperties = {};
-	var data = "";
-	var method = "";
+	var formData = null;
+	var data = null;
+	var method = null;
 
 	var onStateChange = [];
 	var onRequestHandlers = [];
@@ -5888,40 +6505,38 @@ Fit.Http.Request = function(uri)
 
 	// Init
 
-	httpRequest.onreadystatechange = function()
+	function init()
 	{
-		Fit.Array.ForEach(onStateChange, function(handler)
+		httpRequest.onreadystatechange = function()
 		{
-			handler(me);
-		});
+			me._internal.FireOnStateChange();
 
-		if (httpRequest.readyState === 4)
-		{
-			if (httpRequest.status === 0)
+			if (httpRequest.readyState === 4)
 			{
-				Fit.Array.ForEach(onAbortHandlers, function(handler) { handler(me); });
-			}
-			else if (httpRequest.status >= 200 && httpRequest.status <= 299) // Entire 2xx range indicates success
-			{
-				Fit.Array.ForEach(onSuccessHandlers, function(handler) { handler(me); });
-			}
-			else
-			{
-				Fit.Array.ForEach(onFailureHandlers, function(handler) { handler(me); });
+				if (httpRequest.status === 0)
+				{
+					me._internal.FireOnAbort();
+				}
+				else if (httpRequest.status >= 200 && httpRequest.status <= 299) // Entire 2xx range indicates success
+				{
+					me._internal.FireOnSuccess();
+				}
+				else
+				{
+					me._internal.FireOnFailure();
+				}
 			}
 		}
+
+		// Cross Site Request Forgery (CSRF) protection
+		// https://markitzeroday.com/x-requested-with/cors/2017/06/29/csrf-mitigation-for-ajax-requests.html
+		me.AddHeader("X-Requested-With", "XMLHttpRequest");
 	}
 
 	// Public
 
 	/// <function container="Fit.Http.Request" name="AddHeader" access="public">
-	/// 	<description>
-	/// 		Add header to request.
-	/// 		Manually adding headers will prevent the Request instance from
-	/// 		manipulating headers. This is done to provide full control with the headers.
-	/// 		You will in this case most likely need to add the following header for a POST request:
-	/// 		Content-type : application/x-www-form-urlencoded
-	/// 	</description>
+	/// 	<description> Add header to request </description>
 	/// 	<param name="key" type="string"> Header key </param>
 	/// 	<param name="value" type="string"> Header value </param>
 	/// </function>
@@ -5929,42 +6544,169 @@ Fit.Http.Request = function(uri)
 	{
 		Fit.Validation.ExpectStringValue(key);
 		Fit.Validation.ExpectString(value);
-		customHeaders[key] = value;
+		customHeaders[key.toLowerCase()] = { Key: key, Value: value };
+	}
+
+	/// <function container="Fit.Http.Request" name="GetHeader" access="public" returns="string">
+	/// 	<description> Get request header - returns Null if not found </description>
+	/// 	<param name="key" type="string"> Header name </param>
+	/// </function>
+	this.GetHeader = function(key)
+	{
+		Fit.Validation.ExpectString(key);
+		return (Fit.Validation.IsSet(customHeaders[key.toLowerCase()]) === true ? customHeaders[key.toLowerCase()].Value : null);
+	}
+
+	/// <function container="Fit.Http.Request" name="RemoveHeader" access="public">
+	/// 	<description> Remove request header </description>
+	/// 	<param name="key" type="string"> Header name </param>
+	/// </function>
+	this.RemoveHeader = function(key)
+	{
+		Fit.Validation.ExpectString(key);
+		delete customHeaders[key.toLowerCase()];
+	}
+
+	/// <function container="Fit.Http.Request" name="GetHeaders" access="public" returns="string[]">
+	/// 	<description> Get all request header names </description>
+	/// </function>
+	this.GetHeaders = function()
+	{
+		var keys = [];
+
+		Fit.Array.ForEach(customHeaders, function(key)
+		{
+			Fit.Array.Add(keys, customHeaders[key].Key);
+		})
+
+		return keys;
+	}
+
+	/// <function container="Fit.Http.Request" name="ClearHeaders" access="public">
+	/// 	<description> Remove all request headers </description>
+	/// </function>
+	this.ClearHeaders = function()
+	{
+		customHeaders = {};
 	}
 
 	/// <function container="Fit.Http.Request" name="SetData" access="public">
 	/// 	<description> Set data to post - this will change the request method from GET to POST </description>
-	/// 	<param name="dataStr" type="string"> Data to send </param>
+	/// 	<param name="dataObj" type="object"> Data to send </param>
 	/// </function>
-	this.SetData = function(dataStr)
+	this.SetData = function(dataObj)
 	{
-		Fit.Validation.ExpectString(dataStr, true);
-		data = ((Fit.Validation.IsSet(dataStr) === true) ? dataStr : "");
+		me.ClearFormData(); // Clears both form data and removes content-type header if ensured in conjunction with form data previously set
+		data = null;
+
+		if (typeof(dataObj) === "string" && (me.GetHeader("content-type") === null || me.GetHeader("content-type").toLowerCase() === "application/x-www-form-urlencoded"))
+		{
+			// Backward compatibility - Fit.Http.Request previously only allowed "key=val&key2=val2&etc" being passed to SetData.
+			// Now accepting both the old "form data string mode" and any kind of object which will be stringified upon request.
+			// Unfortunately this means that passing a "clean string" will not be possible without triggering "form data mode",
+			// unless the Content-Type header is set prior to calling SetData("My string").
+			// So request.SetData("Hello world") without setting the Content-Type header first will be considered form data
+			// (Hello world=) and the Content-Type header will be set to "application/x-www-form-urlencoded".
+			Fit.Browser.Log("Deprecated use of SetData(..) to set form data on instance of Fit.Http.Request - please use AddFormData(..) instead! If data added is not to be considered form data then make sure to set Content-Type header prior to calling SetData(..)!");
+
+			formData = {};
+			ensureContentTypeHeaderForFormData();
+
+			var coll = parseKeyValuePairs(dataObj);
+
+			Fit.Array.ForEach(coll, function(key)
+			{
+				formData[key] = { Value: coll[key], Encode: true };
+			});
+		}
+		else
+		{
+			data = dataObj;
+		}
 	}
 
-	/// <function container="Fit.Http.Request" name="GetData" access="public" returns="string">
+	/// <function container="Fit.Http.Request" name="GetData" access="public" returns="object">
 	/// 	<description> Get data set to be posted </description>
 	/// </function>
 	this.GetData = function()
 	{
+		if (formData !== null)
+		{
+			return getFormDataString(false); // False = do not encode values (returns string as provided to SetData(..))
+		}
+
 		return data;
 	}
 
-	/// <function container="Fit.Http.Request" name="AddData" access="public">
-	/// 	<description> Add data to post - this will change the request method from GET to POST </description>
+	/// <function container="Fit.Http.Request" name="AddFormData" access="public">
+	/// 	<description>
+	/// 		Add form data - this will change the request method from GET to POST
+	/// 		and cause the following header to be added to the request, unless already
+	/// 		defined: Content-type: application/x-www-form-urlencoded
+	/// 	</description>
 	/// 	<param name="key" type="string"> Data key </param>
 	/// 	<param name="value" type="string"> Data value </param>
 	/// 	<param name="uriEncode" type="boolean" default="true">
 	/// 		Set False to prevent value from being URI encoded to preserve special characters
 	/// 	</param>
 	/// </function>
-	this.AddData = function(key, value, uriEncode)
+	this.AddFormData = function(key, value, uriEncode)
 	{
 		Fit.Validation.ExpectStringValue(key);
 		Fit.Validation.ExpectString(value);
 		Fit.Validation.ExpectBoolean(uriEncode, true);
 
-		data += ((data !== "") ? "&" : "") + key + "=" + ((uriEncode === false) ? value : encodeURIComponent(value).replace(/%20/g, "+"));
+		if (formData === null)
+		{
+			formData = {};
+			ensureContentTypeHeaderForFormData();
+		}
+		
+		formData[key] = { Value: value, Encode: (uriEncode !== false) };
+	}
+
+	this.AddData = function(key, value, uriEncode) // Backward compatibility
+	{
+		Fit.Validation.ExpectStringValue(key);
+		Fit.Validation.ExpectString(value);
+		Fit.Validation.ExpectBoolean(uriEncode, true);
+
+		Fit.Browser.Log("Use of deprecated AddData(..) function to set form data on instance of Fit.Http.Request - please use AddFormData(..) instead!")
+		
+		me.AddFormData(key, value, uriEncode);
+	}
+
+	/// <function container="Fit.Http.Request" name="GetFormData" access="public" returns="string">
+	/// 	<description> Get form value added to form data collection - returns Null if not found </description>
+	/// 	<param name="key" type="string"> Data key </param>
+	/// </function>
+	this.GetFormData = function(key)
+	{
+		Fit.Validation.ExpectString(key);
+		return (formData !== null && Fit.Validation.IsSet(formData[key]) === true ? formData[key].Value : null);
+	}
+
+	/// <function container="Fit.Http.Request" name="RemoveFormData" access="public">
+	/// 	<description> Remove form value from form data collection </description>
+	/// 	<param name="key" type="string"> Data key </param>
+	/// </function>
+	this.RemoveFormData = function(key)
+	{
+		Fit.Validation.ExpectString(key);
+
+		if (formData !== null)
+			delete formData[key];
+	}
+
+	/// <function container="Fit.Http.Request" name="ClearFormData" access="public">
+	/// 	<description> Remove all form values from form data collection </description>
+	/// </function>
+	this.ClearFormData = function()
+	{
+		formData = null;
+
+		if (me.GetHeader("content-type") !== null && customHeaders["content-type"]._ensured === true)
+			me.RemoveHeader("content-type");
 	}
 
 	/// <function container="Fit.Http.Request" name="Method" access="public" returns="string">
@@ -5980,7 +6722,27 @@ Fit.Http.Request = function(uri)
 			method = val;
 		}
 
-		return method;
+		return (method !== null ? method : (data !== null || formData !== null ? "POST" : "GET"));
+	}
+
+	/// <function container="Fit.Http.Request" name="Async" access="public" returns="boolean">
+	/// 	<description> Get/set flag indicating whether request is made asynchronously or synchronously </description>
+	/// 	<param name="val" type="boolean" default="undefined"> If defined, enforces an async or sync request based on the boolean value provided </param>
+	/// </function>
+	this.Async = function(val)
+	{
+		Fit.Validation.ExpectBoolean(val, true);
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			async = (val === true ? 1 : 0);
+		}
+
+		if (async !== -1) // Enforced (value is 0 or 1)
+			return (async === 1);
+
+		// Not enforced - request will become async if event handlers are registered
+		return (onStateChange.length > 0 || onSuccessHandlers.length > 0 || onFailureHandlers.length > 0);
 	}
 
 	/// <function container="Fit.Http.Request" name="Url" access="public" returns="string">
@@ -6009,30 +6771,27 @@ Fit.Http.Request = function(uri)
 	/// </function>
 	this.Start = function()
 	{
+		if (formData !== null && data !== null)
+		{
+			Fit.Validation.ThrowError("Unable to send both (JSON) Data and Form Data simultaneously - specify only one type of data to send");
+		}
+
 		// Fire OnRequest
 
-		var cancel = false;
-
-		Fit.Array.ForEach(onRequestHandlers, function(handler)
-		{
-			if (handler(me) === false)
-				cancel = true;
-		});
+		var cancel = me._internal.FireOnRequest();
 
 		if (cancel === true)
 			return;
 
 		// Perform request
 
-		var httpMethod = (method !== "" ? method : (data !== "" ? "POST" : "GET"));
-		var async = (onStateChange.length > 0 || onSuccessHandlers.length > 0 || onFailureHandlers.length > 0);
+		var httpMethod = me.Method();
+		var async = me.Async();
 		httpRequest.open(httpMethod, url, async);
 
-		var usingCustomHeaders = false;
 		for (var header in customHeaders)
 		{
-			httpRequest.setRequestHeader(header, customHeaders[header]);
-			usingCustomHeaders = true;
+			httpRequest.setRequestHeader(header, customHeaders[header].Value);
 		}
 
 		Fit.Array.ForEach(customProperties, function(key)
@@ -6040,10 +6799,35 @@ Fit.Http.Request = function(uri)
 			httpRequest[key] = customProperties[key];
 		});
 
-		if ((httpMethod === "POST" || httpMethod === "PUT") && usingCustomHeaders === false) // https://www.w3.org/Protocols/rfc2616/rfc2616-sec7.html#sec7.2.1
-			httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		// Monitor request to catch communication problems (e.g. DNS errors)
+		var checkerId = -1;
+		checkerId = setInterval(function()
+		{
+			if (me.GetCurrentState() === 4) // Request done
+			{
+				clearInterval(checkerId);
 
-		httpRequest.send(data);
+				if (me.GetHttpStatus() === 0)
+				{
+					// Request is done (ready state === 4) and failed (HTTP status === 0),
+					// possibly due to DNS problem (ERR_NAME_NOT_RESOLVED) - fire OnFailure.
+
+					me._internal.FireOnFailure();
+				}
+			}
+		}, 1000);
+
+		try // Using try/catch to catch any error that may occur when initializing connection
+		{
+			if (formData !== null)
+				httpRequest.send(getFormDataString(true));
+			else
+				httpRequest.send((data !== null ? (typeof(data) === "string" ? data : JSON.stringify(data)) : ""));
+		}
+		catch (err)
+		{
+			me._internal.FireOnFailure();
+		}
 	}
 
 	/// <function container="Fit.Http.Request" name="Abort" access="public">
@@ -6258,6 +7042,44 @@ Fit.Http.Request = function(uri)
 		return customProperties;
 	}
 
+	// Protected
+
+	this._internal =
+	{
+		FireOnStateChange: function()
+		{
+			Fit.Array.ForEach(onStateChange, function(handler) { handler(me); });
+		},
+		
+		FireOnSuccess: function()
+		{
+			Fit.Array.ForEach(onSuccessHandlers, function(handler) { handler(me); });
+		},
+
+		FireOnFailure: function()
+		{
+			Fit.Array.ForEach(onFailureHandlers, function(handler) { handler(me); });
+		},
+
+		FireOnAbort: function()
+		{
+			Fit.Array.ForEach(onAbortHandlers, function(handler) { handler(me); });
+		},
+
+		FireOnRequest: function()
+		{
+			var cancel = false;
+
+			Fit.Array.ForEach(onRequestHandlers, function(handler)
+			{
+				if (handler(me) === false)
+					cancel = true;
+			});
+
+			return cancel;
+		},
+	}
+
 	// Private
 
 	function getHttpRequestObject()
@@ -6269,6 +7091,51 @@ Fit.Http.Request = function(uri)
 
 		throw new Error("Http Request object not supported");
 	}
+
+	function parseKeyValuePairs(formDataStr) // formDataStr = key1=val1&name=james&keyOnly&more=data
+	{
+		Fit.Validation.ExpectString(formDataStr);
+
+		if (formDataStr === "")
+			return {};
+
+		var obj = {};
+		var entries = formDataStr.split("&");
+
+		Fit.Array.ForEach(entries, function(entry)
+		{
+			var kv = entry.split("=");
+			obj[kv[0]] = (kv.length > 1 ? kv[1] : "");
+		});
+
+		return obj;
+	}
+
+	function getFormDataString(encode) // Returns form data in query string format: key1=val1&name=james&keyOnly=&more=data
+	{
+		Fit.Validation.ExpectBoolean(encode);
+
+		var formDataStr = "";
+
+		Fit.Array.ForEach((formData !== null ? formData : {}), function(key)
+		{
+			formDataStr += (formDataStr !== "" ? "&" : "") + key + "=" + (encode === true && formData[key].Encode === true ? encodeURIComponent(formData[key].Value) : formData[key].Value);
+		});
+
+		return formDataStr;
+	}
+
+	function ensureContentTypeHeaderForFormData() // Add content-type header for Form Data if content-type header has not already been defined
+	{
+		if (me.GetHeader("content-type") === null)
+		{
+			// https://www.w3.org/Protocols/rfc2616/rfc2616-sec7.html#sec7.2.1
+			me.AddHeader("content-type", "application/x-www-form-urlencoded");
+			customHeaders["content-type"]._ensured = true;
+		}
+	}
+
+	init();
 }
 
 /// <container name="Fit.Http.JsonRequest" extends="Fit.Http.Request">
@@ -6305,41 +7172,13 @@ Fit.Http.JsonRequest = function(url)
 	Fit.Core.Extend(this, Fit.Http.Request).Apply(url);
 
 	var me = this;
-	var data = null;
 
 	function init()
 	{
 		me.AddHeader("Content-Type", "application/json; charset=UTF-8");
-		me.AddHeader("X-Requested-With", "XMLHttpRequest");
 	}
 
-	/// <function container="Fit.Http.JsonRequest" name="SetData" access="public">
-	/// 	<description> Set JSON data to post - this will change the request method from GET to POST </description>
-	/// 	<param name="json" type="object"> Data to send </param>
-	/// </function>
-	var baseSetData = me.SetData;
-	this.SetData = function(json) // JSON
-	{
-		Fit.Validation.ExpectIsSet(json);
-		data = json;
-		baseSetData(JSON.stringify(data));
-	}
-
-	/// <function container="Fit.Http.JsonRequest" name="GetData" access="public" returns="object">
-	/// 	<description> Get JSON data set to be posted </description>
-	/// </function>
-	this.GetData = function(dataStr)
-	{
-		return data;
-	}
-
-	this.Start = Fit.Core.CreateOverride(this.Start, function()
-	{
-		baseSetData(JSON.stringify(data)); // In case external code manipulated data without calling SetData(json) - example: req.GetData().Xyz = newValue;
-		base();
-	});
-
-	this.AddData = function(key, value, uriEncode)
+	this.AddFormData = function(key, value, uriEncode)
 	{
 		Fit.Validation.ThrowError("Use SetData(..) to set JSON request data for JSON WebService");
 	}
@@ -6353,16 +7192,15 @@ Fit.Http.JsonRequest = function(url)
 	/// 		from this property, hence contained data is returned as the root object.
 	/// 	</description>
 	/// </function>
-	var baseGetResponseJson = me.GetResponseJson;
-	this.GetResponseJson = function()
+	this.GetResponseJson = Fit.Core.CreateOverride(this.GetResponseJson, function()
 	{
-		var resp = baseGetResponseJson();
+		var resp = base();
 
 		if (url.toLowerCase().indexOf(".asmx/") !== -1 && resp && resp.d)
 			resp = resp.d; // Extract .NET response data
 
 		return resp;
-	}
+	});
 
 	init();
 }
@@ -6643,6 +7481,280 @@ Fit.Http.JsonpRequest = function(uri, jsonpCallbackName)
 }
 
 Fit.Http.DotNetJsonRequest = Fit.Http.JsonRequest;
+
+Fit.Internationalization = { _internal: { Locale: "en", Locales: {}, Additions: {}, OnChangeHandlers: [] } };
+
+// ====================================================
+// Locales
+// ====================================================
+
+Fit.Internationalization._internal.AddSystemLocalization = function(locales) // May be called multiple times, e.g. if splitting languages up into several files
+{
+	Fit.Validation.ExpectObject(locales);
+
+	// Make sure all locales inherit from "en", and make sure country specific
+	// overrides (e.g. de_AT) inherits from their primary locale (e.g. de).
+
+	Fit.Array.ForEach(locales, function(localeKey)
+	{
+		var key = localeKey.toLowerCase();
+		var locale = null;
+
+		if (key !== "en") // E.g. da or de_AT
+		{
+			// Merge everything from "en" to current locale
+
+			var english = locales["en"] || Fit.Internationalization._internal.Locales["en"] || null;
+
+			if (english === null)
+				Fit.Validation.ThrowError("Unexpected error - English not defined in System Locales");
+
+			locale = Fit.Core.Merge(english, locales[localeKey]);
+		}
+		else // en
+		{
+			locale = locales[localeKey];
+		}
+
+		// For country specific locales, merge everything from their parent (e.g. de_AT inherits from de)
+		if (key.indexOf("_") !== -1) // E.g. de_AT
+		{
+			// Merge e.g. de_AT with de
+
+			var primaryLangKey = key.split("_")[0]; // E.g. de_AT => de
+			var primaryLocale = locales[primaryLangKey] || Fit.Internationalization._internal.Locales[primaryLangKey] || null;
+
+			if (primaryLocale === null)
+				Fit.Validation.ThrowError("Unexpected error - '" + primaryLangKey + "' not defined in System Locales");
+			
+			locale = Fit.Core.Merge(primaryLocale, locales[localeKey]);
+		}
+
+		Fit.Internationalization._internal.Locales[key] = locale;
+	});
+}
+
+/// <function container="Fit.Internationalization" name="GetSystemLocale" access="public" static="true" returns="object">
+/// 	<description>
+/// 		Get locale object such as:
+/// 		{
+/// 		&#8239;&#8239;&#8239;&#8239; Formatting:
+/// 		&#8239;&#8239;&#8239;&#8239; {
+/// 		&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239; DecimalSeparator: '.',
+/// 		&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239; ThousandsSeparator: ',',
+/// 		&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239; DateFormat: 'MM/DD/YYYY',
+/// 		&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239; TimeFormat: 'hh:mm',
+/// 		&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239; TimeFormatLong: 'hh:mm:ss',
+/// 		&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239; ClockHours: 12 // 24 or 12 (AM/PM)
+/// 		&#8239;&#8239;&#8239;&#8239; },
+/// 		&#8239;&#8239;&#8239;&#8239; Translations:
+/// 		&#8239;&#8239;&#8239;&#8239; {
+/// 		&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239;&#8239; Required: 'Field is required'
+/// 		&#8239;&#8239;&#8239;&#8239; }
+/// 		}
+/// 	</description>
+/// 	<param name="localeKey" type="string" default="undefined">
+/// 		If defined, specified locale such as en, en_GB, or da is returned. If not
+/// 		found, en (en_US) is returned. If omitted, current locale is returned.
+/// 	</param>
+/// </function>
+Fit.Internationalization.GetSystemLocale = function(localeKey)
+{
+	Fit.Validation.ExpectString(localeKey, true);
+
+	var locale = localeKey ? localeKey.toLowerCase() : Fit.Internationalization._internal.Locale;
+
+	// Get locale
+
+	var locales = Fit.Internationalization._internal.Locales;
+	var found = locales[locale] || null;
+
+	// In case e.g. de_AT is loaded, but not found, try to load de instead
+
+	if (found === null && locale.indexOf("_") !== -1) // E.g. de_AT
+	{
+		var key = locale.split("_")[0]; // E.g. de_AT => de
+		found = locales[key] || null;
+	}
+
+	// If specified locale is not found then fall back to English
+
+	if (found === null)
+	{
+		found = locales["en"] || null; // English MUST exist!
+	}
+
+	if (found === null)
+	{
+		Fit.Validation.ThrowError("Unexpected error - English not defined in System Locales");
+	}
+	
+	return Fit.Core.Clone(found); // Clone to avoid changes
+}
+
+/// <function container="Fit.Internationalization" name="Locale" access="public" static="true" returns="string">
+/// 	<description>
+/// 		Get/set active locale. Value returned is a lower cased string such as
+/// 		&quot;en&quot;, &quot;en_us&quot;, &quot;de&quot;, etc. Changing locale results in OnLocaleChanged being fired.
+/// 	</description>
+/// 	<param name="locale" type="string" default="undefined"> If defined, locale is updated with specified value (e.g. en, en_GB, da, etc.) </param>
+/// </function>
+Fit.Internationalization.Locale = function(locale)
+{
+	Fit.Validation.ExpectString(locale, true);
+
+	if (Fit.Validation.IsSet(locale) === true)
+	{
+		var key = locale.toLowerCase();
+
+		if (Fit.Core.IsEqual(Fit.Internationalization.GetSystemLocale(key), Fit.Internationalization.GetSystemLocale()) === false)
+		{
+			Fit.Internationalization._internal.Locale = key;
+
+			Fit.Array.ForEach(Fit.Internationalization._internal.OnChangeHandlers, function(onChangeHandler)
+			{
+				onChangeHandler();
+			});
+		}
+	}
+
+	return Fit.Internationalization._internal.Locale;
+}
+
+// ====================================================
+// Localization - internationalization of apps
+// ====================================================
+
+/// <function container="Fit.Internationalization" name="AddLocalization" access="public" static="true">
+/// 	<description>
+/// 		Register information such as translations related to a specific language and country.
+/// 	</description>
+/// 	<param name="type" type="function">
+/// 		Object type associated with localization information - e.g. MyApp.ContactForm
+/// 	</param>
+/// 	<param name="translations" type="Object">
+/// 		Object array containing language and country specific information such as translations.
+/// 		The object array must be indexed using locale keys, and &quot;en&quot; must be defined first.
+/// 		Example: { &quot;en&quot;: {}, &quot;en_GB&quot;: {}, &quot;da&quot;: {} }
+/// 		Every language inherits all the information from &quot;en&quot;, and country specific information
+/// 		such as &quot;de_AT&quot; automatically inherits everything from &quot;de&quot; - in which case
+/// 		&quot;de&quot; must be declared first.
+/// 		Information can be obtained from within instances of the given type using:
+/// 		Fit.Internationalization.GetLocale(this); // Translations for current locale
+/// 		Fit.Internationalization.GetLocale(this, &quot;de_AT&quot;); // Translations for specific locale
+/// 		Naturally &quot;this&quot; is an instance of MyApp.ContactForm in this example.
+/// 	</param>
+/// </function>
+Fit.Internationalization.AddLocalization = function(type, translations) // May be called multiple times, e.g. if splitting languages up into several files
+{
+	Fit.Validation.IsSet(type);
+	Fit.Validation.ExpectObject(translations);
+	
+	// Assign ID to type which can be used to resolve translations later
+
+	type._internal = type._internal || {};
+	type._internal.LocalizationKey = type._internal.LocalizationKey || Fit.Data.CreateGuid();
+	var typeId = type._internal.LocalizationKey;
+
+	// Register translations
+
+	Fit.Internationalization._internal.Additions[typeId] = Fit.Internationalization._internal.Additions[typeId] || {};
+	var existingTranslations = Fit.Internationalization._internal.Additions[typeId];
+
+	Fit.Array.ForEach(translations, function(key)
+	{
+		var localeKey = key.toLowerCase();
+		var translationSet = translations[key];
+
+		if (localeKey !== "en")
+		{
+			// Not primary english - merge with en which MUST exist
+
+			var english = translations["en"] || existingTranslations["en"] || null;
+
+			if (english === null)
+				Fit.Validation.ThrowError("Unexpected error - English (en) not defined in locales");
+
+			translationSet = Fit.Core.Merge(english, translationSet);
+		}
+		
+		if (localeKey.indexOf("_") !== -1) // E.g. de_AT
+		{
+			// Merge e.g. de_AT with de
+
+			var primaryLangKey = localeKey.split("_")[0];
+			var primaryLocale = translations[primaryLangKey] || existingTranslations[primaryLangKey] || null;
+
+			if (primaryLocale === null)
+				Fit.Validation.ThrowError("Unexpected error - '" + primaryLangKey + "' not defined in locales");
+
+			translationSet = Fit.Core.Merge(primaryLocale, translationSet);
+		}
+
+		existingTranslations[localeKey] = translationSet;
+	});
+}
+
+/// <function container="Fit.Internationalization" name="GetLocale" access="public" static="true" returns="object">
+/// 	<description> Get type specific locale information registered using Fit.Internationalization.AddLocalization(..) </description>
+/// 	<param name="instance" type="object"> Instance of type used to register locale information </param>
+/// 	<param name="locale" type="string" default="undefined">
+/// 		If defined, information for specified locale such as en, en_GB, or da is returned.
+/// 		If not found, en (en_US) is returned. If omitted, information for current locale is returned.
+/// 	</param>
+/// </function>
+Fit.Internationalization.GetLocale = function(instance, locale)
+{
+	Fit.Validation.ExpectIsSet(instance);
+	Fit.Validation.ExpectString(locale, true);
+
+	var found = null;
+
+	if (instance.constructor._internal && instance.constructor._internal.LocalizationKey)
+	{
+		var langKey = (locale ? locale.toLowerCase() : null) || Fit.Internationalization._internal.Locale;
+
+		found = Fit.Internationalization._internal.Additions[instance.constructor._internal.LocalizationKey][langKey] || null;
+
+		if (found === null && langKey.indexOf("_") !== -1) // E.g. de_AT
+		{
+			var primaryLangKey = langKey.split("_")[0]; // E.g. de_AT => de
+			found = Fit.Internationalization._internal.Additions[instance.constructor._internal.LocalizationKey][primaryLangKey] || null;
+		}
+		
+		if (found === null)
+		{
+			found = Fit.Internationalization._internal.Additions[instance.constructor._internal.LocalizationKey]["en"] || null;
+		}
+	}
+
+	return found;
+}
+
+/// <function container="Fit.Internationalization" name="OnLocaleChanged" access="public" static="true">
+/// 	<description> Add event handler which is called if locale is changed </description>
+/// 	<param name="cb" type="function"> Event handler which takes no arguments </param>
+/// </function>
+Fit.Internationalization.OnLocaleChanged = function(cb)
+{
+	Fit.Validation.ExpectFunction(cb);
+	Fit.Array.Add(Fit.Internationalization._internal.OnChangeHandlers, cb);
+}
+
+/// <function container="Fit.Internationalization" name="RemoveOnLocaleChanged" access="public" static="true">
+/// 	<description> Remove event handler to avoid it being called when locale is changed </description>
+/// 	<param name="cb" type="function"> Event handler to remove </param>
+/// </function>
+Fit.Internationalization.RemoveOnLocaleChanged = function(cb)
+{
+	Fit.Validation.ExpectFunction(cb);
+	Fit.Array.Remove(Fit.Internationalization._internal.OnChangeHandlers, cb);
+}
+// ==============================================================
+// WARNING: THIS FILE IS OBSOLETE!
+// File will be removed in a future version of Fit.UI!
+// ==============================================================
+
 Fit.Language = {};
 Fit.Language.Translations = {};
 
@@ -6661,6 +7773,7 @@ Fit.Language.Translations.SelectFiles = "Select file(s)";
 // Dialog
 Fit.Language.Translations.Ok = "OK";
 Fit.Language.Translations.Cancel = "Cancel";
+
 // The order of processing scripts and stylesheets:
 // http://www.html5rocks.com/en/tutorials/internals/howbrowserswork/#The_order_of_processing_scripts_and_style_sheets
 
@@ -7133,6 +8246,7 @@ Fit.Loader.LoadStyleSheets = function(cfg, callback)
 		});
 	}
 }
+
 /// <container name="Fit.Template">
 /// 	Templating engine allowing for separation between layout and logic.
 ///
@@ -7200,8 +8314,11 @@ Fit.Loader.LoadStyleSheets = function(cfg, callback)
 Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5sb97qtn/28/  --  http://fiddle.jshell.net/3rbq1r13/3/
 {
 	Fit.Validation.ExpectBoolean(refreshable, true);
+	Fit.Validation.ExpectBoolean(autoDispose, true);
 
 	var me = this;
+	var allowUnsafe = -1;		// -1 = default behaviour (see code) which may change in the future, 0 = protect against code injection, 1 = allow code injection
+	var unsafeWarned = false;
 	var htmlContent = "";
 	var container = null;
 	var pendingElements = [];	// Holds references to all DOMElements to be rendered: { Id:string, Element:DOMElements }
@@ -7220,8 +8337,8 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 	/// 		Once template is loaded, any placeholder or list will be accessible
 	/// 		through the Content property. A placeholder identified as UserRole
 	/// 		will be accessible as templateInstance.Content.UserRole.
-	/// 		UserRole is an object that can be set with either a string
-	/// 		or a DOMElement.
+	/// 		UserRole is a property that can be set with either a string,
+	/// 		an instance of a Fit.UI control, or a DOMElement.
 	/// 		A list identified as Users is accessible using
 	/// 		templateInstance.Content.Users. See Fit.TemplateList for
 	/// 		additional information.
@@ -7261,6 +8378,27 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 			cb(me, r.GetResponseText());
 		});
 		r.Start();
+	}
+
+	/// <function container="Fit.Template" name="AllowUnsafeContent" access="public" returns="boolean">
+	/// 	<description>
+	/// 		Get/set flag indicating whether unsafe string values are handled or not.
+	/// 		If AllowUnsafeContent is True, arbitrary code can be added to the template
+	/// 		and will be intepreted by the browser. If AllowUnsafeContent is False,
+	/// 		potentially unsafe code will be encoded and displayed as is without interpretation.
+	/// 	</description>
+	/// 	<param name="val" type="boolean" default="undefined"> If defined, handling of string encoding is changed to reflect value </param>
+	/// </function>
+	this.AllowUnsafeContent = function(val)
+	{
+		Fit.Validation.ExpectBoolean(val, true);
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			allowUnsafe = (val === true ? 1 : 0);
+		}
+
+		return (allowUnsafe !== 0);
 	}
 
 	/// <function container="Fit.Template" name="Reset" access="public">
@@ -7349,7 +8487,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 			}
 		});
 
-		pendingElements = []; // No longer needed
+		Fit.Array.Clear(pendingElements); // No longer needed - do not create new object - it will break references to collection on lists
 
 		// Register event handlers
 
@@ -7465,7 +8603,7 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 			}
 		});
 
-		pendingElements = []; // No longer needed
+		Fit.Array.Clear(pendingElements); // No longer needed - do not create new object - it will break references to collection on lists
 
 		// Auto dispose controls previously added to template if now left out
 
@@ -7516,6 +8654,12 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 		// DOMElements added to template are added to DOM later - they are temporarily represented using <var> elements.
 		// Corresponding, event handlers are registered later when template is rendered to real DOM.
 
+		if (allowUnsafe === -1 && unsafeWarned === false)
+		{
+			unsafeWarned = true;
+			Fit.Browser.Log("WARNING: An instance of Fit.Template allows for unsafe content which could potentially lead to code injection (XSS attacks). The default behaviour for handling unsafe content will change in the future from allowing unsafe content to NOT allowing unsafe content which may break this application. Please explicitely set AllowUnsafeContent(bool) to ensure compatibility with future versions of Fit.UI.");
+		}
+
 		var newHtml = htmlContent;
 		Fit.Array.Clear(pendingElements); // Do not create new object - it will break references to collection on lists
 
@@ -7551,7 +8695,8 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 				}
 				else // String value
 				{
-					newHtml = newHtml.replace(new RegExp("{\\[" + key + "\\]}", "g"), obj);
+					var sVal = (me.AllowUnsafeContent() === true ? obj.toString() : Fit.String.EncodeHtml(obj.toString()));
+					newHtml = newHtml.replace(new RegExp("{\\[" + key + "\\]}", "g"), sVal);
 				}
 			}
 		});
@@ -7772,7 +8917,8 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 					}
 					else // String value
 					{
-						itemHtml = itemHtml.replace(new RegExp("{\\[" + prop + "\\]}", "g"), obj);
+						var sVal = (me.AllowUnsafeContent() === true ? obj.toString() : Fit.String.EncodeHtml(obj.toString()));
+						itemHtml = itemHtml.replace(new RegExp("{\\[" + prop + "\\]}", "g"), sVal);
 					}
 				});
 
@@ -7794,6 +8940,68 @@ Fit.Template = function(refreshable, autoDispose) // http://fiddle.jshell.net/5s
 
 	init();
 }
+
+Fit.Internationalization._internal.AddSystemLocalization(
+{
+	// Primary locales must be registered before country specific overrides.
+	// Example order: en, en_US, en_GB, de, de_AT, etc.
+	// All locales inherit from en. All country specific overrides inherit
+	// from their primary locale (e.g. de_AT inherits from de).
+	// English (en) MUST be defined!
+	
+	"en": // US
+	{
+		Formatting:
+		{
+			DecimalSeparator		: ".",
+			ThousandsSeparator		: ",",
+			DateFormat				: "MM/DD/YYYY",
+			TimeFormat				: "hh:mm",
+			TimeFormatLong			: "hh:mm:ss",
+			ClockHours				: 12 // 24 or 12 (AM/PM)
+		},
+		Translations:
+		{
+			Required				: "Field is required"
+		}
+	},
+	"en_GB":
+	{
+		Formatting:
+		{
+			DateFormat				: "DD/MM/YYYY"
+		}
+	},
+	"da":
+	{
+		Formatting:
+		{
+			DecimalSeparator		: ",",
+			ThousandsSeparator		: ".",
+			DateFormat				: "DD-MM-YYYY",
+			ClockHours				: 24
+		},
+		Translations:
+		{
+			Required				: "Feltet er påkrævet"
+		}
+	},
+	"de":
+	{
+		Formatting:
+		{
+			DecimalSeparator		: ",",
+			ThousandsSeparator		: ".",
+			DateFormat				: "DD.MM.YYYY",
+			ClockHours				: 24
+		},
+		Translations:
+		{
+			Required				: "Feld ist erforderlich"
+		}
+	}
+});
+
 /// <container name="Fit.Controls.Button" extends="Fit.Controls.Component">
 /// 	Button control with support for Font Awesome icons
 /// </container>
@@ -8083,6 +9291,7 @@ Fit.Controls.ButtonType =
 }
 
 Fit.Controls.Button.Type = Fit.Controls.ButtonType; // Backward compatibility
+
 /// <container name="Fit.Controls.CheckBox" extends="Fit.Controls.ControlBase">
 /// 	Simple CheckBox control.
 /// 	Extending from Fit.Controls.ControlBase.
@@ -8148,6 +9357,8 @@ Fit.Controls.CheckBox = function(ctlId)
 		me.Enabled(true);
 		me.Checked(false);
 		me.Width(-1);
+
+		Fit.Internationalization.OnLocaleChanged(localize);
 	}
 
 	// ============================================
@@ -8265,6 +9476,8 @@ Fit.Controls.CheckBox = function(ctlId)
 	{
 		// This will destroy control - it will no longer work!
 
+		Fit.Internationalization.RemoveOnLocaleChanged(localize);
+
 		me = checkbox = label = width = orgChecked = isIe8 = null;
 
 		base();
@@ -8286,7 +9499,8 @@ Fit.Controls.CheckBox = function(ctlId)
 	{
 		if (me.Required() === true && me.Checked() === false)
 		{
-			me._internal.Data("errormessage", Fit.Language.Translations.Required);
+			var locale = Fit.Internationalization.GetSystemLocale();
+			me._internal.Data("errormessage", locale.Translations.Required);
 		}
 
 		base();
@@ -8333,6 +9547,11 @@ Fit.Controls.CheckBox = function(ctlId)
 	// Private
 	// ============================================
 
+	function localize()
+	{
+		me._internal.Validate();
+	}
+	
 	function repaint()
 	{
 		if (isIe8 === true)
@@ -8357,6 +9576,7 @@ Fit.Controls.CheckBox = function(ctlId)
 
 	init();
 }
+
 /// <container name="Fit.Controls.ContextMenu" extends="Fit.Controls.Component">
 /// 	ContextMenu control allowing for quick access to select features.
 /// </container>
@@ -8612,83 +9832,10 @@ Fit.Controls.ContextMenu = function(controlId)
 		Fit.Validation.ExpectInteger(x, true);
 		Fit.Validation.ExpectInteger(y, true);
 
-		// Fire OnShowing event
-
-		if (fireEventHandlers(onShowing) === false)
+		if (me._internal.ExecuteBeforeShowBehaviour() === false)
 			return;
-
-		// Close context menu if one is already open
-
-		if (Fit._internal.ContextMenu.Current !== null && Fit._internal.ContextMenu.Current !== me && Fit._internal.ContextMenu.Current.IsVisible() === true)
-		{
-			Fit._internal.ContextMenu.Current.Hide();
-			Fit._internal.ContextMenu.Current = null;
-		}
-
-		// Set position
-
-		var pos = Fit.Events.GetPointerState().Coordinates.Document;
-
-		var posX = ((Fit.Validation.IsSet(x) === true) ? x : pos.X);
-		var posY = ((Fit.Validation.IsSet(y) === true) ? y : pos.Y);
-
-		tree.GetDomElement().style.left = posX + "px";
-		tree.GetDomElement().style.top = posY + "px";
-		tree.GetDomElement().style.width = "auto"; // TreeView.Width(val, unit) cannot be used to set width:auto
-
-		// Add to DOM
-
-		if (me.IsVisible() === false) // Only append to DOM once - ContextMenu may have been rooted elsewhere by external code
-		{
-			Fit.Dom.Add(document.body, tree.GetDomElement());
-			Fit._internal.ContextMenu.Current = me;
-		}
-
-		// Update all items to let them know if they have children that contains children.
-		// This lets us use CSS ( li[data-deep="true"] > ul > li { /* ... */ } ) to indent all children
-		// within an item if just one of them has children (hence we need to make room for an expand/collapse icon).
-
-		Fit.Array.Recurse(tree.GetChildren(), "GetChildren", function(child)
-		{
-			// Multiple children in the same level will cause their parent to get updated multiple times which is acceptable
-			
-			Fit.Dom.Data(child.GetDomElement(), "deep", "false");
-
-			if (child.GetChildren().length > 0)
-			{
-				if (child.GetParent() !== null)
-					Fit.Dom.Data(child.GetParent().GetDomElement(), "deep", "true");
-				else
-					Fit.Dom.Data(child.GetTreeView().GetDomElement().children[0].children[0] /* ul > li */, "deep", "true");
-			}
-		});
-
-		// Boundary detection
-
-		if (detectBoundaries === true)
-		{
-			var treeElm = tree.GetDomElement();
-			Fit.Dom.Data(treeElm, "viewportcollision", "false");
-
-			if (Fit.Browser.GetViewPortDimensions().Height < (posY - Fit.Dom.GetScrollPosition(document.body).Y) + treeElm.offsetHeight)
-			{
-				Fit.Dom.Data(treeElm, "viewportcollision", "true");
-				treeElm.style.top = (posY - treeElm.offsetHeight) + "px";
-			}
-		}
-
-		// Focus context menu to allow keyboard navigation
-
-		me.Focused(true);
-
-		// Fire OnShown event
-
-		fireEventHandlers(onShown);
-
-		// Make sure OnClick handler on document does not close
-		// Context Menu if triggered using left button.
-		Fit._internal.ContextMenu.SkipClickClose = true;
-		setTimeout(function() { Fit._internal.ContextMenu.SkipClickClose = false; }, 0);
+		
+		me._internal.ExecuteShowBehaviour(x, y);
 	}
 
 	/// <function container="Fit.Controls.ContextMenu" name="Hide" access="public">
@@ -8935,25 +10082,6 @@ Fit.Controls.ContextMenu = function(controlId)
 	// Private
 	// ============================================
 
-	this._internal = (this._internal ? this._internal : {});
-
-	this._internal.FireOnShowing = function()
-	{
-		return fireEventHandlers(onShowing);
-	}
-	this._internal.FireOnShown = function()
-	{
-		fireEventHandlers(onShown);
-	}
-	this._internal.FireOnHide = function()
-	{
-		fireEventHandlers(onHide);
-	}
-	this._internal.FireOnSelect = function()
-	{
-		fireEventHandlers(onSelect);
-	}
-
 	function fireEventHandlers(handlers, item) // Notice: item variable only provided for OnSelect event
 	{
 		var cancel = false;
@@ -9031,6 +10159,97 @@ Fit.Controls.ContextMenu = function(controlId)
 				Fit.Dom.RemoveClass(tree.GetDomElement(), "FitUi_Non_Existing_ContextMenu_Class");
 			}, 0);
 		}
+	}
+
+	this._internal = (this._internal ? this._internal : {});
+
+	this._internal.ExecuteBeforeShowBehaviour = function()
+	{
+		// Fire OnShowing event
+
+		if (fireEventHandlers(onShowing) === false)
+			return false;
+
+		// Close context menu if one is already open
+
+		if (Fit._internal.ContextMenu.Current !== null && Fit._internal.ContextMenu.Current !== me && Fit._internal.ContextMenu.Current.IsVisible() === true)
+		{
+			Fit._internal.ContextMenu.Current.Hide();
+			Fit._internal.ContextMenu.Current = null;
+		}
+
+		return true;
+	}
+
+	this._internal.ExecuteShowBehaviour = function(x, y)
+	{
+		Fit.Validation.ExpectInteger(x, true);
+		Fit.Validation.ExpectInteger(y, true);
+		
+		// Set position
+
+		var pos = Fit.Events.GetPointerState().Coordinates.Document;
+
+		var posX = ((Fit.Validation.IsSet(x) === true) ? x : pos.X);
+		var posY = ((Fit.Validation.IsSet(y) === true) ? y : pos.Y);
+
+		tree.GetDomElement().style.left = posX + "px";
+		tree.GetDomElement().style.top = posY + "px";
+		tree.GetDomElement().style.width = "auto"; // TreeView.Width(val, unit) cannot be used to set width:auto
+
+		// Add to DOM
+
+		if (me.IsVisible() === false) // Only append to DOM once - ContextMenu may have been rooted elsewhere by external code
+		{
+			Fit.Dom.Add(document.body, tree.GetDomElement());
+			Fit._internal.ContextMenu.Current = me;
+		}
+
+		// Update all items to let them know if they have children that contains children.
+		// This lets us use CSS ( li[data-deep="true"] > ul > li { /* ... */ } ) to indent all children
+		// within an item if just one of them has children (hence we need to make room for an expand/collapse icon).
+
+		Fit.Array.Recurse(tree.GetChildren(), "GetChildren", function(child)
+		{
+			// Multiple children in the same level will cause their parent to get updated multiple times which is acceptable
+			
+			Fit.Dom.Data(child.GetDomElement(), "deep", "false");
+
+			if (child.GetChildren().length > 0)
+			{
+				if (child.GetParent() !== null)
+					Fit.Dom.Data(child.GetParent().GetDomElement(), "deep", "true");
+				else
+					Fit.Dom.Data(child.GetTreeView().GetDomElement().children[0].children[0] /* ul > li */, "deep", "true");
+			}
+		});
+
+		// Boundary detection
+
+		if (detectBoundaries === true)
+		{
+			var treeElm = tree.GetDomElement();
+			Fit.Dom.Data(treeElm, "viewportcollision", "false");
+
+			if (Fit.Browser.GetViewPortDimensions().Height < (posY - Fit.Dom.GetScrollPosition(document.body).Y) + treeElm.offsetHeight)
+			{
+				Fit.Dom.Data(treeElm, "viewportcollision", "true");
+				treeElm.style.top = (posY - treeElm.offsetHeight) + "px";
+			}
+		}
+
+		// Focus context menu to allow keyboard navigation
+
+		me.Focused(true);
+
+		// Fire OnShown event
+
+		fireEventHandlers(onShown);
+
+		// Make sure OnClick handler on document does not close
+		// Context Menu if triggered using left button.
+		Fit._internal.ContextMenu.SkipClickClose = true;
+		setTimeout(function() { Fit._internal.ContextMenu.SkipClickClose = false; }, 0);
 	}
 
 	init();
@@ -9210,6 +10429,7 @@ Fit.Events.OnReady(function()
 			Fit._internal.ContextMenu.Current.Hide();
 	});*/
 });
+
 /// <container name="Fit.Controls.WSContextMenu" extends="Fit.Controls.ContextMenu">
 /// 	ContextMenu control allowing for quick access to select features provided by a WebService.
 /// 	Extending from Fit.Controls.ContextMenu.
@@ -9227,6 +10447,8 @@ Fit.Controls.WSContextMenu = function(controlId)
 	var me = this;
 	var url = null;
 	var jsonpCallback = null;
+	var dataLoading = false;
+	var onDataLoadedCallback = [];
 
 	var onRequestHandlers = [];
 	var onResponseHandlers = [];
@@ -9244,25 +10466,29 @@ Fit.Controls.WSContextMenu = function(controlId)
 	// Public
 	// ============================================
 
+	// WSContextMenu has its own implementation of Show() because it is async.
+	// We want to fire OnShowing, load and WAIT for the data, and THEN open the context menu and call OnShown.
+	// We don't want to show the context menu or fire OnShown before it has been populated with data.
 	this.Show = function(x, y)
 	{
 		Fit.Validation.ExpectInteger(x, true);
 		Fit.Validation.ExpectInteger(y, true);
 
-		// Fire OnShowing event
-
-		if (me._internal.FireOnShowing() === false)
-			return;
-
-		// Close context menu if one is already open
-
-		if (Fit._internal.ContextMenu.Current !== null && Fit._internal.ContextMenu.Current !== me && Fit._internal.ContextMenu.Current.IsVisible() === true)
+		if (dataLoading === true)
 		{
-			Fit._internal.ContextMenu.Current.Hide();
-			Fit._internal.ContextMenu.Current = null;
+			// Data is currently loading - postpone by adding request to process queue
+			onDataLoaded(function() { me.Show(x, y); });
+			return;
 		}
 
+		// Fire OnShowing event
+
+		if (me._internal.ExecuteBeforeShowBehaviour() === false)
+			return;
+
 		// Load data
+
+		dataLoading = true;
 
 		getData(function(eventArgs)
 		{
@@ -9275,46 +10501,14 @@ Fit.Controls.WSContextMenu = function(controlId)
 				me.AddChild(createItemFromJson(c));
 			});
 
-			// Set position
+			// Show context menu
 
-			var pos = Fit.Events.GetPointerState().Coordinates.Document;
+			me._internal.ExecuteShowBehaviour(x, y);
 
-			var posX = ((Fit.Validation.IsSet(x) === true) ? x : pos.X);
-			var posY = ((Fit.Validation.IsSet(y) === true) ? y : pos.Y);
+			// Invoke onDataLoaded callbacks
 
-			me.GetDomElement().style.left = posX + "px";
-			me.GetDomElement().style.top = posY + "px";
-			me.GetDomElement().style.width = "auto"; // TreeView.Width(val, unit) cannot be used to set width:auto
-
-			// Add to DOM (context menu shows up)
-
-			if (me.IsVisible() === false) // Only append to DOM once - ContextMenu may have been rooted elsewhere by external code
-			{
-				Fit.Dom.Add(document.body, me.GetDomElement());
-				Fit._internal.ContextMenu.Current = me;
-			}
-
-			// Boundary detection
-
-			if (me.DetectBoundaries() === true)
-			{
-				var treeElm = me.GetDomElement();
-				Fit.Dom.Data(treeElm, "viewportcollision", "false");
-
-				if (Fit.Browser.GetViewPortDimensions().Height < (posY - Fit.Dom.GetScrollPosition(document.body).Y) + treeElm.offsetHeight)
-				{
-					Fit.Dom.Data(treeElm, "viewportcollision", "true");
-					treeElm.style.top = (posY - treeElm.offsetHeight) + "px";
-				}
-			}
-
-			// Focus context menu to allow keyboard navigation
-
-			me.Focused(true);
-
-			// Fire OnShown event
-
-			me._internal.FireOnShown();
+			dataLoading = false;
+			fireOnDataLoaded();
 		});
 	}
 
@@ -9456,6 +10650,17 @@ Fit.Controls.WSContextMenu = function(controlId)
 
 		if (fireEventHandlers(onRequestHandlers, eventArgs) === false)
 			return;
+		
+		if (eventArgs.Request !== request)
+		{
+			// Support for changing request instans to
+			// take control over webservice communication.
+
+			// Restrict to support for Fit.Http.Request or classes derived from this
+			Fit.Validation.ExpectInstance(eventArgs.Request, Fit.Http.Request);
+
+			request = eventArgs.Request;
+		}
 
 		// Define request callbacks
 
@@ -9514,6 +10719,28 @@ Fit.Controls.WSContextMenu = function(controlId)
 		request.Start();
 	}
 
+	function onDataLoaded(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onDataLoadedCallback, cb);
+	}
+
+	function fireOnDataLoaded()
+	{
+		// Copied from WSTreeView.
+		// Immediately clear collection. If multiple callbacks are registered,
+		// chances are that only the first will run, and the remaining will be
+		// re-scheduled again - so we need the collection to be cleared before
+		// invoking callbacks.
+		var orgOnDataLoadedCallback = onDataLoadedCallback;
+		onDataLoadedCallback = [];
+
+		Fit.Array.ForEach(orgOnDataLoadedCallback, function(cb)
+		{
+			cb();
+		});
+	}
+
 	function createItemFromJson(jsonNode)
 	{
 		Fit.Validation.ExpectIsSet(jsonNode);
@@ -9551,6 +10778,7 @@ Fit.Controls.WSContextMenu = function(controlId)
 
 	init();
 }
+
 /// <container name="Fit.Controls.DatePicker" extends="Fit.Controls.ControlBase">
 /// 	DatePicker control allowing user to easily pick a date and optionally time.
 /// 	On mobile devices (phones and tablets) the native date and time pickers are used.
@@ -9573,7 +10801,11 @@ Fit.Controls.DatePicker = function(ctlId)
 	var preVal = "";			// Previous valid date value as string (without time portion)
 	var prevTimeVal = "";		// Previous valid time value as string (without date portion)
 	var locale = "en";			// Default ("", "en", and "en-US" is the same) - see this.regional[""] decleration in jquery-ui.js
+	var localeEnforced = false;	// Whether locale was set by external code which takes precedence over locale set using Fit.Internationalization.Locale(..)
 	var format = "MM/DD/YYYY";	// Default format for "en" locale (specified using Fit.UI format - jQuery UI DataPicker uses "mm/dd/yy" - see this.regional[""] decleration in jquery-ui.js)
+	var formatEnforced = false;	// Whether format was set by external code which takes precedence over locale set using DatePicker.Locale(..) and Fit.Internationalization.Locale(..)
+	var placeholderDate = null;	// Placeholder value for date
+	var placeholderTime = null;	// Placeholder value for time
 	var weeks = false;			// Whether to display week numbers or not
 	var jquery = undefined;		// jQuery instance
 	var datepicker = null;		// jQuery UI calendar widget
@@ -9597,7 +10829,7 @@ Fit.Controls.DatePicker = function(ctlId)
 		input.type = "text";
 		input.autocomplete = "off";
 		input.spellcheck = false;
-		input.placeholder = Fit.Date.Format(new Date(), format);
+		input.placeholder = getDatePlaceholder();
 		input.tabIndex = ((isMobile === true) ? -1 : 0);
 
 		input.onkeydown = function(e)
@@ -9767,6 +10999,9 @@ Fit.Controls.DatePicker = function(ctlId)
 			}
 			me._internal.AddDomElement(inputMobile);
 		}
+
+		Fit.Internationalization.OnLocaleChanged(localize);
+		localize();
 	}
 
 	// ============================================
@@ -9925,7 +11160,9 @@ Fit.Controls.DatePicker = function(ctlId)
 			datepicker.datepicker("destroy");
 		}
 
-		me = input = inputTime = orgVal = preVal = prevTimeVal = locale = format = weeks = jquery = datepicker = startDate = open = focused = restoreView = isMobile = inputMobile = inputTimeMobile = null;
+		Fit.Internationalization.RemoveOnLocaleChanged(localize);
+
+		me = input = inputTime = orgVal = preVal = prevTimeVal = locale = localeEnforced = format = formatEnforced = weeks = jquery = datepicker = startDate = open = focused = restoreView = isMobile = inputMobile = inputTimeMobile = null;
 		base();
 	});
 
@@ -10003,7 +11240,8 @@ Fit.Controls.DatePicker = function(ctlId)
 	/// <function container="Fit.Controls.DatePicker" name="Locale" access="public" returns="string">
 	/// 	<description>
 	/// 		Get/set locale used by the DatePicker control. This will affect the
-	/// 		date format as well as the language used by the calendar widget.
+	/// 		date format, unless format has been set explicitely, as well as the language used by the calendar widget.
+	/// 		DatePicker locale takes precedence over locale set using Fit.Internationalization.Locale(..).
 	/// 		Call the GetLocales function to get a complete list of supported locales.
 	/// 	</description>
 	/// 	<param name="val" type="string" default="undefined"> If defined, locale is changed </param>
@@ -10014,28 +11252,8 @@ Fit.Controls.DatePicker = function(ctlId)
 
 		if (Fit.Validation.IsSet(val) === true)
 		{
-			var newFormat = getJqueryDateFormatFromLocale(val); // Null if locale does not exist
-
-			if (newFormat === null)
-				Fit.Validation.ThrowError("Unknown locale '" + val + "'");
-
-			var wasOpen = open;
-
-			if (wasOpen === true)
-			{
-				restoreView = true;
-				me.Hide();
-			}
-
-			locale = val;
-			updateCalConf = true; // Update calendar widget settings
-			me.Format(getFitUiDateFormat(newFormat));
-
-			if (wasOpen === true)
-			{
-				me.Show();
-				restoreView = false;
-			}
+			localeEnforced = true;
+			setLocale(val);
 		}
 
 		return locale;
@@ -10045,7 +11263,7 @@ Fit.Controls.DatePicker = function(ctlId)
 	/// 	<description>
 	/// 		Get/set format used by the DatePicker control. This will affect the format
 	/// 		in which the date is presented, as well as the value returned by the GetText function.
-	/// 		Format takes precedense over locale if set after locale is applied.
+	/// 		Format takes precedence over locale.
 	/// 	</description>
 	/// 	<param name="val" type="string" default="undefined">
 	/// 		If defined, format is changed.
@@ -10064,69 +11282,53 @@ Fit.Controls.DatePicker = function(ctlId)
 
 		if (Fit.Validation.IsSet(val) === true)
 		{
-			// Validate format
-
-			try
-			{
-				// Notice: Fit.Date.Parse(..) produces a DateTime object that contains
-				// current Hours:Minutes:Seconds unless explicitly set, so we need to set
-				// those to prevent 'date' and 'parsed' variables from differing one second.
-
-				var date = Fit.Date.Parse("2016-06-24 00:00:00", "YYYY-MM-DD hh:mm:ss");
-				var dateStr = Fit.Date.Format(date, val + " hh:mm:ss");
-				var parsed = Fit.Date.Parse(dateStr, val + " hh:mm:ss");
-
-				if (date.getTime() !== parsed.getTime())
-					throw "Invalid"; // Catched below and re-thrown
-			}
-			catch (err)
-			{
-				Fit.Validation.ThrowError("Invalid date format '" + val + "'");
-			}
-
-			// Set format
-
-			var wasOpen = open;
-
-			if (wasOpen === true)
-			{
-				restoreView = true;
-				me.Hide();
-			}
-
-			var curVal = me.Value(); // The format is used by Value() to parse the date entered - get value before changing format
-
-			format = val;
-			updateCalConf = true; // Update calendar widget settings
-			input.placeholder = Fit.Date.Format(new Date(), format);
-
-			me._internal.ExecuteWithNoOnChange(function()
-			{
-				// Preserve state
-
-				var ov = orgVal; // Value(val) changes orgVal to value passed, but it's used to determine whether control is dirty
-				var tv = ((inputTime !== null) ? inputTime.value : ""); // Value(val) removes time value if no date value is set
-
-				// Reformat value
-
-				me.Value(curVal); // Forces value to reformat and updates preVal with new format
-
-				// Restore state changed by Value(curVal) above
-
-				orgVal = ov;
-
-				if (inputTime !== null)
-					inputTime.value = tv;
-			});
-
-			if (wasOpen === true)
-			{
-				me.Show();
-				restoreView = false;
-			}
+			formatEnforced = true;
+			setFormat(val);
 		}
 
 		return format;
+	}
+
+	/// <function container="Fit.Controls.DatePicker" name="DatePlaceholder" access="public" returns="string">
+	/// 	<description> Get/set date placeholder value. Returns Null if not set. </description>
+	/// 	<param name="val" type="string" default="undefined">
+	/// 		If defined, placeholder is updated. Pass Null to use default
+	/// 		placeholder, or an empty string to remove placeholder.
+	/// 	</param>
+	/// </function>
+	this.DatePlaceholder = function(val)
+	{
+		Fit.Validation.ExpectString(val, true);
+
+		if (val !== undefined) // Allow Null
+		{
+			placeholderDate = val;
+			input.placeholder = getDatePlaceholder();
+		}
+
+		return placeholderDate;
+	}
+
+	/// <function container="Fit.Controls.DatePicker" name="TimePlaceholder" access="public" returns="string">
+	/// 	<description> Get/set time placeholder value. Returns Null if not set. </description>
+	/// 	<param name="val" type="string" default="undefined">
+	/// 		If defined, placeholder is updated. Pass Null to use default
+	/// 		placeholder, or an empty string to remove placeholder.
+	/// 	</param>
+	/// </function>
+	this.TimePlaceholder = function(val)
+	{
+		Fit.Validation.ExpectString(val, true);
+
+		if (val !== undefined) // Allow Null
+		{
+			placeholderTime = val;
+
+			if (inputTime !== null)
+				inputTime.placeholder = getTimePlaceholder();
+		}
+
+		return placeholderTime;
 	}
 
 	this.WeekNumbers = function(val) // Not supported on mobile, and jQuery calendar is buggy: https://bugs.jqueryui.com/ticket/14907
@@ -10178,7 +11380,7 @@ Fit.Controls.DatePicker = function(ctlId)
 				inputTime.type = "text";
 				inputTime.autocomplete = "off";
 				inputTime.spellcheck = false;
-				inputTime.placeholder = Fit.Date.Format(new Date(), "hh:mm");
+				inputTime.placeholder = getTimePlaceholder();
 				inputTime.value = ((me.Date() !== null) ? "00:00" : "");
 				inputTime.tabIndex = ((isMobile === true) ? -1 : 0);
 
@@ -10625,10 +11827,145 @@ Fit.Controls.DatePicker = function(ctlId)
 		return {"":"mm/dd/yy","en":"mm/dd/yy","en-US":"mm/dd/yy","da":"dd-mm-yy","af":"dd/mm/yy","ar-DZ":"dd/mm/yy","ar":"dd/mm/yy","az":"dd.mm.yy","be":"dd.mm.yy","bg":"dd.mm.yy","bs":"dd.mm.yy","ca":"dd/mm/yy","cs":"dd.mm.yy","cy-GB":"dd/mm/yy","de":"dd.mm.yy","el":"dd/mm/yy","en-AU":"dd/mm/yy","en-GB":"dd/mm/yy","en-NZ":"dd/mm/yy","eo":"dd/mm/yy","es":"dd/mm/yy","et":"dd.mm.yy","eu":"yy-mm-dd","fa":"yy/mm/dd","fi":"d.m.yy","fo":"dd-mm-yy","fr-CA":"yy-mm-dd","fr-CH":"dd.mm.yy","fr":"dd/mm/yy","gl":"dd/mm/yy","he":"dd/mm/yy","hi":"dd/mm/yy","hr":"dd.mm.yy.","hu":"yy.mm.dd.","hy":"dd.mm.yy","id":"dd/mm/yy","is":"dd.mm.yy","it-CH":"dd.mm.yy","it":"dd/mm/yy","ja":"yy/mm/dd","ka":"dd-mm-yy","kk":"dd.mm.yy","km":"dd-mm-yy","ko":"yy. m. d.","ky":"dd.mm.yy","lb":"dd.mm.yy","lt":"yy-mm-dd","lv":"dd.mm.yy","mk":"dd.mm.yy","ml":"dd/mm/yy","ms":"dd/mm/yy","nb":"dd.mm.yy","nl-BE":"dd/mm/yy","nl":"dd-mm-yy","nn":"dd.mm.yy","no":"dd.mm.yy","pl":"dd.mm.yy","pt-BR":"dd/mm/yy","pt":"dd/mm/yy","rm":"dd/mm/yy","ro":"dd.mm.yy","ru":"dd.mm.yy","sk":"dd.mm.yy","sl":"dd.mm.yy","sq":"dd.mm.yy","sr":"dd.mm.yy","sr-SR":"dd.mm.yy","sv":"yy-mm-dd","ta":"dd/mm/yy","th":"dd/mm/yy","tj":"dd.mm.yy","tr":"dd.mm.yy","uk":"dd.mm.yy","vi":"dd/mm/yy","zh-CN":"yy-mm-dd","zh-HK":"dd-mm-yy","zh-TW":"yy/mm/dd"};
 	}
 
+	function getDatePlaceholder()
+	{
+		return (placeholderDate !== null ? placeholderDate : Fit.Date.Format(new Date(), format));
+	}
+
+	function getTimePlaceholder()
+	{
+		return (placeholderTime !== null ? placeholderTime : Fit.Date.Format(new Date(), "hh:mm"));
+	}
+
+	function setLocale(val)
+	{
+		Fit.Validation.ExpectString(val);
+
+		var newFormat = getJqueryDateFormatFromLocale(val); // Null if locale does not exist
+
+		if (newFormat === null)
+			Fit.Validation.ThrowError("Unknown locale '" + val + "'");
+
+		var wasOpen = open;
+
+		if (wasOpen === true)
+		{
+			restoreView = true;
+			me.Hide();
+		}
+
+		locale = val;
+		updateCalConf = true; // Update calendar widget settings
+
+		if (formatEnforced === false)
+		{
+			setFormat(getFitUiDateFormat(newFormat));
+		}
+
+		if (wasOpen === true)
+		{
+			me.Show();
+			restoreView = false;
+		}
+	}
+
+	function setFormat(val)
+	{
+		Fit.Validation.ExpectString(val);
+
+		// Validate format
+
+		try
+		{
+			// Notice: Fit.Date.Parse(..) produces a DateTime object that contains
+			// current Hours:Minutes:Seconds unless explicitly set, so we need to set
+			// those to prevent 'date' and 'parsed' variables from differing one second.
+
+			var date = Fit.Date.Parse("2016-06-24 00:00:00", "YYYY-MM-DD hh:mm:ss");
+			var dateStr = Fit.Date.Format(date, val + " hh:mm:ss");
+			var parsed = Fit.Date.Parse(dateStr, val + " hh:mm:ss");
+
+			if (date.getTime() !== parsed.getTime())
+				throw "Invalid"; // Catched below and re-thrown
+		}
+		catch (err)
+		{
+			Fit.Validation.ThrowError("Invalid date format '" + val + "'");
+		}
+
+		// Set format
+
+		var wasOpen = open;
+
+		if (wasOpen === true)
+		{
+			restoreView = true;
+			me.Hide();
+		}
+
+		var curDate = me.Date(); // The format is used by Value(), which is called by Date(), to parse the date entered - get DateTime value before changing format
+
+		format = val;
+		updateCalConf = true; // Update calendar widget settings
+		input.placeholder = getDatePlaceholder();
+
+		// Update input with new format
+		me._internal.ExecuteWithNoOnChange(function()
+		{
+			if (curDate !== null)
+			{
+				// Update input directly rather than using Value(..) since the input field still contains
+				// the old value which is formatted using the old format. This will cause a call to Value(..)
+				// to fail since it cannot parse the old string value using the new format applied.
+				// Notice that we only change the format of the DateTime value - not the actual date or time.
+				// Therefore, there is no need to update curVal.
+
+				input.value = Fit.Date.Format(curDate, format);
+				preVal = input.value;
+			}
+		});
+
+		if (wasOpen === true)
+		{
+			me.Show();
+			restoreView = false;
+		}
+	}
+
+	function localize()
+	{
+		if (localeEnforced === true)
+			return;
+
+		var newLocale = Fit.Internationalization.Locale();
+		var key = null;
+
+		// Transform Fit.UI's locale format (e.g. en or en_gb) to jQuery's locale format (e.g. en or en-GB)
+
+		if (newLocale.indexOf("_") !== -1) // E.g. de_AT
+		{
+			var info = newLocale.split("_");
+			key = info[0].toLowerCase() + "-" + info[1].toUpperCase();
+		}
+		else // e.g. de
+		{
+			key = newLocale.toLowerCase();
+		}
+
+		// Update locale
+
+		// Make sure locale exists - otherwise setLocale throws an error
+		if (Fit.Array.Contains(Fit.Array.GetKeys(getLocales()), key) === true)
+		{
+			setLocale(key);
+		}
+	}
+
 	init();
 }
 
 Fit._internal.Controls.DatePicker = {};
+
 /// <container name="Fit.Controls.Dialog" extends="Fit.Controls.Component">
 /// 	Simple Dialog control with support for Fit.UI buttons.
 /// </container>
@@ -10644,6 +11981,8 @@ Fit.Controls.Dialog = function(controlId)
 
 	var me = this;
 	var dialog = me.GetDomElement();
+	var focusTrapStart = null;
+	var focusTrapEnd = null;
 	var title = null;
 	var titleButtons = null;
 	var cmdMaximize = null;
@@ -10662,8 +12001,11 @@ Fit.Controls.Dialog = function(controlId)
 	var minHeight = null;
 	var maxHeight = null;
 	var mutationObserverId = -1;
+	var resizeHandlerId = -1;
 
 	var onDismissHandlers = [];
+	var onCloseHandlers = [];
+	var isClosing = false;
 
 	// ============================================
 	// Init
@@ -10676,41 +12018,19 @@ Fit.Controls.Dialog = function(controlId)
 		Fit.Dom.Data(dialog, "framed", "false");
 		Fit.Dom.Data(dialog, "maximized", "false");
 
+		focusTrapStart = document.createElement("div");
+		focusTrapStart.tabIndex = 0;
+		Fit.Dom.Add(dialog, focusTrapStart);
+
+		focusTrapEnd = document.createElement("div");
+		focusTrapEnd.tabIndex = 0;
+		Fit.Dom.Add(dialog, focusTrapEnd);
+
 		content = createContentElement();
-		Fit.Dom.Add(dialog, content);
+		Fit.Dom.InsertAfter(focusTrapStart, content);
 
 		layer = document.createElement("div");
 		Fit.Dom.AddClass(layer, "FitUiControlDialogModalLayer");
-
-		// Keep tab navigation within modal dialog
-
-		Fit.Events.AddHandler(dialog, "keydown", function(e)
-		{
-			var ev = Fit.Events.GetEvent(e);
-			var key = Fit.Events.GetModifierKeys();
-
-			if (modal === true && buttons !== null && ev.keyCode === 9) // Tab key
-			{
-				var buttonFocused = Fit.Dom.GetFocused();
-
-				if (ev.shiftKey === false)
-				{
-					if (buttonFocused === buttons.children[buttons.children.length - 1])
-					{
-						buttons.children[0].focus();
-						Fit.Events.PreventDefault(ev);
-					}
-				}
-				else
-				{
-					if (buttonFocused === buttons.children[0])
-					{
-						buttons.children[buttons.children.length - 1].focus();
-						Fit.Events.PreventDefault(ev);
-					}
-				}
-			}
-		});
 
 		// Focus first button when clicking dialog or modal layer
 
@@ -10718,6 +12038,14 @@ Fit.Controls.Dialog = function(controlId)
 		{
 			if (me === null)
 				return; // Dialog was disposed when a button was clicked
+			
+			// Do not focus first button when a (any) button within the button area was clicked.
+			// Button clicked might have been e.g. second button, which perhaps caused dialog to remain open,
+			// in which case we should not change focus. The button clicked could also have changed focus in
+			// which case we should not intervene. In case button did not change focus, it will remain focused
+			// of course since it was clicked.
+			if (buttons !== null && Fit.Dom.Contained(buttons, Fit.Events.GetTarget(e)))
+				return;
 
 			if (buttons !== null && (Fit.Dom.GetFocused() === null || Fit.Dom.Contained(dialog, Fit.Dom.GetFocused()) === false))
 				buttons.children[0].focus();
@@ -10727,6 +12055,25 @@ Fit.Controls.Dialog = function(controlId)
 		{
 			if (buttons !== null && (Fit.Dom.GetFocused() === null || Fit.Dom.Contained(dialog, Fit.Dom.GetFocused()) === false))
 				buttons.children[0].focus();
+		});
+
+		// Keep tab navigation within modal dialog
+
+		Fit.Events.AddHandler(dialog, "keydown", function(e)
+		{
+			var ev = Fit.Events.GetEvent(e);
+
+			if (modal === true && ev.keyCode === 9) // Tab key
+			{
+				if (ev.shiftKey === true && Fit.Events.GetTarget(ev) === focusTrapStart) // Tabbing backwards
+				{
+					Fit.Events.PreventDefault(ev);
+				}
+				else if (ev.shiftKey === false && Fit.Events.GetTarget(ev) === focusTrapEnd) // Tabbing forward
+				{
+					Fit.Events.PreventDefault(ev);
+				}
+			}
 		});
 	}
 
@@ -10757,6 +12104,7 @@ Fit.Controls.Dialog = function(controlId)
 					title = null;
 
 					setContentHeight();
+					updatePosition();
 				}
 			}
 			else
@@ -10765,7 +12113,7 @@ Fit.Controls.Dialog = function(controlId)
 				{
 					title = document.createElement("div");
 					Fit.Dom.AddClass(title, "FitUiControlDialogTitle");
-					Fit.Dom.InsertAt(dialog, 0, title);
+					Fit.Dom.InsertAfter(focusTrapStart, title);
 				}
 
 				Fit.Dom.Text(title, val);
@@ -10776,6 +12124,7 @@ Fit.Controls.Dialog = function(controlId)
 				}
 
 				setContentHeight();
+				updatePosition();
 			}
 		}
 
@@ -10792,8 +12141,7 @@ Fit.Controls.Dialog = function(controlId)
 		Fit.Validation.ExpectNumber(val, true);
 		Fit.Validation.ExpectStringValue(unit, true);
 
-		// defaultValue must match width (for both modern browsers and legacy IE) in Dialog.css
-		var defaultValue = (Fit.Browser.GetInfo().Name !== "MSIE" || Fit.Browser.GetInfo().Version >= 9 ? { Value: -1, Unit: "px" } : { Value: 50, Unit: "%" });
+		var defaultValue = { Value: -1, Unit: "px" };
 
 		if (Fit.Validation.IsSet(val) === true)
 		{
@@ -10827,6 +12175,8 @@ Fit.Controls.Dialog = function(controlId)
 					dialog.style.maxWidth = "";
 				}
 			}
+
+			updatePosition();
 		}
 
 		return (width !== null ? width : defaultValue);
@@ -10857,6 +12207,8 @@ Fit.Controls.Dialog = function(controlId)
 				minWidth = null;
 				dialog.style.minWidth = (width !== null ? "0" : ""); // Apply "0" (no min-width) if width is set
 			}
+
+			updatePosition();
 		}
 
 		return (minWidth !== null ? minWidth : (width !== null ? width : defaultValue));
@@ -10887,6 +12239,8 @@ Fit.Controls.Dialog = function(controlId)
 				maxWidth = null;
 				dialog.style.maxWidth = (width !== null ? "none" : ""); // Apply "none" (no max-width) if width is set
 			}
+
+			updatePosition();
 		}
 
 		return (maxWidth !== null ? maxWidth : (width !== null ? width : defaultValue));
@@ -10919,6 +12273,7 @@ Fit.Controls.Dialog = function(controlId)
 			}
 
 			setContentHeight();
+			updatePosition();
 		}
 
 		return (height !== null ? height : defaultValue);
@@ -10951,6 +12306,7 @@ Fit.Controls.Dialog = function(controlId)
 			}
 
 			setContentHeight();
+			updatePosition();
 		}
 
 		return (minHeight !== null ? minHeight : defaultValue);
@@ -10983,6 +12339,7 @@ Fit.Controls.Dialog = function(controlId)
 			}
 
 			setContentHeight();
+			updatePosition();
 		}
 
 		return (maxHeight !== null ? maxHeight : defaultValue);
@@ -10998,6 +12355,14 @@ Fit.Controls.Dialog = function(controlId)
 
 		if (Fit.Validation.IsSet(val) === true)
 		{
+			if (val !== modal && me.IsOpen() === true)
+			{
+				if (val === true)
+					Fit.Dom.InsertBefore(dialog, layer);
+				else
+					Fit.Dom.Remove(layer);
+			}
+
 			modal = val;
 		}
 
@@ -11023,6 +12388,7 @@ Fit.Controls.Dialog = function(controlId)
 			}
 
 			setContentHeight();
+			updatePosition();
 		}
 
 		return content.innerHTML;
@@ -11179,13 +12545,16 @@ Fit.Controls.Dialog = function(controlId)
 						return;
 					}
 
-					if (disposeOnDismiss === true)
+					if (me !== null) // me is null if dialog was disposed from within OnDismiss handler
 					{
-						me.Dispose();
-					}
-					else
-					{
-						me.Close();
+						if (disposeOnDismiss === true)
+						{
+							me.Dispose();
+						}
+						else
+						{
+							me.Close();
+						}
 					}
 				});
 
@@ -11214,12 +12583,13 @@ Fit.Controls.Dialog = function(controlId)
 		{
 			buttons = document.createElement("div");
 			Fit.Dom.AddClass(buttons, "FitUiControlDialogButtons");
-			Fit.Dom.Add(dialog, buttons);
+			Fit.Dom.InsertBefore(focusTrapEnd, buttons);
 		}
 
 		Fit.Dom.Add(buttons, btn.GetDomElement());
 
 		setContentHeight();
+		updatePosition();
 	}
 
 	/// <function container="Fit.Controls.Dialog" name="RemoveButton" access="public">
@@ -11255,6 +12625,7 @@ Fit.Controls.Dialog = function(controlId)
 				}
 
 				setContentHeight();
+				updatePosition();
 
 				return false; // Break loop
 			}
@@ -11288,6 +12659,7 @@ Fit.Controls.Dialog = function(controlId)
 		buttons = null;
 
 		setContentHeight();
+		updatePosition();
 	}
 
 	/// <function container="Fit.Controls.Dialog" name="IsOpen" access="public" returns="boolean">
@@ -11303,15 +12675,43 @@ Fit.Controls.Dialog = function(controlId)
 	/// </function>
 	this.Open = function()
 	{
-		Fit.Dom.Add(document.body, dialog);
+		if (me.IsOpen() === true)
+			return;
 
 		if (modal === true)
 			Fit.Dom.Add(document.body, layer);
-		
+
+		Fit.Dom.Add(document.body, dialog);
+
 		setContentHeight();
+		updatePosition();
+
+		// Make dimensions and position adjust to dynamic content (added/removed/manipulated through DOM or Fit.Template).
+		// Notice that mutation observer will not be triggered if title is set or buttons have been added,
+		// and content is being updated using DOM, e.g. through GetContentDomElement() or an instance of
+		// Fit.Template rendered to the content DOM element.
+		// The reason for this can be found in setContentHeight() where a fixed height is being calculated,
+		// based on whether title and/or button(s) have been added, and assigned to the content element of the
+		// dialog. Therefore, in this case, changing the content of the content element through DOM (or an
+		// instance of Fit.Template) will not change the dimension of the content element, and therefore not
+		// trigger the mutation observer.
+		// The external code using the dialog must call a public function which in turn calls setContentHeight(),
+		// to have the dialog resize to its newly updated content - e.g. close and re-open the dialog, or update
+		// the title like dia.Title(dia.Title()).
+		// Making the observer monitor the entire dialog's DOM using the 'deep' flag would solve this problem in
+		// most causes, although not when dimensions change using styling (e.g. .style.height).
+		// Also, it would be more expensive, and could trigger height calculation even when not necessary, e.g.
+		// when changing a selection in a drop down control which changes the DOM.
 		mutationObserverId = Fit.Events.AddMutationObserver(dialog, function(elm)
 		{
 			setContentHeight();
+			updatePosition();
+		});
+
+		resizeHandlerId = Fit.Events.AddHandler(window, "resize", function(e)
+		{
+			setContentHeight();
+			updatePosition();
 		});
 	}
 
@@ -11323,13 +12723,39 @@ Fit.Controls.Dialog = function(controlId)
 		if (me.IsOpen() === false)
 			return;
 
-		Fit.Events.RemoveMutationObserver(mutationObserverId);
-		mutationObserverId = -1;
+		if (isClosing === true) // Guard against infinite loop if Dispose(), which calls Close(), is called from within an OnClose handler
+			return;
 
-		Fit.Dom.Remove(dialog);
+		var canceled = false;
+		isClosing = true;
 
-		if (layer !== null)
-			Fit.Dom.Remove(layer);
+		Fit.Array.ForEach(onCloseHandlers, function(cb)
+		{
+			if (cb(me) === false)
+			{
+				canceled = true;
+				return false; // Break loop
+			}
+		});
+
+		isClosing = false;
+
+		if (canceled === true)
+			return;
+
+		if (me !== null) // me is null if dialog was disposed from within an OnClose handler
+		{
+			Fit.Events.RemoveMutationObserver(mutationObserverId);
+			mutationObserverId = -1;
+
+			Fit.Events.RemoveHandler(window, resizeHandlerId);
+			resizeHandlerId = -1;
+
+			Fit.Dom.Remove(dialog);
+
+			if (layer !== null)
+				Fit.Dom.Remove(layer);
+		}
 	}
 
 	this.Render = function(toElement) // Override Render() on Fit.Controls.Component
@@ -11339,8 +12765,17 @@ Fit.Controls.Dialog = function(controlId)
 
 	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
+		me.Close(); // Closes and triggers OnClose event, but only if dialog is open
+
+		if (me === null) // me is null if dialog was disposed from within an OnClose handler
+		{
+			return;
+		}
+
 		if (layer !== null)
+		{
 			Fit.Dom.Remove(layer);
+		}
 		
 		if (cmdMaximize !== null)
 		{
@@ -11365,7 +12800,12 @@ Fit.Controls.Dialog = function(controlId)
 			Fit.Events.RemoveMutationObserver(mutationObserverId);
 		}
 
-		me = dialog = title = titleButtons = cmdMaximize = cmdDismiss = content = buttons = modal = layer = width = minWidth = maxWidth = height = minHeight = maxHeight = mutationObserverId = onDismissHandlers = null;
+		if (resizeHandlerId !== -1)
+		{
+			Fit.Events.RemoveHandler(window, resizeHandlerId);
+		}
+
+		me = dialog = title = titleButtons = cmdMaximize = cmdDismiss = content = buttons = modal = layer = width = minWidth = maxWidth = height = minHeight = maxHeight = mutationObserverId = resizeHandlerId = onDismissHandlers = onCloseHandlers = isClosing = null;
 
 		base();
 	});
@@ -11376,7 +12816,7 @@ Fit.Controls.Dialog = function(controlId)
 
 	/// <function container="Fit.Controls.Dialog" name="OnDismiss" access="public">
 	/// 	<description>
-	/// 		Add event handler fired when dialog is being dismissed (closed).
+	/// 		Add event handler fired when dialog is being dismissed by the user.
 	/// 		Action can be suppressed by returning False.
 	/// 		Function receives one argument: Sender (Fit.Controls.Dialog)
 	/// 	</description>
@@ -11386,6 +12826,22 @@ Fit.Controls.Dialog = function(controlId)
 	{
 		Fit.Validation.ExpectFunction(cb);
 		Fit.Array.Add(onDismissHandlers, cb);
+	}
+
+	/// <function container="Fit.Controls.Dialog" name="OnClose" access="public">
+	/// 	<description>
+	/// 		Add event handler fired when dialog is closed or dismissed.
+	/// 		Use this event to react to dialog being closed, no matter
+	/// 		the cause. Use OnDismiss event to detect when user closed it.
+	/// 		Action can be suppressed by returning False.
+	/// 		Function receives one argument: Sender (Fit.Controls.Dialog)
+	/// 	</description>
+	/// 	<param name="cb" type="function"> Event handler function </param>
+	/// </function>
+	this.OnClose = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onCloseHandlers, cb);
 	}
 
 	// ============================================
@@ -11407,8 +12863,8 @@ Fit.Controls.Dialog = function(controlId)
 		// By default the Dialog component adjusts its height to the content.
 		// But if Height/MinimumHeight/MaximumHeight is set, or dialog is maximized,
 		// then make sure to adjust the height of the content element if title/buttons
-		// are added. If no title/buttons are added, the content element simply adjusts
-		// to the height of the dialog since it has height:100%.
+		// have been added. If no title/buttons are added, the content element simply
+		// adjusts to the height of the dialog.
 
 		content.style.height = "";
 
@@ -11420,6 +12876,43 @@ Fit.Controls.Dialog = function(controlId)
 
 			content.style.height = (dh - th - bh) + "px";
 		}
+	}
+
+	function updatePosition()
+	{
+		if (me.IsOpen() === false)
+			return;
+
+		var elm = me.GetDomElement();
+
+		// Updating the position may actually cause content to change dimensions,
+		// which in turn triggers the Mutation Observer registered to monitor the
+		// dialog element, which in turn triggers updatePosition() again.
+		// So this may result in dialog bouncing around a few times, especially when
+		// using tables with dynamic cell widths within the content area.
+		// The reason for this is because when the dialog is pushed to the right side
+		// of the viewport (when centered), it may be sqeezed if sufficient space is not
+		// available for the content, which may happen when the dialog is configured to scale
+		// with the content (default behaviour when no dimensions are set). This results in
+		// the Mutation Observer being triggered which in turn causes updatePosition()
+		// to be called again.
+		// Resetting the position reduces the risk of this happening since it allows
+		// for the content of the dialog to consume the space it needs, without
+		// causing resizing of the content once the dialog is positioned further down.
+		elm.style.left = "0px";
+		elm.style.top = "0px";
+		
+		var dim = Fit.Browser.GetViewPortDimensions();
+		var offsetLeft = Math.floor((dim.Width / 2) - (elm.offsetWidth / 2));	// Center horizontally - place center of dialog 1/2 (50%) from the left
+		var offsetTop = Math.floor((dim.Height / 3) - (elm.offsetHeight / 2));	// Place center of dialog 1/3 (33%) from the top
+
+		if (offsetTop < 0)
+			offsetTop = 0;
+		if (offsetLeft < 0)
+			offsetLeft = 0;
+
+		elm.style.left = offsetLeft + "px";
+		elm.style.top = offsetTop + "px";
 	}
 
 	function updateTitleButtons()
@@ -11469,17 +12962,40 @@ Fit.Controls.Dialog._internal.BaseDialog = function(content, showCancel, cb)
 	Fit.Validation.ExpectBoolean(showCancel);
 	Fit.Validation.ExpectFunction(cb, true);
 
+	// Create dialog
+
 	var d = new Fit.Controls.Dialog();
 	d.Content(content.replace(/\n/g, "<br>"));
 	d.Modal(true);
 	Fit.Dom.AddClass(d.GetDomElement(), "FitUiControlDialogBase");
 
-	var cmdOk = new Fit.Controls.Button(Fit.Data.CreateGuid());
-	cmdOk.Title(Fit.Language.Translations.Ok);
+	// Declare buttons
+
+	var cmdOk = new Fit.Controls.Button();
+	var cmdCancel = null;
+
+	// Localization
+
+	var localize = function()
+	{
+		var locale = Fit.Internationalization.GetLocale(d);
+		
+		cmdOk.Title(locale.Ok);
+
+		if (cmdCancel !== null)
+			cmdCancel.Title(locale.Cancel);
+	};
+
+	Fit.Internationalization.OnLocaleChanged(localize);
+
+	// Configure and add buttons
+
 	cmdOk.Icon("check");
 	cmdOk.Type(Fit.Controls.ButtonType.Success);
 	cmdOk.OnClick(function(sender)
 	{
+		Fit.Internationalization.RemoveOnLocaleChanged(localize);
+
 		d.Dispose();
 
 		if (Fit.Validation.IsSet(cb) === true)
@@ -11489,12 +13005,13 @@ Fit.Controls.Dialog._internal.BaseDialog = function(content, showCancel, cb)
 
 	if (showCancel === true)
 	{
-		var cmdCancel = new Fit.Controls.Button(Fit.Data.CreateGuid());
-		cmdCancel.Title(Fit.Language.Translations.Cancel);
+		cmdCancel = new Fit.Controls.Button();
 		cmdCancel.Icon("ban");
 		cmdCancel.Type(Fit.Controls.ButtonType.Danger);
 		cmdCancel.OnClick(function(sender)
 		{
+			Fit.Internationalization.RemoveOnLocaleChanged(localize);
+
 			d.Dispose();
 
 			if (Fit.Validation.IsSet(cb) === true)
@@ -11503,10 +13020,11 @@ Fit.Controls.Dialog._internal.BaseDialog = function(content, showCancel, cb)
 		d.AddButton(cmdCancel);
 	}
 
-	d.Open();
-	cmdOk.Focused(true);
+	localize();
 
-	return d;
+	// Open dialog
+
+	return { Dialog: d, ConfirmButton: cmdOk, CancelButton: cmdCancel }; // NOTICE: CancelButton might be null !
 }
 
 /// <function container="Fit.Controls.Dialog" name="Alert" access="public" static="true">
@@ -11519,11 +13037,13 @@ Fit.Controls.Dialog.Alert = function(content, cb)
 	Fit.Validation.ExpectString(content);
 	Fit.Validation.ExpectFunction(cb, true);
 
-	Fit.Controls.Dialog._internal.BaseDialog(content, false, function(res)
+	var baseDialog = Fit.Controls.Dialog._internal.BaseDialog(content, false, function(res)
 	{
 		if (Fit.Validation.IsSet(cb) === true)
 			cb();
 	});
+	baseDialog.Dialog.Open();
+	baseDialog.ConfirmButton.Focused(true);
 }
 
 /// <function container="Fit.Controls.Dialog" name="Confirm" access="public" static="true">
@@ -11539,7 +13059,9 @@ Fit.Controls.Dialog.Confirm = function(content, cb)
 	Fit.Validation.ExpectString(content);
 	Fit.Validation.ExpectFunction(cb);
 
-	Fit.Controls.Dialog._internal.BaseDialog(content, true, cb);
+	var baseDialog = Fit.Controls.Dialog._internal.BaseDialog(content, true, cb);
+	baseDialog.Dialog.Open();
+	baseDialog.ConfirmButton.Focused(true);
 }
 
 /// <function container="Fit.Controls.Dialog" name="Prompt" access="public" static="true">
@@ -11561,7 +13083,7 @@ Fit.Controls.Dialog.Prompt = function(content, defaultValue, cb)
 	txt.Width(100, "%");
 	txt.Value(defaultValue);
 
-	var dia = Fit.Controls.Dialog._internal.BaseDialog(content + "<br><br>", true, function(res)
+	var baseDialog = Fit.Controls.Dialog._internal.BaseDialog(content + "<br><br>", true, function(res)
 	{
 		// Notice: Dialog is disposed at this point!
 		
@@ -11578,9 +13100,48 @@ Fit.Controls.Dialog.Prompt = function(content, defaultValue, cb)
 		}
 	});
 
-	Fit.Dom.Add(dia.GetContentDomElement(), txt.GetDomElement());
+	Fit.Events.AddHandler(baseDialog.Dialog.GetDomElement(), "keydown", function(e)
+	{
+		if (e.keyCode === 13 && txt.Focused() === true) // ENTER
+		{
+			baseDialog.ConfirmButton.Click();
+		}
+		else if (e.keyCode === 27) // ESC
+		{
+			baseDialog.CancelButton.Click();
+		}
+	});
+
+	Fit.Dom.Add(baseDialog.Dialog.GetContentDomElement(), txt.GetDomElement());
+
+	baseDialog.Dialog.Open();
 	txt.Focused(true);
 }
+
+Fit.Internationalization.AddLocalization(Fit.Controls.Dialog,
+{
+	// Primary locales must be registered before country specific overrides.
+	// Example order: en, en_US, en_GB, de, de_AT, etc.
+	// All locales inherit from en. All country specific overrides inherit
+	// from their general locale (e.g. de_AT inherits from de).
+	// English (en) MUST be defined, and be defined first!
+
+	"en":
+	{
+		"Ok": "OK",
+		"Cancel": "Cancel"
+	},
+	"da":
+	{
+		"Ok": "OK",
+		"Cancel": "Annuller"
+	},
+	"de":
+	{
+		"Ok" : "OK",
+		"Cancel" : "Abbrechen"
+	}
+});
 /// <container name="Fit.Controls.DropDown" extends="Fit.Controls.ControlBase">
 /// 	Drop Down Menu control allowing for single and multi selection.
 /// 	Supports data selection using any control extending from Fit.Controls.PickerBase.
@@ -11598,6 +13159,9 @@ Fit.Controls.DropDown = function(ctlId)
 
 	var me = this;								// Access to members from event handlers (where "this" may have a different meaning)
 	var itemContainer = null;					// Container for selected items and input fields
+	var itemCollection = {};					// Indexed collection for selected items (for fast lookup)
+	var itemCollectionOrdered = [];				// Ordered item collection (item order can be changed using drag and drop)
+	var itemDropZones = {};						// Indexed collection of dropzones used to enable item dragging/dropping
 	var arrow = null;							// Arrow button used to open/close drop down menu
 	var hidden = null;							// Area used to hide DOM elements (e.g span used to calculate width of input fields)
 	var spanFitWidth = null;					// Span element used to calculate text width - used to dynamically control width of input fields
@@ -11609,6 +13173,7 @@ Fit.Controls.DropDown = function(ctlId)
 	var picker = null;							// Picker control within drop down menu
 	var orgSelections = [];						// Original selection set using Value(..) function - used to determine whether control is dirty
 	var invalidMessage = "Invalid selection";	// Mouse over text for invalid selections
+	var invalidMessageChanged = false;			// Flag indicating whether built-in Invalid Selection Message has been overridden or not
 	var initialFocus = true;					// Flag indicating first focus of control
 	var maxHeight = { Value: 150, Unit: "px"};	// Picker max height (px)
 	var prevValue = "";							// Previous input value - used to determine whether OnChange should be fired
@@ -11621,19 +13186,33 @@ Fit.Controls.DropDown = function(ctlId)
 	var dropZone = null;						// Active DropZone (drag and drop support)
 	var isMobile = false;						// Flag indicating whether control is running on a mobile (touch) device
 	var focusInputOnMobile = false;				// Flag indicating whether control should focus input after removing an item or selecting a new item from the picker control
+	var detectBoundaries = false;				// Flag indicating whether drop down menu should detect viewport collision and open upwards when needed
 
 	var onInputChangedHandlers = [];			// Invoked when input value is changed - takes two arguments (sender (this), text value)
 	var onPasteHandlers = [];					// Invoked when a value is pasted - takes two arguments (sender (this), text value)
 	var onOpenHandlers = [];					// Invoked when drop down is opened - takes one argument (sender (this))
 	var onCloseHandlers = [];					// Invoked when drop down is closed - takes one argument (sender (this))
-	
+
+	// Picker - suppress events
+	var suppressUpdateItemSelectionState = false;
+	var suppressOnItemSelectionChanged = false;
+
+	// Text selection mode
+	var clearTextSelectionOnInputChange = false;
+	var prevTextSelection = null;
+	var textSelectionCallback = null;
+	var cmdToggleTextMode = null;
+
 	function init()
 	{
-		invalidMessage = Fit.Language.Translations.InvalidSelection;
+		Fit.Internationalization.OnLocaleChanged(localize);
+		localize();
 
 		// Initial settings
 
 		me._internal.Data("multiselect", "false");
+		me._internal.Data("selectionmode", "visual");
+		me._internal.Data("selectionmodetoggle", "false");
 
 		if (Fit.Browser.GetInfo().IsMobile === true)
 			isMobile = true;
@@ -11649,12 +13228,14 @@ Fit.Controls.DropDown = function(ctlId)
 		{
 			itemContainer.tabIndex = -1; // Remove tabindex to prevent element from interfering with tab flow
 		}
-		itemContainer.onclick = function(e)
+		itemContainer.onclick = function(e) // Not triggered when user clicks arrow button - it has its own logic and suppresses event propagation
 		{
-			if (Fit.Events.GetTarget(e) === itemContainer) // Could be triggered by a click on the arrow button which propagates
-			{
-				focusInputOnMobile = true;
+			var target = Fit.Events.GetTarget(e);
 
+			focusInputOnMobile = true;
+
+			if (target.tagName !== "INPUT") // Focus input unless already focused (if input was clicked)
+			{
 				focusAssigned = true; // Clicking the item container causes blur to fire for input fields in drop down which changes focusAssigned to false - it must be true for focusInput(..) to assign focus
 				focusInput(((partiallyHidden !== null) ? partiallyHidden.previousSibling : txtPrimary));
 			}
@@ -11698,13 +13279,18 @@ Fit.Controls.DropDown = function(ctlId)
 			if (me.IsDropDownOpen() === true)
 			{
 				me.CloseDropDown();
-				Fit.Events.StopPropagation(e); // Prevent drop down from opening again
 
 				if (isMobile === true)
 				{
 					me.Focused(false); // Force control to lose focus when closed on mobile, to have the OnBlur event fire
 				}
 			}
+			else // DropDown is closed - open it
+			{
+				me.OpenDropDown();
+			}
+
+			Fit.Events.StopPropagation(e); // Prevent event from reaching itemContainer.onclick which opens DropDown
 		}
 
 		// Create primary search textbox
@@ -11807,6 +13393,63 @@ Fit.Controls.DropDown = function(ctlId)
 				return Fit.Events.PreventDefault(e);
 		});
 
+		// Text selection mode
+
+		me.OnFocus(function()
+		{
+			if (me.TextSelectionMode() === true)
+			{
+				if (Fit.Browser.GetBrowser() === "MSIE" || Fit.Browser.GetBrowser() === "Edge")
+				{
+					txtPrimary.readOnly = false; // ReadOnly set to true to make text-overflow:ellipsis work
+					setTimeout(function() { txtPrimary.blur(); txtPrimary.focus(); }, 0); // Change to ReadOnly is not applied immediately unless blurred and re-focused
+				}
+
+				clearTextSelectionOnInputChange = true;
+
+				//me.OpenDropDown(); // DISABLED - will also open control when gaining focus from tab navigation
+			}
+		});
+
+		me.OnChange(function()
+		{
+			if (me.TextSelectionMode() === true)
+			{
+				updateTextSelection();
+			}
+		});
+
+		me.OnBlur(function()
+		{
+			if (me.TextSelectionMode() === true)
+			{
+				updateTextSelection(); // Update when blurred in case user have entered a value
+
+				if (Fit.Browser.GetBrowser() === "MSIE" || Fit.Browser.GetBrowser() === "Edge")
+				{
+					txtPrimary.readOnly = true; // ReadOnly set to true to make text-overflow:ellipsis work
+				}
+			}
+		});
+
+		// PickerBase - make picker aware of focused state of host control
+
+		me.OnFocus(function()
+		{
+			if (picker !== null)
+			{
+				picker._internal.ReportFocused(true);
+			}
+		});
+
+		me.OnBlur(function()
+		{
+			if (picker !== null)
+			{
+				picker._internal.ReportFocused(false);
+			}
+		});
+
 		// Append elements to the DOM
 
 		Fit.Dom.Add(hidden, spanFitWidth);
@@ -11836,12 +13479,9 @@ Fit.Controls.DropDown = function(ctlId)
 		if (Fit.Validation.IsSet(msg) === true)
 		{
 			invalidMessage = msg;
+			invalidMessageChanged = true; // Make sure message is not changed if locale is changed on page
 
-			Fit.Array.ForEach(getSelectionElements(), function(selection)
-			{
-				if (Fit.Dom.HasClass(selection, "FitUiControlDropDownInvalid") === true)
-					Fit.Dom.Attribute(selection, "title", invalidMessage);
-			});
+			updateInvalidMessageForSelectedItems();
 		}
 
 		return invalidMessage;
@@ -11944,12 +13584,12 @@ Fit.Controls.DropDown = function(ctlId)
 		{
 			if (value !== -1)
 			{
-				dropDownMenu.style.width = "auto"; // Adjust width to content
+				dropDownMenu.style.width = "auto"; // Adjust width to content - notice that optimizeDropDownPosition(..) and resetDropDownPosition() also manipulate the width property!
 				dropDownMenu.style.maxWidth = value + ((Fit.Validation.IsSet(unit) === true) ? unit : "px");
 			}
 			else
 			{
-				dropDownMenu.style.width = "";
+				dropDownMenu.style.width = (me.DetectBoundaries() === true ? dropDownMenu.style.width : ""); // Preserve width value if DetectBoundaries is enabled since it also modifies this property
 				dropDownMenu.style.maxWidth = "";
 			}
 		}
@@ -11977,7 +13617,7 @@ Fit.Controls.DropDown = function(ctlId)
 		if (Fit.Validation.IsSet(val) === true)
 		{
 			orgSelections = [];
-			var fireChange = (getSelectionElements().length > 0 || val !== ""); // Fire OnChange if current selections are cleared, and/or if new selections are set
+			var fireChange = (itemCollectionOrdered.length > 0 || val !== ""); // Fire OnChange if current selections are cleared, and/or if new selections are set
 
 			me._internal.ExecuteWithNoOnChange(function()
 			{
@@ -12070,6 +13710,8 @@ Fit.Controls.DropDown = function(ctlId)
 			Fit._internal.DropDown.Current = null;
 		}
 
+		Fit.Internationalization.RemoveOnLocaleChanged(localize);
+
 		if (widthObserverId !== -1)
 		{
 			Fit.Events.RemoveMutationObserver(widthObserverId);
@@ -12085,12 +13727,128 @@ Fit.Controls.DropDown = function(ctlId)
 			Fit.Events.RemoveHandler(document, eventId);
 		});
 
-		me = itemContainer = arrow = hidden = spanFitWidth = txtPrimary = txtCssWidth = txtActive = txtEnabled = dropDownMenu = picker = orgSelections = invalidMessage = initialFocus = maxHeight = prevValue = focusAssigned = visibilityObserverId = widthObserverId = tabOrderObserverId = partiallyHidden = closeHandlers = dropZone = isMobile = focusInputOnMobile = onInputChangedHandlers = onPasteHandlers = onOpenHandlers = onCloseHandlers = null;
+		Fit.Array.ForEach(itemDropZones, function(key)
+		{
+			itemDropZones[key].Dispose();
+		});
+
+		me = itemContainer = itemCollection = itemDropZones = arrow = hidden = spanFitWidth = txtPrimary = txtCssWidth = txtActive = txtEnabled = dropDownMenu = picker = orgSelections = invalidMessage = invalidMessageChanged = initialFocus = maxHeight = prevValue = focusAssigned = visibilityObserverId = widthObserverId = tabOrderObserverId = partiallyHidden = closeHandlers = dropZone = isMobile = focusInputOnMobile = detectBoundaries = onInputChangedHandlers = onPasteHandlers = onOpenHandlers = onCloseHandlers = suppressUpdateItemSelectionState = suppressOnItemSelectionChanged = clearTextSelectionOnInputChange = prevTextSelection = textSelectionCallback = cmdToggleTextMode = null;
 
 		base();
 	});
 
 	// Misc. options
+
+	/// <function container="Fit.Controls.DropDown" name="TextSelectionMode" access="public" returns="boolean">
+	/// 	<description>
+	/// 		Get/set flag indicating whether to use Text Selection Mode (true) or Visual Selection Mode (false).
+	/// 		Visual Selection Mode is the default way selected items are displayed, but it may result in control
+	/// 		changing dimensions as items are added/removed. Text Selection Mode prevents this and gives the
+	/// 		user a traditional DropDown control instead.
+	/// 	</description>
+	/// 	<param name="val" type="boolean" default="undefined"> If defined, True enables Text Selection Mode, False disables it (Visual Selection Mode) </param>
+	/// 	<param name="cb" type="function" default="undefined">
+	/// 		If defined, function will be called with DropDown being passed as an argument when selection text
+	/// 		needs to be updated. Function is expected to return a string representation of the selected items.
+	/// 	</param>
+	/// </function>
+	this.TextSelectionMode = function(val, cb)
+	{
+		Fit.Validation.ExpectBoolean(val, true);
+		Fit.Validation.ExpectFunction(cb, true);
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (val === true && me.TextSelectionMode() === false)
+			{
+				textSelectionCallback = (cb ? cb : null);
+
+				updateTextSelection();
+
+				if (me.Focused() === false && (Fit.Browser.GetBrowser() === "MSIE" || Fit.Browser.GetBrowser() === "Edge"))
+				{
+					txtPrimary.readOnly = true; // Necessary to make text-overflow:ellipsis work in IE and Edge - disabled in OnFocus handler
+				}
+			}
+			else if (val === false && me.TextSelectionMode() === true)
+			{
+				if (txtPrimary.value === prevTextSelection)
+				{
+					txtPrimary.value = "";
+				}
+				else
+				{
+					// User has changed value - clear and fire OnInputChanged.
+					// This only happens if Text Selection Mode is being disabled
+					// while control has focus and user have entered a value,
+					// since selection text is always updated when control lose focus.
+					me.ClearInput();
+				}
+
+				clearTextSelectionOnInputChange = false;
+				prevTextSelection = null;
+				textSelectionCallback = null;
+
+				if (Fit.Browser.GetBrowser() === "MSIE" || Fit.Browser.GetBrowser() === "Edge")
+				{
+					txtPrimary.readOnly = false;
+				}
+			}
+
+			me._internal.Data("selectionmode", (val === true ? "text" : "visual"));
+
+			if (cmdToggleTextMode !== null)
+			{
+				if (val === true)
+				{
+					Fit.Dom.RemoveClass(cmdToggleTextMode, "fa-compress");
+					Fit.Dom.AddClass(cmdToggleTextMode, "fa-expand");
+				}
+				else
+				{
+					{
+						Fit.Dom.RemoveClass(cmdToggleTextMode, "fa-expand");
+						Fit.Dom.AddClass(cmdToggleTextMode, "fa-compress");
+					}
+				}
+			}
+		}
+
+		return (me._internal.Data("selectionmode") === "text");
+	}
+
+	/// <function container="Fit.Controls.DropDown" name="SelectionModeToggle" access="public" returns="boolean">
+	/// 	<description> Get/set value indicating whether control allow user to toggle Selection Mode (Visual or Text) </description>
+	/// 	<param name="val" type="boolean" default="undefined"> If defined, True enables toggle button, False disables it </param>
+	/// </function>
+	this.SelectionModeToggle = function(val)
+	{
+		Fit.Validation.ExpectBoolean(val, true);
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (val === true && cmdToggleTextMode === null)
+			{
+				cmdToggleTextMode = document.createElement("span");
+				cmdToggleTextMode.onclick = function()
+				{
+					me.TextSelectionMode(!me.TextSelectionMode());
+				}
+				Fit.Dom.AddClass(cmdToggleTextMode, "fa");
+				Fit.Dom.AddClass(cmdToggleTextMode, me.TextSelectionMode() === true ? "fa-expand" : "fa-compress");
+				me._internal.AddDomElement(cmdToggleTextMode);
+				me._internal.Data("selectionmodetoggle", "true");
+			}
+			else if (val === false && cmdToggleTextMode !== null)
+			{
+				me._internal.RemoveDomElement(cmdToggleTextMode);
+				cmdToggleTextMode = null;
+				me._internal.Data("selectionmodetoggle", "false");
+			}
+		}
+
+		return (cmdToggleTextMode !== null);
+	}
 
 	/// <function container="Fit.Controls.DropDown" name="MultiSelectionMode" access="public" returns="boolean">
 	/// 	<description> Get/set flag indicating whether control allows for multiple selections </description>
@@ -12112,9 +13870,6 @@ Fit.Controls.DropDown = function(ctlId)
 
 	// Controlling selections
 
-	var suppressUpdateItemSelectionState = false;
-	var suppressOnItemSelectionChanged = false;
-
 	/// <function container="Fit.Controls.DropDown" name="GetPicker" access="public" returns="Fit.Controls.PickerBase">
 	/// 	<description> Get picker control used to add items to drop down control </description>
 	/// </function>
@@ -12131,6 +13886,9 @@ Fit.Controls.DropDown = function(ctlId)
 	{
 		Fit.Validation.ExpectInstance(pickerControl, Fit.Controls.PickerBase, true);
 
+		if (pickerControl === picker)
+			return; // Already active picker
+
 		// Remove existing picker
 
 		if (picker !== null)
@@ -12145,6 +13903,7 @@ Fit.Controls.DropDown = function(ctlId)
 		}
 
 		pickerControl._internal.InitializePicker();
+		pickerControl._internal.ReportFocused(me.Focused());
 
 		picker = pickerControl;
 		Fit.Dom.Add(dropDownMenu, picker.GetDomElement());
@@ -12158,6 +13917,7 @@ Fit.Controls.DropDown = function(ctlId)
 		// Set picker MaxHeight
 
 		picker.MaxHeight(maxHeight.Value, maxHeight.Unit);
+		optimizeDropDownPosition(); // In case dropdown is already open and SetPicker was called async, e.g. initiated from OnOpen event. Function may change MaxHeight on Picker.
 
 		// Make sure OnItemSelectionChanged is only registered once
 
@@ -12217,11 +13977,12 @@ Fit.Controls.DropDown = function(ctlId)
 					txt = txtPrimary;
 			}
 
-			if (isMobile === false || focusInputOnMobile === true)
-			{
-				focusAssigned = true; // Clicking the picker causes blur to fire for input fields in drop down which changes focusAssigned to false - it must be true for focusInput(..) to assign focus
-				focusInput(((txt !== null) ? txt : txtActive));
-			}
+			// DISABLED: Now handled using picker.OnFocus(..) handler further down - see https://github.com/Jemt/Fit.UI/issues/86 for details
+			// if (eventArgs.ProgrammaticallyChanged === false && (isMobile === false || focusInputOnMobile === true))
+			// {
+			// 	focusAssigned = true; // Clicking the picker causes blur to fire for input fields in drop down which changes focusAssigned to false - it must be true for focusInput(..) to assign focus
+			// 	focusInput(((txt !== null) ? txt : txtActive));
+			// }
 
 			suppressUpdateItemSelectionState = false;
 		});
@@ -12238,6 +13999,16 @@ Fit.Controls.DropDown = function(ctlId)
 			{
 				me._internal.FireOnChange();
 				fireChangeEvent = false;
+			}
+		});
+
+		picker.OnFocusIn(function(sender)
+		{
+			if (isMobile === false || focusInputOnMobile === true)
+			{
+				// Steal back focus - DropDown should remain the focused control
+				focusAssigned = true; // Clicking the picker causes blur to fire for input fields in drop down which changes focusAssigned to false - it must be true for focusInput(..) to assign focus
+				focusInput(txtActive);
 			}
 		});
 	}
@@ -12286,7 +14057,7 @@ Fit.Controls.DropDown = function(ctlId)
 
 			try // Make sure we can set suppressOnItemSelectionChanged false again, so drop down remains in a functioning state
 			{
-				res = picker.UpdateItemSelection(value, true);
+				res = picker.UpdateItemSelection(value, true, me.Focused() === false);
 			}
 			catch (err) { error = err; }
 
@@ -12321,7 +14092,7 @@ Fit.Controls.DropDown = function(ctlId)
 			if (error !== null)
 				Fit.Validation.ThrowError(error);
 
-			if (getSelectionElements().length > 0) // A picker prevented selected item from being removed
+			if (itemCollectionOrdered.length > 0) // A picker prevented selected item from being removed
 				return;
 		}
 
@@ -12393,11 +14164,12 @@ Fit.Controls.DropDown = function(ctlId)
 		{
 			container.tabIndex = -1; // Remove tabindex to prevent element from interfering with tab flow
 		}
-		container.onclick = function(e)
+		/*container.onclick = function(e)
 		{
+			focusInputOnMobile = true;
 			focusAssigned = true;
 			focusInput(((partiallyHidden !== null) ? partiallyHidden.previousSibling : txtPrimary)); //focusInput(txtPrimary);
-		}
+		}*/
 
 		// Input fields (left and right)
 		var searchLeft = createSearchField();
@@ -12415,7 +14187,8 @@ Fit.Controls.DropDown = function(ctlId)
 		}
 
 		// Add title and delete button to title box
-		Fit.Dom.Add(item, document.createTextNode(Fit.String.StripHtml(title)));
+		var titleWithoutHtml = Fit.String.StripHtml(title);
+		Fit.Dom.Add(item, document.createTextNode(titleWithoutHtml));
 		Fit.Dom.Add(item, cmdDelete);
 
 		// Add elements to item container
@@ -12436,9 +14209,16 @@ Fit.Controls.DropDown = function(ctlId)
 
 		itemContainer.insertBefore(container, before);
 
+		var itemObject = createItemObject(titleWithoutHtml, value, valid !== false, item); //convertItemElementToItemObject(item);
+		itemCollection[itemObject.Value] = itemObject;
+		itemCollectionOrdered.push(itemObject);
+
 		// Clear input control value
 
-		me.ClearInput();
+		if (me.TextSelectionMode() === false)
+		{
+			me.ClearInput();
+		}
 
 		// Optimize tab order
 
@@ -12480,6 +14260,7 @@ Fit.Controls.DropDown = function(ctlId)
 		drp.OnDrop(onDrop);
 		drp.OnEnter(onDropZoneEnter);
 		drp.OnLeave(onDropZoneLeave);
+		itemDropZones[value] = drp; // Keep reference so we can dispose it when item is removed
 
 		// Focus input control
 
@@ -12519,18 +14300,16 @@ Fit.Controls.DropDown = function(ctlId)
 	{
 		Fit.Validation.ExpectBoolean(includeInvalid, true);
 
-		var selections = Fit.Array.ToArray(itemContainer.children); // Convert NodeList to JS Array, since RemoveAt takes an instance of Array
-
-		// Remove two last elements from array which are not selections (primary input field and arrow button)
-		Fit.Array.RemoveAt(selections, selections.length - 1);
-		Fit.Array.RemoveAt(selections, selections.length - 1);
-
 		var toReturn = [];
-		Fit.Array.ForEach(selections, function(selection)
+
+		Fit.Array.ForEach(itemCollectionOrdered, function(selection)
 		{
-			if (includeInvalid === true || Fit.Dom.HasClass(selection.children[1], "FitUiControlDropDownInvalid") === false)
-				Fit.Array.Add(toReturn, { Title: Fit.Dom.Text(selection.children[1]), Value: decode(Fit.Dom.Data(selection.children[1], "value")), Valid: !Fit.Dom.HasClass(selection.children[1], "FitUiControlDropDownInvalid") });
+			if (includeInvalid === true || selection.Valid === true)
+			{
+				Fit.Array.Add(toReturn, { Title: selection.Title, Value: selection.Value, Valid: selection.Valid });
+			}
 		});
+
 		return toReturn;
 	}
 
@@ -12542,16 +14321,14 @@ Fit.Controls.DropDown = function(ctlId)
 	{
 		Fit.Validation.ExpectString(val);
 
-		var found = null;
-		Fit.Array.ForEach(me.GetSelections(), function(selection)
+		var selection = itemCollection[val] || null;
+
+		if (selection !== null)
 		{
-			if (selection.Value === val)
-			{
-				found = selection;
-				return false; // Break loop
-			}
-		});
-		return found;
+			return { Title: selection.Title, Value: selection.Value, Valid: selection.Valid };
+		}
+
+		return null;
 	}
 
 	/// <function container="Fit.Controls.DropDown" name="ClearSelections" access="public">
@@ -12564,7 +14341,7 @@ Fit.Controls.DropDown = function(ctlId)
 
 		me._internal.ExecuteWithNoOnChange(function() // picker.UpdateItemSelection results in OnChange being fired
 		{
-			Fit.Array.ForEach(getSelectionElements(), function(selection)
+			Fit.Array.ForEach(itemCollectionOrdered, function(selection)
 			{
 				if (picker !== null)
 				{
@@ -12581,7 +14358,7 @@ Fit.Controls.DropDown = function(ctlId)
 
 					try // Make sure we can set suppressOnItemSelectionChanged false again, so drop down remains in a functioning state
 					{
-						var res = picker.UpdateItemSelection(decode(Fit.Dom.Data(selection, "value")), false); // OnItemSelectionChanging and OnItemSelectionChanged are fired if picker recognizes item, causing it to be removed in drop down's OnItemSelectionChanged handler (unless canceled, in which case False is returned)
+						var res = picker.UpdateItemSelection(selection.Value, false, me.Focused() === false); // OnItemSelectionChanging and OnItemSelectionChanged are fired if picker recognizes item, causing it to be removed in drop down's OnItemSelectionChanged handler (unless canceled, in which case False is returned)
 					}
 					catch (err) { error = err; }
 
@@ -12590,14 +14367,14 @@ Fit.Controls.DropDown = function(ctlId)
 					if (error !== null)
 						Fit.Validation.ThrowError(error);
 
-					if (res !== false && selection.parentElement.parentElement !== null)
+					if (res !== false && selection.DomElement.parentElement.parentElement !== null)
 					{
 						// Element was not removed (still rooted in DOM), because picker did not recognize
 						// it (did not fire OnItemSelectionChanged) which would otherwise have triggered Drop
 						// Down's OnItemSelectionChanged handler, which in turn would have called RemoveSelection.
 						// And we know it did not cancel change since picker.UpdateItemSelection did not return False.
 						// It is fine to remove item.
-						Fit.Dom.Remove(selection.parentElement);
+						Fit.Dom.Remove(selection.DomElement.parentElement);
 					}
 
 					if (res !== false)
@@ -12605,10 +14382,19 @@ Fit.Controls.DropDown = function(ctlId)
 				}
 				else
 				{
-					Fit.Dom.Remove(selection.parentElement);
+					Fit.Dom.Remove(selection.DomElement.parentElement);
 					fireEvent = true;
 				}
 			});
+
+			Fit.Array.ForEach(itemDropZones, function(key)
+			{
+				itemDropZones[key].Dispose();
+			});
+
+			itemCollection = {};
+			itemCollectionOrdered = [];
+			itemDropZones = {};
 		});
 
 		focusAssigned = wasFocused;
@@ -12651,7 +14437,7 @@ Fit.Controls.DropDown = function(ctlId)
 
 			try // Make sure we can set suppressOnItemSelectionChanged false again, so drop down remains in a functioning state
 			{
-				res = picker.UpdateItemSelection(value, false);
+				res = picker.UpdateItemSelection(value, false, me.Focused() === false);
 			}
 			catch (err) { error = err; }
 
@@ -12667,27 +14453,39 @@ Fit.Controls.DropDown = function(ctlId)
 		var found = null;
 		var txt = null;
 
-		Fit.Array.ForEach(getSelectionElements(), function(selection)
-		{
-			if (decode(Fit.Dom.Data(selection, "value")) === value)
-			{
-				if (me.MultiSelectionMode() === true && selection.parentElement.nextSibling !== null && selection.parentElement.nextSibling !== txtPrimary)
-					txt = selection.parentElement.nextSibling.children[0];
+		var itemObject = itemCollection[value] || null;
 
-				found = selection.parentElement;
-				return false;
-			}
-		});
-
-		if (found === null)
+		if (itemObject === null)
 			return;
 
-		if (me.MultiSelectionMode() === false)
-			focusInput(txtPrimary);
-		else
-			focusInput(((txt !== null) ? txt : txtPrimary));
+		if (me.MultiSelectionMode() === true && itemObject.DomElement.parentElement.nextSibling !== null && itemObject.DomElement.parentElement.nextSibling !== txtPrimary)
+			txt = itemObject.DomElement.parentElement.nextSibling.children[0];
+
+		found = itemObject.DomElement.parentElement;
+
+		if (me.TextSelectionMode() === false)
+		{
+			// Do not assign focus in TextSelectionMode - only txtPrimary is visible,
+			// and while modern browsers will just ignore focus assignment for hidden
+			// inputs and keep focus where it is, IE8 will throw an error in a modal
+			// alert dialog with the following message:
+			// "ThrowError: Can't move focus to the control because it is invisible, not enabled, or of a type that does not accept the focus."
+			// Focus is changed internally in DropDown when de-selecting items, in which case
+			// one of the inputs belonging to one of the remaining hidden items will be assigned
+			// focus and trigger the error because it is hidden.
+
+			if (me.MultiSelectionMode() === false)
+				focusInput(txtPrimary);
+			else
+				focusInput(((txt !== null) ? txt : txtPrimary)); // Place focus in front of item to the right of removed element
+		}
 
 		Fit.Dom.Remove(found);
+		Fit.Array.Remove(itemCollectionOrdered, itemObject);
+		delete itemCollection[value];
+
+		itemDropZones[value].Dispose();
+		delete itemDropZones[value];
 
 		if (me.MultiSelectionMode() === false)
 		{
@@ -12695,11 +14493,59 @@ Fit.Controls.DropDown = function(ctlId)
 		}
 		else
 		{
-			if (getSelectionElements().length === 0)
+			if (itemCollectionOrdered.length === 0)
 				optimizeTabOrder(); // Make sure txtPrimary can receive focus using Tab or Shift+Tab
 		}
 
 		fireOnChange();
+	}
+
+	/// <function container="Fit.Controls.DropDown" name="UpdateSelected" access="public" returns="object[]">
+	/// 	<description>
+	/// 		Update title of selected items based on data in associated picker control.
+	/// 		An array of updated items are returned. Each object has the following properties:
+	/// 		 - Title: string (Updated title)
+	/// 		 - Value: string (Unique item value)
+	/// 		 - Exists: boolean (True if item still exists, False if not)
+	/// 		This is useful if selections are stored in a database, and
+	/// 		available items may have their titles changed over time. Invoking
+	/// 		this function will ensure that the selection displayed to the user
+	/// 		reflects the actual state of data in the picker control. Be aware
+	/// 		that this function can only update selected items if a picker has been
+	/// 		associated (see SetPicker(..)), and it contains the data from which
+	/// 		selected items are to be updated.
+	/// 		Items that no longer exists in picker's data will not automatically
+	/// 		be removed.
+	/// 	</description>
+	/// </function>
+	this.UpdateSelected = function()
+	{
+		if (me.GetPicker() === null)
+		{
+			return [];
+		}
+
+		var updated = [];
+		var selections = me.GetSelections();
+
+		Fit.Array.ForEach(selections, function(selected)
+		{
+			var pickerItem = me.GetPicker().GetItemByValue(selected.Value);
+
+			if (pickerItem !== null)
+			{
+				var elm = getSelectionElementByValue(selected.Value);
+				elm.childNodes[0].nodeValue = Fit.String.StripHtml(pickerItem.Title);
+
+				Fit.Array.Add(updated, { Title: pickerItem.Title, Value: selected.Value, Exists: true });
+			}
+			else
+			{
+				Fit.Array.Add(updated, { Title: selected.Title, Value: selected.Value, Exists: false });
+			}
+		});
+
+		return updated;
 	}
 
 	// Controlling input field
@@ -12718,6 +14564,9 @@ Fit.Controls.DropDown = function(ctlId)
 
 		inp.value = "";
 		inp.style.width = "";
+
+		if (inp === txtActive)
+			prevValue = "";
 
 		fireOnInputChanged("");
 
@@ -12751,6 +14600,7 @@ Fit.Controls.DropDown = function(ctlId)
 			txt = partiallyHidden.previousSibling;
 
 		txt.value = val;
+		prevValue = val;
 		txtActive = txt;
 
 		fitWidthToContent(txt);
@@ -12826,12 +14676,31 @@ Fit.Controls.DropDown = function(ctlId)
 		if (Fit._internal.DropDown.Current !== null && Fit._internal.DropDown.Current !== me)
 			Fit._internal.DropDown.Current.CloseDropDown();
 
+		// Do this before displaying drop down to prevent dropdown with position:absolute
+		// from changing height of document which may cause page to temporarily scroll, hence
+		// result in incorrect measurement of control position in optimizeDropDownPosition().
+		optimizeDropDownPosition(true);
+
 		dropDownMenu.style.minWidth = me.GetDomElement().offsetWidth + "px"; // In case DropDownMaxWidth(..) is set - update every time drop down is opened in case viewport is resized and has changed control width
 		dropDownMenu.style.display = "block";
+
+		//optimizeDropDownPosition();
 
 		Fit._internal.DropDown.Current = me;
 
 		fireOnDropDownOpen();
+
+		// Scroll selected item into view in Single Selection Mode.
+		// This needs to be done after fireOnDropDownOpen() is invoked
+		// because it fires PickerBase.OnShow which in TreeView resets
+		// the scroll position.
+		// NOTICE: WSDropDown also calls RevealItemInView(..) when
+		// root nodes have been populated.
+
+		if (me.MultiSelectionMode() === false && me.GetSelections().length === 1)
+		{
+			me.GetPicker().RevealItemInView(me.GetSelections()[0].Value);
+		}
 	}
 
 	/// <function container="Fit.Controls.DropDown" name="CloseDropDown" access="public">
@@ -12843,6 +14712,7 @@ Fit.Controls.DropDown = function(ctlId)
 			return;
 
 		dropDownMenu.style.display = "none";
+		resetDropDownPosition();
 
 		Fit._internal.DropDown.Current = null;
 
@@ -12855,6 +14725,31 @@ Fit.Controls.DropDown = function(ctlId)
 	this.IsDropDownOpen = function()
 	{
 		return (dropDownMenu.style.display === "block");
+	}
+
+	/// <function container="Fit.Controls.DropDown" name="DetectBoundaries" access="public" returns="boolean">
+	/// 	<description>
+	/// 		Get/set value indicating whether boundary/collision detection is enabled or not (off by default).
+	/// 		This may cause drop down to open upwards if sufficient space is not available below control.
+	/// 		Enabling this feature will also allow the control to escape (overflow) boundaries created by
+	/// 		containers with overflow:scroll|hidden|auto. The DropDown element will be positioned
+	/// 		using fixed positioning rather than absolute positioning.
+	/// 	</description>
+	/// 	<param name="val" type="boolean" default="undefined"> If defined, True enables collision detection (default), False disables it </param>
+	/// </function>
+	this.DetectBoundaries = function(val)
+	{
+		Fit.Validation.ExpectBoolean(val, true);
+
+		// NOTICE: This feature is known to not work properly with iOS 9 and below:
+		// https://github.com/Jemt/Fit.UI/issues/87
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			detectBoundaries = val;
+		}
+
+		return detectBoundaries;
 	}
 
 	// ============================================
@@ -12924,6 +14819,7 @@ Fit.Controls.DropDown = function(ctlId)
 	{
 		var txt = document.createElement("input");
 		txt.autocomplete = "off";
+		txt.spellcheck = false;
 
 		txt.onpaste = function(e)
 		{
@@ -12931,21 +14827,49 @@ Fit.Controls.DropDown = function(ctlId)
 
 			setTimeout(function() // Timeout to queue event to have pasted value available
 			{
+				/*if (me.TextSelectionMode() === true && txt.value === prevTextSelection)
+				{
+					// User just copied selection text and pasted it again - ignore
+					// so we don't fire OnInputChanged below and change prevValue which
+					// will cause OnInputChanged to fire once again when control lose focus.
+					return;
+				}*/
+
+				// DISABLED - does not make sense.
+				// Pasting a value would not fire OnInputChanged, but starting to delete
+				// the characters just pasted would. So pasting "ABC" would not fire anything, but
+				// pressing backspace would fire OnInputChanged with the value "AB" - that is odd.
+				/*if (txt.value === prevValue || txt.value === prevTextSelection)
+				{
+					return; // Skip event if user just copied text and pasted it again
+				}*/
+
+				prevValue = txt.value;
 				var pastedValue = txt.value;
 
 				if (fireOnPaste(txt.value) === true)
 				{
-					fitWidthToContent(txt);
-					fireOnInputChanged(txt.value);
+					if (txt.value === pastedValue)
+					{
+						// No OnPaste handler altered input value by calling SetInputValue(..)
+
+						fitWidthToContent(txt);
+						fireOnInputChanged(txt.value);
+					}
 				}
 				else
 				{
 					// Paste canceled - restore old value, unless OnPaste handler called SetInputValue with a different value
 
 					if (txt.value === pastedValue)
+					{
 						txt.value = orgValue;
+						prevValue = txt.value;
+					}
 				}
 			}, 0);
+
+			clearTextSelectionOnInputChange = false;
 		}
 
 		txt.onfocus = function(e)
@@ -12955,11 +14879,13 @@ Fit.Controls.DropDown = function(ctlId)
 			if (initialFocus === true)
 			{
 				initialFocus = false;
-				me.ClearInput(txtPrimary);
+
+				if (me.TextSelectionMode() === false)
+					me.ClearInput(txtPrimary);
 			}
 
 			txtActive = txt;
-			prevValue = txtActive.value;
+			prevValue = (me.TextSelectionMode() === false ? txtActive.value : prevValue); // Do not assign text selection to prevValue - it should only hold changes made by user or by calls to SetInputValue(..)
 
 			clearAllInputsButActive();
 		}
@@ -12978,6 +14904,26 @@ Fit.Controls.DropDown = function(ctlId)
 		}
 
 		var timeOutId = -1;
+		var cancelScheduledFitWidthToContent = function()
+		{
+			if (timeOutId !== -1)
+				clearTimeout(timeOutId);
+		}
+		var scheduleFitWidthToContent = function(txtControl)
+		{
+			cancelScheduledFitWidthToContent();
+
+			timeOutId = setTimeout(function()
+			{
+				if (me === null)
+				{
+					return; // Control was disposed shortly after removing characters
+				}
+
+				fitWidthToContent(txtControl);
+				timeOutId = -1;
+			}, 50);
+		}
 
 		txt.onkeydown = function(e) // Fires continuously for any key pressed - both characters and e.g backspace/delete/arrows etc. Key press may be canceled (change has not yet occured)
 		{
@@ -12997,8 +14943,32 @@ Fit.Controls.DropDown = function(ctlId)
 				}
 			}
 
+			if (me.TextSelectionMode() === true && clearTextSelectionOnInputChange === true && txtEnabled === true)
+			{
+				// Clear input in Text Selection Mode if user starts entering a value
+
+				// Skip if key press is TAB, ENTER, ESC, LEFT, UP, RIGHT, or DOWN.
+				// Also ignore key press if combined with modifier keys (except if SHIFT+Key for upper case letters, of course).
+				var modKeys = Fit.Events.GetModifierKeys();
+				if (Fit.Array.Contains([9, 13, 27, 37, 38, 39, 40], ev.keyCode) === false && (modKeys.Shift === false || modKeys.KeyDown !== 16) && modKeys.Ctrl === false && modKeys.Alt === false && modKeys.Meta === false)
+				{
+					// User is entering a value - clear input before character is applied to input
+
+					clearTextSelectionOnInputChange = false;
+					txt.value = ""; // No need to update prevValue - this is not the value set by the user - see onkeyup which updates prevValue
+
+					return;
+				}
+			}
+
 			if (ev.keyCode === 9) // Tab
 			{
+				if (me.TextSelectionMode() === true)
+				{
+					me.CloseDropDown();
+					return;
+				}
+
 				if (ev.shiftKey === true) // Moving left
 				{
 					if (me.GetSelections().length === 0)
@@ -13041,13 +15011,31 @@ Fit.Controls.DropDown = function(ctlId)
 			else if (ev.keyCode === 40) // Arrow down
 			{
 				me.OpenDropDown(); // Make sure it is opened
+
+				if (me.TextSelectionMode() === true) // && (Fit.Browser.GetBrowser() !== "MSIE" || Fit.Browser.GetVersion() !== 8)
+				{
+					// Set cursor at the beginning of text field.
+					// Suppressing default behaviour to prevent cursor
+					// from jumping to the end. SetCaretPosition(..)
+					// is still necessary to make sure text value
+					// does not remain selected (blue selection) if
+					// focused was assigned using tab navigation.
+					Fit.Dom.SetCaretPosition(txtPrimary, 0);
+					Fit.Events.PreventDefault(ev);
+				}
 			}
 			else if (ev.keyCode === 37) // Arrow left
 			{
+				if (me.TextSelectionMode() === true)
+					return;
+
 				moveToInput("Prev");
 			}
 			else if (ev.keyCode === 39) // Arrow right
 			{
+				if (me.TextSelectionMode() === true)
+					return;
+
 				if (me.MultiSelectionMode() === false && partiallyHidden !== null)
 					return;
 
@@ -13062,6 +15050,16 @@ Fit.Controls.DropDown = function(ctlId)
 			}
 			else if (ev.keyCode === 8) // Backspace - remove selection
 			{
+				if (me.TextSelectionMode() === true)
+				{
+					if (txtEnabled === false)
+					{
+						Fit.Events.PreventDefault(ev); // Prevent user from clearing input value
+					}
+
+					return;
+				}
+
 				if (txt.value.length === 0)
 				{
 					if (Fit.Browser.GetInfo().Name === "MSIE")
@@ -13083,27 +15081,25 @@ Fit.Controls.DropDown = function(ctlId)
 				}
 				else
 				{
-					if (timeOutId !== -1)
-						clearTimeout(timeOutId);
-
 					// New length is not known when removing characters until OnKeyUp is fired.
 					// We won't wait for that. Instead we calculate the width "once in a while".
 					// Passing txt instance rather than txtActive, as the latter may change before
 					// timeout is reached and delegate is executed.
-					timeOutId = setTimeout(function()
-					{
-						if (me === null)
-						{
-							return; // Control was disposed shortly after removing characters
-						}
-
-						fitWidthToContent(txt);
-						timeOutId = -1;
-					}, 50);
+					scheduleFitWidthToContent(txt);
 				}
 			}
 			else if (ev.keyCode === 46) // Delete - remove selection
 			{
+				if (me.TextSelectionMode() === true)
+				{
+					if (txtEnabled === false)
+					{
+						Fit.Events.PreventDefault(ev); // Prevent user from clearing input value
+					}
+
+					return;
+				}
+
 				if (txt.value.length === 0)
 				{
 					var toRemove = null;
@@ -13120,14 +15116,11 @@ Fit.Controls.DropDown = function(ctlId)
 				}
 				else
 				{
-					if (timeOutId !== null)
-						clearTimeout(timeOutId);
-
 					// New length is not known when removing characters until OnKeyUp is fired.
 					// We won't wait for that. Instead we calculate the width "once in a while".
 					// Passing txt instance rather than txtActive, as the latter may change before
 					// timeout is reached and delegate is executed.
-					timeOutId = setTimeout(function() { fitWidthToContent(txt); timeOutId = null; }, 50);
+					scheduleFitWidthToContent(txt);
 				}
 			}
 			else if (ev.keyCode === 13) // Enter - notice that item selection is handled by (delegated to) picker when Enter is pressed - picker.OnItemSelectionChanged receives selected item
@@ -13139,29 +15132,49 @@ Fit.Controls.DropDown = function(ctlId)
 			{
 				if (txtEnabled === false)
 				{
-					Fit.Events.PreventDefault(ev);
+					if (Fit.Events.GetModifierKeys().Meta === false && Fit.Events.GetModifierKeys().Ctrl === false)
+					{
+						// Suppress key press unless modifier key is being used (e.g. CTRL+F5 or CMD+R to reload page)
+						Fit.Events.PreventDefault(ev);
+					}
+
 					return;
 				}
 
-				if (timeOutId !== null)
-					clearTimeout(timeOutId);
-
 				var mods = Fit.Events.GetModifierKeys();
 
-				if (mods.Ctrl === true || mods.Meta === true) // Queue operation to have value updated - this could be Ctrl/Cmd+X to cut or Ctrl/Cmd+V to paste
-					timeOutId = setTimeout(function() { fitWidthToContent(txt); timeOutId = null; }, 0);
-				else
-					fitWidthToContent(txt, txt.value + String.fromCharCode(ev.keyCode | ev.charCode)); // TODO: Will not work properly if multiple characters are selected, and just one character is entered - the input field will obtain an incorrect width until next key stroke. The solution is NOT to always use setTimeout since the delayed update is noticeable.
+				if ((mods.Ctrl === true || mods.Meta === true) && mods.KeyDown !== 16 && mods.KeyDown !== 91) // Queue operation to have value updated - this could be e.g. Ctrl/Cmd+X to cut. Real characters are handled in OnKeyPress.
+				{
+					scheduleFitWidthToContent(txt);
+				}
 			}
 		}
 
-		txt.onkeyup = function(e) // Fires only once when a key is released
+		txt.onkeypress = function(e) // Fires continuously (unless suppressed in OnKeyDown) - character codes are available when a real value is entered
+		{
+			var ev = Fit.Events.GetEvent(e);
+
+			if (ev.charCode > 0) // A real character/digit was entered if charCode is not 0 (zero)
+			{
+				fitWidthToContent(txt, txt.value + String.fromCharCode(ev.charCode)); // TODO: Will not work properly if multiple characters are selected, and just one character is entered - the input field will obtain an incorrect width until next key stroke. The solution is NOT to always use setTimeout since the delayed update is noticeable.
+			}
+		}
+
+		txt.onkeyup = function(e) // Fires only once when a key is released (unless suppressed in OnKeyDown)
 		{
 			var ev = Fit.Events.GetEvent(e);
 
 			if (ev.keyCode !== 37 && ev.keyCode !== 38 && ev.keyCode !== 39 && ev.keyCode !== 40 && ev.keyCode !== 27 && ev.keyCode !== 9 && ev.keyCode !== 16 && ev.ctrlKey === false && ev.keyCode !== 17) // Do not fire change event for: arrow keys, escape, tab, shift, and on paste (never fires when CTRL is held down (ev.ctrlKey true) or released (ev.keyCode 17))
 			{
-				if (txt.value !== prevValue)
+				if (me.TextSelectionMode() === true && txt.value === prevTextSelection)
+				{
+					// Do not fire OnInputChanged. Input value is identical to text selection
+					// so user probably pressed SPACE to toggle a selection (which doesn't change input value), or
+					// pressed some other none-character key (e.g CMD/SUPER or ALT/OPTION) which did not alter input value.
+					return;
+				}
+
+				if (txt.value !== prevValue /*&& (me.TextSelectionMode() === false || txt.value !== prevTextSelection)*/)
 				{
 					prevValue = txt.value;
 					fireOnInputChanged(txt.value);
@@ -13169,18 +15182,40 @@ Fit.Controls.DropDown = function(ctlId)
 			}
 		}
 
-		txt.onclick = function(e)
-		{
-			focusInputOnMobile = true;
-			Fit.Events.StopPropagation(e);
-		}
-
 		return txt;
 	}
 
-	function getSelectionElements() // Return spans containing Title and Value (also include elements marked as invalid selections)
+	function createItemObject(title, value, valid, domElement)
 	{
-		return itemContainer.querySelectorAll("span[data-value]");
+		Fit.Validation.ExpectString(title);
+		Fit.Validation.ExpectString(value);
+		Fit.Validation.ExpectBoolean(valid);
+		Fit.Validation.ExpectDomElement(domElement);
+
+		return { Title: title, Value: value, Valid: valid, DomElement: domElement };
+	}
+	/*function convertItemElementToItemObject(itemElm)
+	{
+		Fit.Validation.ExpectDomElement(itemElm);
+		return { Title: Fit.Dom.Text(itemElm), Value: decode(Fit.Dom.Data(itemElm, "value")), Valid: Fit.Dom.HasClass(itemElm, "FitUiControlDropDownInvalid") === false, DomElement: itemElm };
+	}*/
+
+	function getSelectionElementByValue(value)
+	{
+		Fit.Validation.ExpectString(value);
+
+		var item = itemCollection[value] || null;
+		return item !== null ? item.DomElement : null;
+	}
+
+	function getFirstSelectionElement()
+	{
+		if (itemCollectionOrdered.length > 0)
+		{
+			return itemCollectionOrdered[0].DomElement;
+		}
+
+		return null;
 	}
 
 	function fitWidthToContent(input, val) // Set width of input field equivalent to its content
@@ -13247,6 +15282,7 @@ Fit.Controls.DropDown = function(ctlId)
 					newInput = txtPrimary;
 			}*/
 
+			// TODO: Rename this! We have a private property in this class with the same name!
 			var itemContainer = null; // Remains Null if last item's right input control has focus (unlikely since it will never be focused unless user manages to actually click it (5px wide)
 
 			if (txtActive !== txtPrimary && Fit.Dom.GetIndex(txtActive) === 0) // Left input has focus
@@ -13321,8 +15357,8 @@ Fit.Controls.DropDown = function(ctlId)
 
 		if (me.MultiSelectionMode() === false) // Single Selection Mode
 		{
-			var selections = getSelectionElements();
-			partiallyHidden = ((selections.length > 0 && selections[0].parentElement.offsetWidth + 1 > Fit.Dom.GetInnerWidth(itemContainer)) ? selections[0] : null); // Adding 1px to offsetWidth - otherwise right aligned cursor may become hidden behind drop down arrow box
+			var firstSelection = getFirstSelectionElement();
+			partiallyHidden = ((firstSelection !== null && firstSelection.parentElement.offsetWidth + 1 > Fit.Dom.GetInnerWidth(itemContainer)) ? firstSelection : null); // Adding 1px to offsetWidth - otherwise right aligned cursor may become hidden behind drop down arrow box
 
 			var inputs = itemContainer.querySelectorAll("input");
 			Fit.Array.ForEach(inputs, function(input)
@@ -13332,19 +15368,205 @@ Fit.Controls.DropDown = function(ctlId)
 
 			if (partiallyHidden !== null)
 				inputs[0].tabIndex = 0;
+
+			if (firstSelection !== null)
+			{
+				var cmdDelete = firstSelection.querySelector("i");
+				cmdDelete.tabIndex = ((partiallyHidden !== null) ? -1 : 0);
+			}
 		}
 		else // Multi Selection Mode
 		{
 			partiallyHidden = null;
 
-			Fit.Array.ForEach(getSelectionElements(), function(item)
+			Fit.Array.ForEach(itemCollectionOrdered, function(itemObject)
 			{
+				var item = itemObject.DomElement;
+
 				if (item.parentElement.offsetWidth + 1 > Fit.Dom.GetInnerWidth(itemContainer)) // Adding 1px to offsetWidth - otherwise right aligned cursor may become hidden behind drop down arrow box
 					item.nextSibling.tabIndex = -1; // Item is partially hidden - disable right search field
 				else
 					item.nextSibling.tabIndex = 0; // Fully visible - part of tab flow
 			});
 		}
+	}
+
+	function optimizeDropDownPosition(force)
+	{
+		Fit.Validation.ExpectBoolean(force, true);
+
+		if (detectBoundaries === false || (me.IsDropDownOpen() === false && force !== true))
+			return;
+
+		// Check visibility in case DropDown control is hidden while items are being selected.
+		// This is a common approach to reduce expensive reflows when programmatically selecting
+		// many items (e.g. using SelectAll in TreeView picker). If control is in fact hidden,
+		// the picker container will keep its current position rather than being positioned
+		// below/above DropDown as expected - that's acceptable. Re-opening DropDown will position
+		// it properly. Without this fix, Fit.Dom.GetPosition(..) used below would return Null and
+		// result in an error.
+		if (Fit.Dom.IsVisible(me.GetDomElement()) === false)
+			return;
+
+		// Drop Down Menu is positioned above control if sufficient space (set in
+		// spaceRequiredBelowControl variable) is not available below control.
+		// The MaxHeight of the drop down menu will be adjusted automatically to
+		// prevent it from exceeding the boundaries of the viewport. However, the
+		// drop down menu will never decrease to less than the height given in the
+		// minimumDropDownHeight variable to keep it functional.
+
+		// Notice that this feature results in the drop down being "disconnected" from the
+		// control, allowing the control to be "scrolled away" from the drop down element when opened.
+		// This is caused by using position:fixed of course.
+
+		var viewPortDimensions = Fit.Browser.GetViewPortDimensions();				// { Width, Height }
+		var controlPositionY = Fit.Dom.GetPosition(itemContainer, true).Y;			// Position from top
+		var innerDimensions = Fit.Dom.GetInnerDimensions(me.GetDomElement());		// { X, Y } with width/height of itemContainer including its margin and outline which itemContainer.offsetWidth/Height does not include
+		var spacingAboveAndBelow = innerDimensions.Y - itemContainer.offsetHeight;	// Margin and outline above and below itemContainer, in case this has been applied using CSS
+		//var spaceAboveControl = controlPositionY;									// Space available above control
+		var spaceBelowControl = viewPortDimensions.Height - (controlPositionY + innerDimensions.Y); // Space available below control
+		//var mostSpaceAboveControl = spaceAboveControl > spaceBelowControl;			// True if there is more space available above control than below control
+		var spaceRequiredBelowControl = 100;										// Opens upwards if this amount of pixels is not available below control, and more space is available above control
+		var minimumDropDownHeight = 50;												// Ensures that drop down menu is never reduced to less than this amount of pixels in height
+		var spacingToBrowserEdge = 10;												// Makes sure that drop down menu has this amount of spacing (in pixels) to the edge of the browser
+
+		// More space is available above control than below control, AND the drop down menu does not have sufficient space available below the control (given by spaceRequiredBelowControl), so it is now being opened upwards instead.
+		// var condMoreSpaceAboveAndNotEnoughSpaceBelow = (mostSpaceAboveControl === true && controlPositionY + itemContainer.offsetHeight + spaceRequiredBelowControl + spacingAboveAndBelow > viewPortDimensions.Height);
+
+		// Sufficient space is not available below control, so it is now being opened upwards instead.
+		// Contrary to condMoreSpaceAboveAndNotEnoughSpaceBelow, this condition does not care about
+		// whether more space is available above the control or not. If the control does not have the required space
+		// available below it, it will open upwards, even when there is not sufficient space available. In this case
+		// the drop down element will simply overlay the control. This is to prevent the primary text field from being
+		// hidden behind the drop down element.
+		var condNotEnoughSpaceBelow = spaceBelowControl - (spacingAboveAndBelow / 2) - spacingToBrowserEdge < spaceRequiredBelowControl
+
+		if (condNotEnoughSpaceBelow === true) // Open upward
+		{
+			// Handle situation where the control is contained in a parent with scroll
+			// and the control has been partially scrolled out of view. In this case
+			// we do not want to position the drop down element where the (now hidden)
+			// top of the control is located in the viewport, but where the scrollable
+			// container starts.
+			// https://github.com/Jemt/Fit.UI/issues/51
+
+			var scrollParent = Fit.Dom.GetScrollParent(me.GetDomElement());
+
+			if (scrollParent !== Fit.Dom.GetScrollDocument())
+			{
+				// Control is positioned within a container with scroll.
+				// Calculate position relative to viewport to determine
+				// whether control has been scrolled out of view.
+
+				var scrollParentPosY = Fit.Dom.GetPosition(scrollParent, true).Y;
+				scrollParentPosY = scrollParentPosY + parseInt(Fit.Dom.GetComputedStyle(scrollParent, "margin-top"));
+				scrollParentPosY = scrollParentPosY + parseInt(Fit.Dom.GetComputedStyle(scrollParent, "border-top-width"));
+
+				if (controlPositionY < scrollParentPosY)
+				{
+					// Relative to the viewport the control is positioned above the
+					// scroll container which means it has been scrolled out of view.
+					controlPositionY = scrollParentPosY;
+				}
+			}
+
+			// Open upward as space required below control (given by spaceRequiredBelowControl) is not available
+
+			dropDownMenu.style.position = "fixed";	// Using fixed positioning to escape containers with overflow:scroll|hidden|auto
+			dropDownMenu.style.width = "auto";		// Picker by default has width:100% to assume the same width as the control, except if DropDownMaxWidth is set, in which case it is already "auto"
+			dropDownMenu.style.top = "";
+			dropDownMenu.style.bottom = (viewPortDimensions.Height - controlPositionY) + "px";
+
+			// Optimize drop down height based on available space
+
+			var spaceAvailableAboveControl = controlPositionY - spacingToBrowserEdge;
+
+			if (spaceAvailableAboveControl < minimumDropDownHeight)
+			{
+				// Do not reduce drop down height more than minimumDropDownHeight,
+				// even though user might have to scroll page to see the entire drop down menu.
+				// Reducing the drop down menu to e.g. 10px makes it completely unusable.
+
+				spaceAvailableAboveControl = minimumDropDownHeight;
+
+				// Prevent drop down element from exceeding viewport boundaries when forcing minimum height above
+				dropDownMenu.style.bottom = "";
+				dropDownMenu.style.top = spacingToBrowserEdge + "px";
+			}
+
+			if (picker !== null && (maxHeight.Unit !== "px" || maxHeight.Value > spaceAvailableAboveControl))
+			{
+				// Reduce drop down menu's max height.
+				// CSS unit for MaxHeight is someting like 'em' (so enforce pixel based
+				// max height), or pixel based MaxHeight simply exceeds space available.
+
+				picker.MaxHeight(spaceAvailableAboveControl, "px");
+			}
+
+			if (picker !== null && Fit.Core.IsEqual(picker.MaxHeight(), maxHeight) === false && picker.MaxHeight().Value < maxHeight.Value)
+			{
+				// MaxHeight has previously been reduced by optimizeDropDownPosition and is now smaller than
+				// the value initially configured for the drop down. Increase its size again if sufficient space is available.
+
+				picker.MaxHeight((maxHeight.Value < spaceAvailableAboveControl ? maxHeight.Value : spaceAvailableAboveControl), "px");
+			}
+		}
+		else // Open like normal, downwards
+		{
+			dropDownMenu.style.position = "fixed";
+			dropDownMenu.style.width = "auto";
+			dropDownMenu.style.top = (controlPositionY + innerDimensions.Y) + "px";
+			dropDownMenu.style.bottom = "";
+
+			// Optimize drop down height based on available space
+
+			var spaceAvailableBelowControl = spaceBelowControl - spacingToBrowserEdge;
+
+			if (spaceAvailableBelowControl < minimumDropDownHeight)
+			{
+				// NOTICE: This is only relevant (gets called) if we replace the use
+				// of condNotEnoughSpaceBelow with condMoreSpaceAboveAndNotEnoughSpaceBelow.
+
+				// Do not reduce drop down height more than minimumDropDownHeight,
+				// even though user might have to scroll page to see the entire drop down menu.
+				// Reducing the drop down menu to e.g. 10px makes it completely unusable.
+
+				spaceAvailableBelowControl = minimumDropDownHeight;
+
+				// Prevent drop down element from exceeding viewport boundaries when forcing minimum height above.
+				dropDownMenu.style.top = "";
+				dropDownMenu.style.bottom = spacingToBrowserEdge + "px";
+			}
+
+			if (picker !== null && (maxHeight.Unit !== "px" || maxHeight.Value > spaceAvailableBelowControl))
+			{
+				// Reduce drop down menu's max height.
+				// CSS unit for MaxHeight is someting like 'em' (so enforce pixel based
+				// max height), or pixel based MaxHeight simply exceeds space available.
+
+				picker.MaxHeight(spaceAvailableBelowControl, "px");
+			}
+
+			if (picker !== null && Fit.Core.IsEqual(picker.MaxHeight(), maxHeight) === false && picker.MaxHeight().Value < maxHeight.Value)
+			{
+				// MaxHeight has previously been reduced by optimizeDropDownPosition and is now smaller than
+				// the value initially configured for the drop down. Increase its size again if sufficient space is available.
+
+				picker.MaxHeight((maxHeight.Value < spaceAvailableBelowControl ? maxHeight.Value : spaceAvailableBelowControl), "px");
+			}
+		}
+	}
+
+	function resetDropDownPosition()
+	{
+		// Reset changes made by optimizeDropDownPosition()
+		dropDownMenu.style.position = "";
+		dropDownMenu.style.width = (me.DropDownMaxWidth().Value > -1 ? dropDownMenu.style.width : ""); // Preserve width if DropDownMaxWidth is enabled since it also modifies this property
+		dropDownMenu.style.bottom = "";
+		dropDownMenu.style.top = "";
+
+		if (picker !== null) // Checking in case picker was removed while opened (unlikely though)
+			picker.MaxHeight(maxHeight.Value, maxHeight.Unit);
 	}
 
 	function onDragStop(draggable)
@@ -13387,7 +15609,14 @@ Fit.Controls.DropDown = function(ctlId)
 			focusAssigned = true;
 			focusInput(txtPrimary);
 
+			var draggableIndex = Fit.Dom.GetIndex(draggable.GetDomElement());
+			var dropzoneIndex =  Fit.Dom.GetIndex(dropzone.GetDomElement());
+			var itemObject = itemCollectionOrdered[draggableIndex];
+
+			Fit.Array.RemoveAt(itemCollectionOrdered, draggableIndex);
+			Fit.Array.Insert(itemCollectionOrdered, (draggableIndex < dropzoneIndex ? dropzoneIndex : dropzoneIndex + 1), itemObject);
 			Fit.Dom.InsertAfter(dropzone.GetDomElement(), draggable.GetDomElement());
+
 			fireChange = true;
 		}
 		else if (Fit.Dom.Data(dropzone.GetDomElement(), "dropping") === "left" && dropzone.GetDomElement().previousSibling !== draggable.GetDomElement())
@@ -13396,7 +15625,14 @@ Fit.Controls.DropDown = function(ctlId)
 			focusAssigned = true;
 			focusInput(txtPrimary);
 
+			var draggableIndex = Fit.Dom.GetIndex(draggable.GetDomElement());
+			var dropzoneIndex =  Fit.Dom.GetIndex(dropzone.GetDomElement());
+			var itemObject = itemCollectionOrdered[draggableIndex];
+
+			Fit.Array.RemoveAt(itemCollectionOrdered, draggableIndex);
+			Fit.Array.Insert(itemCollectionOrdered, (draggableIndex < dropzoneIndex ? dropzoneIndex - 1 : dropzoneIndex), itemObject);
 			Fit.Dom.InsertBefore(dropzone.GetDomElement(), draggable.GetDomElement());
+
 			fireChange = true;
 		}
 
@@ -13445,6 +15681,128 @@ Fit.Controls.DropDown = function(ctlId)
 		return encodeURIComponent(str);
 	}
 
+	function updateTextSelection()
+	{
+		// Add selected items to input field
+
+		// Local flag controlling event behaviour - whether to fire OnInputChanged
+		// when programmatically updating input with selection text or not.
+		// Some developers want OnInputChanged fired always, while others only
+		// expect it to fire when the user enters a value, or when SetInputValue(..)
+		// is called from external code.
+		// True		= Always fire OnInputChanged.
+		// False	= Only fire when user enters a value or when SetInputValue(..) is
+		//            called. Do not fire OnInputChanged when TextSelection is updated.
+		var fireOnInputChangedEvent = false;
+
+		// If fireOnInputChangedEvent is false:
+		// Notice that in TextSelectionMode with fireOnInputChangedEvent=false the input field
+		// handles two states: The value set by TextSelectionMode, and the value set by
+		// either the user or a call to SetInputValue(..).
+		// Therefore, even when a text selection is set, the input field will still be
+		// considered empty in regards to how OnInputChanged fires.
+		// So an actual value has to be entered for OnInputChanged to fire.
+		// Clearing the text selection will not fire OnInputChanged since it is already
+		// considered empty.
+
+		if (fireOnInputChangedEvent === false && prevValue !== "")
+		{
+			// User entered a value which will now be removed and replaced.
+			// Make sure OnInputChanged handlers are fired - this is the same
+			// behaviour as in the ordinary visual selection mode
+			// which also clears the input once a selection is made.
+			me.ClearInput();
+		}
+
+		// Convert selected items to text
+
+		var text = "";
+
+		if (textSelectionCallback !== null)
+		{
+			text = textSelectionCallback(me);
+		}
+		else
+		{
+			var selections = me.GetSelections();
+
+			Fit.Array.ForEach(selections, function(selection)
+			{
+				text += (text !== "" ? ", " : "") + selection.Title;
+			});
+
+			if (me.MultiSelectionMode() === true && selections.length > 0)
+			{
+				text = "(" + selections.length + ") " + text;
+			}
+		}
+
+		// Set new text selection
+
+		if (fireOnInputChangedEvent === true)
+		{
+			//me.SetInputValue(text); // Notice: SetInputValue calls fitWidthToContent(..) which adjusts input size to fit value, and fires OnInputChanged event
+			if (txtPrimary.value !== text)
+			{
+				txtPrimary.value = text;
+				prevValue = text;
+				fireOnInputChanged(text);
+			}
+		}
+		else
+		{
+			txtPrimary.value = text;
+		}
+
+		prevTextSelection = (text !== "" ? text : null);
+
+		// Set cursor position
+
+		// Make cursor move to end and scroll it into view.
+		// Unfortunately it will not make the field scroll to the right on IE
+		// and Edge, and it seems very difficult (impossible?) to get working.
+		// Other similar controls simply clear their selection when opened, and
+		// restore it when closed, which might be the only way to ensure the
+		// same experience across all browsers.
+		/*if (me.Focused() === true)
+		{
+			txtPrimary.blur();
+			txtPrimary.focus();
+		}*/
+
+		// Make cursor move to beginning of input field if focused
+		if (me.Focused() === true)
+		{
+			Fit.Dom.SetCaretPosition(txtPrimary, 0);
+		}
+
+		clearTextSelectionOnInputChange = true;
+	}
+
+	function updateInvalidMessageForSelectedItems()
+	{
+		Fit.Array.ForEach(itemCollection, function(key)
+		{
+			var selection = itemCollection[key];
+
+			if (selection.Valid === false)
+			{
+				Fit.Dom.Attribute(selection.DomElement, "title", invalidMessage);
+			}
+		});
+	}
+
+	function localize()
+	{
+		if (invalidMessageChanged === false)
+		{
+			var locale = Fit.Internationalization.GetLocale(me);
+			invalidMessage = locale.Translations.InvalidSelection;
+
+			updateInvalidMessageForSelectedItems();
+		}
+	}
+
 	// Event dispatchers
 
 	function fireOnInputChanged(val)
@@ -13459,6 +15817,7 @@ Fit.Controls.DropDown = function(ctlId)
 
 	function fireOnChange()
 	{
+		optimizeDropDownPosition();
 		me._internal.FireOnChange();
 	}
 
@@ -13546,6 +15905,7 @@ Fit._internal.DropDown.Current = null;
 
 	init();
 }*/
+
 /// <container name="Fit.Controls.PickerBase">
 /// 	Class from which all Picker Controls extend.
 /// 	Control developers must override: GetDomElement, Destroy.
@@ -13553,9 +15913,9 @@ Fit._internal.DropDown.Current = null;
 /// 	UpdateItemSelectionState, HandleEvent.
 /// 	Picker Control must fire OnItemSelectionChanging and OnItemSelectionChanged when an item's
 /// 	selection state is being changed, which is done by invoking
-/// 	this._internal.FireOnItemSelectionChanging(title:string, value:string, currentSelectionState:boolean)
+/// 	this._internal.FireOnItemSelectionChanging(title:string, value:string, currentSelectionState:boolean, programmaticallyChanged:boolean)
 /// 	and
-/// 	this._internal.FireOnItemSelectionChanged(title:string, value:string, newSelectionState:boolean).
+/// 	this._internal.FireOnItemSelectionChanged(title:string, value:string, newSelectionState:boolean, programmaticallyChanged:boolean).
 /// 	Notice that FireOnItemSelectionChanging may return False, which must prevent item from being
 /// 	selected, and at the same time prevent FireOnItemSelectionChanged from being called.
 /// 	Changing an item selection may cause OnItemSelectionChanging and OnItemSelectionChanged to be
@@ -13564,6 +15924,8 @@ Fit._internal.DropDown.Current = null;
 /// 	changes complete, which is done by invoking this._internal.FireOnItemSelectionComplete().
 /// 	OnItemSelectionComplete should only fire if a change was made (changes can be canceled using
 /// 	OnItemSelectionChanging).
+/// 	Picker control is also to invoke this._internal.FireOnFocusIn() if control gains focus, and
+/// 	this._internal.FireOnFocusOut() if control loses focus.
 /// </container>
 Fit.Controls.PickerBase = function()
 {
@@ -13576,6 +15938,8 @@ Fit.Controls.PickerBase = function()
 	var onChangingHandlers = [];
 	var onChangeHandlers = [];
 	var onCompleteHandlers = [];
+	var onFocusHandlers = [];
+	var onBlurHandlers = [];
 
 	// ============================================
 	// Public
@@ -13691,6 +16055,26 @@ Fit.Controls.PickerBase = function()
 		Fit.Array.Add(onCompleteHandlers, cb);
 	}
 
+	/// <function container="Fit.Controls.PickerBase" name="OnFocusIn" access="public">
+	/// 	<description> Register OnFocusIn event handler which is invoked when picker gains focus </description>
+	/// 	<param name="cb" type="function"> Event handler function which accepts Sender (PickerBase) </param>
+	/// </function>
+	this.OnFocusIn = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onFocusHandlers, cb);
+	}
+
+	/// <function container="Fit.Controls.PickerBase" name="OnFocusOut" access="public">
+	/// 	<description> Register OnFocusOut event handler which is invoked when picker loses focus </description>
+	/// 	<param name="cb" type="function"> Event handler function which accepts Sender (PickerBase) </param>
+	/// </function>
+	this.OnFocusOut = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onBlurHandlers, cb);
+	}
+
 	// ============================================
 	// For derivatives - control developers
 	// ============================================
@@ -13716,11 +16100,11 @@ Fit.Controls.PickerBase = function()
 	/// 		var item = getItem(value);
 	/// 		if (item !== null)
 	/// 		{
-	/// 			&#160;&#160;&#160;&#160; if (this._internal.FireOnItemSelectionChanging(item.Title, item.Value, item.Selected) === false)
+	/// 			&#160;&#160;&#160;&#160; if (this._internal.FireOnItemSelectionChanging(item.Title, item.Value, item.Selected, programmaticallyChanged) === false)
 	/// 			&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; return false;
 	///
 	/// 			&#160;&#160;&#160;&#160; item.SetSelected(selected);
-	/// 			&#160;&#160;&#160;&#160; this._internal.FireOnItemSelectionChanged(item.Title, item.Value, item.Selected);
+	/// 			&#160;&#160;&#160;&#160; this._internal.FireOnItemSelectionChanged(item.Title, item.Value, item.Selected, programmaticallyChanged);
 	/// 		}
 	///
 	/// 		Both events are fired by passing the given item's title, value, and current selection state.
@@ -13730,11 +16114,13 @@ Fit.Controls.PickerBase = function()
 	/// 	</description>
 	/// 	<param name="value" type="string"> Item value </param>
 	/// 	<param name="selected" type="boolean"> True if item was selected, False if item was deselected </param>
+	/// 	<param name="programmaticallyChanged" type="boolean"> True if item was selected programmatically (not by user interaction), False otherwise </param>
 	/// </function>
-	this.UpdateItemSelection = function(value, selected)
+	this.UpdateItemSelection = function(value, selected, programmaticallyChanged) // Actually the current use of programmaticallyChanged is more like "control has focus" - used for performance optimizations
 	{
 		Fit.Validation.ExpectString(value);
 		Fit.Validation.ExpectBoolean(selected);
+		Fit.Validation.ExpectBoolean(programmaticallyChanged);
 
 		// Default implementation fires both events, even though specialized control may not know
 		// anything about the given item selected/deselected. This is necessary in order to support
@@ -13742,10 +16128,10 @@ Fit.Controls.PickerBase = function()
 
 		// It's safe to assume that current selection state is equal to !selected since host control will
 		// never call UpdateItemSelection with the current value of the given item, only the desired value.
-		if (me._internal.FireOnItemSelectionChanging("", value, !selected) === false)
+		if (me._internal.FireOnItemSelectionChanging("", value, !selected, programmaticallyChanged) === false)
 			return false;
 
-		me._internal.FireOnItemSelectionChanged("", value, selected);
+		me._internal.FireOnItemSelectionChanged("", value, selected, programmaticallyChanged);
 	}
 
 	/// <function container="Fit.Controls.PickerBase" name="SetSelections" access="public">
@@ -13767,6 +16153,35 @@ Fit.Controls.PickerBase = function()
 			Fit.Validation.ExpectString(item.Title);
 			Fit.Validation.ExpectString(item.Value);
 		});
+	}
+
+	/// <function container="Fit.Controls.PickerBase" name="GetItemByValue" access="public" returns="object">
+	/// 	<description>
+	/// 		Overridden by control developers (optional).
+	/// 		Host control may invoke this function, for instance to update the title of selected items,
+	/// 		to make sure these properly reflect the state of data displayed in the picker.
+	/// 		Function returns Null when not implemented or when an item is not found. If found, an object
+	/// 		with the following signature is returned: { Title: string, Value: string }.
+	/// 	</description>
+	/// 	<param name="val" type="string"> Value of item to retrieve </param>
+	/// </function>
+	this.GetItemByValue = function(val)
+	{
+		Fit.Validation.ExpectString(val);
+		return null;
+	}
+
+	/// <function container="Fit.Controls.PickerBase" name="RevealItemInView" access="public">
+	/// 	<description>
+	/// 		Overridden by control developers (optional).
+	/// 		Host control may invoke this function to reveal a selected item in
+	/// 		the picker control. Often this means having the item scrolled into view.
+	/// 	</description>
+	/// 	<param name="val" type="string"> Value of item to reveal in view </param>
+	/// </function>
+	this.RevealItemInView = function(val)
+	{
+		Fit.Validation.ExpectString(val);
 	}
 
 	/// <function container="Fit.Controls.PickerBase" name="HandleEvent" access="public">
@@ -13813,6 +16228,10 @@ Fit.Controls.PickerBase = function()
 	{
 	}
 
+	this._internal.ReportFocused = function(value) // Called by Host Control to tell picker when it is focused/blurred
+	{
+	}
+
 	this._internal.FireOnShow = function() // Called by Host Control
 	{
 		Fit.Array.ForEach(onShowHandlers, function(handler)
@@ -13829,32 +16248,34 @@ Fit.Controls.PickerBase = function()
 		});
 	},
 
-	this._internal.FireOnItemSelectionChanging = function(title, value, selected) // Called by Picker Control
+	this._internal.FireOnItemSelectionChanging = function(title, value, selected, programmaticallyChanged) // Called by Picker Control
 	{
 		Fit.Validation.ExpectString(title);
 		Fit.Validation.ExpectString(value);
 		Fit.Validation.ExpectBoolean(selected);
+		Fit.Validation.ExpectBoolean(programmaticallyChanged);
 
 		var cancel = false;
 
 		Fit.Array.ForEach(onChangingHandlers, function(handler)
 		{
-			if (handler(me, { Title: title, Value: value, Selected: selected }) === false)
+			if (handler(me, { Title: title, Value: value, Selected: selected, ProgrammaticallyChanged: programmaticallyChanged }) === false)
 				cancel = true;
 		});
 
 		return !cancel;
 	}
 
-	this._internal.FireOnItemSelectionChanged = function(title, value, selected) // Called by Picker Control
+	this._internal.FireOnItemSelectionChanged = function(title, value, selected, programmaticallyChanged) // Called by Picker Control
 	{
 		Fit.Validation.ExpectString(title);
 		Fit.Validation.ExpectString(value);
 		Fit.Validation.ExpectBoolean(selected);
+		Fit.Validation.ExpectBoolean(programmaticallyChanged);
 
 		Fit.Array.ForEach(onChangeHandlers, function(handler)
 		{
-			handler(me, { Title: title, Value: value, Selected: selected });
+			handler(me, { Title: title, Value: value, Selected: selected, ProgrammaticallyChanged: programmaticallyChanged });
 		});
 	}
 
@@ -13865,7 +16286,24 @@ Fit.Controls.PickerBase = function()
 			handler(me);
 		});
 	}
+
+	this._internal.FireOnFocusIn = function() // Called by Picker Control
+	{
+		Fit.Array.ForEach(onFocusHandlers, function(handler)
+		{
+			handler(me);
+		});
+	}
+
+	this._internal.FireOnFocusOut = function() // Called by Picker Control
+	{
+		Fit.Array.ForEach(onBlurHandlers, function(handler)
+		{
+			handler(me);
+		});
+	}
 }
+
 /// <container name="Fit.Controls.WSDropDown" extends="Fit.Controls.DropDown">
 /// 	WebService enabled Drop Down Menu control allowing for single and multi selection.
 /// 	Supports data selection using any control extending from Fit.Controls.PickerBase.
@@ -13887,10 +16325,16 @@ Fit.Controls.WSDropDown = function(ctlId)
 
 	var search = "";
 	var forceNewSearch = false;
+	var hideLinesForFlatData = true;
+	var dataRequested = false;		// Flag indicating whether TreeView data has been requested or not - determines whether a call to ensureTreeViewData() actually loads data or not
+	var dataLoading = false;		// Flag indicating whether TreeView data is currently being loaded by WSDropDown internals (awaiting response) - will not be True when user expand nodes to load children, or when invoking e.g. dd.GetTreeView.Reload()
+	var requestCount = 0;			// Counter to keep track of nodes for which data is currently being loaded, no matter how it was being loaded (via WSDropDown internals, programmatically on WSTreeView from external code, or by user expanding nodes)
+	var onDataLoadedCallback = [];
 	var suppressTreeOnOpen = false;
 	var timeOut = null;
 	var currentRequest = null;
 	var classes = null;
+	var autoUpdatedSelections = null; // Cached result from AutoUpdateSelected: [{ Title:string, Value:string, Exists:boolean }, ...]
 
 	var onRequestHandlers = [];
 	var onResponseHandlers = [];
@@ -13920,12 +16364,16 @@ Fit.Controls.WSDropDown = function(ctlId)
 			if (fireEventHandlers(onRequestHandlers, list, eventArgs) === false)
 				return false;
 
+			requestCount++;
 			currentRequest = eventArgs.Request;
 			cmdOpen.className = "fa fa-refresh fa-spin";
 		});
 		list.OnResponse(function(sender, eventArgs)
 		{
+			requestCount--;
+
 			fireEventHandlers(onResponseHandlers, list, eventArgs);
+			
 			cmdOpen.className = classes;
 			currentRequest = null;
 
@@ -13936,6 +16384,10 @@ Fit.Controls.WSDropDown = function(ctlId)
 				eventArgs.Items = []; // Remove data, we do not want it to be populated to control
 				searchData(me.GetInputValue());
 			}
+		});
+		list.OnAbort(function(sender, eventArgs)
+		{
+			requestCount--;
 		});
 		list.OnItemSelectionChanging(function(sender, item)
 		{
@@ -13958,8 +16410,6 @@ Fit.Controls.WSDropDown = function(ctlId)
 
 		// Create TreeView
 
-		var initialLoad = true;
-
 		tree = new Fit.Controls.WSTreeView(ctlId + "__WSTreeView");
 		tree.Selectable(true); // Make nodes selectable by default when added
 		tree.Width(100, "%");
@@ -13968,24 +16418,59 @@ Fit.Controls.WSDropDown = function(ctlId)
 		tree.OnRequest(function(sender, eventArgs)
 		{
 			if (fireEventHandlers(onRequestHandlers, tree, eventArgs) === false)
+			{
 				return false;
+			}
 
-			if (eventArgs.Node === null)
+			dataRequested = true;
+			requestCount++;
+
+			if (dataLoading === true)
+			{
 				cmdOpen.className = "fa fa-refresh fa-spin";
+			}
 		});
 		tree.OnResponse(function(sender, eventArgs)
 		{
+			requestCount--;
+
 			fireEventHandlers(onResponseHandlers, tree, eventArgs);
-			cmdOpen.className = classes;
+
+			if (requestCount === 0)
+			{
+				cmdOpen.className = classes;
+
+				// Make sure to fire internal OnDataLoaded event in case a WebService operation
+				// was invoked on DropDown while WSTreeView was loading data, e.g. triggered by
+				// a user interaction such as expanding a node.
+				// DropDown takes care of firing internal event OnDataLoaded if dataLoading is True,
+				// in which case DropDown triggered the initial WebService operation and knows when
+				// it has finished.
+				if (dataLoading === false)
+				{
+					fireOnDataLoaded();
+				}
+			}
 		});
 		tree.OnAbort(function(sender, eventArgs)
 		{
+			requestCount--;
+			
 			fireEventHandlers(onAbortHandlers, tree, eventArgs);
-			cmdOpen.className = classes;
+			
+			if (requestCount === 0)
+			{
+				cmdOpen.className = classes;
+
+				if (dataLoading === false) // See comment to related code in OnResponse handler above
+				{
+					fireOnDataLoaded();
+				}
+			}
 		});
 		tree.OnPopulated(function(sender, eventArgs)
 		{
-			if (initialLoad === true)
+			if (hideLinesForFlatData === true && tree.Lines() === true) // Lines are off by default but might have been enabled like so: dd.GetTreeView().Lines(true)
 			{
 				// Disable helper lines if no children are contained
 
@@ -14006,14 +16491,48 @@ Fit.Controls.WSDropDown = function(ctlId)
 					//tree.GetDomElement().style.marginLeft = "-2em";
 				}
 
-				initialLoad = false;
+				hideLinesForFlatData = false;
+			}
+
+			// Scroll selected item into view in Single Selection Mode.
+			// NOTICE: DropDown also calls RevealItemInView(..) when
+			// dropdown is opened. But for WSDropDown there are (most often)
+			// no nodes initially, so we make sure to call RevealItemInView(..)
+			// below when root nodes have been loaded and populated.
+			// We only want to do this for root nodes - otherwise the selected
+			// item would constantly be scrolled into view while user expand nodes
+			// with remote children.
+			// This works even for nested items if they are returned in the initial
+			// call for root nodes. It will not work if nodes are loaded programmatically
+			// using e.g. WSDropDown.AutoUpdateSelected() or WSTreeView.ExpandAll() though,
+			// if the selected item is returned in a secondary request for remote children.
+			// To support this scenario we would need to carry information about whether
+			// the request was made programmatically or triggered via a user interaction,
+			// which would complicate things, so for now we are satisfied with the current
+			// implementation.
+
+			if (eventArgs.Node === null && me.MultiSelectionMode() === false && me.GetSelections().length === 1)
+			{
+				tree.RevealItemInView(me.GetSelections()[0].Value);
 			}
 		});
 		tree.OnSelectAll(function(sender, eventArgs)
 		{
 			// Make sure focus is lost when SelectAll is invoked. Otherwise control will
 			// reassign focus every time an item is added which is very expensive performance wise.
-			me.Focused(false);
+			// DISABLED: This is simply to annoying for the user as dropdown closes when Focused(false) is called.
+			// Also, due to the implementation of DropDown.Focused(..), it only closes when control has focus
+			// which it won't have if SelectAll is triggered using e.g. a ContextMenu, since the ContextMenu becomes
+			// focused when clicked. So the inconsistency is also annoying. Furthermore automatically closing or
+			// changing focus takes away control from the developer implementing the SelectAll behaviour.
+			//me.Focused(false);
+
+			// NOTICE: Selecting thousands of nodes using SelectAll may result in very poor performance
+			// due to the large amount of DOM manipulation. Both the TreeView and DropDown goes through a full
+			// state change for every single item being selected or deselected, so all events fire and reflows are
+			// triggered for visible items.
+			// To increase performance, temporarily hide TreeView and/or DropDown with display:none while SelectAll
+			// is being performed. Switching to TextSelectionMode may also increase performance significantly.
 
 			// Make sure TreeView is the active picker to have changes synchronized with
 			// drop down control (in case SelectAll is triggered programmatically).
@@ -14030,19 +16549,107 @@ Fit.Controls.WSDropDown = function(ctlId)
 			}
 
 			me.SetPicker(tree);
-
-			if (tree.GetChildren().length === 0)
-			{
-				var selected = tree.Selected(); // Save selection which is cleared when Reload() is called
-				tree.Reload();
-				tree.Selected(selected); // Restore selection
-			}
+			ensureTreeViewData();
 		});
 	}
 
 	// ============================================
 	// Public
 	// ============================================
+
+	/// <function container="Fit.Controls.WSDropDown" name="AutoUpdateSelected" access="public">
+	/// 	<description>
+	/// 		Automatically update title of selected items based on data from WebService.
+	/// 		Contrary to UpdateSelected(), AutoUpdateSelected() automatically loads all
+	/// 		data from the associated WebService before updating the selected items, but
+	/// 		only if one or more items are selected.
+	/// 		The callback function is invoked when selected items have been updated.
+	/// 		The following arguments are passed to function:
+	/// 		 - Sender (WSDropDown)
+	/// 		 - An array of updated items, each with a Title (string), Value (string), and Exists (boolean) property.
+	/// 		Notice that items that no longer exists in picker's data, will NOT automatically be removed.
+	/// 		To obtain all items with the most current state (both updated and unmodified selections), use;
+	/// 		dropdown.AutoUpdateSelected(function(sender, updated) { console.log(&quot;All selected&quot;, dropdown.GetSelections()); });
+	/// 		For additiona details see UpdateSelected().
+	/// 	</description>
+	/// 	<param name="cb" type="function" default="undefined">
+	/// 		Optional callback function invoked when selected items have been updated
+	/// 	</param>
+	/// </function>
+	this.AutoUpdateSelected = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb, true);
+
+		if (me.GetSelections().length === 0) // Do not request data if no selections are made to be updated
+		{
+			if (Fit.Validation.IsSet(cb) === true)
+			{
+				cb(me, []);
+			}
+
+			return;
+		}
+
+		if (requestCount > 0)
+		{
+			// Data is currently loading - postpone by adding request to process queue
+			onDataLoaded(function() { me.AutoUpdateSelected(cb); });
+			return;
+		}
+
+		if (autoUpdatedSelections !== null)
+		{
+			if (Fit.Validation.IsSet(cb) === true)
+			{
+				cb(me, Fit.Core.Clone(autoUpdatedSelections)); // Clone to prevent changes to internal array and its data
+			}
+
+			return;
+		}
+
+		dataLoading = true;
+
+		var ensure = function()
+		{
+			tree.EnsureData(function(sender)
+			{
+				// Ensure all nodes in case only a subset is returned
+				// when requesting root nodes via tree.Reload(..)
+
+				// Picker must be set when calling UpdateSelected() on
+				// DropDown from which WSDropDown inherits. Selected items
+				// are updated based on data loaded by the picker control.
+				me.SetPicker(tree);
+
+				autoUpdatedSelections = me.UpdateSelected();
+
+				dataLoading = false;
+
+				if (Fit.Validation.IsSet(cb) === true)
+				{
+					cb(me, Fit.Core.Clone(autoUpdatedSelections)); // Clone to prevent changes to internal array and its data
+				}
+
+				fireOnDataLoaded();
+			});
+		}
+
+		if (dataRequested === false)
+		{
+			// Notice that dataRequested may have been set to False in ClearData(..), which is why
+			// we first call Reload to fetch initial data, since it also discards any existing nodes.
+
+			tree.Reload(true, function(sender)
+			{
+				ensure(); // Get remaining nodes in case WebService did not return the entire hierarchy at once (Progressive Mode)
+			});
+		}
+		else
+		{
+			// Some data has already been loaded - make sure we get the rest
+			ensure();
+		}
+	}
 
 	/// <function container="Fit.Controls.WSDropDown" name="Url" access="public" returns="string">
 	/// 	<description>
@@ -14091,6 +16698,56 @@ Fit.Controls.WSDropDown = function(ctlId)
 		return list.JsonpCallback();
 	}
 
+	/// <function container="Fit.Controls.WSDropDown" name="ClearData" access="public">
+	/// 	<description>
+	/// 		Call this function to make control reload data when needed,
+	/// 		ensuring that the user will see the most recent values available.
+	/// 		Operation may be postponed if data is currently loading from WebService.
+	/// 		Use callback to pick up execution once data has been cleared.
+	/// 		Sender (Fit.Controls.WSDropDown) is passed to callback as an argument.
+	/// 	</description>
+	/// 	<param name="cb" type="function" default="undefined">
+	/// 		If defined, callback is invoked when data is cleared
+	/// 	</param>
+	/// </function>
+	this.ClearData = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb, true);
+		
+		// Postpone if WebService operation is currently running
+
+		if (requestCount > 0)
+		{
+			// Data is currently loading - postpone by adding request to process queue
+			onDataLoaded(function() { me.ClearData(cb); });
+			return;
+		}
+
+		// Clear data/cache/state
+
+		hideLinesForFlatData = true;	// Make TreeView hide helper lines if nodes received have no children	
+		dataRequested = false;			// Make data in TreeView reload via ensureTreeViewData() when DropDown is opened
+		autoUpdatedSelections = null;	// Remove cached result from AutoUpdateSelected(..) used when multiple calls to the function is made
+
+		// Cancel pending search operation if scheduled
+		
+		cancelSearch();
+
+		// Invoke callback
+
+		if (Fit.Validation.IsSet(cb) === true)
+		{
+			cb(me);
+		}
+
+		// Immediately load TreeView data if DropDown is open and TreeView is active picker
+
+		if (me.IsDropDownOpen() === true && me.GetPicker() === tree)
+		{
+			ensureTreeViewData(); // Will not load anything if callback above triggered data load, e.g. by calling AutoUpdateSelected(..)
+		}
+	}
+
 	/// <function container="Fit.Controls.WSDropDown" name="MultiSelectionMode" access="public" returns="boolean">
 	/// 	<description> Get/set value indicating whether control allows for multiple selections simultaneously </description>
 	/// 	<param name="val" type="boolean" default="undefined"> If defined, True enables support for multiple selections, False disables it </param>
@@ -14132,7 +16789,7 @@ Fit.Controls.WSDropDown = function(ctlId)
 		list.Destroy();
 		tree.Destroy();
 
-		me = list = tree = search = forceNewSearch = suppressTreeOnOpen = timeOut = currentRequest = classes = onRequestHandlers = onResponseHandlers = null;
+		me = list = tree = search = forceNewSearch = hideLinesForFlatData = dataRequested = dataLoading = requestCount = onDataLoadedCallback = suppressTreeOnOpen = timeOut = currentRequest = classes = autoUpdatedSelections = onRequestHandlers = onResponseHandlers = null;
 
 		base();
 	});
@@ -14151,7 +16808,7 @@ Fit.Controls.WSDropDown = function(ctlId)
 	/// 		 - Sender: Fit.Controls.WSDropDown instance
 	/// 		 - Picker: Picker causing WebService data request (WSTreeView or WSListView instance)
 	/// 		 - Node: Fit.Controls.TreeViewNode instance if requesting TreeView children, Null if requesting root nodes
-	/// 		 - Search: Search value if entered
+	/// 		 - Search: Search value if entered by user
 	/// 		 - Request: Fit.Http.Request or Fit.Http.JsonRequest instance
 	/// 	</description>
 	/// 	<param name="cb" type="function"> Event handler function </param>
@@ -14172,7 +16829,7 @@ Fit.Controls.WSDropDown = function(ctlId)
 	/// 		 - Sender: Fit.Controls.WSDropDown instance
 	/// 		 - Picker: Picker causing WebService data request (WSTreeView or WSListView instance)
 	/// 		 - Node: Fit.Controls.TreeViewNode instance if requesting TreeView children, Null if requesting root nodes
-	/// 		 - Search: Search value if entered
+	/// 		 - Search: Search value if entered by user
 	/// 		 - Data: JSON data received from WebService
 	/// 		 - Request: Fit.Http.Request or Fit.Http.JsonRequest instance
 	/// 	</description>
@@ -14193,7 +16850,7 @@ Fit.Controls.WSDropDown = function(ctlId)
 	/// 		 - Sender: Fit.Controls.WSDropDown instance
 	/// 		 - Picker: Picker causing WebService data request (WSTreeView or WSListView instance)
 	/// 		 - Node: Fit.Controls.TreeViewNode instance if requesting TreeView children, Null if requesting root nodes
-	/// 		 - Search: Search value if entered
+	/// 		 - Search: Search value if entered by user
 	/// 		 - Data: JSON data received from WebService (Null in this particular case)
 	/// 		 - Request: Fit.Http.Request or Fit.Http.JsonRequest instance
 	/// 	</description>
@@ -14215,15 +16872,33 @@ Fit.Controls.WSDropDown = function(ctlId)
 	// Private
 	// ============================================
 
+	function ensureTreeViewData(/*cb*/)
+	{
+		//Fit.Validation.ExpectFunction(cb, true);
+
+		if (dataRequested === false)
+		{
+			dataLoading = true;
+
+			tree.Reload(true, function(sender)
+			{
+				dataLoading = false;
+
+				/*if (Fit.Validation.IsSet(cb) === true)
+				{
+					cb(me);
+				}*/
+
+				fireOnDataLoaded();
+			});
+		}
+	}
+
 	function searchData(value)
 	{
 		// Abort time responsible for starting search request X milliseconds after user stops typing
 
-		if (timeOut !== null)
-		{
-			clearTimeout(timeOut);
-			timeOut = null;
-		}
+		cancelSearch();
 
 		// Schedule new search request if a WebService request is already in progress
 
@@ -14259,6 +16934,37 @@ Fit.Controls.WSDropDown = function(ctlId)
 		}
 	}
 
+	function cancelSearch()
+	{
+		if (timeOut !== null)
+		{
+			clearTimeout(timeOut);
+			timeOut = null;
+		}
+	}
+
+	function onDataLoaded(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onDataLoadedCallback, cb);
+	}
+
+	function fireOnDataLoaded()
+	{
+		// Copied from WSTreeView.
+		// Immediately clear collection. If multiple callbacks are registered,
+		// chances are that only the first will run, and the remaining will be
+		// re-scheduled again - so we need the collection to be cleared before
+		// invoking callbacks.
+		var orgOnDataLoadedCallback = onDataLoadedCallback;
+		onDataLoadedCallback = [];
+
+		Fit.Array.ForEach(orgOnDataLoadedCallback, function(cb)
+		{
+			cb();
+		});
+	}
+
 	function fireEventHandlers(handlers, picker, eventArgs)
 	{
 		var cancel = false;
@@ -14266,13 +16972,18 @@ Fit.Controls.WSDropDown = function(ctlId)
 		Fit.Array.ForEach(handlers, function(cb)
 		{
 			var data = null; // Remains Null for OnAbort event (no Children or Items provided)
+			var searchValue = Fit.Core.InstanceOf(picker, Fit.Controls.WSListView) === true ? search : "";
 
 			if (eventArgs.Children) // WSTreeView
+			{
 				data = eventArgs.Children;
+			}
 			else if (eventArgs.Items) // WSListView
+			{
 				data = eventArgs.Items;
+			}
 
-			var newArgs = { Sender: me, Picker: picker, Node: (eventArgs.Node ? eventArgs.Node : null), SelectAll: eventArgs.SelectAll, Search: search, Data: data, Request: eventArgs.Request };
+			var newArgs = { Sender: me, Picker: picker, Node: (eventArgs.Node ? eventArgs.Node : null), SelectAll: eventArgs.SelectAll, Search: searchValue, Data: data, Request: eventArgs.Request };
 
 			if (cb(me, newArgs) === false)
 				cancel = true; // Do not cancel loop though - all handlers must be fired!
@@ -14282,6 +16993,17 @@ Fit.Controls.WSDropDown = function(ctlId)
 				eventArgs.Children = newArgs.Data;
 			else if (eventArgs.Items) // WSListView
 				eventArgs.Items = newArgs.Data;
+			
+			if (newArgs.Request !== eventArgs.Request)
+			{
+				// Support for changing request instans to
+				// take control over webservice communication.
+
+				// Restrict to support for Fit.Http.Request or classes derived from this
+				Fit.Validation.ExpectInstance(newArgs.Request, Fit.Http.Request);
+
+				eventArgs.Request = newArgs.Request;
+			}
 		});
 
 		return !cancel;
@@ -14289,6 +17011,41 @@ Fit.Controls.WSDropDown = function(ctlId)
 
 	init();
 }
+
+;(function()
+{
+	var locale = {
+		// Primary locales must be registered before country specific overrides.
+		// Example order: en, en_US, en_GB, de, de_AT, etc.
+		// All locales inherit from en. All country specific overrides inherit
+		// from their primary locale (e.g. de_AT inherits from de).
+		// English (en) MUST be defined!
+		
+		"en": // US
+		{
+			Translations:
+			{
+				InvalidSelection		: "Invalid selection"
+			}
+		},
+		"da":
+		{
+			Translations:
+			{
+				InvalidSelection		: "Ugyldigt valg"
+			}
+		},
+		"de":
+		{
+			Translations:
+			{
+				InvalidSelection		: "Ungültige Auswahl"
+			}
+		}
+	}
+	Fit.Internationalization.AddLocalization(Fit.Controls.DropDown, locale);
+	Fit.Internationalization.AddLocalization(Fit.Controls.WSDropDown, locale);	
+})();
 /// <container name="Fit.Controls.FilePicker" extends="Fit.Controls.ControlBase">
 /// 	Control allowing for files to be selected locally and uploaded asynchronously.
 /// 	Extending from Fit.Controls.ControlBase.
@@ -14307,11 +17064,20 @@ Fit.Controls.FilePicker = function(ctlId)
 
 	var me = this;
 	var button = null;
+	var buttonTitleEnforced = null;
 	var input = null;
 	var width = { Value: -1, Unit: "px" }; // Differs from default value on ControlBase which is 200px - here a value of -1 indicates width:auto
 	var url = null;
 	var files = [];
-	var inputs = []; // Legacy control - contains input controls when legacy mode is enabled (IE9 and older)
+	var autoUpload = false;
+
+	// Legacy control
+	var inputs = []; // Contains input controls when legacy mode is enabled (IE9 and older)
+	var inputsByFileId = {};
+	
+	var dropZoneLabel = null;
+	var dropZoneLabelEnforced = null;
+	var dropZoneContainer = null;
 
 	var onUploadHandlers = [];
 	var onProgressHandlers = [];
@@ -14327,7 +17093,6 @@ Fit.Controls.FilePicker = function(ctlId)
 		if (inputs.length === 0) // Modern control
 		{
 			button = new Fit.Controls.Button("Button" + me.GetId());
-			button.Title(Fit.Language.Translations.SelectFile);
 			button.Icon("upload"); // files-o
 			button.OnClick(function(sender) { input.click(); }); // Make sure Enter/Spacebar opens file dialog
 
@@ -14341,6 +17106,10 @@ Fit.Controls.FilePicker = function(ctlId)
 		me.Enabled(true);
 
 		me._internal.Data("legacy", (inputs.length > 0).toString());
+		me._internal.Data("dropzone", "false");
+
+		Fit.Internationalization.OnLocaleChanged(localize);
+		localize();
 	}
 
 	function createUploadField()
@@ -14357,17 +17126,12 @@ Fit.Controls.FilePicker = function(ctlId)
 
 			if (inputs.length === 0) // Modern control
 			{
-				files = [];
-
-				// Add selected files to internal collection
-				Fit.Array.ForEach(inp.files, function(file)
-				{
-					Fit.Array.Add(files, { Filename: file.name, Type: file.type, Size: file.size, Id: Fit.Data.CreateGuid(), Processed: false, Input: inp, FileObject: file, GetImagePreview: function() { return getImagePreview(file); }, ServerResponse: null });
-				});
+				setValueFromFilesList(inp.files); // Also triggers OnChange and performs postback if AutoUpload is true
 			}
 			else // Legacy control
 			{
 				files = [];
+				inputsByFileId = {};
 
 				// Add selected files to internal collection
 
@@ -14390,7 +17154,7 @@ Fit.Controls.FilePicker = function(ctlId)
 
 					var file = null;
 
-					// Some files may have been uploaded earlier (e.g. if AutoPostBack is enabled or if user
+					// Some files may have been uploaded earlier (e.g. if AutoUpload is enabled or if user
 					// selects 3 files, triggers upload, selects another 5 files, and triggers upload again).
 					// Make sure file information is preserved for files already processed.
 
@@ -14400,7 +17164,7 @@ Fit.Controls.FilePicker = function(ctlId)
 					}
 					else
 					{
-						file = { Filename: i.value, Type: "Unknown", Size: -1, Id: Fit.Data.CreateGuid(), Processed: false, Input: i, FileObject: null, GetImagePreview: function() { return null; }, ServerResponse: null };
+						file = createFileInfo(i.value.replace(/^C:\\fakepath\\/, ""), "Unknown", -1, null);
 					}
 
 					i._file = file;
@@ -14408,17 +17172,18 @@ Fit.Controls.FilePicker = function(ctlId)
 					// Add file information
 
 					Fit.Array.Add(files, file);
+					inputsByFileId[file.Id] = i;
 				});
 
 				// Make sure an empty upload control is always available in Multi Selection Mode, allowing for another file to be added
 				if (me.MultiSelectionMode() === true)
 					createUploadField();
+				
+				me._internal.FireOnChange();
+
+				if (me.AutoUpload() === true)
+					me.Upload();
 			}
-
-			me._internal.FireOnChange();
-
-			if (me.AutoPostBack() === true)
-				me.Upload();
 		}
 
 		if (inp.files && !Fit.Controls.FilePicker.ForceLegacyMode) // Modern control
@@ -14440,6 +17205,30 @@ Fit.Controls.FilePicker = function(ctlId)
 			Fit.Array.Add(inputs, inp);
 			me._internal.AddDomElement(inp);
 		}
+	}
+
+	function setValueFromFilesList(fileList)
+	{
+		Fit.Validation.ExpectInstance(fileList, FileList);
+
+		// Add selected files to internal collection
+
+		files = [];
+		Fit.Array.ForEach(fileList, function(file)
+		{
+			Fit.Array.Add(files, createFileInfo(file.name, file.type, file.size, file));
+
+			// Dropzone always allow for multiple files to be dropped - handle Single Selection Mode here
+			if (me.MultiSelectionMode() === false)
+				return false; // Break loop
+		});
+
+		// Fire OnChange and trigger upload if configured to upload automatically
+
+		me._internal.FireOnChange();
+
+		if (me.AutoUpload() === true)
+			me.Upload();
 	}
 
 	// ============================================
@@ -14528,7 +17317,14 @@ Fit.Controls.FilePicker = function(ctlId)
 	{
 		// This will destroy control - it will no longer work!
 
-		me = button = input = width = url = files = inputs = onUploadHandlers = onProgressHandlers = onSuccessHandlers = onFailureHandlers = onCompletedHandlers = null; // onAbortHandlers
+		Fit.Internationalization.RemoveOnLocaleChanged(localize);
+
+		if (button !== null) // Modern control
+		{
+			button.Dispose();
+		}
+
+		me = button = buttonTitleEnforced = input = width = url = files = autoUpload = inputs = inputsByFileId = dropZoneLabel = dropZoneLabelEnforced = dropZoneContainer = onUploadHandlers = onProgressHandlers = onSuccessHandlers = onFailureHandlers = onCompletedHandlers = null; // onAbortHandlers
 		base();
 	});
 
@@ -14553,7 +17349,7 @@ Fit.Controls.FilePicker = function(ctlId)
 			{
 				width = base(val, unit);
 
-				if (inputs.length === 0)
+				if (inputs.length === 0 && me.ShowDropZone() === false)
 					button.Width(100, "%");
 			}
 			else // Adjust width to content size
@@ -14561,7 +17357,7 @@ Fit.Controls.FilePicker = function(ctlId)
 				width = { Value: -1, Unit: "px" }; // Any changes to this line must be dublicated to line declaring the width variable !
 				me.GetDomElement().style.width = "auto";
 
-				if (inputs.length === 0)
+				if (inputs.length === 0 && me.ShowDropZone() === false)
 					button.Width(-1);
 			}
 		}
@@ -14579,10 +17375,13 @@ Fit.Controls.FilePicker = function(ctlId)
 		{
 			base(val, unit);
 
-			if (val > -1) // Fixed height
-				button.Height(100, "%");
-			else // Adjust height to content size
-				button.Height(-1);
+			if (me.ShowDropZone() === false)
+			{
+				if (val > -1) // Fixed height
+					button.Height(100, "%");
+				else // Adjust height to content size
+					button.Height(-1);
+			}
 		}
 
 		return base();
@@ -14612,24 +17411,52 @@ Fit.Controls.FilePicker = function(ctlId)
 		return url;
 	}
 
-	/// <function container="Fit.Controls.FilePicker" name="Title" access="public" returns="string">
-	/// 	<description> Get/set file picker title </description>
-	/// 	<param name="val" type="string" default="undefined"> If defined, file picker title is set to specified value </param>
+	/// <function container="Fit.Controls.FilePicker" name="ButtonText" access="public" returns="string">
+	/// 	<description> Get/set button text </description>
+	/// 	<param name="val" type="string" default="undefined"> If defined, button text is set to specified value </param>
 	/// </function>
-	this.Title = function(val)
+	this.ButtonText = function(val)
 	{
 		Fit.Validation.ExpectString(val, true)
 
-		if (button === null)
-			return ""; // Legacy mode
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			buttonTitleEnforced = val;
+
+			if (button !== null) // Modern control
+			{
+				button.Title(val);
+				Fit.Dom.Add(button.GetDomElement(), input);
+			}
+		}
+
+		return (button !== null ? button.Title() : buttonTitleEnforced || ""); // Button is null in legacy mode
+	}
+	
+	// DEPRECATED
+	this.Title = function(val)
+	{
+		Fit.Browser.LogDeprecated("Use of deprecated function Title(..) on instance of Fit.Controls.FilePicker - please use ButtonText(..) instead");
+		return me.ButtonText(val);
+	}
+
+	/// <function container="Fit.Controls.FilePicker" name="DropZoneText" access="public" returns="string">
+	/// 	<description> Get/set drop zone text </description>
+	/// 	<param name="val" type="string" default="undefined"> If defined, drop zone text is set to specified value </param>
+	/// </function>
+	this.DropZoneText = function(val)
+	{
+		Fit.Validation.ExpectString(val, true)
 
 		if (Fit.Validation.IsSet(val) === true)
 		{
-			button.Title(val);
-			Fit.Dom.Add(button.GetDomElement(), input);
+			dropZoneLabelEnforced = val;
+
+			if (dropZoneLabel !== null)
+				dropZoneLabel.innerHTML = val;
 		}
 
-		return button.Title();
+		return (dropZoneLabel !== null ? dropZoneLabel.innerHTML : dropZoneLabelEnforced || "");
 	}
 
 	/// <function container="Fit.Controls.FilePicker" name="GetFiles" access="public" returns="object[]">
@@ -14640,7 +17467,6 @@ Fit.Controls.FilePicker = function(ctlId)
 	/// 		 - Size:integer (File size in bytes)
 	/// 		 - Id:string (Unique file ID)
 	/// 		 - Processed:boolean (Flag indicating whether file has been uploaded, or is currently being uploaded)
-	/// 		 - Input:HTMLInputElement (Input control used as file picker)
 	/// 		 - FileObject:File (Native JS File object representing selected file)
 	/// 		 - GetImagePreview:function (Returns an HTMLImageElement with a preview for supported file types)
 	/// 		NOTICE: The following properties/functions are not available in Legacy Mode: Type, Size, FileObject, GetImagePreview().
@@ -14666,10 +17492,6 @@ Fit.Controls.FilePicker = function(ctlId)
 				if (val === true && me.MultiSelectionMode() === false)
 				{
 					input.multiple = "multiple";
-
-					// Change title unless a custom title has been set
-					if (me.Title() === Fit.Language.Translations.SelectFile)
-						me.Title(Fit.Language.Translations.SelectFiles);
 				}
 				else if (val === false && me.MultiSelectionMode() === true)
 				{
@@ -14677,10 +17499,6 @@ Fit.Controls.FilePicker = function(ctlId)
 						me.Clear();
 
 					input.multiple = "";
-
-					// Change title unless a custom title has been set
-					if (me.Title() === Fit.Language.Translations.SelectFiles)
-						me.Title(Fit.Language.Translations.SelectFile);
 				}
 			}
 			else // Legacy control
@@ -14689,6 +17507,8 @@ Fit.Controls.FilePicker = function(ctlId)
 			}
 
 			me._internal.Data("multiple", val.toString());
+			
+			localize();
 		}
 
 		return (me._internal.Data("multiple") === "true");
@@ -14726,12 +17546,109 @@ Fit.Controls.FilePicker = function(ctlId)
 		return (me._internal.Data("enabled") === "true");
 	}
 
+	/// <function container="Fit.Controls.FilePicker" name="ShowDropZone" access="public" returns="boolean">
+	/// 	<description> Get/set value indicating whether control is displayed as a drop zone on supported browsers or not </description>
+	/// 	<param name="val" type="boolean" default="undefined"> If specified, True enables drop zone, False disables it (default) </param>
+	/// </function>
+	this.ShowDropZone = function(val)
+	{
+		Fit.Validation.ExpectBoolean(val, true);
+
+		if (Fit.Validation.IsSet(val) === true && inputs.length === 0) // Only available for modern control
+		{
+			if (val === true && dropZoneLabel === null)
+			{
+				dropZoneLabel = Fit.Dom.CreateElement("<div></div>");
+				dropZoneContainer = Fit.Dom.CreateElement("<div></div>");
+				
+				/*me.GetDomElement().ondragenter = function(e)
+				{
+					me._internal.Data("dropping", "true");
+				}*/
+
+				me.GetDomElement().ondragleave = function(e)
+				{
+					me._internal.Data("dropping", "false");
+				}
+
+				// OnDragOver must be overridden and suppressed to avoid files being opened in browser when dropped
+				me.GetDomElement().ondragover = function(e)
+				{
+					var ev = Fit.Events.GetEvent(e);
+					Fit.Events.PreventDefault(ev); // Prevent files from opening in browser
+
+					// OnDragEnter and OnDragLeave is not sufficient to update dropping state since user may enter dropzone (triggers OnDragEnter),
+					// then hover button (triggers OnDragLeave), and then hover dropzone again which unfortunately doesn't trigger OnDragEnter again.
+					me._internal.Data("dropping", "true");
+				}
+
+				me.GetDomElement().ondrop = function(e)
+				{
+					var ev = Fit.Events.GetEvent(e);
+					Fit.Events.PreventDefault(ev); // Prevent files from opening in browser
+					
+					setValueFromFilesList(ev.dataTransfer.files); // Also triggers OnChange and performs postback if AutoUpload is true
+					me._internal.Data("dropping", "false");
+				}
+
+				button.Width(-1);
+				button.Height(-1);
+
+				Fit.Dom.Add(dropZoneContainer, dropZoneLabel);
+				Fit.Dom.Add(dropZoneContainer, button.GetDomElement());
+				Fit.Dom.Add(me.GetDomElement(), dropZoneContainer);
+
+				localize();
+
+				me._internal.Data("dropping", "false");
+				me._internal.Data("dropzone", "true");
+			}
+			else if (val === false && dropZoneLabel !== null)
+			{
+				//me.GetDomElement().ondragenter = null;
+				me.GetDomElement().ondragleave = null;
+				me.GetDomElement().ondragover = null;
+				me.GetDomElement().ondrop = null;
+
+				button.Width(me.Width().Value, me.Width().Unit);
+				button.Height(me.Height().Value, me.Height().Unit);
+
+				Fit.Dom.Remove(dropZoneContainer);
+				Fit.Dom.Add(me.GetDomElement(), button.GetDomElement());
+
+				dropZoneLabel = null;
+				dropZoneContainer = null;
+
+				me._internal.Data("dropping", null);
+				me._internal.Data("dropzone", "false");
+			}
+		}
+
+		return (dropZoneLabel !== null);
+	}
+
 	/// <function container="Fit.Controls.FilePicker" name="IsLegacyModeEnabled" access="public" returns="boolean">
 	/// 	<description> Get value indicating whether control is in legacy mode (old fashion upload control) </description>
 	/// </function>
 	this.IsLegacyModeEnabled = function()
 	{
 		return (inputs.length > 0);
+	}
+
+	/// <function container="Fit.Controls.FilePicker" name="AutoUpload" access="public" returns="boolean">
+	/// 	<description> Get/set value indicating whether control automatically starts upload process when files are selected </description>
+	/// 	<param name="val" type="boolean" default="undefined"> If specified, True enables auto upload, False disables it (default) </param>
+	/// </function>
+	this.AutoUpload = function(val)
+	{
+		Fit.Validation.ExpectBoolean(val, true);
+
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			autoUpload = val;
+		}
+
+		return autoUpload;
 	}
 
 	/// <function container="Fit.Controls.FilePicker" name="Upload" access="public">
@@ -14830,7 +17747,7 @@ Fit.Controls.FilePicker = function(ctlId)
 			{
 				var enforcedOnModernBrowser = (Fit.Browser.GetInfo().Name !== "MSIE" || Fit.Browser.GetInfo().Version > 8);
 
-				var picker = file.Input;
+				var picker = inputsByFileId[file.Id];
 
 				var iFrame = null;
 				var form = null;
@@ -14934,6 +17851,26 @@ Fit.Controls.FilePicker = function(ctlId)
 		});
 	}
 
+	function localize()
+	{
+		if (inputs.length > 0)
+			return; // Legacy mode - nothing to localize
+
+		var locale = Fit.Internationalization.GetLocale(me);
+
+		if (buttonTitleEnforced === null)
+		{
+			var buttonTitle = (me.MultiSelectionMode() === true ? locale.SelectFiles : locale.SelectFile);
+			button.Title(buttonTitle);
+		}
+
+		if (dropZoneLabel !== null)
+		{
+			var dzText = (dropZoneLabelEnforced !== null ? dropZoneLabelEnforced : (me.MultiSelectionMode() === true ? locale.DropFiles : locale.DropFile));
+			dropZoneLabel.innerHTML = dzText;
+		}
+	}
+
 	function getImagePreview(file) // file is an instance of File (native JS object type) - returns Image instance if preview can be created, otherwise Null
 	{
 		if (inputs.length > 0)
@@ -14968,7 +17905,7 @@ Fit.Controls.FilePicker = function(ctlId)
 		{
 			if (Fit.Validation.IsSet(file) === true) // OnSuccess/OnFailure/OnProcess
 			{
-				var eventArgs = file;
+				var eventArgs = cloneFileInfo(file);
 				eventArgs.Progress = 100;
 
 				if (Fit.Validation.IsSet(progress) === true)
@@ -14985,6 +17922,25 @@ Fit.Controls.FilePicker = function(ctlId)
 		});
 
 		return !canceled;
+	}
+
+	function createFileInfo(filename, type, size, fileObject)
+	{
+		Fit.Validation.ExpectString(filename);
+		Fit.Validation.ExpectString(type);
+		Fit.Validation.ExpectNumber(size);
+		Fit.Validation.ExpectInstance(fileObject, File, true);
+
+		// IMPORTANT: Make sure changes to this object is also made to object returned by cloneFileInfo(..)
+		return { Filename: filename, Type: type, Size: size, Id: Fit.Data.CreateGuid(), Processed: false, FileObject: fileObject || null, GetImagePreview: function() { return getImagePreview(fileObject); }, ServerResponse: null };
+	}
+
+	function cloneFileInfo(file) // Object as created by createFileInfo(..)
+	{
+		// We cannot use Fit.Core.Clone(..) since this is not a simple JSON object (DOM input field contained).
+		// Also notice that the clone's Input and GetImagePreview properties are references (shared with original object).
+
+		return { Filename: file.Filename, Type: file.Type, Size: file.Size, Id: file.Id, Processed: file.Processed, FileObject: file.FileObject, GetImagePreview: file.GetImagePreview, ServerResponse: file.ServerResponse };
 	}
 
 	// ============================================
@@ -15017,7 +17973,6 @@ Fit.Controls.FilePicker = function(ctlId)
 	/// 		 - Id:string (Unique file ID)
 	/// 		 - Processed:boolean (Flag indicating whether file has been uploaded, or is currently being uploaded)
 	/// 		 - Progress:integer (A value from 0-100 indicating how many percent of the file has been uploaded)
-	/// 		 - Input:HTMLInputElement (Input control used as file picker)
 	/// 		 - FileObject:File (Native JS File object representing given file)
 	/// 		 - GetImagePreview:function (Returns an HTMLImageElement with a preview for supported file types)
 	/// 		Be aware that Type and Size cannot be determined in Legacy Mode, and that FileObject in this
@@ -15043,7 +17998,6 @@ Fit.Controls.FilePicker = function(ctlId)
 	/// 		 - Id:string (Unique file ID)
 	/// 		 - Processed:boolean (Flag indicating whether file has been uploaded, or is currently being uploaded)
 	/// 		 - Progress:integer (A value from 0-100 indicating how many percent of the file has been uploaded)
-	/// 		 - Input:HTMLInputElement (Input control used as file picker)
 	/// 		 - FileObject:File (Native JS File object representing given file)
 	/// 		 - GetImagePreview:function (Returns an HTMLImageElement with a preview for supported file types)
 	/// 		 - ServerResponse:string (Contains the response received from the server after a successful upload)
@@ -15070,7 +18024,6 @@ Fit.Controls.FilePicker = function(ctlId)
 	/// 		 - Id:string (Unique file ID)
 	/// 		 - Processed:boolean (Flag indicating whether file has been uploaded, or is currently being uploaded)
 	/// 		 - Progress:integer (A value from 0-100 indicating how many percent of the file has been uploaded)
-	/// 		 - Input:HTMLInputElement (Input control used as file picker)
 	/// 		 - FileObject:File (Native JS File object representing given file)
 	/// 		 - GetImagePreview:function (Returns an HTMLImageElement with a preview for supported file types)
 	/// 		Be aware that Type and Size cannot be determined in Legacy Mode, and that FileObject in this
@@ -15108,6 +18061,38 @@ Fit.Controls.FilePicker = function(ctlId)
 
 	init();
 }
+
+Fit.Internationalization.AddLocalization(Fit.Controls.FilePicker,
+{
+	// Primary locales must be registered before country specific overrides.
+	// Example order: en, en_GB, de, de_AT, etc.
+	// All locales inherit from en. All country specific overrides inherit
+	// from their general locale (e.g. de_AT inherits from de).
+	// English (en) MUST be defined, and be defined first!
+
+	"en":
+	{
+		"SelectFile": "Select file",
+		"SelectFiles": "Select files",
+		"DropFile": "Drag and drop file here, or",
+		"DropFiles": "Drag and drop files here, or"
+	},
+	"da":
+	{
+		"SelectFile": "Vælg fil",
+		"SelectFiles": "Vælg filer",
+		"DropFile": "Træk og slip fil her, eller",
+		"DropFiles": "Træk og slip filer her, eller"
+	},
+	"de":
+	{
+		"SelectFile": "Datei aussuchen",
+		"SelectFiles": "Dateien auswählen",
+		"DropFile": "Zieh deine Datei hierher und lege sie ab, oder",
+		"DropFiles": "Zieh deine Dateien hierher und lege sie ab, oder"
+	}
+});
+
 /// <container name="Fit.Controls.Input" extends="Fit.Controls.ControlBase">
 /// 	Input control which allows for one or multiple lines of
 /// 	text, and features a Design Mode for rich HTML content.
@@ -15134,6 +18119,7 @@ Fit.Controls.Input = function(ctlId)
 	var maximizeHeight = -1;
 	var minMaxUnit = null;
 	var mutationObserverId = -1;
+	var rootedEventId = -1;
 	var isIe8 = (Fit.Browser.GetInfo().Name === "MSIE" && Fit.Browser.GetInfo().Version === 8);
 
 	// ============================================
@@ -15196,6 +18182,11 @@ Fit.Controls.Input = function(ctlId)
 				elm.blur();
 		}
 
+		if (designEditor !== null)
+		{
+			return (designEditor._focused === true); // Focused element is found in an iFrame so we have to rely on the HTML Editor instance to provide this information
+		}
+
 		return (Fit.Dom.GetFocused() === elm);
 	}
 
@@ -15246,7 +18237,17 @@ Fit.Controls.Input = function(ctlId)
 		if (designEditor !== null)
 			designEditor.destroy();
 
-		me = orgVal = preVal = input = cmdResize = designEditor = wasMultiLineBefore = minimizeHeight = maximizeHeight = minMaxUnit = mutationObserverId = isIe8 = null;
+		if (mutationObserverId !== -1)
+		{
+			Fit.Events.RemoveMutationObserver(mutationObserverId);
+		}
+
+		if (rootedEventId !== -1)
+		{
+			Fit.Events.RemoveHandler(me.GetDomElement(), rootedEventId);
+		}
+
+		me = orgVal = preVal = input = cmdResize = designEditor = wasMultiLineBefore = minimizeHeight = maximizeHeight = minMaxUnit = mutationObserverId = rootedEventId = isIe8 = null;
 
 		base();
 	});
@@ -15672,7 +18673,43 @@ Fit.Controls.Input = function(ctlId)
 		// the size of objects while being invisible. The CKEditor team may also solve the bug in an update.
 		if (Fit.Dom.IsRooted(me.GetDomElement()) === false)
 		{
-			Fit.Validation.ThrowError("Control must be appended/rendered to DOM before DesignMode can be initialized");
+			//Fit.Validation.ThrowError("Control must be appended/rendered to DOM before DesignMode can be initialized");
+
+			var retry = function()
+			{
+				if (Fit.Dom.IsRooted(me.GetDomElement()) === true)
+				{
+					if (me.DesignMode() === true)
+					{
+						createEditor();
+					}
+
+					return true;
+				}
+
+				// Return False to indicate that we still need to keep retrying (still in DesignMode).
+				// Otherwie return True to indicate success - retrying is no longer relevant.
+				return (me.DesignMode() === true ? false : true);
+			};
+
+			setTimeout(function() // Queue to allow control to be rooted
+			{
+				if (retry() === false)
+				{
+					// Still not rooted - add observer to create editor instance once control is rooted
+
+					rootedEventId = Fit.Events.AddHandler(me.GetDomElement(), "#rooted", function(e)
+					{
+						if (retry() === true || me.DesignMode() === false)
+						{
+							Fit.Events.RemoveHandler(me.GetDomElement(), rootedEventId);
+							rootedEventId = -1;
+						}
+					});
+				}
+			}, 0);
+
+			return;
 		}
 
 		designEditor = CKEDITOR.replace(me.GetId() + "_DesignMode",
@@ -15715,10 +18752,12 @@ Fit.Controls.Input = function(ctlId)
 				},
 				focus: function()
 				{
+					designEditor._focused = true;
 					me._internal.FireOnFocus();
 				},
 				blur: function()
 				{
+					delete designEditor._focused;
 					me._internal.FireOnBlur();
 				}
 			}
@@ -15866,6 +18905,7 @@ Fit.Controls.Input.Type = Fit.Controls.InputType; // Backward compatibility
 
 Fit._internal.Controls.Input = {};
 Fit._internal.Controls.Input.DefaultSkin = null; // Notice: CKEditor does not support multiple different skins on the same page - do not change value once an editor has been created
+
 /// <container name="Fit.Controls.ListView" extends="Fit.Controls.PickerBase;Fit.Controls.Component">
 /// 	Picker control which allows for entries
 /// 	to be selected in the DropDown control.
@@ -15908,23 +18948,23 @@ Fit.Controls.ListView = function(controlId)
 			while (elm.parentElement !== list)
 				elm = elm.parentElement;
 
-			setActive(elm);
+			setActive(elm, true); // true = do not scroll into view - it already is
 
 			// Fire OnChanging and OnChange events
 
 			// Notice: We always pass False as current selection state to OnItemSelectionChanging since ListView does
 			// not keep track of selection state. In theory item could very well already be selected in host control.
 			// Event handlers should not trust boolean to reveal selection in host control, only in picker.
-			if (me._internal.FireOnItemSelectionChanging(Fit.Dom.Text(elm), decode(Fit.Dom.Data(elm, "value")), false) === true)
+			if (me._internal.FireOnItemSelectionChanging(Fit.Dom.Text(elm), decode(Fit.Dom.Data(elm, "value")), false, false) === true)
 			{
-				me._internal.FireOnItemSelectionChanged(Fit.Dom.Text(elm), decode(Fit.Dom.Data(elm, "value")), true);
+				me._internal.FireOnItemSelectionChanged(Fit.Dom.Text(elm), decode(Fit.Dom.Data(elm, "value")), true, false);
 				me._internal.FireOnItemSelectionComplete();
 			}
 		}
 
 		list.onfocus = function(e)
 		{
-			var ev = Fit.Events.GetEvent(e);
+			me._internal.FireOnFocusIn(); // Fire OnFocusIn on PickerBase
 
 			// Skip if this was a mouse click, leave handling to OnClick which fires after OnFocus.
 			// Notice that Fit.Events.GetPointerState() is used to determine whether mouse button
@@ -15946,6 +18986,12 @@ Fit.Controls.ListView = function(controlId)
 				if (list.children.length > 0)
 					setActive(list.children[0]);
 			}
+		}
+
+		list.onblur = function(e)
+		{
+			setActive(null);
+			me._internal.FireOnFocusOut(); // Fire OnFocusOut on PickerBase
 		}
 
 		list.onkeydown = function(e)
@@ -16007,6 +19053,24 @@ Fit.Controls.ListView = function(controlId)
 		list.appendChild(entry);
 	}
 
+	/// <function container="Fit.Controls.ListView" name="GetItem" access="public" returns="object">
+	/// 	<description> Get item by value - returns object with Title (string) and Value (string) properties if found, otherwise Null </description>
+	/// 	<param name="value" type="string"> Value of item to retrieve </param>
+	/// </function>
+	this.GetItem = function(value)
+	{
+		Fit.Validation.ExpectString(value);
+
+		var itemElm = getItemElement(value);
+
+		if (itemElm !== null)
+		{
+			return convertItemElementToObject(itemElm);
+		}
+
+		return null;
+	}
+
 	/// <function container="Fit.Controls.ListView" name="HasItem" access="public" returns="boolean">
 	/// 	<description> Returns value indicating whether control contains item with specified value </description>
 	/// 	<param name="value" type="string"> Value of item to check for </param>
@@ -16014,19 +19078,7 @@ Fit.Controls.ListView = function(controlId)
 	this.HasItem = function(value)
 	{
 		Fit.Validation.ExpectString(value);
-
-		var exists = false;
-
-		Fit.Array.ForEach(list.children, function(child)
-		{
-			if (decode(Fit.Dom.Data(child, "value")) === value)
-			{
-				exists = true;
-				return false;
-			}
-		});
-
-		return exists;
+		return getItemElement(value) !== null;
 	}
 
 	/// <function container="Fit.Controls.ListView" name="RemoveItem" access="public">
@@ -16037,14 +19089,12 @@ Fit.Controls.ListView = function(controlId)
 	{
 		Fit.Validation.ExpectString(value);
 
-		Fit.Array.ForEach(Fit.Array.Copy(list.children), function(child)
+		var item = getItemElement(value);
+
+		if (item !== null)
 		{
-			if (decode(Fit.Dom.Data(child, "value")) === value)
-			{
-				Fit.Dom.Remove(child);
-				return false;
-			}
-		});
+			Fit.Dom.Remove(item);
+		}
 	}
 
 	/// <function container="Fit.Controls.ListView" name="RemoveItems" access="public">
@@ -16059,6 +19109,24 @@ Fit.Controls.ListView = function(controlId)
 	// ============================================
 	// PickerBase interface
 	// ============================================
+
+	this.GetItemByValue = function(val)
+	{
+		Fit.Validation.ExpectString(val);
+		return me.GetItem(val);
+	}
+
+	this.RevealItemInView = function(val)
+	{
+		Fit.Validation.ExpectString(val);
+
+		var itemElm = getItemElement(val);
+
+		if (itemElm !== null)
+		{
+			setActive(itemElm);
+		}
+	}
 
     this.HandleEvent = function(e)
     {
@@ -16092,9 +19160,9 @@ Fit.Controls.ListView = function(controlId)
 					// Notice: We always pass False as current selection state to OnItemSelectionChanging since ListView does
 					// not keep track of selection state. In theory item could very well already be selected in host control.
 					// Event handlers should not trust boolean to reveal selection in host control, only in picker.
-					if (me._internal.FireOnItemSelectionChanging(Fit.Dom.Text(active), decode(Fit.Dom.Data(active, "value")), false) === true)
+					if (me._internal.FireOnItemSelectionChanging(Fit.Dom.Text(active), decode(Fit.Dom.Data(active, "value")), false, false) === true)
 					{
-						me._internal.FireOnItemSelectionChanged(Fit.Dom.Text(active), decode(Fit.Dom.Data(active, "value")), true);
+						me._internal.FireOnItemSelectionChanged(Fit.Dom.Text(active), decode(Fit.Dom.Data(active, "value")), true, false);
 						me._internal.FireOnItemSelectionComplete();
 					}
 				}
@@ -16137,9 +19205,34 @@ Fit.Controls.ListView = function(controlId)
 	// Private
 	// ============================================
 
-	function setActive(elm)
+	function getItemElement(value)
+	{
+		Fit.Validation.ExpectString(value);
+
+		var found = null;
+
+		Fit.Array.ForEach(list.children, function(child)
+		{
+			if (decode(Fit.Dom.Data(child, "value")) === value)
+			{
+				found = child;
+				return false;
+			}
+		});
+
+		return found;
+	}
+
+	function convertItemElementToObject(elm)
+	{
+		Fit.Validation.ExpectDomElement(elm);
+		return { Title: Fit.Dom.Text(elm), Value: Fit.Dom.Data(elm, "value") }; // Using Text(..) to get rid of HTML formatting
+	}
+
+	function setActive(elm, suppressScrollIntoView)
 	{
 		Fit.Validation.ExpectDomElement(elm, true);
+		Fit.Validation.ExpectBoolean(suppressScrollIntoView, true);
 
 		if (active !== null)
 			Fit.Dom.Data(active, "active", "false");
@@ -16150,8 +19243,11 @@ Fit.Controls.ListView = function(controlId)
 		{
 			Fit.Dom.Data(active, "active", "true");
 
-			list.scrollTop = active.offsetHeight * Fit.Dom.GetIndex(active); // Alternative to active.scrollIntoView(true) which unfortunately also scrolls main view
-			repaint();
+			if (suppressScrollIntoView !== true)
+			{
+				list.scrollTop = active.offsetHeight * Fit.Dom.GetIndex(active); // Alternative to active.scrollIntoView(true) which unfortunately also scrolls main view
+				repaint();
+			}
 		}
 	}
 
@@ -16212,6 +19308,7 @@ Fit.Controls.ListView = function(controlId)
 
 	init();
 }
+
 /// <container name="Fit.Controls.WSListView" extends="Fit.Controls.ListView">
 /// 	WebService enabled picker control which allows for entries
 /// 	to be selected in the DropDown control.
@@ -16229,6 +19326,8 @@ Fit.Controls.WSListView = function(ctlId)
 	var me = this;
 	var url = null;
 	var jsonpCallback = null;
+	var dataLoading = false;
+	var onDataLoadedCallback = [];
 	var onRequestHandlers = [];
 	var onResponseHandlers = [];
 	var onAbortHandlers = [];
@@ -16289,10 +19388,35 @@ Fit.Controls.WSListView = function(ctlId)
 
 	/// <function container="Fit.Controls.WSListView" name="Reload" access="public">
 	/// 	<description> Load/reload data from WebService </description>
+	/// 	<param name="cb" type="function" default="undefined">
+	/// 		If defined, callback function is invoked when data has been loaded
+	/// 		and populated - takes Sender (Fit.Controls.WSListView) as an argument.
+	/// 	</param>
 	/// </function>
-	this.Reload = function()
+	this.Reload = function(cb)
 	{
-		getData();
+		Fit.Validation.ExpectFunction(cb, true);
+
+		if (dataLoading === true)
+		{
+			// Data is currently loading - postpone by adding request to process queue
+			onDataLoaded(function() { me.Reload(cb); });
+			return;
+		}
+
+		dataLoading = true;
+
+		getData(function() // Callback is invoked when nodes are populated, but before OnPopulated is fired by getData(..)
+		{
+			dataLoading = false;
+
+			if (Fit.Validation.IsSet(cb) === true)
+			{
+				cb(me);
+			}
+
+			fireOnDataLoaded();
+		});
 	}
 
 	// See documentation on PickerBase
@@ -16300,7 +19424,7 @@ Fit.Controls.WSListView = function(ctlId)
 	{
 		// This will destroy control - it will no longer work!
 
-		me = url = jsonpCallback = onRequestHandlers = onResponseHandlers = onAbortHandlers = onPopulatedHandlers = null;
+		me = url = jsonpCallback = dataLoading = onDataLoadedCallback = onRequestHandlers = onResponseHandlers = onAbortHandlers = onPopulatedHandlers = null;
 		base();
 	});
 
@@ -16385,8 +19509,10 @@ Fit.Controls.WSListView = function(ctlId)
 	// Private
 	// ============================================
 
-	function getData()
+	function getData(cb)
 	{
+		Fit.Validation.ExpectFunction(cb, true);
+
 		if (url === null)
 			Fit.Validation.ThrowError("Unable to get data, no WebService URL has been specified");
 
@@ -16410,6 +19536,17 @@ Fit.Controls.WSListView = function(ctlId)
 		if (fireEventHandlers(onRequestHandlers, eventArgs) === false)
 			return;
 
+		if (eventArgs.Request !== request)
+		{
+			// Support for changing request instans to
+			// take control over webservice communication.
+
+			// Restrict to support for Fit.Http.Request or classes derived from this
+			Fit.Validation.ExpectInstance(eventArgs.Request, Fit.Http.Request);
+
+			request = eventArgs.Request;
+		}
+
 		// Define request callbacks
 
 		var onSuccess = function(data)
@@ -16427,6 +19564,13 @@ Fit.Controls.WSListView = function(ctlId)
 			{
 				populate(item);
 			});
+
+			// Invoke callback
+
+			if (Fit.Validation.IsSet(cb) === true)
+			{
+				cb();
+			}
 
 			// Fire OnPopulated
 
@@ -16482,6 +19626,28 @@ Fit.Controls.WSListView = function(ctlId)
 		request.Start();
 	}
 
+	function onDataLoaded(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onDataLoadedCallback, cb);
+	}
+
+	function fireOnDataLoaded()
+	{
+		// Copied from WSTreeView.
+		// Immediately clear collection. If multiple callbacks are registered,
+		// chances are that only the first will run, and the remaining will be
+		// re-scheduled again - so we need the collection to be cleared before
+		// invoking callbacks.
+		var orgOnDataLoadedCallback = onDataLoadedCallback;
+		onDataLoadedCallback = [];
+
+		Fit.Array.ForEach(orgOnDataLoadedCallback, function(cb)
+		{
+			cb();
+		});
+	}
+
 	function populate(jsonItem)
 	{
 		Fit.Validation.ExpectIsSet(jsonItem);
@@ -16517,6 +19683,7 @@ Fit.Controls.WSListView = function(ctlId)
 
 	init();
 }
+
 /// <container name="Fit.Controls.ProgressBar" extends="Fit.Controls.Component">
 /// 	ProgressBar control useful for indicating progress.
 /// </container>
@@ -16638,6 +19805,7 @@ Fit.Controls.ProgressBar = function(controlId)
 
 	init();
 }
+
 /// <container name="Fit.Controls.TreeView" extends="Fit.Controls.PickerBase;Fit.Controls.ControlBase">
 /// 	TreeView control allowing data to be listed in a structured manner.
 /// 	Extending from Fit.Controls.PickerBase.
@@ -16689,22 +19857,19 @@ Fit.Controls.TreeView = function(ctlId)
 	var multiSelect = false;
 	var showSelectAll = false; // TBD: Never implemented - can be achieved using ContextMenu. Remove or implement?
 	var allowDeselect = true;
+	var revealExpandedNodes = false;
 
 	var selected = createInternalCollection();
 	var selectedOrg = [];
 
 	var ctx = null; // Context menu
 
-	// These events fire when user interacts with the tree,
-	// NOT when nodes are manipulated programmatically!
-	// OnSelect and OnToggle can be canceled by returning False.
-	// OnChange event is always fired when state of nodes are
-	// manipulated, also when done programmatically.
 	var onSelectHandlers = [];
 	var onSelectedHandlers = [];
 	var onToggleHandlers = [];
 	var onToggledHandlers = [];
 	var onSelectAllHandlers = [];
+	var onSelectAllCompleteHandlers = [];
 	var onContextMenuHandlers = [];
 
 	var forceClear = false;
@@ -16722,6 +19887,7 @@ Fit.Controls.TreeView = function(ctlId)
 		me._internal.Data("selectable", "false");
 		me._internal.Data("multiselect", "false");
 		me._internal.Data("wordwrap", "false");
+		me._internal.Data("picker", "false");
 
 		// Create internal root node to hold children
 
@@ -16835,10 +20001,10 @@ Fit.Controls.TreeView = function(ctlId)
 
 			//{ PickerControl support - START
 
-			// If used as picker control, make sure first node is selected on initial key press
-			if (isPicker === true && isNodeSet(activeNode) === false && rootNode.GetChildren().length > 0)
+			// If used as picker control, make sure first node is selected on initial key press (activeNode has not yet been set)
+			if (isPicker === true && isNodeSet(activeNode) === false)
 			{
-				focusNode(rootNode.GetChildren()[0]); // Sets activeNode to first child
+				focusFirstNode(); // Sets activeNode to first child
 				return;
 			}
 
@@ -17099,6 +20265,13 @@ Fit.Controls.TreeView = function(ctlId)
 			selected = createInternalCollection();
 
 			// Deselect all children and make sure they are configured identically
+
+			if (me.Value() !== "")
+			{
+				// Help developers - it might be confusing that changing Selectable state also clears selection
+				Fit.Browser.Debug("TreeView: Selectable changed - Selections will be cleared");
+			}
+
 			executeWithNoOnChange(function() // Prevent n.Selected(false) from firering OnChange event
 			{
 				executeRecursively(rootNode, function(n)
@@ -17144,7 +20317,7 @@ Fit.Controls.TreeView = function(ctlId)
 					var node = ((n.GetTreeView() === me) ? n : me.GetChild(n.Value(), true)); // Try GetChild(..) in case node was constructed, but with a valid value
 
 					if (node === null)
-						Fit.Validation.ThrowError("Node is not assiciated with this TreeView, unable to change selection");
+						Fit.Validation.ThrowError("Node is not associated with this TreeView, unable to change selection");
 
 					Fit.Array.Add(selectedOrg, node);
 					node.Selected(true); // Adds node to internal selected collection through TreeViewNodeInterface
@@ -17168,20 +20341,26 @@ Fit.Controls.TreeView = function(ctlId)
 	/// 	<description> Select all nodes </description>
 	/// 	<param name="selected" type="boolean"> Value indicating whether to select or deselect nodes </param>
 	/// 	<param name="selectAllNode" type="Fit.Controls.TreeViewNode" default="undefined">
-	/// 		If specified, given node is selected/deselected along with all its children.
+	/// 		If specified, children under given node is selected/deselected recursively.
 	/// 		If not specified, all nodes contained in TreeView will be selected/deselected.
 	/// 	</param>
 	/// </function>
-	this.SelectAll = function(selected, selectAllNode)
+	this.SelectAll = function(selected, selectAllNode/*, suppressOnSelectAllCompletedCallback*/) // suppressOnSelectAllCompletedCallback is for internal use only!
 	{
 		Fit.Validation.ExpectBoolean(selected);
 		Fit.Validation.ExpectInstance(selectAllNode, Fit.Controls.TreeViewNode, true);
+
+		// NOTICE: Selecting thousands of nodes using SelectAll may result in very poor performance
+		// due to the large amount of DOM manipulation. The control goes through a full state change
+		// for every single item being selected or deselected, so all events fire and reflows are
+		// triggered for visible items.
+		// To increase performance, temporarily hide TreeView with display:none while SelectAll is being performed.
 
 		var node = (selectAllNode ? selectAllNode : null); // Null = select all nodes, Set = select only children under passed node
 
 		// Fire OnSelectAll event
 
-		if (fireEventHandlers(onSelectAllHandlers, { Node: node, Selected: selected }) === false)
+		if (me._internal.FireOnSelectAll(selected, node) === false)
 			return; // Event handler canceled event
 
 		// Change selection and expand (all nodes)
@@ -17190,7 +20369,7 @@ Fit.Controls.TreeView = function(ctlId)
 
 		executeWithNoOnChange(function() // Prevent OnChange from firing every time a node's selection state is changed
 		{
-			var nodes = ((node !== null) ? [node] : rootNode.GetChildren());
+			var nodes = ((node !== null) ? node.GetChildren() : rootNode.GetChildren());
 
 			Fit.Array.Recurse(nodes, "GetChildren", function(child)
 			{
@@ -17203,12 +20382,47 @@ Fit.Controls.TreeView = function(ctlId)
 					}
 				}
 
-				child.Expanded(true);
+				//child.Expanded(true); // DISABLED - This hurts performance significantly for large TreeViews (10-15.000 nodes) as a huge amounts of DOM elements needs to be pushed to render tree, e.g. when opening/closing dropdown hosting TreeView
 			});
 		});
 
+		//if (suppressOnSelectAllCompletedCallback !== true)
+		//{
+		me._internal.FireOnSelectAllComplete(selected, node);
+		//}
+
 		if (changed === true)
 			me._internal.FireOnChange();
+	}
+
+	/// <function container="Fit.Controls.TreeView" name="ExpandAll" access="public">
+	/// 	<description> Expand all nodes, optionally to a maximum depth </description>
+	/// 	<param name="maxDepth" type="integer" default="undefined"> Optional maximum depth to expand nodes </param>
+	/// </function>
+	this.ExpandAll = function(maxDepth) // Overridden by WSTreeView
+	{
+		Fit.Validation.ExpectInteger(maxDepth, true);
+
+		Fit.Array.CustomRecurse(me.GetChildren(), function(node)
+		{
+			node.Expanded(true);
+			return (node.GetLevel() + 1 < (maxDepth || 99999) ? node.GetChildren() : null);
+		});
+	}
+
+	/// <function container="Fit.Controls.TreeView" name="CollapseAll" access="public">
+	/// 	<description> Collapse all nodes, optionally to a maximum depth </description>
+	/// 	<param name="maxDepth" type="integer" default="undefined"> Optional maximum depth to collapse nodes </param>
+	/// </function>
+	this.CollapseAll = function(maxDepth) // Overridden by WSTreeView
+	{
+		Fit.Validation.ExpectInteger(maxDepth, true);
+
+		Fit.Array.CustomRecurse(me.GetChildren(), function(node)
+		{
+			node.Expanded(false);
+			return (node.GetLevel() + 1 < (maxDepth || 99999) ? node.GetChildren() : null);
+		});
 	}
 
 	/// <function container="Fit.Controls.TreeView" name="AllowDeselect" access="public" returns="boolean">
@@ -17411,11 +20625,13 @@ Fit.Controls.TreeView = function(ctlId)
 	/// <function container="Fit.Controls.TreeView" name="AddChild" access="public">
 	/// 	<description> Add node to TreeView </description>
 	/// 	<param name="node" type="Fit.Controls.TreeViewNode"> Node to add </param>
+	/// 	<param name="atIndex" type="integer" default="undefined"> Optional index at which node is added </param>
 	/// </function>
-	this.AddChild = function(node)
+	this.AddChild = function(node, atIndex)
 	{
 		Fit.Validation.ExpectInstance(node, Fit.Controls.TreeViewNode);
-		rootNode.AddChild(node);
+		Fit.Validation.ExpectInteger(atIndex, true);
+		rootNode.AddChild(node, atIndex);
 	}
 
 	/// <function container="Fit.Controls.TreeView" name="RemoveChild" access="public">
@@ -17507,6 +20723,24 @@ Fit.Controls.TreeView = function(ctlId)
 		return getNodeFocused();
 	}
 
+	/// <function container="Fit.Controls.TreeView" name="GetActiveNode" access="public" returns="Fit.Controls.TreeViewNode">
+	/// 	<description> Get active (highlighted or focused) node - returns Null if no node is currently active </description>
+	/// </function>
+	this.GetActiveNode = function()
+	{
+		return isPicker ? activeNode : getNodeFocused();
+	}
+
+	/// <function container="Fit.Controls.TreeView" name="SetActiveNode" access="public">
+	/// 	<description> Set active (highlighted or focused) node </description>
+	/// 	<param name="node" type="Fit.Controls.TreeViewNode"> Node to set active in TreeView </param>
+	/// </function>
+	this.SetActiveNode = function(node)
+	{
+		Fit.Validation.ExpectInstance(node, Fit.Controls.TreeViewNode);
+		focusNode(node); // Will highlight node if TreeView is used as picker, otherwise focus node
+	}
+
 	/// <function container="Fit.Controls.TreeView" name="GetNodeAbove" access="public" returns="Fit.Controls.TreeViewNode">
 	/// 	<description> Get node above specified node - returns Null if no node is above the specified one </description>
 	/// 	<param name="node" type="Fit.Controls.TreeViewNode"> Node to get node above </param>
@@ -17564,8 +20798,8 @@ Fit.Controls.TreeView = function(ctlId)
 		{
 			me.Destroy(true); // PickerBase.Destroy()
 		}
-
-		me = rootContainer = rootNode = selectable = multiSelect = showSelectAll = selected = selectedOrg = ctx = onContextMenuHandlers = onSelectHandlers = onSelectedHandlers = onToggleHandlers = onToggledHandlers = isPicker = activeNode = isIe8 = null;
+		
+		me = rootContainer = rootNode = keyNavigationEnabled = selectable = multiSelect = showSelectAll = allowDeselect = revealExpandedNodes = selected = selectedOrg = ctx = onSelectHandlers = onSelectedHandlers = onToggleHandlers = onToggledHandlers = onSelectAllHandlers = onSelectAllCompleteHandlers = onContextMenuHandlers = forceClear = isIe8 = isPicker = activeNode = hostFocused = null;
 	});
 
 	// ============================================
@@ -17648,6 +20882,23 @@ Fit.Controls.TreeView = function(ctlId)
 		Fit.Array.Add(onSelectAllHandlers, cb);
 	}
 
+	/// <function container="Fit.Controls.TreeView" name="OnSelectAllComplete" access="public">
+	/// 	<description>
+	/// 		Add event handler fired when Select All operation has completed.
+	/// 		Function receives two arguments:
+	/// 		Sender (Fit.Controls.TreeView) and EventArgs object.
+	/// 		EventArgs object contains the following properties:
+	/// 		 - Node: Fit.Controls.TreeViewNode instance
+	/// 		 - Selected: Boolean value indicating new selection state
+	/// 	</description>
+	/// 	<param name="cb" type="function"> Event handler function </param>
+	/// </function>
+	this.OnSelectAllComplete = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onSelectAllCompleteHandlers, cb);
+	}
+
 	/// <function container="Fit.Controls.TreeView" name="OnContextMenu" access="public">
 	/// 	<description>
 	/// 		Add event handler fired before context menu is shown.
@@ -17670,10 +20921,12 @@ Fit.Controls.TreeView = function(ctlId)
 
 	var isPicker = false;
 	var activeNode = null;
+	var hostFocused = false;
 
 	this.OnShow(function(sender)
 	{
-		// Reset scroll
+		// Reset selection and scroll
+		unsetActiveNode();
 		me.GetDomElement().scrollTop = 0;
 		me.GetDomElement().scrollLeft = 0;
 	});
@@ -17681,17 +20934,27 @@ Fit.Controls.TreeView = function(ctlId)
 	this.OnSelect(function(sender, node)
 	{
 		// Handlers may return False which will prevent node from being selected, and OnSelected from being fired
-		return me._internal.FireOnItemSelectionChanging(node.Title(), node.Value(), node.Selected());
+		return me._internal.FireOnItemSelectionChanging(node.Title(), node.Value(), node.Selected(), hostFocused === false);
 	});
 
 	this.OnSelected(function(sender, node)
 	{
-		me._internal.FireOnItemSelectionChanged(node.Title(), node.Value(), node.Selected());
+		me._internal.FireOnItemSelectionChanged(node.Title(), node.Value(), node.Selected(), hostFocused === false);
 	});
 
 	this.OnChange(function(sender)
 	{
 		me._internal.FireOnItemSelectionComplete();
+	});
+
+	this.OnFocus(function(sender)
+	{
+		me._internal.FireOnFocusIn();
+	});
+
+	this.OnBlur(function(sender)
+	{
+		me._internal.FireOnFocusOut();
 	});
 
 	this.SetSelections = function(items)
@@ -17744,10 +21007,51 @@ Fit.Controls.TreeView = function(ctlId)
 			me._internal.FireOnChange();
 	}
 
-	this.UpdateItemSelection = function(itemValue, selected)
+	this.GetItemByValue = function(val)
+	{
+		Fit.Validation.ExpectString(val);
+
+		var node = me.GetChild(val, true);
+
+		if (node !== null)
+		{
+			return { Title: node.Title(), Value: node.Value() };
+		}
+
+		return null;
+	}
+
+	this.RevealItemInView = function(val)
+	{
+		Fit.Validation.ExpectString(val);
+
+		var node = me.GetChild(val, true);
+
+		if (node !== null)
+		{
+			// Expand parent nodes if selected node is a child node.
+			// But only expand nodes automatically the first time to
+			// allow user to collapse nodes and have them remain collapsed.
+			if (revealExpandedNodes === false)
+			{
+				revealExpandedNodes = true;
+
+				var parent = node;
+				while ((parent = parent.GetParent()) !== null)
+				{
+					parent.Expanded(true);
+				}
+			}
+
+			focusNode(node);
+		}
+	}
+
+	this.UpdateItemSelection = function(itemValue, selected, programmaticallyChanged)
 	{
 		Fit.Validation.ExpectString(itemValue);
 		Fit.Validation.ExpectBoolean(selected);
+		Fit.Validation.ExpectBoolean(programmaticallyChanged);
 
 		var node = me.GetChild(itemValue, true);
 
@@ -17763,9 +21067,34 @@ Fit.Controls.TreeView = function(ctlId)
 		}
 	}
 
+	this._internal = (this._internal ? this._internal : {});
+
 	this._internal.InitializePicker = function() // Override function from PickerBase
 	{
 		isPicker = true;
+		me._internal.Data("picker", "true");
+	}
+
+	this._internal.ReportFocused = function(focused) // Override function from PickerBase
+	{
+		Fit.Validation.ExpectBoolean(focused);
+		hostFocused = focused;
+	}
+
+	this._internal.FireOnSelectAll = function(selected, node) // Make function available to derivatives
+	{
+		Fit.Validation.ExpectBoolean(selected);
+		Fit.Validation.ExpectInstance(node, Fit.Controls.TreeViewNode, true);
+
+		return fireEventHandlers(onSelectAllHandlers, { Selected: selected, Node: node || null });
+	}
+
+	this._internal.FireOnSelectAllComplete = function(selected, node) // Make function available to derivatives
+	{
+		Fit.Validation.ExpectBoolean(selected);
+		Fit.Validation.ExpectInstance(node, Fit.Controls.TreeViewNode, true);
+
+		fireEventHandlers(onSelectAllCompleteHandlers, { Selected: selected, Node: node || null });
 	}
 
     this.HandleEvent = function(e)
@@ -17861,6 +21190,19 @@ Fit.Controls.TreeView = function(ctlId)
 	{
 		Fit.Validation.ExpectInstance(node, Fit.Controls.TreeViewNode);
 
+		// Only set node active if it is visible (not hidden by collapsed parent, not
+		// hidden by closed DropDown control when used as picker, not hidden using
+		// styles such as display:none, and not disconnected from (not rooted in) DOM).
+		// RevealItemInView() may be triggered asynchronously by WSDropDown when loading
+		// nodes, in which case user may have closed dropdown while waiting for data,
+		// resulting in node no longer being visible to focus.
+		// We use offsetParent further down which is only available for elements in
+		// the render tree - "visible" elements.
+		if (Fit.Dom.IsVisible(node.GetDomElement()) === false)
+		{
+			return;
+		}
+
 		if (isPicker === true)
 		{
 			// Since host control has focus, we use the "active" data attribute
@@ -17926,6 +21268,23 @@ Fit.Controls.TreeView = function(ctlId)
 		}
 	}
 
+	function focusFirstNode() // Focus first node in TreeView
+	{
+		if (rootNode.GetChildren().length > 0)
+		{
+			focusNode(rootNode.GetChildren()[0]);
+		}
+	}
+
+	function unsetActiveNode() // Unset picker selection
+	{
+		if (isNodeSet(activeNode) === true)
+		{
+			Fit.Dom.Data(activeNode.GetDomElement(), "active", null);
+			activeNode = null;
+		}
+	}
+
 	function isNodeSet(node) // Used to check whether activeNode is set and that it has not been disposed
 	{
 		return (node !== null && node.GetDomElement() !== null); // GetDomElement() returns null if node has been disposed
@@ -17933,6 +21292,7 @@ Fit.Controls.TreeView = function(ctlId)
 
 	function getNodeFocused()
 	{
+		// Returns focused node or null - active node is not actually focused when TreeView is used as picker control but merely highlighted
 		return ((Fit.Dom.GetFocused() && Fit.Dom.GetFocused().tagName === "LI" && Fit.Dom.GetFocused()._internal && Fit.Dom.Contained(rootContainer, Fit.Dom.GetFocused()) === true) ? Fit.Dom.GetFocused()._internal.Node : null);
 	}
 
@@ -18072,6 +21432,7 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 	var childrenIndexed = {};
 	var childrenArray = [];
 	var lastChild = null;
+	var behavioralNodeCallback = null;
 
 	// ============================================
 	// Init
@@ -18109,7 +21470,7 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 	/// </function>
 	this.Title = function(val)
 	{
-		Fit.Validation.ExpectStringValue(val, true);
+		Fit.Validation.ExpectString(val, true);
 
 		if (Fit.Validation.IsSet(val) === true)
 		{
@@ -18161,6 +21522,35 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 		}
 
 		return (Fit.Dom.Data(elmLi, "state") === "expanded");
+	}
+
+	/// <function container="Fit.Controls.TreeViewNode" name="SetBehavioralNodeCallback" access="public">
+	/// 	<description>
+	/// 		Set callback invoked when node is selected.
+	/// 		A behavioral node is not considered data, so selecting it will not change
+	/// 		the control value. Since the node is not considered data, it will not trigger
+	/// 		the OnSelect and OnSelected TreeView events either.
+	/// 		Callback receives two arguments:
+	/// 		Sender (Fit.Controls.TreeView) and EventArgs object.
+	/// 		EventArgs object contains the following properties:
+	/// 		 - Node: Fit.Controls.TreeViewNode instance
+	/// 		 - Selected: Boolean value indicating new selection state
+	/// 		Callback may cancel changed selection state by returning False.
+	/// 	</description>
+	/// 	<param name="func" type="function"> Callback function invoked when node is selected - Null disables behavioral state </param>
+	/// </function>
+	this.SetBehavioralNodeCallback = function(func)
+	{
+		Fit.Validation.ExpectFunction(func !== null ? func : function() {});
+		behavioralNodeCallback = func;
+	}
+
+	/// <function container="Fit.Controls.TreeViewNode" name="IsBehavioralNode" access="public" returns="boolean">
+	/// 	<description> Returns True if this is a behavioral node, otherwise False - see SetBehavioralNodeCallback for more details </description>
+	/// </function>
+	this.IsBehavioralNode = function()
+	{
+		return behavioralNodeCallback !== null;
 	}
 
 	/// <function container="Fit.Controls.TreeViewNode" name="Selectable" access="public" returns="boolean">
@@ -18236,7 +21626,7 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 	/// 	</description>
 	/// 	<param name="select" type="boolean" default="undefined"> If defined, True selects node, False deselects it </param>
 	/// </function>
-	this.Selected = function(select)
+	this.Selected = function(select, suppressOnChange) // suppressOnChange is for internal use only!
 	{
 		Fit.Validation.ExpectBoolean(select, true);
 
@@ -18252,10 +21642,23 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 		{
 			var tv = elmLi._internal.TreeView;
 
+			if (behavioralNodeCallback !== null)
+			{
+				if (behavioralNodeCallback(me.GetTreeView(), { Node: me, Selected: !me.Selected() }) === false)
+				{
+					return (Fit.Dom.Data(elmLi, "selected") === "true");
+				}
+			}
+
 			// Fire OnSelect event
 
-			if (tv !== null && tv.FireSelect(me) === false)
-				return (Fit.Dom.Data(elmLi, "selected") === "true");
+			if (behavioralNodeCallback === null)
+			{
+				if (tv !== null && tv.FireSelect(me) === false)
+				{
+					return (Fit.Dom.Data(elmLi, "selected") === "true");
+				}
+			}
 
 			var wasSelected = me.Selected();
 
@@ -18270,22 +21673,26 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 
 			if (tv !== null)
 				tv.Repaint();
+			
+			// Synchronize selection to TreeView (unless this was a behavioral node (not a data node))
 
-			// Synchronize selection to TreeView
-
-			if (tv !== null)
+			if (behavioralNodeCallback === null && tv !== null)
 			{
 				if (select === true && wasSelected === false)
 				{
 					tv.Select(me);
 					tv.FireSelected(me);
-					tv.FireOnChange();
+
+					if (suppressOnChange !== true)
+						tv.FireOnChange();
 				}
 				else if (select === false && wasSelected === true)
 				{
 					tv.Deselect(me);
 					tv.FireSelected(me);
-					tv.FireOnChange();
+
+					if (suppressOnChange !== true)
+						tv.FireOnChange();
 				}
 			}
 		}
@@ -18319,7 +21726,7 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 	{
 		if (!elmLi.parentElement)
 			return null; // Not rooted in another node yet
-		if (!elmLi.parentElement.parentElement._internal || !elmLi.parentElement.parentElement._internal.TreeView) // Notice: _internal may have been set by e.g. Fit.Events.AddHandler
+			if (!elmLi.parentElement.parentElement._internal || !elmLi.parentElement.parentElement._internal.TreeView) // Notice: _internal may have been set by e.g. Fit.Events.AddHandler
 			return null; // Rooted, but not in another node - most likely rooted in TreeView UL container
 		if (elmLi.parentElement.parentElement._internal.Node.Value() === "TREEVIEW_ROOT_NODE")
 			return null; // Indicate top by returning Null when root node is reached
@@ -18354,13 +21761,28 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 		return level;
 	}
 
+	/// <function container="Fit.Controls.TreeViewNode" name="GetIndex" access="public" returns="integer">
+	/// 	<description> Get node index (position in parent node or TreeView) - returns -1 if node has not been added yet </description>
+	/// </function>
+	this.GetIndex = function()
+	{
+		if (me.GetTreeView() === null)
+		{
+			return -1;
+		}
+
+		return Fit.Dom.GetIndex(me.GetDomElement());
+	}
+
 	/// <function container="Fit.Controls.TreeViewNode" name="AddChild" access="public">
 	/// 	<description> Add child node </description>
 	/// 	<param name="node" type="Fit.Controls.TreeViewNode"> Node to add </param>
+	/// 	<param name="atIndex" type="integer" default="undefined"> Optional index at which node is added </param>
 	/// </function>
-	this.AddChild = function(node)
+	this.AddChild = function(node, atIndex)
 	{
 		Fit.Validation.ExpectInstance(node, Fit.Controls.TreeViewNode);
+		Fit.Validation.ExpectInteger(atIndex, true);
 
 		// Remove node from existing parent if already rooted.
 		// This is important to make sure that TreeView, from which
@@ -18386,21 +21808,45 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 			Fit.Dom.Data(elmLi, "state", "collapsed");
 		}
 
-		// Make sure last node is marked as such, allowing for specialized CSS behaviour
-		if (lastChild !== null)
-			Fit.Dom.Data(lastChild.GetDomElement(), "last", "false");
-		Fit.Dom.Data(node.GetDomElement(), "last", "true");
-		lastChild = node;
+		if (Fit.Validation.IsSet(atIndex) === false || lastChild === null || atIndex > lastChild.GetIndex())
+		{
+			// Make sure last node is marked as such, allowing for specialized CSS behaviour
+			if (lastChild !== null)
+				Fit.Dom.Data(lastChild.GetDomElement(), "last", "false");
+			Fit.Dom.Data(node.GetDomElement(), "last", "true");
+			lastChild = node;
+		}
 
 		// Add child to DOM and internal collections
-		elmUl.appendChild(node.GetDomElement());
-		childrenIndexed[node.Value()] = node;
-		Fit.Array.Add(childrenArray, node);
+		if (lastChild === node)
+		{
+			elmUl.appendChild(node.GetDomElement());
+			childrenIndexed[node.Value()] = node;
+			Fit.Array.Add(childrenArray, node);
+		}
+		else
+		{
+			Fit.Dom.InsertAt(elmUl, atIndex, node.GetDomElement());
+			childrenIndexed[node.Value()] = node;
+			Fit.Array.Insert(childrenArray, atIndex, node);
+		}
 
 		// Changing data attribute above requires repaint in IE8
 		// for dynamically added nodes to render helper lines properly.
 		if (elmLi._internal.TreeView !== null)
 			elmLi._internal.TreeView.Repaint();
+		
+		// Behavioral node support
+		
+		if (node.IsBehavioralNode() === true)
+		{
+			executeRecursively(node, function(n)
+			{
+				n.GetDomElement()._internal.TreeView = elmLi._internal.TreeView;
+			});
+
+			return; // Skip remaining wiring - behavioral nodes are not considered data, so it should not fire OnSelect, OnSelected, and OnChange
+		}
 
 		// Configure TreeView association and synchronize selection state
 
@@ -18438,7 +21884,10 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 				// Notice that TreeViewNodeInterface is temporarily removed to prevent
 				// node.Selected(true) from firing events - we do not want OnChange to be
 				// fired multiple times, so we fire only OnSelect and OnSelected below.
-				node.GetDomElement()._internal.TreeView = null;
+				// DISABLED: This is garbage! Functions such as node.GetTreeView() or node.Expanded(true)
+				// will not work properly with this approach from e.g. an OnSelected event handler! Fixed
+				// by passing an argument to node.Selected(..) instead which suppresses the OnChange event.
+				/*node.GetDomElement()._internal.TreeView = null;
 
 				if (tv.FireSelect(node) === true)
 				{
@@ -18448,7 +21897,15 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 					fireOnChange = true;
 				}
 
-				node.GetDomElement()._internal.TreeView = tv;
+				node.GetDomElement()._internal.TreeView = tv;*/
+
+				var wasSelected = node.Selected();
+				var newSelection = node.Selected(true, true); // Second True is an internal argument suppressing firing of the OnChange event
+
+				if (wasSelected !== newSelection)
+				{
+					fireOnChange = true;
+				}
 			});
 
 			// Fire OnChange if selections were made
@@ -18596,7 +22053,7 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 		}
 
 		// Dispose private members
-		me = elmLi = elmUl = cmdToggle = chkSelect = lblTitle = childrenIndexed = childrenArray = lastChild = null;
+		me = elmLi = elmUl = cmdToggle = chkSelect = lblTitle = childrenIndexed = childrenArray = lastChild = behavioralNodeCallback = null;
 	}
 
 	/// <function container="Fit.Controls.TreeViewNode" name="GetDomElement" access="public" returns="DOMElement">
@@ -18640,6 +22097,7 @@ Fit.Controls.TreeViewNode = function(displayTitle, nodeValue)
 }
 
 Fit.Controls.TreeView.Node = Fit.Controls.TreeViewNode; // Backward compatibility
+
 /// <container name="Fit.Controls.WSTreeView" extends="Fit.Controls.TreeView">
 /// 	TreeView control allowing data from a
 /// 	WebService to be listed in a structured manner.
@@ -18671,11 +22129,22 @@ Fit.Controls.WSTreeView = function(ctlId)
 	var preSelected = {};
 	var orgSelected = [];
 	var loadDataOnInit = true;
+	var dataLoading = false;			// True when requesting data via Reload, EnsureData, and SelectAll
+	var nodesLoading = 0;				// Value is above zero when nodes are being loaded when expanded
+	var recursiveNodeLoadCount = -1;	// Value used by recursivelyLoadAllNodes(..) to keep track of progress when chain loading nodes
+	var onDataLoadedCallback = [];
 	var selectAllMode = Fit.Controls.WSTreeViewSelectAllMode.Progressively;
 	var onRequestHandlers = [];
 	var onResponseHandlers = [];
 	var onAbortHandlers = [];
 	var onPopulatedHandlers = [];
+	var baseSelected = this.Selected;	// Used by Selected(..), Value(), and SetSelections(..)
+
+	// Support for ExpandAll which may trigger WebService requests to load data.
+	// We therefore need to keep some state to resume ExpandAll when nodes are received,
+	// which is done using the WSTreeView's OnPopulated event further down.
+	var expandCollapseAllMode = -1;			// 0 = Collapse, 1 = Expand
+	var expandCollapseAllMaxDepth = 99999;	// The maximum depth to expand/collapse
 
 	function init()
 	{
@@ -18687,9 +22156,7 @@ Fit.Controls.WSTreeView = function(ctlId)
 		{
 			if (loadDataOnInit === true)
 			{
-				var selected = me.Selected(); // Save selection which is cleared when Reload() is called
-				me.Reload();
-				me.Selected(selected); // Restore selection
+				me.Reload(true);
 			}
 
 			Fit.Events.RemoveHandler(me.GetDomElement(), rootedEventId);
@@ -18697,149 +22164,77 @@ Fit.Controls.WSTreeView = function(ctlId)
 
 		me.OnToggle(function(sender, node)
 		{
+			// Load node data when expanded
+
+			if (node.IsBehavioralNode() === true)
+				return; // Do not request data for behavioral node
+
 			if (node.Expanded() === true) // Node is currently expanded and will now become collapsed
 				return;
 
-			if (node.GetDomElement()._internal.WSDone === true)
-				return;
-
-			if (node.GetDomElement()._internal.WSLoading === true)
-				return false; // Return False to cancel toggle to prevent user from being able to expand node while loading (clicking expand twice)
-
-			if (node.GetDomElement()._internal.WSHasChildren === false)
-				return;
-
-			// Get data
-
-			node.GetDomElement()._internal.WSLoading = true;
-
-			var canceled = !getData(node, function(n, eventArgs) // Delegate fired when data is ready
+			if (dataLoading === true && node.GetDomElement()._internal.WSHasChildren === true && node.GetDomElement()._internal.WSDone !== true)
 			{
-				// Remove place holder child which served the purpose of making the node expandable
-
-				var expanderNode = node.GetChild("__");
-
-				if (expanderNode !== null)
-					node.RemoveChild(expanderNode);
-
-				// Populate node
-
-				Fit.Array.ForEach(eventArgs.Children, function(c)
-				{
-					node.AddChild(createNodeFromJson(c));
-				});
-
-				node.GetDomElement()._internal.WSDone = true;
-				node.Expanded(true); // Unfortunately causes both OnToggle and OnToggled to be fired, although OnToggle has already been fired once (canceled below)
-			});
-
-			return false; // Cancel toggle, will be "resumed" when data is loaded
-		});
-
-		//{ SelectAll - Mode: Progressively
-
-		// Progressive Mode - how it works:
-		// Nodes are loaded progressively (chain loaded).
-		// Nodes with children not loaded yet are automatically expanded to force their children to load.
-		// WebService may return multiple levels of nodes, or even the complete hierarchy, but Progressive Mode
-		// will never be able to quarantee that only one request is made, since the node triggering Select All
-		// may already have multiple children loaded with HasChildren set to True, which will spawn individual
-		// requests when expanded. OnChange will fire multiple times.
-		// Chain loading is made possible using the OnPopulated handler which automatically expands children received.
-
-		me.OnSelectAll(function(sender, eventArgs)
-		{
-			if (selectAllMode !== Fit.Controls.WSTreeViewSelectAllMode.Progressively)
-				return;
-
-			// Handle Select All for TreeView containing no data yet
-
-			var node = ((eventArgs.Node !== null) ? eventArgs.Node : rootNode);
-
-			// Flags set below ensures that Select All is resumed in OnPopulated event handler
-			node.GetDomElement()._internal.WSSelectAll = true;
-			node.GetDomElement()._internal.WSCheckedState = eventArgs.Selected;
-
-			if (loadDataOnInit === true) // No data - load root nodes
-			{
-				setTimeout(function() // Postpone call to Reload to allow SelectAll to fire all OnSelectAll listeners before requesting data which causes OnRequest to fire
-				{
-					// Use Reload function to load root nodes - using expand/collapse on TREEVIEW_ROOT_NODE
-					// will cause it to be passed to event handlers which is not the desired behaviour.
-					// We always want Null to be passed to event handlers when requesting root nodes.
-
-					var selected = me.Selected(); // Keep PreSelections (Reload(..) removes all selections))
-					me.Reload();
-					me.Selected(selected); // Restore selections
-				}, 0);
-
-				return false; // Cancel SelectAll, no nodes to select
+				// Node contains remote children that has not yet been loaded, and
+				// data is currently being loaded, e.g. by EnsureData(..), Reload(..),
+				// or SelectAll(..). Adding request to process queue.
+				onDataLoaded(function() { node.Expanded(true); });
+				return false;
 			}
 
-			// Handle Select All for TreeView with data already loaded.
-
-			Fit.Array.Recurse(node.GetChildren(), "GetChildren", function(n)
+			if (node.GetDomElement()._internal.WSLoading === true)
 			{
-				var internal = n.GetDomElement()._internal;
+				// Data for this node is currently being loaded.
+				// Return False to cancel toggle to prevent user from being
+				// able to expand node (and re-trigger data load) multiple times.
+				return false;
+			}
 
-				if (internal.WSHasChildren === true && internal.WSDone !== true) // Node has children server side which have not been loaded yet
+			var dataStartedLoading = loadNodeData(node, function(nodePopulated) // Returns False if there are no remote nodes to load, or if request is suppressed using an OnRequest handler
+			{
+				// Children now loaded and populated
+
+				nodesLoading--;
+
+				if (nodeDisposedOrDetached(node) === false)
 				{
-					internal.WSSelectAll = true;
-					internal.WSCheckedState = eventArgs.Selected;
+					delete node.GetDomElement()._internal.WSLoading;
+					node.Expanded(true); // Unfortunately causes both OnToggle and OnToggled to be fired, although OnToggle has already been fired once (canceled below)
+				}
+
+				if (nodesLoading === 0)
+				{
+					// Reload, SelectAll, or EnsureData may have been called while
+					// node was loading - make sure they are resumed from process queue.
+					fireOnDataLoadedToResumeProcessQueue();
 				}
 			});
 
-			// Event handler complete - caller (TreeView.SelectAll) takes over now, selecting and expanded node and its children, causing those with HasChildren:true to load
-		});
-
-		me.OnPopulated(function(sender, eventArgs)
-		{
-			if (selectAllMode !== Fit.Controls.WSTreeViewSelectAllMode.Progressively)
-				return;
-
-			var node = ((eventArgs.Node !== null) ? eventArgs.Node : rootNode);
-			var selected = node.GetDomElement()._internal.WSCheckedState;
-
-			if (node.GetDomElement()._internal.WSSelectAll === true) // Select All triggered request
+			if (dataStartedLoading === true)
 			{
-				// Select and expand all children
+				// Prevent e.g. EnsureData, Reload, and SelectAll from loading while current node
+				// is being loaded and populated.
+				// We cannot use the dataLoading variable for this though, as it would also prevent the
+				// user from expanding (and requesting data for) multiple nodes simultaneously since this OnToggle
+				// handler prevents the user from expanding nodes if dataLoading is True (set by EnsureData/Reload/etc).
+				// Instead we use nodesLoading which is incremented and decremented when node data is requested and populated.
+				// EnsureData(..), Reload(..) and other functions fetching data checks this variable, and
+				// if its value is above zero, the functions will reschedule and run after all requested
+				// nodes are done loading.
+				nodesLoading++;
 
-				var fireOnChange = false;
+				node.GetDomElement()._internal.WSLoading = true;
+				return false; // Cancel toggle, will be "resumed" (triggered again in loadNodeData callback above) when data is loaded
+			}
 
-				me._internal.ExecuteWithNoOnChange(function()
-				{
-					Fit.Array.Recurse(node.GetChildren(), "GetChildren", function(child)
-					{
-						// Make sure children (and their children) keeps loading in Progressive Mode (chain loading).
-
-						var internal = child.GetDomElement()._internal;
-
-						if (internal.WSHasChildren === true && internal.WSDone !== true) // Node has children server side which have not loaded yet
-						{
-							internal.WSSelectAll = true;
-							internal.WSCheckedState = selected;
-						}
-
-						// Select node if selectable
-
-						if (child.Selectable() === true && child.Selected() !== selected)
-						{
-							child.Selected(selected);
-							fireOnChange = true;
-						}
-
-						// Expand node to load children (HasChildren)
-
-						child.Expanded(true);
-					});
-				});
-
-				if (fireOnChange === true)
-					me._internal.FireOnChange();
+			if (dataStartedLoading === false && node.GetDomElement()._internal.WSHasChildren === true && node.GetChildren().length === 1 && node.GetChildren()[0].Value() === "__" && node.GetChildren()[0].Title() === "__")
+			{
+				// Node has remote children and no pre-populated children, but data load
+				// was not started, meaning it was suppressed using an OnRequest handler.
+				// Prevent node from expanding since it will reveal the place holder node making
+				// parent node expandable.
+				return false;
 			}
 		});
-
-		//}
 
 		//{ SelectAll - Mode: Instantly
 
@@ -18851,11 +22246,15 @@ Fit.Controls.WSTreeView = function(ctlId)
 		// which WILL trigger additional requests and fire OnChange multiple times.
 		// Instant Mode provides better performance over Progressive Mode since the latter will constantly
 		// occupy the JS thread on and off, as nodes are received from multiple requests, making the browser less responsive.
+		// However, Instant Mode loads data by expanding nodes while Progressive Mode can do this without affecting the UI.
+		// Progressive Mode is handled in SelectAll function override.
+		// TBD: Can/should we change implementation so it uses the new node loader mechanism which Progressive Mode uses,
+		// so SelectAll in Instant Mode does not expand nodes, but merely loads children?
 
 		me.OnSelectAll(function(sender, eventArgs)
 		{
-			if (selectAllMode !== Fit.Controls.WSTreeViewSelectAllMode.Instantly)
-				return;
+			if (selectAllMode === Fit.Controls.WSTreeViewSelectAllMode.Progressively)
+				return; // Progressive Mode is handled in WSTreeView.SelectAll function override
 
 			var node = ((eventArgs.Node !== null) ? eventArgs.Node : rootNode);
 			var internal = node.GetDomElement()._internal;
@@ -18867,17 +22266,15 @@ Fit.Controls.WSTreeView = function(ctlId)
 
 			// Some (or all) children missing - load now
 
-			// Flags set below ensures that Select All is resumed in OnPopulated event handler
-			internal.WSSelectAll = true;
+			// Flags set below ensures that Select All is resumed in OnRequest and OnPopulated event handlers
+			internal.WSSelectAll = true; // Used when firing OnRequest, OnResponse, and OnPopulated events which expose an eventArgs.SelectAll boolean
 			internal.WSCheckedState = eventArgs.Selected;
 
 			if (node === rootNode) // Load root nodes
 			{
 				setTimeout(function() // Postpone call to Reload to allow SelectAll to fire all OnSelectAll listeners before requesting data, causing OnRequest to fire
 				{
-					var selected = me.Selected(); // Keep PreSelections (Reload(..) removes all selections))
-					me.Reload();
-					me.Selected(selected); // Restore selections
+					me.Reload(true);
 				}, 0);
 			}
 			else
@@ -18898,16 +22295,15 @@ Fit.Controls.WSTreeView = function(ctlId)
 
 		me.OnResponse(function(sender, eventArgs)
 		{
-			if (selectAllMode !== Fit.Controls.WSTreeViewSelectAllMode.Instantly)
+			if (selectAllMode === Fit.Controls.WSTreeViewSelectAllMode.Progressively)
 				return;
 
 			// Remove any existing children (subtree may have been partially loaded by user).
 			// WebService is expected to return entire record set capable of replacing partially loaded data.
 
 			var node = ((eventArgs.Node !== null) ? eventArgs.Node : rootNode);
-			var selected = node.GetDomElement()._internal.WSCheckedState;
 
-			if (node.GetDomElement()._internal.WSSelectAll === true) // Select All triggered request
+			if (eventArgs.SelectAll === true) // Select All triggered request
 			{
 				me._internal.ExecuteWithNoOnChange(function() // Prevent checked nodes from firing OnChange when removed, fires in OnPopulated event handler
 				{
@@ -18928,13 +22324,13 @@ Fit.Controls.WSTreeView = function(ctlId)
 
 		me.OnPopulated(function(sender, eventArgs)
 		{
-			if (selectAllMode !== Fit.Controls.WSTreeViewSelectAllMode.Instantly)
+			if (selectAllMode === Fit.Controls.WSTreeViewSelectAllMode.Progressively)
 				return;
 
 			var node = ((eventArgs.Node !== null) ? eventArgs.Node : rootNode);
 			var selected = node.GetDomElement()._internal.WSCheckedState;
 
-			if (node.GetDomElement()._internal.WSSelectAll === true) // Select All triggered request
+			if (eventArgs.SelectAll === true) // Select All triggered request
 			{
 				// Select/deselect and expand all nodes
 
@@ -18957,7 +22353,7 @@ Fit.Controls.WSTreeView = function(ctlId)
 						if (childInternal.WSHasChildren === true && childInternal.WSDone !== true) // Node has children server side which have not loaded yet
 						{
 							Fit.Browser.Log("NOTICE: WebService did not provide all data in one single HTTP request - an additional request is required to load data for node with value '" + child.Value() + "'");
-							childInternal.WSSelectAll = true;
+							childInternal.WSSelectAll = true; // Used when firing OnRequest, OnResponse, and OnPopulated events which expose an eventArgs.SelectAll boolean
 							childInternal.WSCheckedState = selected;
 						}
 
@@ -18981,6 +22377,28 @@ Fit.Controls.WSTreeView = function(ctlId)
 		});
 
 		//}
+
+		// ExpandAll(..) support.
+		// Using the OnPopulated event to progressively expand nodes is more
+		// complicated than just loading all nodes first with recursivelyLoadAllNodes(..),
+		// and via its callback, which is fired when all nodes are loaded, expand all the nodes.
+		// But the approach using OnPopulated to resume the ExpandAll operation has the advantage
+		// that the user can visually see the progress as nodes expand and their children start loading.
+		me.OnPopulated(function(sender, eventArgs)
+		{
+			if (expandCollapseAllMode === -1)
+				return;
+
+			var node = eventArgs.Node;
+
+			if (node === null)
+				return; // Root node populated
+
+			if (node.GetLevel() + 1 < expandCollapseAllMaxDepth)
+			{
+				expandCollapseNodesRecursively(node.GetChildren(), expandCollapseAllMode, expandCollapseAllMaxDepth);
+			}
+		});
 	}
 
 	/// <function container="Fit.Controls.WSTreeView" name="Url" access="public" returns="string">
@@ -19015,7 +22433,7 @@ Fit.Controls.WSTreeView = function(ctlId)
 	/// 		Get/set name of JSONP callback argument. Assigning a value will enable JSONP communication.
 	/// 		Often this argument is simply &quot;callback&quot;. Passing Null disables JSONP communication again.
 	/// 	</description>
-	/// 	<param name="val" type="string" default="undefined"> If defined, enables JSONP and updates JSONP callback argument </param>
+	/// 	<param name="val" type="string" default="undefined" nullable="true"> If defined, enables JSONP and updates JSONP callback argument </param>
 	/// </function>
 	this.JsonpCallback = function(val)
 	{
@@ -19051,10 +22469,118 @@ Fit.Controls.WSTreeView = function(ctlId)
 	}
 
 	// See documentation on TreeView
-	this.RemoveAllChildren = Fit.Core.CreateOverride(this.RemoveAllChildren, function()
+	this.SelectAll = Fit.Core.CreateOverride(this.SelectAll, function(select, selectAllNode)
 	{
+		Fit.Validation.ExpectBoolean(select);
+		Fit.Validation.ExpectInstance(selectAllNode, Fit.Controls.TreeViewNode, true);
+
+		// NOTICE: Selecting thousands of nodes using SelectAll may result in very poor performance
+		// due to the large amount of DOM manipulation. The control goes through a full state change
+		// for every single item being selected or de-selected, so all events fire and reflows are
+		// triggered for visible items.
+		// To increase performance, temporarily hide TreeView with display:none while SelectAll is being performed.
+
+		// TBD: Add support for completed callback (?).
+		// EnsureData, which is also based on the new node loader mechanism
+		// (loadNodeData and recursivelyLoadAllNodes) keeps track of progress
+		// and knows when all nodes have been loaded, so we could easily
+		// add support for a callback or an event such as OnSelectAllComplete.
+		// We already have an event called OnSelectAll which fires prior to
+		// selection changes.
+		// We can implement this when/if needed at some point. See EnsureData
+		// for inspiration.
+
+		if (selectAllMode === Fit.Controls.WSTreeViewSelectAllMode.Instantly)
+		{
+			// Fit.Controls.WSTreeViewSelectAllMode.Instantly Mode is handled with
+			// OnSelectAll, OnResponse, and OnPopulated handlers registered in init()
+			// when TreeView.SelectAll (base) is invoked below.
+			base(select, selectAllNode);
+			return;
+		}
+
+		// Progressive Mode - how it works:
+		// Nodes are loaded progressively (chain loaded) from WebService.
+		// Nodes with children not loaded yet will be loaded and populated, while
+		// nodes already populated will remain (which is the opposite of Instant Mode which removes
+		// children already loaded to make sure all data is received in just one request).
+		// WebService may return multiple levels of nodes, or even the complete hierarchy, but Progressive Mode
+		// will never be able to quarantee that only one request is made, since the node triggering Select All
+		// may already have multiple children loaded with HasChildren set to True, which will spawn individual
+		// requests.
+		// To select all nodes and ensure only one request is made, set SelectAllMode
+		// to Fit.Controls.WSTreeViewSelectAllMode.Instantly and make sure the server
+		// returns the entire children hierarchy for a given target node.
+
+		if (dataLoading === true || nodesLoading > 0)
+		{
+			// Data is currently loading - postpone by adding request to process queue
+			onDataLoaded(function() { me.SelectAll(select, selectAllNode); });
+			return;
+		}
+
+		var internal = (selectAllNode || rootNode).GetDomElement()._internal;
+		internal.WSSelectAll = true; // Used when firing OnRequest, OnResponse, and OnPopulated events which expose an eventArgs.SelectAll boolean
+
+		var baseSelectAll = base; // Reference to original SelectAll function on TreeView class
+		var exec = function()
+		{
+			dataLoading = true;
+
+			recursivelyLoadAllNodes(selectAllNode || null, function() // Fired when all nodes have been loaded
+			{
+				/*//baseSelectAll(select, selectAllNode);
+				baseSelectAll(select, selectAllNode, true); // Passing True to suppress firing of OnSelectAllComplete event (internal argument)
+				dataLoading = false;
+				me._internal.FireOnSelectAllComplete(select, selectAllNode);
+				fireOnDataLoadedToResumeProcessQueue();*/
+
+				// This callback passed to recursivelyLoadAllNodes(..) is fired BEFORE OnPopulated
+				// is fired, so if SelectAll results in multiple nodes loading data async, we may experience
+				// events firing like so:
+				//  - OnPopulated(sender, node1) fired
+				//  - OnPopulated(sender, node2) fired
+				//  - OnPopulated(sender, node3) fired
+				//  - SelectAll(sender, nodeA) fired
+				//  - SelectAllComplete(sender, nodeA) fired
+				//  - OnPopulated(sender, node4) fired
+				// Notice how the last node will have OnPopulated called after OnSelect and OnSelectComplete,
+				// while all the other nodes had it called prior to that. Such inconsistency is no good. And
+				// since SelectAll is async anyways, we might as well just queue the execution of SelectAll
+				// using setTimeout(..) allowing for the last OnPopulated event to fire first.
+				// This way we can also let baseSelectAll(..) handle execution of both OnSelectAll and OnSelectAllComplete.
+				// https://github.com/Jemt/Fit.UI/issues/84
+
+				dataLoading = false;
+				fireOnDataLoadedToResumeProcessQueue();
+				setTimeout(function() { baseSelectAll(select, selectAllNode); }, 0); // Allow OnPopulated to fire first in recursivelyLoadAllNodes => loadNodeData => getData
+			}/*,
+			function(nodePopulated) // Fired for every node loaded, except if node has been disposed or detached while loading
+			{
+				//nodePopulated.Expanded(true); // DISABLED: This hurts performance significantly for large TreeViews (10-15.000 nodes) as a huge amounts of DOM elements needs to be pushed to render tree, e.g. when opening/closing dropdown hosting TreeView
+			}*/);
+		};
+
+		if (loadDataOnInit === true) // No data loaded yet
+		{
+			me.Reload(true, function(sender) // Will change loadDataOnInit to False
+			{
+				exec();
+			});
+		}
+		else // Data already (partially) loaded - often just the root nodes
+		{
+			exec();
+		}
+	});
+
+	// See documentation on TreeView
+	this.RemoveAllChildren = Fit.Core.CreateOverride(this.RemoveAllChildren, function(dispose)
+	{
+		Fit.Validation.ExpectBoolean(dispose, true);
+
 		preSelected = {}; // Clear preselections to avoid auto selection of nodes added later
-		base();
+		base(dispose);
 	});
 
 	// See documentation on TreeView
@@ -19064,7 +22590,17 @@ Fit.Controls.WSTreeView = function(ctlId)
 		Fit.Validation.ExpectBoolean(multi, true);
 		Fit.Validation.ExpectBoolean(showSelAll, true);
 
-		preSelected = {}; // Clear preselections to ensure same behaviour as TreeView.Selectable(..) which clear selections - avoid auto selection if nodes are loaded later
+		if (Fit.Validation.IsSet(val) === true)
+		{
+			if (Fit.Array.Count(preSelected) > 0)
+			{
+				// Help developers - it might be confusing that changing Selectable state also clears selection
+				Fit.Browser.Debug("WSTreeView: Selectable changed - PreSelections will be cleared");
+			}
+
+			preSelected = {}; // Clear preselections to ensure same behaviour as TreeView.Selectable(..) which clear selections - avoid auto selection if nodes are loaded later
+		}
+
 		return base(val, multi, showSelAll);
 	});
 
@@ -19082,39 +22618,184 @@ Fit.Controls.WSTreeView = function(ctlId)
 	});
 
 	/// <function container="Fit.Controls.WSTreeView" name="Reload" access="public">
-	/// 	<description>
-	/// 		Reload data from WebService. This will clear any selections, which are not
-	/// 		restored. Use the approach below to restore selections after reload.
-	/// 		var selected = tree.Selected();
-	/// 		tree.Reload();
-	/// 		tree.Selected(selected);
-	/// 	</description>
+	/// 	<description> Reload data from WebService </description>
+	/// 	<param name="keepSelections" type="boolean" default="undefined">
+	/// 		If defined, True will preserve selections, False will remove them (default)
+	/// 	</param>
 	/// 	<param name="cb" type="function" default="undefined">
 	/// 		If defined, callback function is invoked when root nodes have been loaded
 	/// 		and populated - takes Sender (Fit.Controls.WSTreeView) as an argument.
 	/// 	</param>
 	/// </function>
-	this.Reload = function(cb)
+	this.Reload = function(a, b) // Correct signature: Reload(boolean, function)
 	{
+		// Backward compatibility - temporary support for deprecated Reload signature: Reload([callback])
+
+		var keepSelections = undefined;
+		var cb = undefined;
+
+		if (typeof(a) === "boolean")
+		{
+			// Correct signature used: Reload([bool[, callback]])
+
+			keepSelections = a;
+			cb = b;
+		}
+		else if (typeof(a) === "function")
+		{
+			// Deprecated signature used: Reload([callback])
+
+			keepSelections = b;
+			cb = a;
+
+			Fit.Browser.Log("WARNING: Using deprecated function signature for WSTreeView.Reload(callback) which will be removed in the future - please use Reload(boolean, callback) instead");
+		}
+
+		// End of backward compatibility for deprecated Reload signature
+
+		Fit.Validation.ExpectBoolean(keepSelections, true);
 		Fit.Validation.ExpectFunction(cb, true);
 
-		me.RemoveAllChildren(true); // True to dispose objects
-		preSelected = {};
+		// Postpone operation if currently loading data
 
-		getData(null, function(node, eventArgs)
+		if (dataLoading === true || nodesLoading > 0)
+		{
+			// Data is currently loading - postpone by adding request to process queue
+			onDataLoaded(function() { me.Reload(keepSelections, cb); });
+			return;
+		}
+
+		// Preserve selection if instructed to.
+		// Nodes will automatatically be selected again once data has been loaded.
+
+		var selected = me.Selected();
+		var newPreselection = {};
+
+		if (keepSelections === true)
+		{
+			Fit.Array.ForEach(selected, function(node)
+			{
+				newPreselection[node.Value()] = {Title: node.Title(), Value: node.Value()};
+			});
+		}
+
+		// Remove nodes - OnChange is not fire if selection is preserved (keepSelections)
+
+		me._internal.ExecuteWithNoOnChange(function()
+		{
+			me.RemoveAllChildren(true); // True to dispose objects - also clears selections, including preselections
+		});
+
+		preSelected = newPreselection;
+
+		// Fire OnChange if selection was cleared (not preserved above)
+
+		if (Fit.Array.Count(selected) > 0 && Fit.Array.Count(newPreselection) === 0)
+		{
+			me._internal.FireOnChange();
+		}
+
+		// Load data
+
+		dataLoading = true;
+
+		getData(null, function(node, eventArgs) // Notice: node argument is null when requesting root nodes
 		{
 			Fit.Array.ForEach(eventArgs.Children, function(jsonChild)
 			{
 				me.AddChild(createNodeFromJson(jsonChild));
 			});
 
-			if (Fit.Validation.IsSet(cb) === true)
+			dataLoading = false;
+
+			rootNode.GetDomElement()._internal.WSDone = true;
+
+			/*if (Fit.Validation.IsSet(cb) === true)
 			{
 				cb(me); // Fires when nodes are populated (above), but before OnPopulated is fired by getData(..)
+			}*/
+
+			fireOnDataLoadedToResumeProcessQueue();
+
+			if (Fit.Validation.IsSet(cb) === true)
+			{
+				setTimeout(function() { cb(me); }, 0); // Allow OnPopulated to fire first in recursivelyLoadAllNodes => loadNodeData => getData - see WSTreeView.SelectAll(..) for details
 			}
 		});
 
 		loadDataOnInit = false;
+	}
+
+	/// <function container="Fit.Controls.WSTreeView" name="EnsureData" access="public">
+	/// 	<description>
+	/// 		Ensure all data from WebService.
+	/// 		Contrary to Reload(..), this function does not clear selected
+	/// 		values, or remove nodes already loaded - it merely loads data
+	/// 		not already loaded.
+	/// 	</description>
+	/// 	<param name="callback" type="function" default="undefined">
+	/// 		If defined, callback function is invoked when all nodes have been loaded
+	/// 		and populated - takes Sender (Fit.Controls.WSTreeView) as an argument.
+	/// 	</param>
+	/// </function>
+	this.EnsureData = function(cb)
+	{
+		Fit.Validation.ExpectFunction(cb, true);
+
+		if (dataLoading === true || nodesLoading > 0)
+		{
+			// Data is currently loading - postpone by adding request to process queue
+			onDataLoaded(function() { me.EnsureData(cb); });
+			return;
+		}
+
+		var exec = function()
+		{
+			dataLoading = true;
+
+			recursivelyLoadAllNodes(null, function() // Fired when all nodes have been loaded
+			{
+				dataLoading = false;
+
+				/*if (Fit.Validation.IsSet(cb) === true)
+				{
+					cb(me);
+				}*/
+
+				fireOnDataLoadedToResumeProcessQueue();
+
+				if (Fit.Validation.IsSet(cb) === true)
+				{
+					setTimeout(function() { cb(me); }, 0); // Allow OnPopulated to fire first in recursivelyLoadAllNodes => loadNodeData => getData - see WSTreeView.SelectAll(..) for details
+				}
+			});
+		};
+
+		if (me.GetChildren().length === 0) // No nodes in TreeView - we check against node count instead of loadDataOnInit since we want to be able to re-ensure nodes in case they we initially loaded and later removed
+		{
+			me.Reload(true, function(sender) // Will change loadDataOnInit to False
+			{
+				exec();
+			});
+		}
+		else // Data already (partially) loaded - often just the root nodes
+		{
+			exec();
+		}
+	}
+
+	// See documentation on TreeView
+	this.ExpandAll = function(maxDepth)
+	{
+		Fit.Validation.ExpectInteger(maxDepth, true);
+		setExpandedStateForAllNodes(1, maxDepth);
+	}
+
+	// See documentation on TreeView
+	this.CollapseAll = function(maxDepth)
+	{
+		Fit.Validation.ExpectInteger(maxDepth, true);
+		setExpandedStateForAllNodes(0, maxDepth);
 	}
 
 	// See documentation on ControlBase
@@ -19205,10 +22886,9 @@ Fit.Controls.WSTreeView = function(ctlId)
 	/// 	</description>
 	/// 	<param name="val" type="Fit.Controls.TreeViewNode[]" default="undefined"> If defined, provided nodes are selected </param>
 	/// </function>
-	var baseSelected = me.Selected; // Used by Selected(..), Value(), and SetSelections(..)
 	this.Selected = function(val)
 	{
-		Fit.Validation.ExpectArray(val, true);
+		Fit.Validation.ExpectInstanceArray(val, Fit.Controls.TreeViewNode, true);
 
 		// Setter
 
@@ -19216,14 +22896,12 @@ Fit.Controls.WSTreeView = function(ctlId)
 		{
 			// Exclude nodes not belonging to TreeView - trying to select them
 			// will cause an error to be thrown from TreeView.Selected (base).
-			// Nodes excluded is added as preselections instead.
+			// Nodes excluded are added as preselections instead.
 
 			var toSelect = [];
 
 			Fit.Array.ForEach(val, function(n)
 			{
-				Fit.Validation.ExpectInstance(n, Fit.Controls.TreeViewNode);
-
 				var node = ((n.GetTreeView() === me) ? n : me.GetChild(n.Value(), true)); // Try GetChild(..) in case node was constructed, but with a value of an existing node
 
 				if (node !== null)
@@ -19262,6 +22940,13 @@ Fit.Controls.WSTreeView = function(ctlId)
 					fireOnChange = true;
 				}
 			});
+
+			// Fire OnChange
+
+			if (fireOnChange === true)
+			{
+				me._internal.FireOnChange();
+			}
 		}
 
 		// Getter
@@ -19310,7 +22995,7 @@ Fit.Controls.WSTreeView = function(ctlId)
 	// See documentation on ControlBase
 	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
-		me = url = jsonpCallback = preSelected = orgSelected = loadDataOnInit = onRequestHandlers = onResponseHandlers = onPopulatedHandlers = baseRender = baseSelected = null;
+		me = url = jsonpCallback = preSelected = orgSelected = loadDataOnInit = dataLoading = nodesLoading = recursiveNodeLoadCount = onDataLoadedCallback = onRequestHandlers = onResponseHandlers = onPopulatedHandlers = baseSelected = expandCollapseAllMode = expandCollapseAllMaxDepth = null;
 
 		base();
 	});
@@ -19373,10 +23058,11 @@ Fit.Controls.WSTreeView = function(ctlId)
 	});
 
 	// See documentation on PickerBase
-	this.UpdateItemSelection = Fit.Core.CreateOverride(this.UpdateItemSelection, function(itemValue, selected)
+	this.UpdateItemSelection = Fit.Core.CreateOverride(this.UpdateItemSelection, function(itemValue, selected, programmaticallyChanged)
 	{
 		Fit.Validation.ExpectString(itemValue);
 		Fit.Validation.ExpectBoolean(selected);
+		Fit.Validation.ExpectBoolean(programmaticallyChanged);
 
 		if (me.GetChild(itemValue, true) === null) // Node not loaded yet, update preselections
 		{
@@ -19396,7 +23082,7 @@ Fit.Controls.WSTreeView = function(ctlId)
 		}
 		else // Update nodes already loaded
 		{
-			if (base(itemValue, selected) === false) // Fires OnSelect, OnItemSelectionChanging, OnSelected, OnItemSelectionChanged, and OnChange
+			if (base(itemValue, selected, programmaticallyChanged) === false) // Fires OnSelect, OnItemSelectionChanging, OnSelected, OnItemSelectionChanged, and OnChange
 				return false;
 		}
 	});
@@ -19466,6 +23152,8 @@ Fit.Controls.WSTreeView = function(ctlId)
 	/// <function container="Fit.Controls.WSTreeView" name="OnPopulated" access="public">
 	/// 	<description>
 	/// 		Add event handler fired when TreeView has been populated with nodes.
+	/// 		Node is not populated and event is not fired though if node is disposed
+	/// 		or detached from TreeView while data is loading from WebService.
 	/// 		Function receives two arguments:
 	/// 		Sender (Fit.Controls.WSTreeView) and EventArgs object.
 	/// 		EventArgs object contains the following properties:
@@ -19486,6 +23174,8 @@ Fit.Controls.WSTreeView = function(ctlId)
 	// Private
 	// ============================================
 
+	// Several functions end up calling getData(..) which is a bit confusing.
+	// The following link has a drawing that clarifies how this works: https://github.com/Jemt/Fit.UI/issues/83
 	function getData(node, cb)
 	{
 		Fit.Validation.ExpectInstance(node, Fit.Controls.TreeViewNode, true); // Node is null when requesting root nodes
@@ -19513,10 +23203,21 @@ Fit.Controls.WSTreeView = function(ctlId)
 		eventArgs.Sender = me;
 		eventArgs.Node = node;
 		eventArgs.Request = request;
-		eventArgs.SelectAll = (node !== null && node.GetDomElement()._internal.WSSelectAll === true);
+		eventArgs.SelectAll = (node || rootNode).GetDomElement()._internal.WSSelectAll === true;
 
 		if (fireEventHandlers(onRequestHandlers, eventArgs) === false)
 			return false;
+
+		if (eventArgs.Request !== request)
+		{
+			// Support for changing request instans to
+			// take control over webservice communication.
+
+			// Restrict to support for Fit.Http.Request or classes derived from this
+			Fit.Validation.ExpectInstance(eventArgs.Request, Fit.Http.Request);
+
+			request = eventArgs.Request;
+		}
 
 		// Define request callbacks
 
@@ -19529,6 +23230,7 @@ Fit.Controls.WSTreeView = function(ctlId)
 
 			// Fire getData callback
 
+			// WARNING: node might have been disposed - WebService communication is async!
 			cb(node, eventArgs); // Callback is responsible for populating TreeView
 
 			// Remove loading indicator
@@ -19541,7 +23243,9 @@ Fit.Controls.WSTreeView = function(ctlId)
 
 			// Select nodes found in preselections
 
-			if (Fit.Core.IsEqual(preSelected, {}) === false) // Prevent nodes from being iterated if no preselections are found
+			var hasBeenDisposedOrDetached = node !== null && nodeDisposedOrDetached(node);
+
+			if (hasBeenDisposedOrDetached === false && Fit.Core.IsEqual(preSelected, {}) === false) // Prevent nodes from being iterated if no preselections are found
 			{
 				// Notice: OnChange is not fired! It has already been fired when PreSelections were added.
 				// They are also included when e.g. WSTreeView.Value() is called to obtain current selections.
@@ -19560,9 +23264,21 @@ Fit.Controls.WSTreeView = function(ctlId)
 				});
 			}
 
-			// Fire OnPopulated
+			// Fire OnPopulated.
+			// Contrary to OnRequest, OnResponse, and OnAbort, OnPopulated does not
+			// fire if node has been disposed or detached, in which case WSTreeView
+			// will not have populated the node.
+			// OnRequest/OnResponse/OnAbort handlers can check whether a given node
+			// has been disposed or detached like this:
+			// var disposed = node.GetDomElement() === null;
+			// var detached = !disposed && node.GetTreeView() === null;
+			// var moved = !disposed && node.GetTreeView() !== myTreeViewInstance;
+			// var disposedOrDetached = node.GetDomElement() === null || node.GetTreeView() === null;
 
-			fireEventHandlers(onPopulatedHandlers, eventArgs);
+			if (hasBeenDisposedOrDetached === false)
+			{
+				fireEventHandlers(onPopulatedHandlers, eventArgs);
+			}
 		}
 
 		var onFailure = function(httpStatusCode)
@@ -19580,7 +23296,10 @@ Fit.Controls.WSTreeView = function(ctlId)
 
 			if (node !== null) // Null when requesting root nodes
 			{
-				delete node.GetDomElement()._internal.WSLoading;
+				if (nodeDisposedOrDetached(node) === false)
+				{
+					delete node.GetDomElement()._internal.WSLoading;
+				}
 			}
 
 			fireEventHandlers(onAbortHandlers, eventArgs);
@@ -19636,6 +23355,27 @@ Fit.Controls.WSTreeView = function(ctlId)
 		request.Start();
 
 		return true;
+	}
+
+	function onDataLoaded(cb)
+	{
+		Fit.Validation.ExpectFunction(cb);
+		Fit.Array.Add(onDataLoadedCallback, cb);
+	}
+
+	function fireOnDataLoadedToResumeProcessQueue()
+	{
+		// Immediately clear collection. If multiple callbacks are registered,
+		// chances are that only the first will run, and the remaining will be
+		// re-scheduled again - so we need the collection to be cleared before
+		// invoking callbacks.
+		var orgOnDataLoadedCallback = onDataLoadedCallback;
+		onDataLoadedCallback = [];
+
+		Fit.Array.ForEach(orgOnDataLoadedCallback, function(cb)
+		{
+			cb();
+		});
 	}
 
 	function createNodeFromJson(jsonNode)
@@ -19733,6 +23473,238 @@ Fit.Controls.WSTreeView = function(ctlId)
 		return fullyLoaded;
 	}
 
+	// Check whether a node has been disposed or detached from TreeView.
+	// We use this function when loading nodes async, to make sure the
+	// nodes are still in working order when data is received, which will
+	// not be the case for a node that has been disposed (destroyed).
+	// Also, a node that has been detached should no longer affect this
+	// TreeView instance.
+	function nodeDisposedOrDetached(node)
+	{
+		Fit.Validation.ExpectInstance(node, Fit.Controls.TreeViewNode);
+
+		// Return True if node is either disposed or no longer attached to TreeView.
+		// GetTreeView() returns Null if node has been removed from TreeView, or a
+		// TreeView instance different from this one, if attached to another TreeView.
+		// NOTICE: Moving a node currently being loaded will not work properly.
+		// It will not have its _internal state updated to reflect its proper
+		// state. If this is needed, search for calls to nodeDisposedOrDetached(..),
+		// and make sure the node is updated if only detached, but do NOT process
+		// it any further (e.g. expand it), nor let it affect state within the initial
+		// TreeView from which it was moved. And make sure to test it properly!
+		return node.GetDomElement() === null || node.GetTreeView() !== me;
+	}
+
+	// Loads node data and returns True if data is being loaded, False if no data needs to be loaded.
+	// Does not load nodes recursively! Use recursivelyLoadAllNodes(..) for that!
+	function loadNodeData(node, cb) // Populated node is passed to callback
+	{
+		Fit.Validation.ExpectInstance(node, Fit.Controls.TreeViewNode);
+		Fit.Validation.ExpectFunction(cb, true);
+
+		if (node.GetDomElement()._internal.WSDone === true)
+		{
+			return false; // Data has already been loaded
+		}
+
+		if (node.GetDomElement()._internal.WSHasChildren === false)
+		{
+			return false; // No remote children to load
+		}
+
+		// Get data
+
+		var canceled = !getData(node, function(n, eventArgs) // Callback fired when data is ready
+		{
+			if (nodeDisposedOrDetached(node) === false)
+			{
+				// Remove place holder child which served the purpose of making the node expandable
+
+				var expanderNode = node.GetChild("__");
+
+				if (expanderNode !== null) // Does not exist if node was partially pre-populated server side
+				{
+					node.RemoveChild(expanderNode);
+				}
+
+				// Populate node
+
+				Fit.Array.ForEach(eventArgs.Children, function(c)
+				{
+					node.AddChild(createNodeFromJson(c));
+				});
+
+				node.GetDomElement()._internal.WSDone = true;
+			}
+
+			// Invoke callback
+
+			if (Fit.Validation.IsSet(cb) === true)
+			{
+				// WARNING: node might have been disposed - WebService communication is async!
+				cb(node);
+			}
+		});
+
+		return canceled === false;
+	}
+
+	// Load all children for given node recursively.
+	// No arguments are passed to cbComplete - populated node is passed to cbProgress.
+	function recursivelyLoadAllNodes(targetNode, cbComplete, cbProgress, isSubCall)
+	{
+		Fit.Validation.ExpectInstance(targetNode, Fit.Controls.TreeViewNode, true);
+		Fit.Validation.ExpectFunction(cbComplete, true);
+		Fit.Validation.ExpectFunction(cbProgress, true);
+		Fit.Validation.ExpectBoolean(isSubCall, true);
+
+		if (isSubCall !== true)
+		{
+			recursiveNodeLoadCount = 0;
+		}
+
+		var targetNodeInternal = (targetNode || rootNode).GetDomElement()._internal;
+		var nodes = null;
+
+		if (targetNode === null)
+		{
+			nodes = me.GetChildren();
+		}
+		else
+		{
+			nodes = targetNode.GetChildren();
+		}
+
+		var anythingToLoad = false;
+
+		Fit.Array.ForEach(nodes, function(node)
+		{
+			if (node.IsBehavioralNode() === true)
+				return; // Do not request data for behavioral node
+
+			if (targetNodeInternal.WSSelectAll === true)
+				node.GetDomElement()._internal.WSSelectAll = true; // Used when firing OnRequest, OnResponse, and OnPopulated events which expose an eventArgs.SelectAll boolean
+
+			var dataStartedLoading = loadNodeData(node, function(n) // True if node has remote children that will be loaded, False if no remote children is available to be loaded
+			{
+				var hasBeenDisposed = nodeDisposedOrDetached(node);
+
+				if (hasBeenDisposed === false && Fit.Validation.IsSet(cbProgress) === true)
+				{
+					cbProgress(node);
+				}
+
+				recursiveNodeLoadCount--;
+
+				if (hasBeenDisposed === false)
+				{
+					recursivelyLoadAllNodes(node, cbComplete, cbProgress, true);
+				}
+
+				if (recursiveNodeLoadCount === 0)
+				{
+					if (Fit.Validation.IsSet(cbComplete) === true)
+					{
+						cbComplete();
+					}
+				}
+			});
+
+			if (dataStartedLoading === true)
+			{
+				anythingToLoad = true;
+				recursiveNodeLoadCount++;
+			}
+			else
+			{
+				// No remote children to load, but node may have existing children that could have remote children
+
+				if (Fit.Validation.IsSet(cbProgress) === true)
+				{
+					cbProgress(node);
+				}
+
+				if (recursivelyLoadAllNodes(node, cbComplete, cbProgress, true) === true)
+				{
+					anythingToLoad = true;
+				}
+			}
+		});
+
+		if (isSubCall !== true && anythingToLoad === false && Fit.Validation.IsSet(cbComplete) === true)
+		{
+			cbComplete();
+		}
+
+		return anythingToLoad;
+	}
+
+	// Progressively expand nodes. Nodes containing remote children will keep
+	// expanding when nodes are loaded and populated, which is handled by
+	// an OnToggle handler registered in init().
+	function setExpandedStateForAllNodes(expandMode, maxDepth)
+	{
+		Fit.Validation.ExpectInteger(expandMode); // 0 = Collapse, 1 = Expand
+		Fit.Validation.ExpectInteger(maxDepth, true);
+
+		if (dataLoading === true || nodesLoading > 0)
+		{
+			// Data is currently loading - postpone by adding request to process queue.
+			// This also applies when collapsing nodes, since the operation currently loading
+			// data may be ExpandAll or SelectAll (which also expand nodes), which should be allowed
+			// to finish first.
+			onDataLoaded(function() { setExpandedStateForAllNodes(expandMode, maxDepth); });
+			return;
+		}
+
+		// Save state to allow operation to be resumed as nodes are progressively
+		// loaded and populated. State is used in OnPopulated handler registered in init().
+
+		expandCollapseAllMode = -1;
+		expandCollapseAllMaxDepth = 99999;
+
+		if (Fit.Validation.IsSet(maxDepth) === true)
+		{
+			if (maxDepth < 1)
+				return;
+
+			expandCollapseAllMaxDepth = maxDepth;
+		}
+
+		expandCollapseAllMode = expandMode;
+
+		// Load data and start expanding/collapsing
+
+		if (loadDataOnInit === true && expandCollapseAllMode === 1)
+		{
+			me.Reload(true, function(sender)
+			{
+				expandCollapseNodesRecursively(me.GetChildren(), expandCollapseAllMode, expandCollapseAllMaxDepth);
+			});
+		}
+		else // Data already loaded
+		{
+			expandCollapseNodesRecursively(me.GetChildren(), expandCollapseAllMode, expandCollapseAllMaxDepth);
+		}
+	}
+
+	function expandCollapseNodesRecursively(nodes, expandCollapseMode, maxDepth)
+	{
+		Fit.Validation.ExpectInstanceArray(nodes, Fit.Controls.TreeViewNode);
+		Fit.Validation.ExpectInteger(expandCollapseMode);
+		Fit.Validation.ExpectInteger(maxDepth);
+
+		Fit.Array.CustomRecurse(nodes, function(node)
+		{
+			if (expandCollapseMode === 1)
+				node.Expanded(true);
+			else if (expandCollapseMode === 0)
+				node.Expanded(false);
+
+			return (node.GetLevel() + 1 < maxDepth ? node.GetChildren() : null);
+		});
+	}
+
 	function fireEventHandlers(handlers, eventArgs)
 	{
 		var cancel = false;
@@ -19786,6 +23758,10 @@ Fit.Controls.WSTreeViewSelectAllMode =
 };
 
 Fit.Controls.WSTreeView.SelectAllMode = Fit.Controls.WSTreeViewSelectAllMode; // Backward compatibility
+
+Fit.Validation.Enabled(true);
 return Fit;})();
+
 	return fitInstance;
 });
+

@@ -5,7 +5,7 @@ Stacking context, Z-index:
  - Error indicator			: 500
  - Drop down				: 1000
  - Dialog					: 1200
-   - Modal BG layer			: 1100
+	- Modal BG layer		: 1200
  - Context menu				: 1300 (mounted in <body>)
  - Calendar					: 1300 (mounted in <body>)
  - Dragging					: 99999
@@ -27,6 +27,7 @@ Stacking context, Z-index:
 {
 	display: inline-block;
 	width: 200px; /* Important: Update default width for Input control in DesignMode if this is changed! */
+	vertical-align: middle;
 
 	position: relative; /* Allow absolute positioning of children, relative to control container rather than document */
 }
@@ -123,20 +124,21 @@ Stacking context, Z-index:
 
 .FitDragDropDraggableHandle
 {
-    cursor: move;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+	cursor: move;
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
 }
 
 .FitDragDropDraggable.FitDragDropDragging
 {
-    opacity: 0.6;
-    z-index: 99999;
+	opacity: 0.6;
+	z-index: 99999;
 
 	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
 }
+
 /*!
  *  Font Awesome 4.5.0 by @davegandy - http://fontawesome.io - @fontawesome
  *  License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
@@ -2223,6 +2225,7 @@ Stacking context, Z-index:
 .fa-percent:before {
   content: "\f295";
 }
+
 /*! jQuery UI - v1.11.4 - 2016-07-08
 * http://jqueryui.com
 * Includes: core.css, datepicker.css, theme.css
@@ -2873,17 +2876,21 @@ Stacking context, Z-index:
 	filter: Alpha(Opacity=30); /* support: IE8 */
 	border-radius: 8px;
 }
+
 div.FitUiControlButton
 {
 	cursor: pointer;
 	width: auto;
+	height: 2em; /* Equal height for all controls */
+	height: auto\9; /* Undo equal height for all controls in IE9 and below - assume height of content in legacy IE which does not render properly when input height is set to 100% of container */
 	text-align: center;
 	white-space: nowrap;
 	overflow: hidden;
-	vertical-align: bottom; /* Overflow:hidden (above) changes the baseline for inline-block elements - see CSS specification (scroll to bottom): https://www.w3.org/TR/CSS2/visudet.html#propdef-vertical-align */
+	/*vertical-align: bottom;*/ /* Moved to div.FitUiControl */ /* Overflow:hidden (above) changes the baseline for inline-block elements - see CSS specification (scroll to bottom): https://www.w3.org/TR/CSS2/visudet.html#propdef-vertical-align */
 	padding: 0.3em 0.75em 0.3em 0.75em;
 	border-radius: 3px;
-	border-width: 1px;
+	border-width: 0.065em;
+	border-width: 1px\9;
 	border-style: solid;
 
 	-webkit-user-select: none;
@@ -2892,7 +2899,7 @@ div.FitUiControlButton
 	user-select: none;
 
 	/* data-type="Default" */
-	border-color: #CCCCCC;
+	border-color: #BBBBBB;
 	background-color: #FFFFFF;
 	color: #333333;
 }
@@ -2932,7 +2939,7 @@ div.FitUiControlButton[data-type="Danger"]
 	color: #FFFFFF;
 }
 
-div.FitUiControlButton[style*="height"] > div
+div.FitUiControlButton > div
 {
 	/* Center icon and title vertically when height is set (works for
 	   block and inline-block). Does not work on IE8 which is fine.
@@ -2947,9 +2954,33 @@ div.FitUiControlButton[style*="height"] > div
 	transform: translateY(-50%);
 }
 
+@media all\0 /* Vertically align text and icon in IE8 */
+{
+	div.FitUiControlButton > div
+	{
+		/* Undo vertical alignment for modern browsers */
+		position: static;
+		top: 0;
+		-webkit-transform: none;
+		-moz-transform: none;
+		-ms-transform: none;
+		-o-transform: none;
+		transform: none;
+
+		display: table;
+		height: 100%;
+	}
+
+	div.FitUiControlButton > div > span
+	{
+		display: table-cell;
+		vertical-align: middle;
+	}
+}
+
 div.FitUiControlButton[data-icon][data-title] > div > span + span
 {
-	margin-left: 0.5em;
+	padding-left: 0.5em;
 }
 
 div.FitUiControlButton[data-enabled="false"]
@@ -2968,6 +2999,7 @@ div.FitUiControlButton[data-enabled="true"]:focus
 	outline-offset: 2px;
 	border: 1px solid #3B99FC\9; /* Legacy IE (9 and earlier) which does not support outline */
 }
+
 div.FitUiControlCheckBox
 {
 	cursor: pointer;
@@ -2998,7 +3030,8 @@ div.FitUiControlCheckBox[data-enabled="true"]:focus
 
 div.FitUiControlCheckBox > div
 {
-	border: 1px solid #909090;
+	border: 0.065em solid #BBBBBB;
+	border-width: 1px\9;
 	border-radius: 2px;
 	margin-right: 0.3em;
 	color: #333333;
@@ -3017,12 +3050,14 @@ div.FitUiControlCheckBox[data-valid="false"] > div
 {
 	border-color: red;
 }
+
 div.FitUiControlContextMenu.FitUiControlTreeView
 {
-	border: 1px solid #A9A9A9;
+	border: 0.065em solid #BBBBBB;
+	border-width: 1px\9;
 	background-color: #FFFFFF;
 	color: #333333;
-	padding: 10px;
+	padding: 0.75em;
 	position: absolute; /* top/left set using JS */
 	z-index: 1300;
 	cursor: pointer; /* Prevent arrow being shown between items (padding) */
@@ -3048,14 +3083,14 @@ div.FitUiControlContextMenu.FitUiControlTreeView
 		padding-left: 1.5em; /* Make room for expand/collapse icon */
 	}
 	div.FitUiControlContextMenu.FitUiControlTreeView li ul li > span,
-	div.FitUiControlContextMenu.FitUiControlTreeView li ul li:focus > span,
+	div.FitUiControlContextMenu.FitUiControlTreeView[data-picker="false"] li ul li:focus > span,
 	div.FitUiControlContextMenu.FitUiControlTreeView li ul li[data-active="true"] > span
 	{
 		padding: 0px 1em 0px 0px;
 	}
 
 	/* Remove highlighting border for selected item - use background color instead */
-	div.FitUiControlContextMenu.FitUiControlTreeView li ul li:focus > span
+	div.FitUiControlContextMenu.FitUiControlTreeView[data-picker="false"] li ul li:focus > span
 	{
 		border: none;
 	}
@@ -3086,10 +3121,11 @@ div.FitUiControlContextMenu.FitUiControlTreeView
 		position: absolute;
 		z-index: 1300;
 
-		border: 1px solid #A9A9A9;
+		border: 0.065em solid #BBBBBB;
+		border-width: 1px\9;
 		background-color: #FFFFFF;
-		margin-top: -0.1em;				/* Compensate for padding */
-		transform: translateY(-1px);	/* Compensate for border */
+		margin-top: -0.1em;					/* Compensate for padding */
+		transform: translateY(-0.065em);	/* Compensate for border */
 	}
 
 	/* Boundary detection - open upward */
@@ -3099,15 +3135,23 @@ div.FitUiControlContextMenu.FitUiControlTreeView
 		bottom: 0px;
 	}
 }
+
+div.FitUiControlDatePicker
+{
+	height: 2em; /* Equal height for all controls */
+	height: auto\9; /* Undo equal height for all controls in IE9 and below - assume height of content in legacy IE which does not render properly when input height is set to 100% of container */
+}
+
 div.FitUiControlDatePicker input[type="text"]
 {
 	/* Same look and feel as Fit.UI Input control */
 	width: 100%;
 	height: 100%;
-	padding: 1px;
+	padding: 0.2em;
 	margin: 0px;
 	font-size: inherit;
-	border: 1px solid #909090;
+	border: 0.065em solid #BBBBBB;
+	border-width: 1px\9;
 	border-radius: 2px;
 	display: block; /* Remove annoying spacing above input when outline is applied (when value is invalid) */
 
@@ -3245,21 +3289,19 @@ div.FitUiControlDatePicker input[type="time"]
 	right: 0px;
 	width: 35%;
 }
+
 div.FitUiControlDialog
 {
-	border: 1px solid #333333;
+	border: 0.065em solid #333333;
+	border-width: 1px\9;
 	background: #FFFFFF;
+	width: auto;
 	min-width: 280px; /* Must be identical to the value specified in MinimumWidth(..) in Dialog.js ! */
 	max-width: 800px; /* Must be identical to the value specified in MaximumWidth(..) in Dialog.js ! */
 
 	position: fixed;
-
-	/* Centering for Legacy browsers - unfortunately this does not work with width:auto, so it defaults to 50% */
-	width: 50%; /* Must be identical to the value specified in Width(..) in Dialog.js ! */
-	top: 5%;
 	left: 0px;
-	right: 0px;
-	margin: 0 auto;
+	top: 0px;
 	z-index: 1200;
 }
 div.FitUiControlDialog:not(#LegacyIE) /* :not() not supported by IE8 and below */
@@ -3267,18 +3309,6 @@ div.FitUiControlDialog:not(#LegacyIE) /* :not() not supported by IE8 and below *
 	border: none;
 	box-shadow: 0px 0px 10px 0px #333333;
 	border-radius: 2px;
-
-	/* Centering for modern browsers - automatically fits to content */
-	width: auto;
-	margin: 0;
-	top: 25%;
-	left: 50%;
-	right: auto; /* Prevent dialog from stretching to the maximum width allowed - respect width:auto */
-	-webkit-transform: translate(-50%, -25%);
-	-moz-transform: translate(-50%, -25%);
-	-ms-transform: translate(-50%, -25%);
-	-o-transform: translate(-50%, -25%);
-	transform: translate(-50%, -25%);
 }
 div.FitUiControlDialog[data-maximized="true"]
 {
@@ -3325,7 +3355,8 @@ div.FitUiControlDialogTitle,
 div.FitUiControlDialogTitleButtons
 {
 	background-color: white;
-	border-bottom: 1px solid silver;
+	border-bottom: 0.065em solid silver;
+	border-bottom-width: 1px\9;
 	height: 3.2em;
 }
 
@@ -3370,7 +3401,8 @@ div.FitUiControlDialogButtons
 {
 	/*background-color: white;*/
 	padding: 0px;
-	border-top: 1px solid silver;
+	border-top: 0.065em solid silver;
+	border-top-width: 1px\9;
 	text-align: right;
 }
 div.FitUiControlDialogButtons div.FitUiControlButton
@@ -3380,7 +3412,6 @@ div.FitUiControlDialogButtons div.FitUiControlButton
 div.FitUiControlDialogButtons div.FitUiControlButton + div.FitUiControlButton
 {
 	margin-left: 0px;
-	margin-top: 0px; /* In case buttons flow below each other if dialog gets too narrow */
 }
 
 div.FitUiControlDialogModalLayer
@@ -3390,24 +3421,29 @@ div.FitUiControlDialogModalLayer
 	bottom: 0px;
 	left: 0px;
 	right: 0px;
-	z-index: 1100;
+	z-index: 1200;
 
 	background-color: #333333;
 	opacity: 0.5;
 	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
 }
+
 div.FitUiControlDropDown
 {
 	min-width: 50px; /* In case width is set to 100% and control is squeezed */
 	text-align: left; /* To prevent incorrect rendering if parent contain has text-align:right */
-	vertical-align: bottom; /* Overflow:hidden (div.FitUiControlDropDownItems) changes the baseline for inline-block elements - see CSS specification (scroll to bottom): https://www.w3.org/TR/CSS2/visudet.html#propdef-vertical-align */
+	/*vertical-align: bottom;*/ /* Moved to div.FitUiControl */ /* Overflow:hidden (div.FitUiControlDropDownItems) changes the baseline for inline-block elements - see CSS specification (scroll to bottom): https://www.w3.org/TR/CSS2/visudet.html#propdef-vertical-align */
 }
 
 div.FitUiControlDropDownItems /* Item container */
 {
-	border: 1px solid gray;
+	min-height: 2em; /* Equal height for all controls */
+	min-height: 0\9; /* Undo equal height for all controls in IE9 and below - assume height of content in legacy IE which otherwise does not render control properly */
+	border: 0.065em solid #BBBBBB;
+	border-width: 1px\9;
 	border-radius: 2px;
-	padding: 2px 2em 2px 3px;
+	padding: 0.1em;
+	padding-right: 2em; /* Compensate for drop down arrow button to avoid items being partially hidden behind it */
 	background-color: white;
 	cursor: text;
 	white-space: normal; /* Make sure items wrap properly if used in container with nowrap */
@@ -3425,7 +3461,7 @@ div.FitUiControlDropDown[data-focused="true"][data-device="Tablet"] div.FitUiCon
 	   case the menu is closed and no input field has focus.
 	   This will be the case when removing items using the delete
 	   button on an item, without focusing the control first. */
-	border: 2px solid #1C74CE;
+	border: 0.07em solid #1C74CE;
 }
 div.FitUiControlDropDownItems:focus /* Remove outline when focus is temporarily assigned to prevent DropDown from losing focus */
 {
@@ -3442,7 +3478,8 @@ div.FitUiControlDropDownItems > i /* Box surrounding arrow icon */
 	background-color: white;
 	border-top-right-radius: 4px;
 	border-bottom-right-radius: 4px;
-	border-left: 1px solid #A9A9A9;
+	border-left: 0.065em solid #BBBBBB;
+	border-left-width: 1px\9;
 	cursor: pointer;
 }
 div.FitUiControlDropDownItems > i:before
@@ -3469,6 +3506,14 @@ div.FitUiControlDropDownItems > span /* Selection container */
 {
 	display: inline-block;
 	white-space: nowrap;
+	margin-top: 0.225em; /* Overridden for Multi Selection Mode below, so this applies to Single Selection Mode only */
+
+	/* Equal height for all controls not enabled in legacy IE where controls assume height of content instead - apply alternative margins */
+	margin-top: 0.1em\9;
+	margin-bottom: 0.1em\9;
+}
+div.FitUiControlDropDown[data-multiselect="true"] div.FitUiControlDropDownItems > span /* Selection container */
+{
 	margin-top: 0.1em;
 	margin-bottom: 0.1em;
 }
@@ -3480,10 +3525,17 @@ div.FitUiControlDropDownItems > span:focus /* Remove outline when focus is tempo
 div.FitUiControlDropDown[data-multiselect="true"] div.FitUiControlDropDownItems > span > span /* Selection (in multi selection mode only) */
 {
 	display: inline-block;
-	padding: 2px;
-	border: 1px solid silver;
+	padding: 0.15em 0.25em 0.15em 0.25em;
+	border: 0.065em solid silver;
+	border-width: 1px\9;
 	border-radius: 2px;
 	background-color: whitesmoke;
+}
+
+div.FitUiControlDropDown[data-multiselect="true"] div.FitUiControlDropDownItems > span,
+div.FitUiControlDropDown[data-multiselect="true"] div.FitUiControlDropDownItems > input
+{
+	font-size: 0.85em;
 }
 
 div.FitUiControlDropDownItems > span > span.FitUiControlDropDownInvalid /* Invalid selection */
@@ -3493,14 +3545,14 @@ div.FitUiControlDropDownItems > span > span.FitUiControlDropDownInvalid /* Inval
 
 div.FitUiControlDropDownItems > span > span > i /* Delete button */
 {
-	color: #CC0000;
+	color: #CCCCCC;
 	padding-left: 0.4em;
 	cursor: pointer;
 }
-div.FitUiControlDropDown[data-multiselect="false"] div.FitUiControlDropDownItems > span > span > i /* Delete button in selection (in single selection mode only) */
-{
+/*div.FitUiControlDropDown[data-multiselect="false"] div.FitUiControlDropDownItems > span > span > i*/ /* Delete button in selection (in single selection mode only) */
+/*{
 	display: none;
-}
+}*/
 div.FitUiControlDropDownItems > span > span > i:focus /* Remove outline when focus is temporarily assigned to prevent DropDown from losing focus */
 {
 	outline: none;
@@ -3539,8 +3591,24 @@ div.FitUiControlDropDownItems input
 	outline: none;
 
 	margin: 0px;
-	margin-top: -0.25em;
 	padding: 0px;
+}
+
+div.FitUiControlDropDownItems > input
+{
+	margin-top: 0.25em;		/* Align input vertically - will be unset when items are selected in which case input aligns with baseline */
+	margin-top: 0\9;		/* Equal height for all controls not enabled in legacy IE where controls assume height of content instead - unset margin */
+}
+div.FitUiControlDropDown[data-multiselect="true"] div.FitUiControlDropDownItems > input
+{
+	/* Align input vertically - will be unset when items are selected in which case input aligns with baseline */
+	/* Margin-top needs to be greater in Multi Selection Mode because font-size (em) has been reduced in this mode. */
+	margin-top: 0.4em;
+	margin-top: 0\9; /* Equal height for all controls not enabled in legacy IE where controls assume height of content instead - unset margin */
+}
+div.FitUiControlDropDown div.FitUiControlDropDownItems > span + input
+{
+	margin-top: 0px; /* Remove margin when items are selected - will align with baseline */
 }
 
 div.FitUiControlDropDownItems span > span + input /* Right input in selection container */
@@ -3557,9 +3625,11 @@ div.FitUiControlDropDownItems input::-ms-clear /* Remove clear button in IE10 - 
 div.FitUiControlDropDownPicker /* Picker container (drop down) */
 {
 	background-color: white;
-	border: 1px solid gray;
+	border: 0.065em solid #BBBBBB;
+	border-width: 1px\9;
 	border-radius: 2px;
-	margin-top: -1px;
+	margin-top: -0.065em;
+	margin-top: -1px\9;
 	display: none;
 	min-height: 10px;
 
@@ -3624,6 +3694,37 @@ div.FitUiControlDropDownPicker > *
 {
 	display: block; /* Make sure picker consumes the entire width of drop down (ControlBase is inline-block) */
 }
+
+/* Alternative rendering - Text Selection Mode */
+
+div.FitUiControlDropDown[data-selectionmode="text"] div.FitUiControlDropDownItems > span
+{
+	display: none; /* Hide selected items - will be represented using text instead */
+}
+div.FitUiControlDropDown[data-selectionmode="text"] div.FitUiControlDropDownItems > input
+{
+	font-size: 1em;
+	width: 100% !important; /* Using important to override inline style set by fitWidthToContent(..) */
+	margin-top: 0.2em;
+	margin-top: 0\9; /* Equal height for all controls not enabled in legacy IE where controls assume height of content instead - unset margin */
+}
+div.FitUiControlDropDown[data-selectionmode="text"][data-focused="false"] div.FitUiControlDropDownItems > input
+{
+	text-overflow: ellipsis;
+}
+
+/* Selection Mode toggle button (switch between Text and Visual Selection Mode) */
+
+div.FitUiControlDropDown > span.fa
+{
+	position: absolute;
+	top: 0.5em;
+	right: -1.5em;
+}
+div.FitUiControlDropDown[data-selectionmodetoggle="true"]
+{
+    margin-right: 2em;
+}
 /* Modern control (default) */
 
 div.FitUiControlFilePicker[data-legacy="false"] input
@@ -3652,16 +3753,62 @@ div.FitUiControlFilePicker[data-legacy="true"] input
 {
 	display: block;
 }
+
+/* Dropzone */
+
+div.FitUiControlFilePicker[data-dropzone="true"]
+{
+	border: 0.15em dashed #BBBBBB;
+}
+
+div.FitUiControlFilePicker[data-dropzone="true"][style*="height"]
+{
+	/* Make sure dropzone has a width when a height is configured,
+	   since dropzone container is positioned (taken out of flow),
+	   causing control to vertically collapse without a width. */
+	min-width: 15em;
+}
+
+div.FitUiControlFilePicker[data-dropzone="true"][style*="height"] > div /* dropzone container */
+{
+	/* Center dropzone container vertically when control height is set */
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 100%;
+}
+div.FitUiControlFilePicker[data-dropzone="true"] > div /* dropzone container */
+{
+	text-align: center;
+	padding: 1em;
+}
+
+div.FitUiControlFilePicker[data-dropzone="true"] div.FitUiControlButton
+{
+	margin-top: 0.75em;
+}
+
+div.FitUiControlFilePicker[data-dropzone="true"][data-dropping="true"]
+{
+	background-color: rgba(0, 0, 0, 0.05);
+}
+div.FitUiControlInput
+{
+	height: 2em; /* Equal height for all controls */
+	height: auto\9; /* Undo equal height for all controls in IE9 and below - assume height of content in legacy IE which does not render properly when input height is set to 100% of container */
+}
+
 div.FitUiControlInput input:first-child,
 div.FitUiControlInput textarea:first-child
 {
 	width: 100%;
 	height: 100%;
-	padding: 1px;
+	padding: 0.2em;
 	margin: 0px;
 	text-align: inherit;
 	font-size: inherit;
-	border: 1px solid #909090;
+	border: 0.065em solid #BBBBBB;
+	border-width: 1px\9;
 	border-radius: 2px;
 	display: block; /* Remove annoying spacing above input when outline is applied (when value is invalid) */
 
@@ -3689,19 +3836,15 @@ div.FitUiControlInput[data-valid="false"] textarea:first-child
 }
 
 /* Maximize button */
-div.FitUiControlInput
-{
-	position: relative;
-}
-div.FitUiControlInput span.fa
+div.FitUiControlInput > span.fa
 {
 	position: absolute;
 	top: 0px;
-	right: -20px;
+	right: -1.5em;
 }
 div.FitUiControlInput[data-maximizable="true"]
 {
-    margin-right: 25px;
+    margin-right: 2em;
 }
 
 /* Remove outline when input has focus */
@@ -3716,6 +3859,7 @@ div.FitUiControlInput textarea:first-child
 {
 	resize: none;
 }
+
 div.FitUiControlListView
 {
 	overflow-y: auto;
@@ -3724,7 +3868,7 @@ div.FitUiControlListView
 
 div.FitUiControlListView > div /* List item */
 {
-	padding: 3px;
+	padding: 0.25em;
 	white-space: nowrap;
 }
 
@@ -3743,12 +3887,16 @@ div.FitUiControlListView:focus
 {
 	outline: none;
 }
+
 div.FitUiControlProgressBar
 {
-	border: 1px solid #808080;
+	height: 2em; /* Equal height for all controls */
+	height: auto\9; /* Undo equal height for all controls in IE9 and below - assume height of content in legacy IE */
+	border: 0.065em solid #BBBBBB;
+	border-width: 1px\9;
 	border-radius: 3px;
 	white-space: nowrap;
-	vertical-align: bottom;
+	/*vertical-align: bottom;*/ /* Moved to div.FitUiControl */
 	overflow: hidden;
 	cursor: default;
 
@@ -3774,8 +3922,12 @@ div.FitUiControlProgressBarStatus
 div.FitUiControlProgressBarStatus span
 {
 	display: inline-block;
-	padding: 4px;
+	padding-left: 0.2em;
+	padding-right: 0.2em;
+	line-height: 1.87em; /* Equal height for all controls - top and bottom borders (each 0.065em) substracted */
+	line-height: normal\9; /* Undo equal height for all controls in IE9 and below */
 }
+
 /* General */
 
 /* Prevent text selection */
@@ -4022,7 +4174,7 @@ div.FitUiControlTreeView li:focus
 {
 	outline: none;
 }
-div.FitUiControlTreeView li ul li:focus > span,
+div.FitUiControlTreeView[data-picker="false"] li ul li:focus > span,
 div.FitUiControlTreeView li ul li[data-active="true"] > span
 {
 	padding: 0px 2px 0px 2px;
@@ -4056,3 +4208,4 @@ div.FitUiControlTreeView li[data-value="TREEVIEW_ROOT_NODE"] > ul
 {
 	display: block;
 }
+
