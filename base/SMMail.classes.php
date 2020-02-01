@@ -1,8 +1,11 @@
 <?php
 
-//require_once(dirname(__FILE__) . "/phpmailer/PHPMailerAutoload.php"); // Does not work with PHP 7.2.x (https://github.com/Jemt/SitemagicCMS/issues/24)
-require_once(dirname(__FILE__) . "/phpmailer/class.smtp.php");
-require_once(dirname(__FILE__) . "/phpmailer/class.phpmailer.php");
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require_once(dirname(__FILE__) . "/phpmailer/Exception.php");
+require_once(dirname(__FILE__) . "/phpmailer/PHPMailer.php");
+require_once(dirname(__FILE__) . "/phpmailer/SMTP.php");
 
 /// <container name="base/SMMailType">
 /// 	Enum defining type of e-mail
