@@ -23,7 +23,7 @@ div.JSShopOrderForm:after
     clear: both;
 }
 
-div.JSShopOrderForm div[id*="JSShop-"][id*="-Control"]
+div.JSShopOrderForm div.FitUiControl
 {
 	margin-bottom: 0.75em;
 }
@@ -53,15 +53,13 @@ div.JSShopOrderForm div.FitUiControlInput textarea
 	padding: 0.2em;
 }
 
-div#JSShop-Headline-Label,
-div#JSShop-AlternativeHeadline-Label,
-div#JSShop-Header-Label
+div.JSShopOrderForm b
 {
-	font-weight: bold;
+	display: inline-block;
 	margin: 1em 0em 1em 0em;
 }
 
-div#JSShop-Continue-Control
+div.JSShopPaymentButton
 {
 	float: right;
 	margin-top: 2em;

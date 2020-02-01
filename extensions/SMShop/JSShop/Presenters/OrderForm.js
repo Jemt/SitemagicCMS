@@ -5,7 +5,7 @@ JSShop.Presenters.OrderForm = function()
 {
 	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
 
-	var view = null;
+	var dom = null;
 	var lang = JSShop.Language.Translations;
 
 	// Controls
@@ -35,7 +35,7 @@ JSShop.Presenters.OrderForm = function()
 	{
 		// Load view
 
-		view = document.createElement("div");
+		dom = document.createElement("div");
 
 		if (JSShop.Models.Basket.GetItems().length === 0)
 			return;
@@ -46,103 +46,85 @@ JSShop.Presenters.OrderForm = function()
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderForm/OrderForm.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 		}
 
-		var req = new Fit.Http.Request(JSShop.GetPath() + "/Views/OrderForm/OrderForm.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
-		req.OnSuccess(function(sender)
+		var tpl = new Fit.Template();
+		tpl.AllowUnsafeContent(false);
+		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderForm/OrderForm.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
-			view.innerHTML = req.GetResponseText();
-
-			var addressForm = view.querySelector("div.JSShopAddress");
-			var altAddressForm = view.querySelector("div.JSShopAlternativeAddress");
-			var paymentForm = view.querySelector("div.JSShopPaymentForm");
-
-			altAddressForm.style.display = ((chkAlternativeAddress.Checked() === true) ? "block" : "none");
-
 			// Controls - order form
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Headline-Label"), document.createTextNode(lang.OrderForm.CustomerDetails));
+			tpl.Content.AddressArea = lang.OrderForm.CustomerDetails;
+			tpl.Content.CompanyLabel = lang.OrderForm.Company;
+			tpl.Content.CompanyControl = txtCompany;
+			tpl.Content.FirstNameLabel = lang.OrderForm.FirstName;
+			tpl.Content.FirstNameControl = txtFirstName;
+			tpl.Content.LastNameLabel = lang.OrderForm.LastName;
+			tpl.Content.LastNameControl = txtLastName;
+			tpl.Content.AddressLabel = lang.OrderForm.Address;
+			tpl.Content.AddressControl = txtAddress;
+			tpl.Content.ZipCodeLabel = lang.OrderForm.ZipCode;
+			tpl.Content.ZipCodeControl = txtZipCode;
+			tpl.Content.CityLabel = lang.OrderForm.City;
+			tpl.Content.CityControl = txtCity;
+			tpl.Content.EmailLabel = lang.OrderForm.Email;
+			tpl.Content.EmailControl = txtEmail;
+			tpl.Content.PhoneLabel = lang.OrderForm.Phone;
+			tpl.Content.PhoneControl = txtPhone;
+			tpl.Content.MessageLabel = lang.OrderForm.Message;
+			tpl.Content.MessageControl = txtMessage;
 
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Company-Label"), document.createTextNode(lang.OrderForm.Company));
-			txtCompany.Render(addressForm.querySelector("#JSShop-Company-Control"));
-
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-FirstName-Label"), document.createTextNode(lang.OrderForm.FirstName));
-			txtFirstName.Render(addressForm.querySelector("#JSShop-FirstName-Control"));
-
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-LastName-Label"), document.createTextNode(lang.OrderForm.LastName));
-			txtLastName.Render(addressForm.querySelector("#JSShop-LastName-Control"));
-
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Address-Label"), document.createTextNode(lang.OrderForm.Address));
-			txtAddress.Render(addressForm.querySelector("#JSShop-Address-Control"));
-
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-ZipCode-Label"), document.createTextNode(lang.OrderForm.ZipCode));
-			txtZipCode.Render(addressForm.querySelector("#JSShop-ZipCode-Control"));
-
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-City-Label"), document.createTextNode(lang.OrderForm.City));
-			txtCity.Render(addressForm.querySelector("#JSShop-City-Control"));
-
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Email-Label"), document.createTextNode(lang.OrderForm.Email));
-			txtEmail.Render(addressForm.querySelector("#JSShop-Email-Control"));
-
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Phone-Label"), document.createTextNode(lang.OrderForm.Phone));
-			txtPhone.Render(addressForm.querySelector("#JSShop-Phone-Control"));
-
-			Fit.Dom.Add(addressForm.querySelector("#JSShop-Message-Label"), document.createTextNode(lang.OrderForm.Message));
-			txtMessage.Render(addressForm.querySelector("#JSShop-Message-Control"));
-
-			chkRememberMe.Render(addressForm.querySelector("#JSShop-RememberMe-Control"));
-
-			chkAlternativeAddress.Render(addressForm.querySelector("#JSShop-AlternativeAddress-Control"));
+			tpl.Content.RememberMeControl = chkRememberMe;
+			tpl.Content.EnableAltAddressControl = chkAlternativeAddress;
 
 			// Controls - alternative delivery address
 
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeHeadline-Label"), document.createTextNode(lang.OrderForm.AlternativeAddress));
+			tpl.Content.AltAddressDisplay = ((chkAlternativeAddress.Checked() === true) ? "block" : "none");
 
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeCompany-Label"), document.createTextNode(lang.OrderForm.Company));
-			txtAltCompany.Render(altAddressForm.querySelector("#JSShop-AlternativeCompany-Control"));
-
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeFirstName-Label"), document.createTextNode(lang.OrderForm.FirstName));
-			txtAltFirstName.Render(altAddressForm.querySelector("#JSShop-AlternativeFirstName-Control"));
-
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeLastName-Label"), document.createTextNode(lang.OrderForm.LastName));
-			txtAltLastName.Render(altAddressForm.querySelector("#JSShop-AlternativeLastName-Control"));
-
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeAddress-Label"), document.createTextNode(lang.OrderForm.Address));
-			txtAltAddress.Render(altAddressForm.querySelector("#JSShop-AlternativeAddress-Control"));
-
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeZipCode-Label"), document.createTextNode(lang.OrderForm.ZipCode));
-			txtAltZipCode.Render(altAddressForm.querySelector("#JSShop-AlternativeZipCode-Control"));
-
-			Fit.Dom.Add(altAddressForm.querySelector("#JSShop-AlternativeCity-Label"), document.createTextNode(lang.OrderForm.City));
-			txtAltCity.Render(altAddressForm.querySelector("#JSShop-AlternativeCity-Control"));
+			tpl.Content.AltAddressArea = lang.OrderForm.AlternativeAddress;
+			tpl.Content.AltCompanyLabel = lang.OrderForm.Company;
+			tpl.Content.AltCompanyControl = txtAltCompany;
+			tpl.Content.AltFirstNameLabel = lang.OrderForm.FirstName;
+			tpl.Content.AltFirstNameControl = txtAltFirstName;
+			tpl.Content.AltLastNameLabel = lang.OrderForm.LastName;
+			tpl.Content.AltLastNameControl = txtAltLastName;
+			tpl.Content.AltAddressLabel = lang.OrderForm.Address;
+			tpl.Content.AltAddressControl = txtAltAddress;
+			tpl.Content.AltZipCodeLabel = lang.OrderForm.ZipCode;
+			tpl.Content.AltZipCodeControl = txtAltZipCode;
+			tpl.Content.AltCityLabel = lang.OrderForm.City;
+			tpl.Content.AltCityControl = txtAltCity;
 
 			// Controls - terms and payment methods
 
 			if ((lstPaymentMethod !== null || txtPromoCode !== null) && chkAcceptTerms !== null)
-				Fit.Dom.Add(paymentForm.querySelector("#JSShop-Header-Label"), document.createTextNode(lang.OrderForm.PaymentAndTerms));
+				tpl.Content.PaymentArea = lang.OrderForm.PaymentAndTerms;
 			else if (lstPaymentMethod !== null || txtPromoCode !== null)
-				Fit.Dom.Add(paymentForm.querySelector("#JSShop-Header-Label"), document.createTextNode(lang.OrderForm.Payment));
+				tpl.Content.PaymentArea = lang.OrderForm.Payment;
 			else if (chkAcceptTerms !== null)
-				Fit.Dom.Add(paymentForm.querySelector("#JSShop-Header-Label"), document.createTextNode(lang.OrderForm.Terms));
+				tpl.Content.PaymentArea = lang.OrderForm.Terms;
 
 			if (txtPromoCode !== null)
 			{
-				Fit.Dom.Add(paymentForm.querySelector("#JSShop-PromoCode-Label"), document.createTextNode("Kampagnekode"));
-				txtPromoCode.Render(paymentForm.querySelector("#JSShop-PromoCode-Control"));
+				tpl.Content.PromoCodeLabel = lang.OrderForm.PromotionCode;
+				tpl.Content.PromoCodeControl = txtPromoCode;
 			}
 
 			if (lstPaymentMethod !== null)
 			{
-				Fit.Dom.Add(paymentForm.querySelector("#JSShop-PaymentMethod-Label"), document.createTextNode(lang.OrderForm.PaymentMethod));
-				lstPaymentMethod.Render(paymentForm.querySelector("#JSShop-PaymentMethod-Control"));
+				tpl.Content.PaymentMethodLabel = lang.OrderForm.PaymentMethod;
+				tpl.Content.PaymentMethodControl = lstPaymentMethod;
 			}
 
 			if (chkAcceptTerms !== null)
 			{
-				chkAcceptTerms.Render(paymentForm.querySelector("#JSShop-AcceptTerms-Control"));
+				tpl.Content.AcceptTermsControl = chkAcceptTerms;
 
 				var dialog = new Fit.Controls.Dialog();
+				dialog.Title(lang.OrderForm.AcceptTerms);
 				dialog.Modal(true);
-				dialog.Content("<iframe src='" + JSShop.Settings.TermsUrl + "' frameBorder='0' style='width: 100%; min-width: 260px; height: 100%; min-height: 260px;' allowtransparency='true'></iframe>");
-				dialog.GetDomElement().firstChild.style.padding = "0em";
+				dialog.Maximizable(true);
+				dialog.ContentUrl(JSShop.Settings.TermsUrl);
+				dialog.Width(50, "%");
+				dialog.Height(50, "%");
 
 				var cmdOk = new Fit.Controls.Button("JSShopOkButton");
 				cmdOk.Type(Fit.Controls.Button.Type.Success);
@@ -168,13 +150,19 @@ JSShop.Presenters.OrderForm = function()
 				link.onclick = function(e)
 				{
 					dialog.Open();
+					Fit.Events.StopPropagation(e); // Avoid changing checked state
 				}
-				Fit.Dom.InsertAfter(chkAcceptTerms.GetDomElement(), link);
+
+				// Add terms link to checkbox label
+				var chkId = "Chk" + Fit.Data.CreateGuid();
+				chkAcceptTerms.Label(chkAcceptTerms.Label() + "<div id='" + chkId + "'></div>");
+				Fit.Dom.Replace(chkAcceptTerms.GetDomElement().querySelector("#" + chkId), link);
 			}
 
-			cmdContinue.Render(paymentForm.querySelector("#JSShop-Continue-Control"));
+			tpl.Content.ContinuePurchaseControl = cmdContinue;
+
+			tpl.Render(dom);
 		});
-		req.Start();
 
 		txtCompany = new Fit.Controls.Input("JSShopCompany");
 		txtCompany.SetValidationCallback(function(val) { return (val.length <= 50); }, lang.Common.MaxLengthExceeded);
@@ -524,7 +512,7 @@ JSShop.Presenters.OrderForm = function()
 
 	this.GetDomElement = function()
 	{
-		return view;
+		return dom;
 	}
 
 	// Private
