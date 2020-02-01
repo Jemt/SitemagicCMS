@@ -416,10 +416,10 @@ JSShop.Presenters.OrderList = function()
 				}
 				model._presenter.lnkAmountWithDetails.innerHTML = Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator);
 
-				model._presenter.stateElm = document.createElement("a");
-				model._presenter.stateElm.href = "javascript:";
-				model._presenter.stateElm.innerHTML = getStateTitle(model.State());
-				model._presenter.stateElm.onclick = function(e)
+				model._presenter.stateElement = document.createElement("a");
+				model._presenter.stateElement.href = "javascript:";
+				model._presenter.stateElement.innerHTML = getStateTitle(model.State());
+				model._presenter.stateElement.onclick = function(e)
 				{
 					displayStateDialog(model, function(tagsChanged)
 					{
@@ -436,7 +436,7 @@ JSShop.Presenters.OrderList = function()
 							// Tags were added/removed from order - affects only current order
 
 							var newAltStateText = getTagTitlesByIds(model.TagIds() !== "" ? model.TagIds().split(";") : []);
-							model._presenter.stateElm.innerHTML = (newAltStateText !== "" ? newAltStateText : getStateTitle(model.State()));
+							model._presenter.stateElement.innerHTML = (newAltStateText !== "" ? newAltStateText : getStateTitle(model.State()));
 						}
 					});
 				}
@@ -446,7 +446,7 @@ JSShop.Presenters.OrderList = function()
 			}
 
 			var altStateText = getTagTitlesByIds(model.TagIds() !== "" ? model.TagIds().split(";") : []);
-			model._presenter.stateElm.innerHTML = (altStateText !== "" ? altStateText : getStateTitle(model.State()));
+			model._presenter.stateElement.innerHTML = (altStateText !== "" ? altStateText : getStateTitle(model.State()));
 
 			if (model._presenter.checkBox.Checked() === false)
 			{
@@ -462,7 +462,7 @@ JSShop.Presenters.OrderList = function()
 			item.Currency = model.Currency();
 			item.Amount = model._presenter.lnkAmountWithDetails;
 			item.PaymentMethod = model.PaymentMethod();
-			item.State = model._presenter.stateElm;
+			item.State = model._presenter.stateElement;
 			item.InvoiceId = model._presenter.invoiceElement;
 		});
 
@@ -564,7 +564,7 @@ JSShop.Presenters.OrderList = function()
 				processed++;
 				statusDialog.Progress(Fit.Math.Round((processed/scheduled) * 100));
 
-				model._presenter.StateElement.innerHTML = getStateTitle(model.State());
+				model._presenter.stateElement.innerHTML = getStateTitle(model.State());
 
 				if (processing.length === 0) // No more requests to be made
 				{
