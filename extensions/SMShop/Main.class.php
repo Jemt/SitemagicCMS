@@ -175,7 +175,7 @@ class SMShop extends SMExtension
 		JSShop.Settings.CostCorrectionMessage3 = SMStringUtilities.UnicodeDecode(\"" . $this->escapeJson($config->GetEntryOrEmpty("CostCorrectionMessage3")) . "\");
 		JSShop.Settings.ConfigUrl = \"" . SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopConfig" . "\";
 		JSShop.Settings.BasketUrl = \"" . SMExtensionManager::GetExtensionUrl($this->name) . "&SMShopBasket" . "\";
-		JSShop.Settings.TermsUrl = \"" . $config->GetEntryOrEmpty("TermsPage") . (($config->GetEntryOrEmpty("TermsPage") !== "") ? "?SMTemplateType=Basic&SMPagesDialog" : "") . "\";
+		JSShop.Settings.TermsUrl = \"" . $config->GetEntryOrEmpty("TermsPage") . (($config->GetEntryOrEmpty("TermsPage") !== "") ? ((strpos($config->GetEntryOrEmpty("TermsPage"), "?") === false) ? "?" : "&") . "SMTemplateType=Basic&SMPagesDialog" : "") . "\";
 		JSShop.Settings.ReceiptUrl = \"" . $config->GetEntryOrEmpty("ReceiptPage") . "\";
 		JSShop.Settings.PaymentUrl = \"" . (($paymentMethodsAvailable === true) ? $payCallback : "") . "\";
 		JSShop.Settings.PaymentMethods = [ " . $paymentMethodsStr . " ];
