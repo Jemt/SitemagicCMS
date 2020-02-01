@@ -547,7 +547,7 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 	$productLines = array();
 
 	// Notice: These placeholders are based on a syntax different from placeholders used to populate order data (see further up where {Placeholder} syntax is used)
-	foreach (array("OrderLine", "ProductLine") as $listType)
+	foreach (array("OrderLine", "ProductLine") as $listType) // Use OrderLineXYZ to include cost corrections, ProductLineXYZ to exclude cost corrections
 	{
 		foreach ($entries as $entry)
 		{
@@ -569,8 +569,8 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 			$orderLine[$listType . "ProductPriceExclVat"] = number_format($pricing["UnitPriceExclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
 			$orderLine[$listType . "ProductPriceInclVat"] = number_format($pricing["UnitPriceInclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
 			$orderLine[$listType . "ProductDiscountMessage"] = $entry["DiscountMessage"];
-			$orderLine[$listType . "ProductDiscountExclVat"] = (($pricing["DiscountExclVat"] !== 0.0) ? "-" . number_format($pricing["DiscountExclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "") : "");
-			$orderLine[$listType . "ProductDiscountInclVat"] = (($pricing["DiscountExclVat"] !== 0.0) ? "-" . number_format($pricing["DiscountInclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "") : "");
+			$orderLine[$listType . "ProductDiscountExclVat"] = (($pricing["DiscountExclVat"] !== 0.0) ? number_format($pricing["DiscountExclVat"] * -1, 2, $lang->GetTranslation("DecimalSeparator"), "") : "");
+			$orderLine[$listType . "ProductDiscountInclVat"] = (($pricing["DiscountExclVat"] !== 0.0) ? number_format($pricing["DiscountInclVat"] * -1, 2, $lang->GetTranslation("DecimalSeparator"), "") : "");
 			$orderLine[$listType . "TotalExclVat"] = number_format($pricing["TotalExclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
 			$orderLine[$listType . "TotalInclVat"] = number_format($pricing["TotalInclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
 
