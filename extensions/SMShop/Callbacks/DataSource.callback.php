@@ -479,8 +479,8 @@ function SMShopXmlArchiving($dsDef)
 				$relationSource = new SMDataSource($relation["DataSource"]);
 				$relationArchive = new SMDataSource($relation["DataSource"] . "_archive");
 
-				$relationSource->Unlck();
-				$relationArchive->Unlck();
+				$relationSource->Unlock();
+				$relationArchive->Unlock();
 			}
 		}
 
