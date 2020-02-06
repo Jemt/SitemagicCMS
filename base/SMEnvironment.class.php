@@ -471,7 +471,7 @@ class SMEnvironment
 		SMTypeCheck::CheckObject(__METHOD__, "path", (($path !== null) ? $path : ""), SMTypeCheckType::$String);
 
 		if ($path === null)
-			$path = self::GetRequestPath(false);
+			$path = self::GetRequestPath();
 
 		$internalKey = $key;
 
@@ -508,6 +508,16 @@ class SMEnvironment
 	/// </function>
 	public static function GetExternalUrl()
 	{
+		$url = "";
+		$url .= "http";
+		$url .= ((isset($_SERVER["HTTPS"]) === true && $_SERVER["HTTPS"] !== "off") ? "s://" : "://");
+		$url .= $_SERVER["SERVER_NAME"];
+		$url .= (($_SERVER["SERVER_PORT"] !== "80" && $_SERVER["SERVER_PORT"] !== "443") ? ":" . $_SERVER["SERVER_PORT"] : "");
+
+		$rp = SMEnvironment::GetRequestPath();
+		$url .= ($rp !== "/" ? $rp : "");
+
+		/* // DISABLED - now using new approach above which exclude virtual directories
 		$ruri = self::GetEnvironmentValue("REQUEST_URI");
 		$ruri = (strpos($ruri, "?") !== false ? substr($ruri, 0, strpos($ruri, "?")) : $ruri); // Remove query string parameters which may contain a slash (e.g. https://localhost/demo/?SMExt=SMDesigner&SMCallback=callbacks/test)
 		$ruri = substr($ruri, 0, strrpos($ruri, "/"));
@@ -519,7 +529,7 @@ class SMEnvironment
 		$url .= (($_SERVER["SERVER_PORT"] !== "80" && $_SERVER["SERVER_PORT"] !== "443") ? ":" . $_SERVER["SERVER_PORT"] : "");
 		$url .= $ruri;
 		//$url .= substr($_SERVER["REQUEST_URI"], 0, strrpos($_SERVER["REQUEST_URI"], "/"));
-		//$url .= substr($_SERVER["PHP_SELF"], 0, strrpos($_SERVER["PHP_SELF"], "/")); // Not reliable when URL Rewriting is used (e.g. sub.domain.com => domain.com/sites/sub)
+		//$url .= substr($_SERVER["PHP_SELF"], 0, strrpos($_SERVER["PHP_SELF"], "/")); // Not reliable when URL Rewriting is used (e.g. sub.domain.com => domain.com/sites/sub)*/
 
 		return $url; // e.g. http://www.domain.com/demo/cms
 	}
@@ -554,20 +564,107 @@ class SMEnvironment
 
 	/// <function container="base/SMEnvironment" name="GetRequestPath" access="public" static="true" returns="string">
 	/// 	<description>
-	/// 		Get path under which application is requested, e.g. / if installed in root, or /demo if installed to a folder
+	/// 		Get path under which application is requested, e.g. / if running from the root, or /demo if running from a folder.
+	/// 		Virtual directories part of a request is stripped away from returned value. The value returned is the actual path
+	/// 		under which the web application is running.
 	/// 	</description>
 	/// </function>
-	public static function GetRequestPath()
+	private static $requestPath = null;
+	public static function GetRequestPath() // A better name would probably have been GetInstallationPath, but it is already defined and kept for backward compatibility
 	{
-		// Returns "/" if installed in root of web host.
-		// Returns "/folder/subfolder" if installed in /folder/subfolder.
-		// Returns "/folder/subfolder/sites/demo" if subsite is installed in /folder/subfolder/sites/demo.
-		// Returns "/" if installed to /sites/test but accessed using test.domain.com subdomain
+		if (self::$requestPath === null)
+		{
+			// Returns "/" if installed in root of web host.
+			// Returns "/folder/subfolder" if installed in /folder/subfolder.
+			// Returns "/folder/subfolder/sites/demo" if subsite is installed in /folder/subfolder/sites/demo.
+			// Returns "/" if installed to /sites/test but accessed using test.domain.com subdomain.
 
-		$path = self::GetEnvironmentValue("REQUEST_URI"); // E.g. / or /index.php[?..] or /Test.html
-		$path = ((strpos($path, "?") !== false) ? substr($path, 0, strpos($path, "?")) : $path); // Remove URL arguments if defined
-		$path = substr($path, 0, strrpos($path, "/"));	// Remove last slash and everything after it, resulting in e.g. "" (empty) or / or /sites/demo
-		return (($path !== "") ? $path : "/");
+			$path = self::GetEnvironmentValue("REQUEST_URI"); // E.g. / or /index.php[?..] or /Test.html or /demo/Test.html or /demo/shop/phones (/shop/phones is a virtual directory path)
+			$path = ((strpos($path, "?") !== false) ? substr($path, 0, strpos($path, "?")) : $path); // Remove URL arguments if defined
+			$path = substr($path, 0, strrpos($path, "/"));	// Remove last slash and everything after it, resulting in e.g. "" (empty) or / or /sites/demo
+			$path = (($path !== "") ? $path : "/");
+
+			// Remove virtual directory portion from URL (remove e.g. /shop/phones used by SMShop extension)
+
+			if ($path !== "/")
+			{
+				$realPath = realpath(dirname(__FILE__) . "/.."); // E.g. /var/www/domain.com/web/demo
+
+				$dirs = explode("/", $path); // Path could be something like /demo/shop/phones
+				$concat = "";
+
+				foreach ($dirs as $dir)
+				{
+					// As long as $dir (and directories previously gathered in $concat) is
+					// contained in $realPath, then the given directory is not a virtual directory.
+					// Examples values:
+					// $realPath = /var/www/demo.com/web/demo
+					// $dir      =                      /demo/shop/phones
+					//                                       ^^^^^^^^^^^^
+					// Marked part of URL above is excluded as it is not contained in $realPath.
+					// It is a virtual directory (a result of URL rewriting).
+					// One might worry that having a folder with the same name
+					// as the domain in the example above will cause a problem.
+					// Fortunately this is not the case. In the example below
+					// we have the website hosted in a folder hierarchy containing
+					// two folders with the same name.
+					// /var/www/demo.com/web is the document root, and
+					// /var/www/demo.com/web/demo.com/test is the folder in which the
+					// web application is installed. So we expect the match
+					// to look like this:
+					// $realPath = /var/www/demo.com/web/demo.com/test
+					// $dir      =                      /demo.com/test/shop/phones
+					// But instead demo.com from $dir will match the first demo.com
+					// folder in $realPath:
+					// $realPath = /var/www/demo.com/web/demo.com/test
+					//                      ^^^^^^^^
+					// However, when the next folder (test) is matched against
+					// $realPath, we will get a match like this:
+					// $realPath = /var/www/demo.com/web/demo.com/test
+					//                                   ^^^^^^^^^^^^^
+					// And when the third folder is matched against $realPath,
+					// it fails because "shop" is not part of the path, so we know
+					// it's a virtual directory, and we exclude it and everything
+					// that follows.
+					//
+					// If the web application is hosted in a single folder called "demo.com",
+					// it will obviously match the incorrect folder in $realPath. But if it
+					// is followed by a virtual directory, it will not match, and will be
+					// stripped away which will leave us with just /demo.com which is as expected.
+					// If a virtual directory is not part of $dir, then there will be nothing to
+					// exclude, which will also result in /demo.com being returned which is as expected.
+					//
+					// There is one real problem though, which is when the web application is
+					// hosted in the document root with a folder path containing the name
+					// of a virtual directory. So for instance the following document root would
+					// cause this function to produce an incorrect result:
+					// $realPath = /var/www/shop/web    (document root)
+					// $dir      =         /shop/phones (function will incorrectly return /shop instead of /)
+					// We accept this edge case though.
+					if (strpos($realPath, "/" . ($concat !== "" ? $concat . "/" : "") . $dir) !== false)
+					{
+						$concat .= ($concat !== "" ? "/" : "") . $dir;
+					}
+					else
+					{
+						break; // Reached non-existing folder - skip this and remaining path as it must be based on URL rewriting (virtual directory)
+					}
+				}
+
+				$path = "/" . $concat;
+			}
+
+			// Append subsite portion for a subsite
+
+			$subSite = self::getSubSite();
+			$path = $path . (($subSite !== null) ? (($path !== "/") ? "/" : "") . "sites/" . $subSite : "");
+
+			// Cache result - this function is likely called many times
+
+			self::$requestPath = $path;
+		}
+
+		return $path;
 	}
 
 	/// <function container="base/SMEnvironment" name="GetDocumentRoot" access="public" static="true" returns="string">
@@ -575,38 +672,19 @@ class SMEnvironment
 	/// 		Get path to document root, e.g. /var/www/domain.com/web (installed to root)
 	/// 		or /var/www/domain.com/web/Sitemagic/sites/demo (demo subsite).
 	/// 	</description>
-	/// 	<param name="absolute" type="boolean" default="true"> Flag indicating whether to return document root as an absolute path (default) or not (relative path) </param>
 	/// </function>
-	public static function GetDocumentRoot($absolute = true)
+	public static function GetDocumentRoot()
 	{
-		//$root = $_SERVER["DOCUMENT_ROOT"];
-		//$root = str_replace("\\", "/", $root); // May contain backslashes on Windows Server
-		//$root = ((strrpos($root, "/") === strlen($root) - 1) ? substr($root, 0, strlen($root) - 1) : $root); // Remove trailing slash if found (better safe than sorry)
+		// NOTICE: $_SERVER["DOCUMENT_ROOT"] seems to be unreliable! On some servers (e.g. ISPConfig 3 on Debian 8)
+		// a sub domain such as smcms.domain.com mapped to a folder like SMCMS in /var/www/codemagic.dk/web,
+		// DOCUMENT_ROOT is returned as /var/www/codemagic.dk/web. On other servers (e.g. MAMP Pro on macOS)
+		// the same setup results in DOCUMENT_ROOT being reported as /var/www/codemagic.dk/web/SMCMS.
+		// However, we want Document Root to be the root of the folder containing the running web application.
+		// For a sub site it would be the sub site folder rather than the main site's root folder.
 
 		$root = $_SERVER["SCRIPT_FILENAME"];			// E.g. /var/www/domain.com/web/Sitemagic/index.php - opposite to DOCUMENT_ROOT this value will always contain the name of the (sub-) folder containing the file
 		$root = str_replace("\\", "/", $root);			// In case backslashes are used on Windows Server
 		$root = substr($root, 0, strrpos($root, "/"));	// Remove last slash and filename (e.g. /index.php)
-
-		if ($absolute === false) // Relative path (e.g. /demo) requested rather than absolute path (e.g. /var/www/domain.com/web/demo)
-		{
-			// WARNING: Use relative path with caution - it may differ on different server systems!
-			// The relative document root is NOT suitable for use client side as it may differ from what the browser
-			// considers the root. For instance, mapping a subdomain to a sub folder will on some servers (e.g. MAMP Pro)
-			// result in the document root being considered / while on other servers the document root will still be reported
-			// as the sub folder, e.g. /demo.
-
-			$docRoot = $_SERVER["DOCUMENT_ROOT"];			// E.g. /var/www/domain.com/web (or it might be /var/www/domain.com/web/demo on some servers (e.g. MAMP Pro on MacOS) if a subdomain is mapped to the demo folder)
-			$docRoot = str_replace("\\", "/", $docRoot);	// In case backslashes are used on Windows Server
-
-			if ($root === $docRoot)
-			{
-				// This happens on e.g. MAMP Pro with a subdomain mapped to a folder.
-				// We have no way of determining whether Sitemagic is hosted in a sub folder or not.
-				return "/";
-			}
-
-			return substr($root, strlen($docRoot)); // Remove document root portion, leaving only installation folder behind (e.g. /demo)
-		}
 
 		return $root;
 	}
