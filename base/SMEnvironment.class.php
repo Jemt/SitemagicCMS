@@ -664,7 +664,7 @@ class SMEnvironment
 			self::$requestPath = $path;
 		}
 
-		return $path;
+		return self::$requestPath;
 	}
 
 	/// <function container="base/SMEnvironment" name="GetDocumentRoot" access="public" static="true" returns="string">
