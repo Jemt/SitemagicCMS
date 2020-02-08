@@ -254,7 +254,7 @@ div.SMShopProductDialog span.SMShopProductPriceInfo
 /* Mobile - responsiveness                                  */
 /* ======================================================== */
 
-@media (max-width: 850px)
+@media (max-width: 900px)
 {
 	div.SMShopProduct:not(.SMShopProductDialog)
 	{
