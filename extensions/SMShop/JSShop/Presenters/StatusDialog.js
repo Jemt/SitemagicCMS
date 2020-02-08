@@ -15,7 +15,7 @@ JSShop.Presenters.StatusDialog = function()
 	{
 		dialog = new Fit.Controls.Dialog();
 
-		var container = dialog.GetDomElement().children[0];
+		var container = dialog.GetContentDomElement();
 
 		textElm = Fit.Dom.CreateElement("<span></span>");
 		Fit.Dom.Add(container, textElm);
