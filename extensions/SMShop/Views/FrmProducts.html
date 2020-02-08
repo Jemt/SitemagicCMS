@@ -43,6 +43,8 @@
 <script type="text/javascript">
 function SMShopOpenProductDialog(prod)
 {
+	var productContainer = prod.parentElement;
+
 	// Add placeholder - product is to be taken out of flow
 
 	var placeholder = Fit.Dom.CreateElement(prod.outerHTML);
@@ -76,7 +78,7 @@ function SMShopOpenProductDialog(prod)
 		if (qs.Anchor !== null)
 			location.href = qs.Url.replace("#" + qs.Anchor, "#_"); // Using #_ rather than # to prevent page from scrolling to top
 	});
-	Fit.Dom.Add(document.body, layer);
+	Fit.Dom.InsertAfter(productContainer, layer);
 
 	// Transform product card into product dialog
 
