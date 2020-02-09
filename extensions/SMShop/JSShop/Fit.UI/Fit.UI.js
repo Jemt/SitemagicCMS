@@ -576,7 +576,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 8, Patch: 26 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 9, Patch: 2 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -12038,7 +12038,7 @@ Fit.Controls.Dialog = function(controlId)
 		{
 			if (me === null)
 				return; // Dialog was disposed when a button was clicked
-			
+
 			// Do not focus first button when a (any) button within the button area was clicked.
 			// Button clicked might have been e.g. second button, which perhaps caused dialog to remain open,
 			// in which case we should not change focus. The button clicked could also have changed focus in
@@ -12415,7 +12415,7 @@ Fit.Controls.Dialog = function(controlId)
 		if (Fit.Validation.IsSet(url) === true)
 		{
 			iframe = Fit.Dom.CreateElement("<iframe src='" + url + "' scrolling='yes' frameBorder='0' allowtransparency='true'></iframe>");
-			
+
 			if (Fit.Validation.IsSet(onLoadHandler) === true)
 			{
 				Fit.Events.AddHandler(iframe, "load", function(e)
@@ -12667,21 +12667,28 @@ Fit.Controls.Dialog = function(controlId)
 	/// </function>
 	this.IsOpen = function()
 	{
-		return (dialog.parentElement === document.body);
+		return Fit.Dom.IsRooted(dialog);
 	}
 
 	/// <function container="Fit.Controls.Dialog" name="Open" access="public">
 	/// 	<description> Open dialog </description>
+	/// 	<param name="renderTarget" type="DOMElement" default="undefined">
+	/// 		Optional render target which can be used to render dialog to specific
+	/// 		container rather than the root of the body element. This allows for
+	/// 		the dialog to inherit styles from the specified render target.
+	/// 	</param>
 	/// </function>
-	this.Open = function()
+	this.Open = function(renderTarget)
 	{
+		Fit.Validation.ExpectDomElement(renderTarget, true);
+
 		if (me.IsOpen() === true)
 			return;
 
 		if (modal === true)
-			Fit.Dom.Add(document.body, layer);
+			Fit.Dom.Add(renderTarget || document.body, layer);
 
-		Fit.Dom.Add(document.body, dialog);
+		Fit.Dom.Add(renderTarget || document.body, dialog);
 
 		setContentHeight();
 		updatePosition();
@@ -12776,7 +12783,7 @@ Fit.Controls.Dialog = function(controlId)
 		{
 			Fit.Dom.Remove(layer);
 		}
-		
+
 		if (cmdMaximize !== null)
 		{
 			cmdMaximize.Dispose();
@@ -12901,7 +12908,7 @@ Fit.Controls.Dialog = function(controlId)
 		// causing resizing of the content once the dialog is positioned further down.
 		elm.style.left = "0px";
 		elm.style.top = "0px";
-		
+
 		var dim = Fit.Browser.GetViewPortDimensions();
 		var offsetLeft = Math.floor((dim.Width / 2) - (elm.offsetWidth / 2));	// Center horizontally - place center of dialog 1/2 (50%) from the left
 		var offsetTop = Math.floor((dim.Height / 3) - (elm.offsetHeight / 2));	// Place center of dialog 1/3 (33%) from the top
@@ -12979,7 +12986,7 @@ Fit.Controls.Dialog._internal.BaseDialog = function(content, showCancel, cb)
 	var localize = function()
 	{
 		var locale = Fit.Internationalization.GetLocale(d);
-		
+
 		cmdOk.Title(locale.Ok);
 
 		if (cmdCancel !== null)
@@ -13086,7 +13093,7 @@ Fit.Controls.Dialog.Prompt = function(content, defaultValue, cb)
 	var baseDialog = Fit.Controls.Dialog._internal.BaseDialog(content + "<br><br>", true, function(res)
 	{
 		// Notice: Dialog is disposed at this point!
-		
+
 		var val = txt.Value();
 		txt.Dispose();
 
@@ -18161,6 +18168,7 @@ Fit.Controls.Input = function(ctlId)
 		me._internal.Data("maximized", "false");
 		me._internal.Data("designmode", "false");
 
+		Fit.Internationalization.OnLocaleChanged(localize);
 	}
 
 	// ============================================
@@ -18236,6 +18244,8 @@ Fit.Controls.Input = function(ctlId)
 
 		if (designEditor !== null)
 			designEditor.destroy();
+
+		Fit.Internationalization.RemoveOnLocaleChanged(localize);
 
 		if (mutationObserverId !== -1)
 		{
@@ -18322,7 +18332,15 @@ Fit.Controls.Input = function(ctlId)
 
 		if (Fit.Validation.IsSet(val) === true)
 		{
-			input.spellcheck = val;
+			if (val !== input.spellcheck)
+			{
+				input.spellcheck = val;
+
+				if (me.DesignMode() === true)
+				{
+					reloadEditor();
+				}
+			}
 		}
 
 		return input.spellcheck;
@@ -18653,7 +18671,7 @@ Fit.Controls.Input = function(ctlId)
 			}
 		}
 
-		return (me._internal.Data("designmode") === "true");
+		return designEditor !== null;
 	}
 
 	// ============================================
@@ -18712,10 +18730,15 @@ Fit.Controls.Input = function(ctlId)
 			return;
 		}
 
+		var langSupport = ["da", "de", "en"];
+		var locale = Fit.Internationalization.Locale().length === 2 ? Fit.Internationalization.Locale() : Fit.Internationalization.Locale().substring(0, 2);
+		var lang = Fit.Array.Contains(langSupport, locale) === true ? locale : "en";
+
 		designEditor = CKEDITOR.replace(me.GetId() + "_DesignMode",
 		{
 			//allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_allowed_content_rules and http://docs.ckeditor.com/#!/api/CKEDITOR.config-cfg-allowedContent
-			language: ((Fit.Browser.GetInfo().Language === "da") ? "da" : "en"), // TODO: Ship with all language files and remove this entry to have CKEditor default to browser language
+			language: lang,
+			disableNativeSpellChecker: me.CheckSpelling() === false,
 			extraPlugins: "justify,pastefromword",
 			toolbar:
 			[
@@ -18754,12 +18777,12 @@ Fit.Controls.Input = function(ctlId)
 				{
 					designEditor._focused = true;
 					me._internal.FireOnFocus();
-				},
-				blur: function()
+				}/*,
+				blur: function() // Not needed when editable area is a <div> (divarea plugin) - ControlBase implements focus/blur handling for all controls, which also ensures that e.g. OnBlur fires for editor before OnClick on e.g. a button
 				{
 					delete designEditor._focused;
 					me._internal.FireOnBlur();
-				}
+				}*/
 			}
 		});
 	}
@@ -18818,6 +18841,29 @@ Fit.Controls.Input = function(ctlId)
 					}
 				});
 			}
+		}
+	}
+
+	function reloadEditor()
+	{
+		// Disabling DesignMode brings it back to input or textarea mode.
+		// If reverting to input mode, the Height is reset, so we need to preserve that.
+
+		var height = me.Height();
+		me.DesignMode(false);
+		me.Height(height.Value, height.Unit);
+		me.DesignMode(true);
+	}
+
+	function localize()
+	{
+		if (me.DesignMode() === true)
+		{
+			// Re-create editor with new language.
+			// NOTICE minor issue: Changing language while link dialog (and possibly any dialog)
+			// is open, breaks the editor with a "Cannot read property 'blur' of null" error.
+			
+			reloadEditor();
 		}
 	}
 
