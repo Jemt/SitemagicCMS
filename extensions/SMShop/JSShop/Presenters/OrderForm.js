@@ -5,6 +5,7 @@ JSShop.Presenters.OrderForm = function()
 {
 	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
 
+	var me = this;
 	var dom = null;
 	var lang = JSShop.Language.Translations;
 
@@ -149,7 +150,7 @@ JSShop.Presenters.OrderForm = function()
 				var link = Fit.Dom.CreateElement(" (<a href='javascript:'>" + lang.OrderForm.Read + "</a>)", "span");
 				link.onclick = function(e)
 				{
-					dialog.Open();
+					dialog.Open(me.GetDomElement().parentElement);
 					Fit.Events.StopPropagation(e); // Avoid changing checked state
 				}
 

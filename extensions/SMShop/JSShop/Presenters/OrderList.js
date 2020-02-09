@@ -5,6 +5,7 @@ JSShop.Presenters.OrderList = function()
 {
 	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
 
+	var me = this;
 	var dom = null;
 	var view = null;
 	var models = [];
@@ -183,7 +184,7 @@ JSShop.Presenters.OrderList = function()
 			dia.AddButton(cmdCsv);
 			dia.AddButton(cmdPdf);
 			dia.AddButton(cmdCancel);
-			dia.Open();
+			dia.Open(me.GetDomElement().parentElement);
 			cmdCsv.Focused(true);
 		});
 		cmdExport.GetDomElement().title = lang.OrderList.Export;
@@ -738,7 +739,7 @@ JSShop.Presenters.OrderList = function()
 			// Finalize
 
 			tpl.Render(dia.GetContentDomElement());
-			dia.Open();
+			dia.Open(me.GetDomElement().parentElement);
 			cmdOk.Focused(true);
 		});
 	}
@@ -818,7 +819,7 @@ JSShop.Presenters.OrderList = function()
 				tpl.Content.TotalPrice = Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator);
 
 				tpl.Render(dia.GetContentDomElement());
-				dia.Open();
+				dia.Open(me.GetDomElement().parentElement);
 				cmdOk.Focused(true);
 			}
 
@@ -1147,7 +1148,7 @@ JSShop.Presenters.OrderList = function()
 			tpl.Content.TagValue = dropdown.GetDomElement();
 
 			tpl.Render(dia.GetContentDomElement());
-			dia.Open();
+			dia.Open(me.GetDomElement().parentElement);
 			dropdown.Focused(true);
 		});
 	}
