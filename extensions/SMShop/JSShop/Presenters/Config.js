@@ -5,6 +5,7 @@ JSShop.Presenters.Config = function()
 {
 	Fit.Core.Extend(this, JSShop.Presenters.Base).Apply();
 
+	var me = this;
 	var view = null;
 	var tpl = null;
 	var config = null;
@@ -428,7 +429,16 @@ JSShop.Presenters.Config = function()
 		var x = pos.X;
 		var y = pos.Y + el.offsetHeight;
 
-		ctx.Show(x, y);
+		ctx.Show(x, y); // NOTICE code below which moves ContextMenu in DOM to inherit styles
+
+		// Move ContextMenu to view to inherit styles.
+		// WARNING - this work around has some downsides:
+		// - will break ContextMenu positioning if a parent element is also positioned.
+		// - Focus is not returned to button if ContextMenu is closed using ESC key.
+		// - Focus is lost when ContextMenu is moved in DOM, so it must be re-assigned.
+		// For more information about work around: https://github.com/Jemt/Fit.UI/issues/95
+		Fit.Dom.Add(me.GetDomElement(), ctx.GetDomElement());
+		ctx.Focused(true);
 	}
 
 	function createInput(value, onChange)
