@@ -404,7 +404,14 @@ JSShop.Presenters.OrderList = function()
 				model._presenter.lnkCustomerDetails.href = "javascript:";
 				model._presenter.lnkCustomerDetails.onclick = function(e)
 				{
-					displayCustomerDetails(model);
+					var target = Fit.Events.GetTarget(e);
+					var oc = target.onclick;
+					target.onclick = null;
+
+					displayCustomerDetails(model, function()
+					{
+						target.onclick = oc;
+					});
 				}
 				model._presenter.lnkCustomerDetails.innerHTML = model.FirstName() + " " + model.LastName();
 
@@ -412,7 +419,14 @@ JSShop.Presenters.OrderList = function()
 				model._presenter.lnkAmountWithDetails.href = "javascript:";
 				model._presenter.lnkAmountWithDetails.onclick = function(e)
 				{
-					displayOrderEntries(model);
+					var target = Fit.Events.GetTarget(e);
+					var oc = target.onclick;
+					target.onclick = null;
+
+					displayOrderEntries(model, function()
+					{
+						target.onclick = oc;
+					});
 				}
 				model._presenter.lnkAmountWithDetails.innerHTML = Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator);
 
@@ -421,6 +435,10 @@ JSShop.Presenters.OrderList = function()
 				model._presenter.stateElement.innerHTML = getStateTitle(model.State());
 				model._presenter.stateElement.onclick = function(e)
 				{
+					var target = Fit.Events.GetTarget(e);
+					var oc = target.onclick;
+					target.onclick = null;
+
 					displayStateDialog(model, function(tagsChanged)
 					{
 						// Callback invoked if changes were made to tags on order, or if tags were renamed/removed
@@ -438,6 +456,10 @@ JSShop.Presenters.OrderList = function()
 							var newAltStateText = getTagTitlesByIds(model.TagIds() !== "" ? model.TagIds().split(";") : []);
 							model._presenter.stateElement.innerHTML = (newAltStateText !== "" ? newAltStateText : getStateTitle(model.State()));
 						}
+					},
+					function()
+					{
+						target.onclick = oc;
 					});
 				}
 
@@ -650,25 +672,23 @@ JSShop.Presenters.OrderList = function()
 		chkSelectAll.Checked(allSelected);
 	}
 
-	function displayCustomerDetails(model)
+	function displayCustomerDetails(model, closedCallback)
 	{
 		Fit.Validation.ExpectInstance(model, JSShop.Models.Order);
+		Fit.Validation.ExpectFunction(closedCallback);
 
 		var dia = new Fit.Controls.Dialog();
 		dia.Modal(true);
-		dia.Content(lang.OrderList.Loading);
-		dia.Open();
 
 		var cmdOk = new Fit.Controls.Button("JSShopOrderDetailsOkButton");
 		cmdOk.Title(lang.Common.Ok);
 		cmdOk.Type(Fit.Controls.Button.Type.Success);
-		cmdOk.Enabled(false);
 		cmdOk.OnClick(function(sender)
 		{
 			dia.Dispose();
+			closedCallback();
 		});
 		dia.AddButton(cmdOk);
-		cmdOk.Focused(true);
 
 		if (document.querySelector("link[href*='/Views/OrderList/DialogCustomerDetails.css']") === null)
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
@@ -677,8 +697,6 @@ JSShop.Presenters.OrderList = function()
 		tpl.AllowUnsafeContent(false);
 		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
-			dia.Content("");
-
 			// Headlines
 
 			tpl.Content.CustomerDetailsHeadline = lang.OrderList.CustomerDetails;
@@ -719,31 +737,30 @@ JSShop.Presenters.OrderList = function()
 
 			// Finalize
 
-			cmdOk.Enabled(true);
 			tpl.Render(dia.GetContentDomElement());
+			dia.Open();
+			cmdOk.Focused(true);
 		});
 	}
 
-	function displayOrderEntries(model)
+	function displayOrderEntries(model, closedCallback)
 	{
 		Fit.Validation.ExpectInstance(model, JSShop.Models.Order);
+		Fit.Validation.ExpectFunction(closedCallback);
 
 		var dia = new Fit.Controls.Dialog();
 		dia.Modal(true);
-		dia.Content(lang.OrderList.Loading);
-		dia.Open();
-		dia.GetDomElement().style.maxWidth = "95%";
+		dia.MaximumWidth(95, "%");
 
 		var cmdOk = new Fit.Controls.Button("JSShopOrderEntriesOkButton");
 		cmdOk.Title(lang.Common.Ok);
 		cmdOk.Type(Fit.Controls.Button.Type.Success);
-		cmdOk.Enabled(false);
 		cmdOk.OnClick(function(sender)
 		{
 			dia.Dispose();
+			closedCallback();
 		});
 		dia.AddButton(cmdOk);
-		cmdOk.Focused(true);
 
 		if (document.querySelector("link[href*='/Views/OrderList/DialogOrderEntries.css']") === null)
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/DialogOrderEntries.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
@@ -800,10 +817,9 @@ JSShop.Presenters.OrderList = function()
 				tpl.Content.TotalVat = Fit.Math.Format(model.Vat(), 2, lang.Locale.DecimalSeparator);
 				tpl.Content.TotalPrice = Fit.Math.Format(model.Price() + model.Vat(), 2, lang.Locale.DecimalSeparator);
 
-				cmdOk.Enabled(true);
-
-				dia.Content("");
 				tpl.Render(dia.GetContentDomElement());
+				dia.Open();
+				cmdOk.Focused(true);
 			}
 
 			// Load order entries
@@ -838,10 +854,11 @@ JSShop.Presenters.OrderList = function()
 		});
 	}
 
-	function displayStateDialog(model, updateStateCallback)
+	function displayStateDialog(model, updateStateCallback, closedCallback)
 	{
 		Fit.Validation.ExpectInstance(model, JSShop.Models.Order);
 		Fit.Validation.ExpectFunction(updateStateCallback);
+		Fit.Validation.ExpectFunction(closedCallback);
 
 		// TODO at some point (low priority) - inconsistency:
 		// It's kind of odd that renaming/deleting a tag happens instantly while
@@ -849,8 +866,7 @@ JSShop.Presenters.OrderList = function()
 
 		var dia = new Fit.Controls.Dialog();
 		dia.Modal(true);
-		dia.Content(lang.OrderList.Loading);
-		dia.Open();
+		dia.MinimumHeight(22, "em");
 
 		var tagsCreated = {};
 		var tagsChanged = false;
@@ -858,6 +874,7 @@ JSShop.Presenters.OrderList = function()
 		var treeview = new Fit.Controls.TreeView("JSShopStateDialogTreeViewPicker");
 		var dropdown = new Fit.Controls.DropDown("JSShopStateDialogDropDown");
 		dropdown.Width(100, "%");
+		dropdown.DropDownMaxHeight(10, "em");
 		dropdown.MultiSelectionMode(true);
 		dropdown.SetPicker(treeview);
 		dropdown.InputEnabled(true);
@@ -1020,6 +1037,7 @@ JSShop.Presenters.OrderList = function()
 
 			dia.Dispose();
 			dropdown.Dispose();
+			closedCallback();
 		}
 
 		// Create OK and Cancel buttons
@@ -1027,7 +1045,6 @@ JSShop.Presenters.OrderList = function()
 		var cmdOk = new Fit.Controls.Button("JSShopStateDialogOkButton");
 		cmdOk.Title(lang.Common.Ok);
 		cmdOk.Type(Fit.Controls.Button.Type.Success);
-		cmdOk.Enabled(false);
 		cmdOk.OnClick(function(sender)
 		{
 			// Callback responsible for updating order with selected tags
@@ -1123,9 +1140,6 @@ JSShop.Presenters.OrderList = function()
 		tpl.AllowUnsafeContent(false);
 		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/OrderTags.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
-			dia.Content("");
-			cmdOk.Enabled(true);
-
 			tpl.Content.Headline = lang.OrderList.State;
 			tpl.Content.PaymentText = lang.OrderList.PaymentState + ": ";
 			tpl.Content.PaymentValue = getStateTitle(model.State());
@@ -1133,7 +1147,7 @@ JSShop.Presenters.OrderList = function()
 			tpl.Content.TagValue = dropdown.GetDomElement();
 
 			tpl.Render(dia.GetContentDomElement());
-
+			dia.Open();
 			dropdown.Focused(true);
 		});
 	}

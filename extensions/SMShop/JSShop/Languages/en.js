@@ -123,7 +123,6 @@
 			NavigateAway:		"You are about to cancel data processing!",
 			DoneSuccess:		"Done - all orders processed",
 			DoneFailure:		"Done - the following orders failed",
-			Loading:			"Loading, please wait..",
 			Order:				"Order",
 
 			// Dialog: Customer details

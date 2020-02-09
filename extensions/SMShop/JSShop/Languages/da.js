@@ -123,7 +123,6 @@
 			NavigateAway:		"Du er ved at annullere behandling af data!",
 			DoneSuccess:		"Færdig - alle ordre behandlet",
 			DoneFailure:		"Færdig - følgende ordre fejlede",
-			Loading:			"Indlæser, vent venligst..",
 			Order:				"Bestilling",
 
 			// Dialog: Customer details
