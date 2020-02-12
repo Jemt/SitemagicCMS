@@ -207,7 +207,7 @@ JSShop.Presenters.Config = function()
 				mt.Content = val;
 			}
 		});
-		itmContent.PropertyValue.FitControl.Width(700);
+		itmContent.PropertyValue.FitControl.Width(95, "%");
 		itmContent.PropertyValue.FitControl.Height(250);
 		itmContent.PropertyValue.FitControl.MultiLine(true);
 		itmContent.PropertyValue.FitControl.Maximizable(true);
@@ -449,7 +449,7 @@ JSShop.Presenters.Config = function()
 		var ctl = new Fit.Controls.Input(Fit.Data.CreateGuid());
 		ctl.Value(value);
 		ctl.OnChange(function(sender) { onChange(sender, ctl.Value()); });
-		ctl.Width(700);
+		ctl.Width(95, "%");
 
 		ctl.GetDomElement().FitControl = ctl;
 
@@ -536,6 +536,7 @@ JSShop.Presenters.Config = function()
 
 		var ctl = new Fit.Controls.DropDown(Fit.Data.CreateGuid());
 		ctl.SetPicker(new Fit.Controls.ListView());
+		ctl.Width(95, "%");
 
 		var title = value;
 
@@ -550,12 +551,15 @@ JSShop.Presenters.Config = function()
 			ctl.GetPicker().AddItem(option.Title, option.Value);
 		});
 
-		ctl.AddSelection(title, value);
+		if (value !== "")
+		{
+			ctl.AddSelection(title, value);
+		}
+
 		ctl.OnChange(function(sender)
 		{
 			onChange(sender, ((ctl.GetSelections().length !== 0) ? ctl.GetSelections()[0].Value : ""));
 		});
-		ctl.Width(700);
 
 		ctl.GetDomElement().FitControl = ctl;
 
