@@ -15,8 +15,8 @@
 	<entry key="BasketEmpty" value="The shopping basket is empty" />
 
 	<!-- E-mail templates -->
-	<entry key="File:ConfirmationMail.html" value="Confirmation e-mail" />
-	<entry key="File:InvoiceMail.html" value="Invoice e-mail" />
+	<entry key="File:OrderConfirmation.html" value="Confirmation e-mail" />
+	<entry key="File:Invoice.html" value="Invoice e-mail" />
 
 	<!-- Confirmation and Invoice mail -->
 	<entry key="DecimalSeparator" value="." />

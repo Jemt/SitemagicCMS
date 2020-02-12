@@ -14,9 +14,69 @@ class SMShop extends SMExtension
 	private $smMenuExists = false;
 	private $smPagesExists = false;
 
-	public function Init()
+	public function PreInit()
 	{
 		$this->name = $this->context->GetExtensionName();
+
+		// Ensure folders and configuration files
+
+		if (SMExtensionManager::GetExecutingExtension() === $this->name)
+		{
+			// Ensure folders
+
+			$dataDir = SMEnvironment::GetDataDirectory();
+
+			$dirs = array(
+				$dataDir . "/SMShop",
+				$dataDir . "/SMShop/MailTemplates",
+				$dataDir . "/SMShop/PDFs",
+				$dataDir . "/PSPI"
+			);
+
+			foreach ($dirs as $dir)
+			{
+				if (SMFileSystem::FolderExists($dir) === false)
+				{
+					SMFileSystem::CreateFolder($dir);
+				}
+			}
+
+			// Ensure e-mail templates
+
+			$extDir = SMExtensionManager::GetExtensionPath($this->context->GetExtensionName());
+
+			if (SMFileSystem::FileExists($dataDir . "/SMShop/MailTemplates/OrderConfirmation.html") === false)
+			{
+				SMFileSystem::Copy($extDir . "/MailTemplates/OrderConfirmation.html", $dataDir . "/SMShop/MailTemplates/OrderConfirmation.html");
+			}
+
+			if (SMFileSystem::FileExists($dataDir . "/SMShop/MailTemplates/Invoice.html") === false)
+			{
+				SMFileSystem::Copy($extDir . "/MailTemplates/Invoice.html", $dataDir . "/SMShop/MailTemplates/Invoice.html");
+			}
+
+			// Ensure PSPM folders and files
+
+			$pspiPath = $extDir . "/PSPI";
+
+			foreach (SMFileSystem::GetFolders($pspiPath) as $pspm)
+			{
+				if (SMFileSystem::FolderExists($dataDir . "/PSPI/" . $pspm) === false)
+				{
+					SMFileSystem::CreateFolder($dataDir . "/PSPI/" . $pspm);
+					SMFileSystem::Copy($pspiPath . "/" . $pspm . "/Config.php", $dataDir . "/PSPI/" . $pspm . "/Config.php");
+				}
+			}
+
+			if (SMFileSystem::FileExists($dataDir . "/PSPI/Config.php") === false)
+			{
+				SMFileSystem::Copy($pspiPath . "/ConfigOverride.php", $dataDir . "/PSPI/Config.php");
+			}
+		}
+	}
+
+	public function Init()
+	{
 		$this->smMenuExists = SMExtensionManager::ExtensionEnabled("SMMenu");	// False if not installed or not enabled
 		$this->smPagesExists = SMExtensionManager::ExtensionEnabled("SMPages");	// False if not installed or not enabled
 	}
@@ -85,13 +145,6 @@ class SMShop extends SMExtension
 
 		$basePath = SMEnvironment::GetRequestPath();
 		$basePath .= (($basePath !== "/") ? "/" : "");
-
-		if (SMEnvironment::GetQueryValue("SMShopCategory") !== null && SMStringUtilities::EndsWith($basePath, "/shop/") === true) // Product view - e.g. /shop/Overview or /shop/MyCategory (if accessed using SEO friendly URL)
-		{
-			// Remove "shop/" suffix from basePath - it's not the real path of the web application.
-			// Use the real path to prevent problems when calling WebServices under /shop/XYZ which would be redirected to / without preserving POST data (htaccess).
-			$basePath = substr($basePath, 0, -5);
-		}
 
 		$dsCallback = $basePath . SMExtensionManager::GetCallbackUrl($this->name, "Callbacks/DataSource");
 		$fsCallback = $basePath . SMExtensionManager::GetCallbackUrl($this->name, "Callbacks/Files");

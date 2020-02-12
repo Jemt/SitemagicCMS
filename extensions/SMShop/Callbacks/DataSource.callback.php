@@ -221,6 +221,8 @@ $dataSourcesAllowed = array
 		"Name"				=> "SMShopTags",
 		"AuthRequired"		=> array("Create", "Retrieve", "Update", "Delete", "RetrieveAll"),
 		"XmlLockRequired"  	=> array("Create", "Update", "Delete"),
+		"XmlTimeOut"		=> -1,
+		"XmlMemoryRequired"	=> -1,
 		"OrderBy"			=> "Title ASC",
 		"Fields"			=> array
 		(

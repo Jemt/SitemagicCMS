@@ -32,20 +32,6 @@ if ($command === "Upload")
 	$dir = $imagesFolder;
 	$filename = $_FILES["SelectedFile"]["name"];
 
-	// Ensure target folder
-
-	if (SMFileSystem::FolderExists($dir) === false)
-	{
-		$res = SMFileSystem::CreateFolder($dir);
-
-		if ($res === false)
-		{
-			header("HTTP/1.1 500 Internal Server Error");
-			echo "Error - unable to create '" . $dir . "'";
-			exit;
-		}
-	}
-
 	// Determine file extension
 
 	$match = array();

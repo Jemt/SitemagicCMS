@@ -22,7 +22,7 @@ function SMShopGetConfiguration($pspmHardcodedSettings)
 
 	// Load e-mail templates
 
-	$files = SMFileSystem::GetFiles($path);
+	$files = SMFileSystem::GetFiles($path . "/MailTemplates");
 	$templateFiles = array();
 
 	$mailTemplates = "";
@@ -36,7 +36,7 @@ function SMShopGetConfiguration($pspmHardcodedSettings)
 
 	foreach ($files as $file)
 	{
-		if (strpos($file, ".html") === strlen($file) - 5)
+		if (SMStringUtilities::EndsWith($file, ".html") === true) // Make sure we do not include e.g. .DS_Store files or similar
 		{
 			$templateFiles[] = $file;
 		}
@@ -44,7 +44,7 @@ function SMShopGetConfiguration($pspmHardcodedSettings)
 
 	foreach ($templateFiles as $file)
 	{
-		$reader = new SMTextFileReader($path . "/" . $file);
+		$reader = new SMTextFileReader($path . "/MailTemplates/" . $file);
 		$content = $reader->ReadAll();
 		$fileData = explode("\n", $content);
 
@@ -244,7 +244,7 @@ function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 
 	foreach ($data["MailTemplates"]["Templates"] as $mt)
 	{
-		$writer = new SMTextFileWriter($path . "/" . $mt["Name"], SMTextFileWriteMode::$Overwrite);
+		$writer = new SMTextFileWriter($path . "/MailTemplates/" . $mt["Name"], SMTextFileWriteMode::$Overwrite);
 		$writer->Write($mt["Subject"] . "\n" . $mt["Content"]);
 	}
 

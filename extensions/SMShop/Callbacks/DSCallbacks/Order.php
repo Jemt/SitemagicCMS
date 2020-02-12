@@ -379,7 +379,7 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 	$title = null;
 	$content = null;
 
-	$template = (($asInvoice === false) ? "ConfirmationMail.html" : "InvoiceMail.html");
+	$template = (($asInvoice === false) ? "OrderConfirmation.html" : "Invoice.html");
 
 	if ($asInvoice === false && $config->GetEntryOrEmpty("ConfirmationMailTemplateExpression") !== "")
 		$template = SMShopHandleExpression($config, null, $order["Price"], $order["Vat"], $order["Currency"], $order["Weight"], $order["WeightUnit"], (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $config->GetEntryOrEmpty("ConfirmationMailTemplateExpression"), "string");
@@ -389,7 +389,7 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 	if ($template === "")
 		return null;
 
-	$template = SMEnvironment::GetDataDirectory() . "/SMShop/" . $template;
+	$template = SMEnvironment::GetDataDirectory() . "/SMShop/MailTemplates/" . $template;
 
 	if (SMFileSystem::FileExists($template) === true)
 	{
@@ -623,11 +623,7 @@ function SMShopGeneratePdfAttachments($content)
 
 	if ($pdfMatchCount !== false && $pdfMatchCount > 0)
 	{
-		if (SMFileSystem::FolderExists(SMEnvironment::GetDataDirectory() . "/SMShop/PDFs") === false)
-		{
-			SMFileSystem::CreateFolder(SMEnvironment::GetDataDirectory() . "/SMShop/PDFs");
-		}
-
+		define("K_PATH_IMAGES", ""); // Prevent TCPDF (tcpdf_autoconfig.php) from trying to determine image directory with file_exists(folder) which may trigger an "open_basedir restriction in effect" error
 		require_once(dirname(__FILE__) . "/../../TCPDF/tcpdf.php");
 
 		$fullMatch = null;
@@ -635,13 +631,15 @@ function SMShopGeneratePdfAttachments($content)
 		$pdfContent = null;
 		$pdf = null;
 
+		$dataDirAbsolute = realpath(SMEnvironment::GetDataDirectory() . "/SMShop/PDFs"); // TCPDF needs path to be absolute, hence using realpath(..)
+
 		foreach ($pdfMatches as $match) // $match[0] = full match, $match[1] = 1st capture group (filename), $match[2] = 2nd capture group (PDF content)
 		{
 			$fullMatch = $match[0];
 			$filename = $match[1] . ".pdf";
 			$pdfContent = $match[2];
 
-			$pdfFiles[$filename] = SMEnvironment::GetDataDirectory() . "/SMShop/PDFs/" . SMRandom::CreateGuid() . ".pdf";
+			$pdfFiles[$filename] = $dataDirAbsolute . "/" . SMRandom::CreateGuid() . ".pdf";
 
 			$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, "UTF-8", false);
 
@@ -663,7 +661,7 @@ function SMShopGeneratePdfAttachments($content)
 			$pdf->AddPage();
 
 			$pdf->writeHTML(utf8_encode($pdfContent), false);
-			$pdf->Output(SMEnvironment::GetDocumentRoot() . "/" . $pdfFiles[$filename], "F");
+			$pdf->Output($pdfFiles[$filename], "F");
 
 			$content = str_replace($fullMatch, "", $content);
 		}
