@@ -214,7 +214,14 @@ function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 			$update["key"] = "NextOrderId";
 			$update["value"] = (string)$data["Identifiers"]["NextOrderId"]["Value"];
 
-			$state->Update($update, "key = '" . $update["key"] . "'");
+			if ($state->Count("key = '" . $update["key"] . "'") === 0)
+			{
+				$state->Insert($update);
+			}
+			else
+			{
+				$state->Update($update, "key = '" . $update["key"] . "'");
+			}
 		}
 
 		if ($data["Identifiers"]["NextInvoiceId"]["Dirty"] === true)
@@ -223,7 +230,14 @@ function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 			$update["key"] = "NextInvoiceId";
 			$update["value"] = (string)$data["Identifiers"]["NextInvoiceId"]["Value"];
 
-			$state->Update($update, "key = '" . $update["key"] . "'");
+			if ($state->Count("key = '" . $update["key"] . "'") === 0)
+			{
+				$state->Insert($update);
+			}
+			else
+			{
+				$state->Update($update, "key = '" . $update["key"] . "'");
+			}
 		}
 
 		$state->Commit();
