@@ -465,7 +465,6 @@ JSShop.Presenters.Config = function()
 
 		input.FitControl.CheckSpelling(false);
 		input.FitControl.MultiLine(true);
-		input.FitControl.Height(-1); // Reset height to make it resize to fit content
 		input.FitControl.Value(value); // Line breaks are not preserved when control is initially single line
 
 		setTimeout(function() { activateCodeMirror(input.FitControl); }, 0); // Postpone - code mirror can only be enabled for elements added to DOM and template has not yet been pushed to DOM
@@ -624,6 +623,8 @@ JSShop.Presenters.Config = function()
 
 		loadCodeMirror(function()
 		{
+			ctl.GetDomElement().style.height = "auto";
+
 			var codeEditor = CodeMirror.fromTextArea(ctl.GetDomElement().querySelector("textarea"),
 			{
 				lineNumbers: true,
