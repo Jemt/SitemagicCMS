@@ -217,6 +217,10 @@ class SMDataSource implements SMIDataSource
 		SMSqlParser::SyntaxCheckOrderByStatement($orderby);
 		SMSqlParser::ValidateLimitOffset($limit, $offset);
 
+		$orgWhere = $where;
+		$where = $this->escapeWhereStatementColumns($where);
+		$orderby = $this->escapeOrderByColumns($orderby);
+
 		$data = $this->escapeData($data);
 
 		$values = "";
@@ -229,7 +233,7 @@ class SMDataSource implements SMIDataSource
 			$values .= "`" . $key . "` = '" . $value . "'";
 		}
 
-		$toBeAffected = $this->Count($where, $limit, $offset);
+		$toBeAffected = $this->Count($orgWhere, $limit, $offset); // Using $orgWhere since Count also escapes WHERE statement
 
 		$sql = "UPDATE `" . $this->ds->GetName() . "` SET " . $values;
 		$sql .= (($where !== "") ? " WHERE " . $where : "");

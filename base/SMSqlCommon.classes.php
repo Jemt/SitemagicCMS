@@ -585,6 +585,33 @@ class SMSqlParser
 			throw new Exception($errorPrefix . "invalid end of WHERE statement");
 	}
 
+	/*public function EscapeFieldNames($sql) // SELECT (e.g.: name, age, gender), ORDER BY (e.g.: name DESC, age) or WHERE (e.g.: name IS NOT NULL AND age > 30)
+	{
+		// https://regex101.com/r/L7stJ1/7
+
+		$matches = array();
+		$count = preg_match_all('/([a-z]+)(.*?)(,| AND | OR |$)/', $sql, $matches, PREG_SET_ORDER);
+
+		if ($count === false)
+		{
+			throw new Exception("Unable to escape field names");
+		}
+
+		if ($count > 0)
+		{
+			$newSql = "";
+
+			foreach ($matches as $match) // 0 = full match, 1 = field name, 2 = condition for WHERE statement, DESC/ASC/empty for ORDER BY statement, empty for SELECT statement, 3 = AND/OR/empty for WHERE statement, comma/empty for SELECT and ORDER BY statement
+			{
+				$newSql .= "`" . $match[1] . "`" . $match[2] . $match[3];
+			}
+
+			return $newSql;
+		}
+
+		return $sql;
+	}*/
+
 	// [field[ DESC|ASC][ , field..]
 	public static function SyntaxCheckOrderByStatement($orderby) // run argument through SMSqlParser::CleanSql(..) first
 	{
