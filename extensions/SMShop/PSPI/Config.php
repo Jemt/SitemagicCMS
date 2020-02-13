@@ -12,9 +12,10 @@
 	"TestMode"			=> true												// Boolean: Set True to switch to test mode - this usually puts Payment Service Provider Modules in test mode to make sure no money will be charged when testing
 );*/
 
-$path = $_SERVER["SCRIPT_FILENAME"];				// E.g. /var/www/domain.com/web/Sitemagic/index.php - opposite to DOCUMENT_ROOT this value will always contain the name of the (sub-) folder containing the file
-$path = str_replace("\\", "/", $path);				// In case backslashes are used on Windows Server
-$path = substr($path, 0, strrpos($path, "/") + 1);	// Remove filename (e.g. index.php) - result e.g. /var/www/domain.com/web/Sitemagic/ or /var/www/domain.com/web/Sitemagic/sites/demo/
+$path = $_SERVER["SCRIPT_FILENAME"];							// E.g. /var/www/domain.com/web/Sitemagic/index.php - opposite to DOCUMENT_ROOT this value will always contain the name of the (sub-) folder containing the file
+$path = strpos($path, ":\\") === 1 ? substr($path, 2) : $path;	// Remove drive letter on Windows, e.g. "C:"
+$path = str_replace("\\", "/", $path);							// In case backslashes are used on Windows Server
+$path = substr($path, 0, strrpos($path, "/") + 1);				// Remove filename (e.g. index.php) - result e.g. /var/www/domain.com/web/Sitemagic/ or /var/www/domain.com/web/Sitemagic/sites/demo/
 
 $smContext = (class_exists("SMController") === true && class_exists("SMEnvironment") === true && class_exists("SMTextFileWriter") === true); // isset($_GET["SMExt"]) === true
 
