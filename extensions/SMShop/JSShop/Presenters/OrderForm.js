@@ -655,7 +655,7 @@ JSShop.Presenters.OrderForm = function()
 		Fit.Validation.ExpectInstance(sender, Fit.Controls.ControlBase);
 
 		if (chkRememberMe.Checked() === true)
-			JSShop.Cookies.Set(sender.GetId(), sender.Value(), 60 * 60 * 24 * 365 * 5);
+			JSShop.Cookies.Set(sender.GetId(), sender.Value().replace(/;/g, "{[SEMI]}"), 60 * 60 * 24 * 365 * 5);
 	}
 
 	function restoreValue(sender)
@@ -663,7 +663,7 @@ JSShop.Presenters.OrderForm = function()
 		Fit.Validation.ExpectInstance(sender, Fit.Controls.ControlBase);
 
 		if (chkRememberMe.Checked() === true && JSShop.Cookies.Get(sender.GetId()) !== null)
-			sender.Value(JSShop.Cookies.Get(sender.GetId()));
+			sender.Value(JSShop.Cookies.Get(sender.GetId()).replace(/\{\[SEMI\]\}/g, ";"));
 	}
 
 	function clearValue(sender)
