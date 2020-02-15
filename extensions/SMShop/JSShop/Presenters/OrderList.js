@@ -695,7 +695,7 @@ JSShop.Presenters.OrderList = function()
 			Fit.Loader.LoadStyleSheet(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.css?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"));
 
 		var tpl = new Fit.Template();
-		tpl.AllowUnsafeContent(false);
+		tpl.AllowUnsafeContent(true);
 		tpl.LoadUrl(JSShop.GetPath() + "/Views/OrderList/DialogCustomerDetails.html?CacheKey=" + (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0"), function(sender, html)
 		{
 			// Headlines
