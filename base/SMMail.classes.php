@@ -424,7 +424,7 @@ class SMMail
 			// Set content format
 
 			$mail->isHTML($this->type === SMMailType::$Html);
-			$mail->CharSet = "ISO-8859-1";
+			$mail->CharSet = "UTF-8";
 
 			if ($this->type === SMMailType::$Html)
 			{
@@ -434,8 +434,11 @@ class SMMail
 
 			// Set content
 
-			$mail->Subject = $this->subject;
-			$mail->Body = (($this->type === SMMailType::$Html && strpos(strtolower($this->content), "<html>") === false) ? "<html>" . $this->content . "</html>" : $this->content);
+			$unicodeSubject = SMStringUtilities::UnicodeDecode($this->subject);
+			$unicodeContent = SMStringUtilities::UnicodeDecode($this->content);
+
+			$mail->Subject = $unicodeSubject;
+			$mail->Body = (($this->type === SMMailType::$Html && strpos(strtolower($this->content), "<html>") === false) ? "<html>" . $unicodeContent . "</html>" : $unicodeContent);
 
 			// Apply additional options
 
