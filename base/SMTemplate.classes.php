@@ -351,8 +351,9 @@ class SMTemplate
 	/// 	<param name="type" type="SMTemplateResource"> Resource type </param>
 	/// 	<param name="path" type="string"> Path to resource </param>
 	/// 	<param name="prepend" type="boolean" default="false"> Set True to prepend resource, False to append </param>
+	/// 	<param name="charset" type="string" default="null"> Set character encoding for JS files with encoding different from page encoding </param>
 	/// </function>
-	public function RegisterResource($type, $path, $prepend = false)
+	public function RegisterResource($type, $path, $prepend = false, $charset = null)
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "type", $type, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "path", $path, SMTypeCheckType::$String);
@@ -365,7 +366,7 @@ class SMTemplate
 			return;
 
 		if ($type === SMTemplateResource::$JavaScript)
-			$this->AddToHeadSection((($prepend === true) ? "\n" : "") . "\t<script type=\"text/javascript\" src=\"" . $path . "\"></script>" . (($prepend === false) ? "\n" : ""), $prepend);
+			$this->AddToHeadSection((($prepend === true) ? "\n" : "") . "\t<script type=\"text/javascript\" src=\"" . $path . "\"" . (($charset !== null) ? " charset=\"" . $charset . "\"" : "") . "></script>" . (($prepend === false) ? "\n" : ""), $prepend);
 		else // StyleSheet
 			$this->AddToHeadSection((($prepend === true) ? "\n" : "") . "\t<link rel=\"stylesheet\" type=\"text/css\" href=\"" . $path . "\">" . (($prepend === false) ? "\n" : ""), $prepend);
 
