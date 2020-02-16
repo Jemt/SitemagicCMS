@@ -343,7 +343,7 @@ class SMMenuFrmMenu implements SMIExtensionForm
 
 			smMenuPopup = new SMWindow(\"SMMenuLinkList\");
 			smMenuPopup.SetSize(320, 100);
-			smMenuPopup.SetCenterWindow(true);
+			smMenuPopup.SetPosition(Math.floor(SMBrowser.GetPageWidth() / 2) - (320 / 2), 150);
 			smMenuPopup.SetUrl(\"" . SMExtensionManager::GetExtensionUrl("SMMenu", SMTemplateType::$Basic) . "&SMMenuLinkList&SMMenuLinkSelected=\" + url + \"&SMMenuLinkReceiver=" . $this->txtUrl->GetClientId() . "\");
 			smMenuPopup.Show();
 		}

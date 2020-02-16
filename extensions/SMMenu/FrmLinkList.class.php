@@ -21,6 +21,7 @@ class SMMenuFrmLinkList implements SMIExtensionForm
 	private function createControls()
 	{
 		$this->lstLinks = new SMOptionList("SMMenuLinkList");
+		$this->lstLinks->SetAttribute(SMInputAttributeText::$Style, "width: 100%");
 		$this->lstLinks->SetAttribute(SMOptionListAttribute::$OnChange, "smMenuCloseWindow(this)");
 
 		$links = SMMenuLinkList::GetInstance()->GetLinkCollection();
@@ -58,7 +59,7 @@ class SMMenuFrmLinkList implements SMIExtensionForm
 	{
 		$receiverControl = SMEnvironment::GetQueryValue("SMMenuLinkReceiver", SMValueRestriction::$Alpha);
 
-		$output = "<h1>" . $this->lang->GetTranslation("Links") . "</h1>";
+		$output = "<b>" . $this->lang->GetTranslation("Links") . "</b><br><br>";
 
 		$output .= "
 		<script type=\"text/javascript\">
@@ -72,12 +73,7 @@ class SMMenuFrmLinkList implements SMIExtensionForm
 		}
 		</script>
 
-		<table>
-			<tr>
-				<td style=\"width: 100px\">" . $this->lang->GetTranslation("Links") . "</td>
-				<td style=\"width: 150px\">" . $this->lstLinks->Render() . "</td>
-			</tr>
-		</table>
+		" . $this->lstLinks->Render() . "
 		";
 
 		return $output;
