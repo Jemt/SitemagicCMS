@@ -41,17 +41,20 @@ class SMAutoSeoUrls extends SMExtension // Supplementary extension to SMPages an
 
 		// Auto configure SEO friendly URLs
 
-		if ($this->manuallyConfigured() === true || $this->autoConfigured() === true || $this->htAccessExists() === false) // Cancel if already configured
+		if ($this->manuallyConfigured() === true || $this->autoConfigured() === true || $this->htAccessExists() === false) // Prevent auto configuration if already configured
 		{
-			if (SMAttributes::GetAttribute("SMUrlRewritingEnabled") === null) // Ensure SMPages independent flag indicating whether URL Rewriting is available
-			{
-				// Prevent infinite loop - calling checkAccessUsingSeoUrl() below will make a new request to the application which re-triggers this extension
-				SMAttributes::SetAttribute("SMUrlRewritingEnabled", "false");
-				SMAttributes::Commit();
+			// Update SMUrlRewritingEnabled (flag independent of SMPages) to reflect settings in SMPages.
+			// TODO: At some point we should move this to SMConfig and remove it from SMPages since we
+			// do not want to rely on SMPages to control this behaviour.
 
-				// SMUrlRewritingEnabled is basically the same as SMPagesSettingsSeoUrls, but without
-				// being SMPages specific - it simply indicates whether URL Rewriting is available or not.
-				SMAttributes::SetAttribute("SMUrlRewritingEnabled", (($this->checkAccessUsingSeoUrl() === true) ? "true" : "false"));
+			if (SMAttributes::GetAttribute("SMPagesSettingsSeoUrls") !== null && SMAttributes::GetAttribute("SMUrlRewritingEnabled") !== SMAttributes::GetAttribute("SMPagesSettingsSeoUrls"))
+			{
+				// Update SMUrlRewritingEnabled to reflect settings in SMPages.
+				// Notice that SMUrlRewritingEnabled will not be immediately updated when changing SMPagesSettingsSeoUrls in the
+				// SMPages extension, since this happens in the Render cycle. But on a subsequent request the flag will be updated.
+
+				SMAttributes::SetAttribute("SMUrlRewritingEnabled", SMAttributes::GetAttribute("SMPagesSettingsSeoUrls"));
+				SMAttributes::Commit();
 			}
 
 			return;
