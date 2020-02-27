@@ -875,7 +875,7 @@ class SMDataSource implements SMIDataSource
 		$xml = trim($xml);
 
 		$this->ds->SetInternalDataSource(new DOMDocument());
-		$this->ds->GetInternalDataSource()->loadXML($xml);
+		$this->ds->GetInternalDataSource()->loadXML($xml, defined("LIBXML_PARSEHUGE") ? LIBXML_PARSEHUGE : 0); // LIBXML_PARSEHUGE is only available in Libxml >= 2.7.0 (as of PHP >= 5.3.2 and PHP >= 5.2.12)
 	}
 
 	private function createSource()
