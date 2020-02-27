@@ -167,7 +167,7 @@ JSShop.Presenters.OrderList = function()
 				dia.Dispose();
 				printOrders();
 			});
-			cmdPdf.Enabled((Fit.Browser.GetInfo().Name !== "MSIE" || Fit.Browser.GetInfo().Name >= 10)); // jsPDF requires IE10+
+			cmdPdf.Enabled((Fit.Browser.GetInfo().Name !== "MSIE" || Fit.Browser.GetInfo().Version >= 10)); // jsPDF requires IE10+
 
 			var cmdCancel = new Fit.Controls.Button("JSShopExportCancelButton");
 			cmdCancel.Title(lang.Common.Cancel);
