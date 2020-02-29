@@ -1203,7 +1203,12 @@ JSShop.Presenters.OrderList = function()
 				content += "\n" + item.join(",");
 			});
 
-			if (Fit.Browser.GetInfo().Name === "MSIE") // Internet Explorer
+			if (navigator.msSaveOrOpenBlob) // Newer versions of Internet Explorer and older versions of Microsoft Edge (prior to Edge with Chromium engine)
+			{
+				var blob = new Blob([ content ], { type: "text/csv" });
+				navigator.msSaveOrOpenBlob(blob, "Export.csv");
+			}
+			else if (Fit.Browser.GetInfo().Name === "MSIE") // Older versions of Internet Explorer
 			{
 				var ifr = document.createElement("iframe");
 				ifr.style.display = "none";
@@ -1215,11 +1220,6 @@ JSShop.Presenters.OrderList = function()
 				doc.execCommand('SaveAs', true, "Export.csv");
 
 				Fit.Dom.Remove(ifr);
-			}
-			else if (navigator.msSaveOrOpenBlob) // Microsoft Edge
-			{
-				var blob = new Blob([ content ], { type: "text/csv" });
-				navigator.msSaveOrOpenBlob(blob, "Export.csv");
 			}
 			else // Modern browsers
 			{
