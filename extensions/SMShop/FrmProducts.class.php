@@ -35,8 +35,9 @@ class SMShopFrmProducts implements SMIExtensionForm
 
 		$ds = new SMDataSource("SMShopProducts");
 		$where = (($catId !== null && $catId !== "Overview") ? "CategoryId = '" . $ds->Escape($catId) . "'" : "");
+		$orderBy = "Category ASC, Title ASC";
 
-		$products = $ds->Select("*", $where);
+		$products = $ds->Select("*", $where, $orderBy);
 
 		if ($catId !== "Overview" && count($products) > 0 && $products[0]["CategoryId"] !== $catId) // SEO: Make CategoryId case sensitive
 			$products = array();
