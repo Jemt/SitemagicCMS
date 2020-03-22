@@ -19,12 +19,6 @@ div#JSShop-Weight-Control
 	float: left;
 	margin-right: 10px;
 }
-div#JSShop-Currency-Control,
-div#JSShop-WeightUnit-Control
-{
-	float: left;
-	font-size: 0.80em;
-}
 
 /* Right align buttons */
 table.JSShopProductForm td#JSShop-Buttons
