@@ -52,7 +52,7 @@ JSShop.Presenters.OrderList = function()
 	function createControls()
 	{
 		txtSearch = new Fit.Controls.Input("JSShopSearch");
-		txtSearch.Width(120);
+		txtSearch.Width(140);
 		txtSearch.GetDomElement().title = lang.OrderList.Search;
 		txtSearch.Placeholder(lang.OrderList.Search + "..");
 
@@ -89,7 +89,7 @@ JSShop.Presenters.OrderList = function()
 				txtFrom.Value(v);
 			}
 		});
-		txtFrom.Width(120);
+		txtFrom.Width(140);
 		txtFrom.Value(Fit.Date.Format(new Date(), lang.Locale.DateFormat));
 		txtFrom.GetDomElement().title = lang.OrderList.DisplayFromDate;
 
@@ -123,7 +123,7 @@ JSShop.Presenters.OrderList = function()
 				txtTo.Value(v);
 			}
 		});
-		txtTo.Width(120);
+		txtTo.Width(140);
 		txtTo.Value(Fit.Date.Format(new Date(), lang.Locale.DateFormat));
 		txtTo.GetDomElement().title = lang.OrderList.DisplayToDate;
 
