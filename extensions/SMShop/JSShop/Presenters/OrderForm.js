@@ -491,7 +491,7 @@ JSShop.Presenters.OrderForm = function()
 
 		if (txtPromoCode !== null)
 		{
-			txtPromoCode.OnChange(function(sender)
+			txtPromoCode.OnBlur(function(sender)
 			{
 				basket.PromoCode(txtPromoCode.Value());
 			});
