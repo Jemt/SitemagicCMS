@@ -5,6 +5,8 @@ div.SMCookieConsentPanel
 	left: 0px;
 	right: 0px;
 	padding: 2em;
+	max-height: 50%;
+	overflow: auto;
 	background: #333; /* Legacy IE fallback */
 	background: rgba(0, 0, 0, 0.90);
 	color: whitesmoke;

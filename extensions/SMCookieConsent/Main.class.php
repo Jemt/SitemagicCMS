@@ -88,13 +88,13 @@ class SMCookieConsent extends SMExtension
 
 			$template = $this->context->GetTemplate();
 
-			$template->RegisterResource(SMTemplateResource::$StyleSheet, SMExtensionManager::GetExtensionPath($this->context->GetExtensionName()) . "/CookieDialog.css");
-			$template->RegisterResource(SMTemplateResource::$JavaScript, SMExtensionManager::GetExtensionPath($this->context->GetExtensionName()) . "/CookieDialog.js");
+			$template->RegisterResource(SMTemplateResource::$StyleSheet, SMExtensionManager::GetExtensionPath($this->context->GetExtensionName()) . "/CookieDialog.css?ver=" . SMEnvironment::GetVersion());
+			$template->RegisterResource(SMTemplateResource::$JavaScript, SMExtensionManager::GetExtensionPath($this->context->GetExtensionName()) . "/CookieDialog.js?ver=" . SMEnvironment::GetVersion());
 
 			$template->AddToHeadSection("
 			<script>
 				var cs = new SMCookieConsent();
-				cs.Text = '" . $text . "';
+				cs.Text = '" . str_replace("'", "\\'", str_replace("\r", "", str_replace("\n", "", $text))) . "';
 				cs.Deny = '" . ($deny !== "" ? $deny : "Deny") . "';
 				cs.Accept = '" . ($accept !== "" ? $accept : "Accept") . "';
 				cs.HideHours = " . $hours . ";
