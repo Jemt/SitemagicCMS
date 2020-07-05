@@ -103,6 +103,13 @@ CREATE TABLE IF NOT EXISTS SMRating
 	`value`					float							DEFAULT NULL
 ) ENGINE = InnoDB CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 
+CREATE TABLE IF NOT EXISTS SMCookieConsent
+(
+	`name`					varchar(100)					DEFAULT NULL,
+	`description`			varchar(255)					DEFAULT NULL,
+	`code`					text							DEFAULT NULL
+) ENGINE = InnoDB CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+
 /* SMShop */
 
 CREATE TABLE IF NOT EXISTS SMShopState

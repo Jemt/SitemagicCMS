@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Cookie consent" />
+	<entry key="Save" value="Save" />
+	<entry key="Create" value="Create" />
+	<entry key="Clear" value="Clear" />
+	<entry key="Delete" value="Delete" />
+	<entry key="DeleteModule" value="Delete module?" />
+	<entry key="Disabled" value="Disabled" />
+	<entry key="Top" value="Top" />
+	<entry key="Bottom" value="Bottom" />
+	<entry key="Hour" value="Hour" />
+	<entry key="Hours" value="Hours" />
+	<entry key="Day" value="Day" />
+	<entry key="Days" value="Days" />
+	<entry key="ChangesSaved" value="Changes saved" />
+	<entry key="FillOutModuleName" value="Please fill out module name" />
+	<entry key="ModuleAlreadyExists" value="Module with specified name already exists" />
+	<entry key="ModuleCreated" value="Module created" />
+	<entry key="ModuleRemoved" value="Module removed" />
+	<entry key="DialogContent" value="Dialog content (content page)" />
+	<entry key="DialogPosition" value="Dialog position" />
+	<entry key="ConsentDuration" value="Consent duration" />
+	<entry key="DenyButtonText" value="Deny button text" />
+	<entry key="AcceptButtonText" value="Accept button text" />
+	<entry key="Modules" value="Modules" />
+	<entry key="ModuleName" value="Module name" />
+	<entry key="ModuleDescription" value="Short module description" />
+	<entry key="ModuleCode" value="Module code" />
+	<entry key="WithdrawCookieConsent" value="Withdraw cookie consent" />
+</entries>

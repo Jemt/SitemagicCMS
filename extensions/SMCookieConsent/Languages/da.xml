@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<entries>
+	<entry key="Title" value="Samtykke for cookies" />
+	<entry key="Save" value="Gem" />
+	<entry key="Create" value="Opret" />
+	<entry key="Clear" value="Rens" />
+	<entry key="Delete" value="Slet" />
+	<entry key="DeleteModule" value="Slet modul?" />
+	<entry key="Disabled" value="Deaktiveret" />
+	<entry key="Top" value="Top" />
+	<entry key="Bottom" value="Bund" />
+	<entry key="Hour" value="Time" />
+	<entry key="Hours" value="Timer" />
+	<entry key="Day" value="Dag" />
+	<entry key="Days" value="Dage" />
+	<entry key="ChangesSaved" value="Ændringer gemt" />
+	<entry key="FillOutModuleName" value="Udfyld venligst modulnavn" />
+	<entry key="ModuleAlreadyExists" value="Modul med det angivne navn eksisterer allerede" />
+	<entry key="ModuleCreated" value="Modul oprettet" />
+	<entry key="ModuleRemoved" value="Modul fjernet" />
+	<entry key="DialogContent" value="Dialogindhold (indholdsside)" />
+	<entry key="DialogPosition" value="Dialogs placering" />
+	<entry key="ConsentDuration" value="Varighed for samtykke" />
+	<entry key="DenyButtonText" value="Afvis-knappens tekst" />
+	<entry key="AcceptButtonText" value="Accept-knappens tekst" />
+	<entry key="Modules" value="Moduler" />
+	<entry key="ModuleName" value="Modulnavn" />
+	<entry key="ModuleDescription" value="Kort modulbeskrivelse" />
+	<entry key="ModuleCode" value="Modulkode" />
+	<entry key="WithdrawCookieConsent" value="Tilbagetræk samtykke til cookies" />
+</entries>

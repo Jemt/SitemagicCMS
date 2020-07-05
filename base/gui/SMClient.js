@@ -895,6 +895,11 @@ SMCookie.SetCookie = function(name, value, seconds)
 
 	var path = location.pathname.match(/^.*\//)[0]; // Examples: / OR /Sitemagic/ OR /Sitemagic/sites/demo/ - https://regex101.com/r/aU8iW6/1
 
+	if (SMStringUtilities.EndsWith(path, "/shop/") === true) // Special /shop/ directory reserved for e-commerce extensions
+	{
+		path = path.substring(0, path.length - "shop/".length);
+	}
+
 	if (SMEnvironment.IsSubSite() === false)
 	{
 		// Unfortunately cookies on main site will be accessible by subsites, and also cause naming conflicts.
@@ -2960,6 +2965,12 @@ SMForm.Internal.TransformData = function(transformer, includeButtons)
 	var textareas = document.getElementsByTagName("textarea");
 	for (var i = 0 ; i < textareas.length ; i++)
 		textareas[i].value = transformer(textareas[i].value);
+
+	var selects = document.getElementsByTagName("select");
+	for (var i = 0 ; i < selects.length ; i++)
+		selects[i].options[selects[i].selectedIndex].value = transformer(selects[i].options[selects[i].selectedIndex].value);
+		// for (var j = 0 ; j < selects[i].options.length ; j++)
+		// 	selects[i].options[j].value = transformer(selects[i].options[j].value);
 }
 
 // Configure inputs/textareas with new maxlength handler that supports Unicode Characters (HEX entities)

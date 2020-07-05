@@ -1,0 +1,65 @@
+div.SMCookieConsentPanel
+{
+	position: fixed;
+	/* Notice: bottom/top set using JavaScript */
+	left: 0px;
+	right: 0px;
+	padding: 2em;
+	background: #333; /* Legacy IE fallback */
+	background: rgba(0, 0, 0, 0.90);
+	color: whitesmoke;
+	text-align: center;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+div.SMCookieConsentDescription > p
+{
+	margin: 0px;
+}
+
+div.SMCookieConsentActions
+{
+	margin-top: 2em;
+}
+
+div.SMCookieConsentCheckboxes,
+div.SMCookieConsentButtons
+{
+	display: inline-block;
+}
+
+div.SMCookieConsentCheckboxes
+{
+	margin-bottom: 1em; /* In case buttons wrap underneath checkboxes on a mobile */
+}
+
+div.SMCookieConsentCheckbox
+{
+	display: inline-block;
+	margin-left: 0.75em;
+	margin-right: 0.75em;
+	cursor: pointer;
+}
+div.SMCookieConsentCheckbox input
+{
+	margin-right: 0.25em;
+}
+
+div.SMCookieConsentButton
+{
+	display: inline-block;
+	margin-left: 1em;
+	padding: 0.75em 2.25em;
+	cursor: pointer;
+	/*border-radius: 0.3em;*/
+	border: 1px solid whitesmoke;
+	color: whitesmoke;
+}
+div.SMCookieConsentButtonAccept
+{
+	border-style: none;
+	background: #6cbb23;
+}
