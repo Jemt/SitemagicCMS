@@ -23,7 +23,7 @@ class SMCookieConsent extends SMExtension
 			if (SMMenuLinkList::GetInstance()->GetReadyState() === true)
 			{
 				$menuLinkList = SMMenuLinkList::GetInstance();
-				$menuLinkList->AddLink($this->getTranslation("Title"), $this->getTranslation("WithdrawCookieConsent"), "javascript:SMCookie.RemoveCookie('SMCookieConsentAllowed');location.href=location.href;");
+				$menuLinkList->AddLink($this->getTranslation("Title"), $this->getTranslation("WithdrawCookieConsent"), "javascript:SMCookieConsent.ResetConsent();");
 			}
 		}
 
@@ -32,7 +32,7 @@ class SMCookieConsent extends SMExtension
 			if (SMPagesLinkList::GetInstance()->GetReadyState() === true)
 			{
 				$pagesLinkList = SMPagesLinkList::GetInstance();
-				$pagesLinkList->AddLink($this->getTranslation("Title"), $this->getTranslation("WithdrawCookieConsent"), "javascript:SMCookie.RemoveCookie('SMCookieConsentAllowed');location.href=location.href;");
+				$pagesLinkList->AddLink($this->getTranslation("Title"), $this->getTranslation("WithdrawCookieConsent"), "javascript:SMCookieConsent.ResetConsent();");
 			}
 		}
 	}
@@ -50,6 +50,10 @@ class SMCookieConsent extends SMExtension
 
 	public function PreTemplateUpdate()
 	{
+		$template = $this->context->GetTemplate();
+		$template->RegisterResource(SMTemplateResource::$StyleSheet, SMExtensionManager::GetExtensionPath($this->context->GetExtensionName()) . "/CookieDialog.css?ver=" . SMEnvironment::GetVersion());
+		$template->RegisterResource(SMTemplateResource::$JavaScript, SMExtensionManager::GetExtensionPath($this->context->GetExtensionName()) . "/CookieDialog.js?ver=" . SMEnvironment::GetVersion());
+
 		// Add extension to admin menu item
 
 		if ($this->smMenuExists === true)
@@ -82,14 +86,11 @@ class SMCookieConsent extends SMExtension
 
 		if ($allowed === null)
 		{
+			// User has not denied/accepted cookies yet
+
 			$deny = $cs->GetDenyText();
 			$accept = $cs->GetAcceptText();
 			$hours = $cs->GetConsentDuration();
-
-			$template = $this->context->GetTemplate();
-
-			$template->RegisterResource(SMTemplateResource::$StyleSheet, SMExtensionManager::GetExtensionPath($this->context->GetExtensionName()) . "/CookieDialog.css?ver=" . SMEnvironment::GetVersion());
-			$template->RegisterResource(SMTemplateResource::$JavaScript, SMExtensionManager::GetExtensionPath($this->context->GetExtensionName()) . "/CookieDialog.js?ver=" . SMEnvironment::GetVersion());
 
 			$template->AddToHeadSection("
 			<script>

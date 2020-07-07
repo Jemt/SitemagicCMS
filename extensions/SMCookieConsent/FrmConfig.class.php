@@ -107,6 +107,7 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 		$this->cmdCreate = new SMLinkButton($this->name . "CreateModule");
 		$this->cmdCreate->SetIcon(SMImageProvider::GetImage(SMImageType::$Create));
 		$this->cmdCreate->SetTitle($this->lang->GetTranslation("Create"));
+		$this->cmdCreate->SetOnClick("smCookieConsentCodeCleanup()");
 
 		$this->cmdSave = new SMLinkButton($this->name . "SaveModule");
 		$this->cmdSave->SetIcon(SMImageProvider::GetImage(SMImageType::$Save));
@@ -374,10 +375,46 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 		<script>
 		function smCookieConsentCodeCleanup()
 		{
-			// Remove <script> and <noscript> tags - content of <script> blocks are wrapped in self-executing functions to retain scope
-
 			var input = document.getElementById(\"" . $this->txtModuleCode->GetClientId() . "\");
-			input.value = input.value.replace(/<script.*>([\s\S]*?)<\/script>/gm, \"(function(){\$1})();\").replace(/<noscript.*>[\s\S]*?<\/noscript>/gm, \"\");
+			var value = input.value;
+
+			// Extract external script references and load them first
+
+			var scriptUrls = [];
+			var regex = /<script.*?src=('|\")(.*?)\\1/gm;
+
+			var m = null;
+			while ((m = regex.exec(value)) !== null)
+			{
+				if (m.index === regex.lastIndex) { // This is necessary to avoid infinite loops with zero-width matches
+					regex.lastIndex++;
+				}
+
+				scriptUrls.push({ source: m[2] });
+			}
+
+			value = value.replace(/<script.*?src=.*?\/>/gm, \"\"); // Remove XHTML script references
+			value = value.replace(/<script.*?src=.*?>[\s\S]*?<\/script>/gm, \"\"); // Remove HTML4/HTML5 script references
+
+			// Remove <script>, <noscript> and <!-- --> tags - content of <script> blocks are wrapped in self-executing functions to retain scope
+
+			value = value.replace(/<script.*?>([\s\S]*?)<\/script>/gm, \"(function(){\$1})();\");
+			value = value.replace(/<noscript.*?>[\s\S]*?<\/noscript>/gm, \"\");
+			value = value.replace(/<!--[\s\S]*?-->/gm, \"\");
+			value = SMStringUtilities.Trim(value);
+
+			// Create new code
+
+			var newValue = \"\";
+
+			if (scriptUrls.length > 0)
+			{
+				newValue += \"SMResourceManager.LoadScripts(\" + JSON.stringify(scriptUrls) + \");\\n\";
+			}
+
+			newValue += value;
+
+			input.value = newValue;
 		}
 		</script>
 		";

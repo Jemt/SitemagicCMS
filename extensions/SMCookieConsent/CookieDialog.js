@@ -159,3 +159,9 @@ function SMCookieConsent()
 		return button;
 	}
 }
+
+SMCookieConsent.ResetConsent = function()
+{
+	SMCookie.RemoveCookie('SMCookieConsentAllowed');
+	location.href=location.href;
+}
