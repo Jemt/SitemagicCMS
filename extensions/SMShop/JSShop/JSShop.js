@@ -199,7 +199,8 @@ JSShop.CalculatePricing = function(priceExVat, units, vatPercentage, discountExV
 // JSShop loader
 // ======================================================
 
-JSShop._internal.Initialized = false;
+JSShop._internal.InitState = -1; // -1 = Not started, 0 = Initializing, 1 = Initialized (done)
+JSShop._internal.InitCallbacks = [];
 
 JSShop.Initialize = function(cb)
 {
@@ -294,11 +295,18 @@ JSShop.Initialize = function(cb)
 
 	// Initialize JSShop
 
-	if (JSShop._internal.Initialized === true)
+	if (JSShop._internal.InitState === 0) // Initializing
+	{
+		Fit.Array.Add(JSShop._internal.InitCallbacks, cb);
+		return;
+	}
+	else if (JSShop._internal.InitState === 1) // Initialized (done)
 	{
 		cb();
 		return;
 	}
+
+	JSShop._internal.InitState = 0; // Initializing
 
 	var cacheKey = (JSShop.Settings.CacheKey ? JSShop.Settings.CacheKey : "0");
 	var resources = null;
@@ -344,12 +352,19 @@ JSShop.Initialize = function(cb)
 
 	Fit.Loader.LoadScripts(resources, function(cfgs)
 	{
-		JSShop._internal.Initialized = true;
+		JSShop._internal.InitState = 1; // Initialized (done)
 
 		Fit.Language.Translations.Required = JSShop.Language.Translations.Common.Required;
 		Fit.Language.Translations.Ok = JSShop.Language.Translations.Common.Ok;
 		Fit.Language.Translations.Cancel = JSShop.Language.Translations.Common.Cancel;
 
 		cb();
+
+		Fit.Array.ForEach(JSShop._internal.InitCallbacks, function(callback)
+		{
+			callback();
+		});
+
+		JSShop._internal.InitCallbacks = [];
 	});
 }
