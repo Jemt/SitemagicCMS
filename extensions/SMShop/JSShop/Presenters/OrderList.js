@@ -132,8 +132,7 @@ JSShop.Presenters.OrderList = function()
 		cmdUpdate.Type(Fit.Controls.Button.Type.Primary);
 		cmdUpdate.OnClick(function(sender)
 		{
-			cmdUpdate.Enabled(false);
-			loadData(function() { cmdUpdate.Enabled(true); });
+			loadData();
 		});
 		cmdUpdate.GetDomElement().title = lang.OrderList.Update;
 
