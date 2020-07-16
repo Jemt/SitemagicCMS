@@ -576,7 +576,7 @@ Fit._internal =
 {
 	Core:
 	{
-		VersionInfo: { Major: 1, Minor: 9, Patch: 8 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
+		VersionInfo: { Major: 1, Minor: 9, Patch: 15 } // Do NOT modify format - version numbers are programmatically changed when releasing new versions - MUST be on a separate line!
 	}
 };
 
@@ -2253,7 +2253,7 @@ Fit.Controls.Component = function(controlId)
 	{
 		return container;
 	}
-	
+
 	/// <function container="Fit.Controls.Component" name="Render" access="public">
 	/// 	<description> Render control, either inline or to element specified </description>
 	/// 	<param name="toElement" type="DOMElement" default="undefined"> If defined, control is rendered to this element </param>
@@ -2419,6 +2419,7 @@ Fit.Controls.ControlBase = function(controlId)
 	var onBlurTimeout = null;		// Used by OnFocusIn and OnFocusOut handlers
 	var ensureFocusFires = false;	// Used by OnFocusIn and OnFocusOut handlers
 	var waitingForFocus = false;	// Used by OnFocusIn and OnFocusOut handlers
+	var focusStateLocked = false;	// Used by OnFocusIn and OnFocusOut handlers
 	var txtValue = null;
 	var txtDirty = null;
 	var txtValid = null;
@@ -2523,7 +2524,7 @@ Fit.Controls.ControlBase = function(controlId)
 	this.Dispose = Fit.Core.CreateOverride(this.Dispose, function()
 	{
 		Fit.Internationalization.RemoveOnLocaleChanged(localize);
-		me = container = width = height = scope = required = validationExpr = validationError = validationErrorType = validationCallbackFunc = validationCallbackError = validationHandlerFunc = validationHandlerError = lazyValidation = hasValidated = blockAutoPostBack = onChangeHandlers = onFocusHandlers = onBlurHandlers = hasFocus = onBlurTimeout = ensureFocusFires = waitingForFocus = txtValue = txtDirty = txtValid = null;
+		me = container = width = height = scope = required = validationExpr = validationError = validationErrorType = validationCallbackFunc = validationCallbackError = validationHandlerFunc = validationHandlerError = lazyValidation = hasValidated = blockAutoPostBack = onChangeHandlers = onFocusHandlers = onBlurHandlers = hasFocus = onBlurTimeout = ensureFocusFires = waitingForFocus = focusStateLocked = txtValue = txtDirty = txtValid = null;
 		base();
 	});
 
@@ -2873,6 +2874,9 @@ Fit.Controls.ControlBase = function(controlId)
 
 	function onFocusIn(e)
 	{
+		if (focusStateLocked === true)
+			return;
+
 		// Note on how OnFocus and OnBlur is handled:
 		// OnFocus in JS fires for focusable elements only, meaning
 		// elements with tabIndex set.
@@ -2937,6 +2941,12 @@ Fit.Controls.ControlBase = function(controlId)
 
 	function onFocusOut(e)
 	{
+		if (me === null) // Disposed while focused (e.g. from an onscroll event handler)
+			return;
+
+		if (focusStateLocked === true)
+			return;
+
 		// See comments in onFocusIn(..)
 
 		var fireBlur = null;
@@ -3003,10 +3013,12 @@ Fit.Controls.ControlBase = function(controlId)
 		{
 			cb(me);
 		});
-	},
+	}
 
 	this._internal.FireOnFocus = function()
 	{
+		ensureFocusFires = false; // Usually set to False in onfocusin event handler, but specialized controls may fire OnFocus as well, in which case we assume control has in fact gained focus
+
 		me._internal.Data("focused", "true");
 		me._internal.Repaint();
 
@@ -3014,7 +3026,7 @@ Fit.Controls.ControlBase = function(controlId)
 		{
 			cb(me);
 		});
-	},
+	}
 
 	this._internal.FireOnBlur = function()
 	{
@@ -3025,7 +3037,40 @@ Fit.Controls.ControlBase = function(controlId)
 		{
 			cb(me);
 		});
-	},
+	}
+
+	this._internal.FocusStateLocked = function(value)
+	{
+		Fit.Validation.ExpectBoolean(value, true);
+
+		// Prevent control from firing OnFocus (onfocusin) and OnBlur (onfocusout) automatically.
+		// Specialized controls can use this to either suppress OnFocus and OnBlur invocation temporarily,
+		// or take over the responsibility of handling invocation of OnBlur and OnFocus.
+		// This is useful if a control for instance opens a modal dialog and gives it focus, in which case the
+		// control would lose focus and fire OnBlur. But since the dialog is considered part of the control, we
+		// do not want OnBlur to fire. We can use FocusStateLocked(..) to make the control preserve its current
+		// focused state, and let the specialized control handle invocation of focus events when needed, and hand
+		// back control to ControlBase when the modal dialog closes.
+
+		// Notice regarding Focused(): One could argue that Focused() should return True if focus state is locked,
+		// if control was focused when lock was enabled, and if OnBlur has not been fired. But that means that two
+		// controls could return True from Focused() which is just wrong, and the Focused() state would contradict
+		// what is returned from Fit.Dom.GetFocused() or document.activeElement, which could potentially lead to
+		// incorrect behaviour. So Focused() must give us the truth, even when focus state is locked.
+
+		if (Fit.Validation.IsSet(value) === true)
+		{
+			if (value !== focusStateLocked)
+			{
+				focusStateLocked = value;
+
+				// Make sure ControlBase can handle focus in/out properly when focus state is unlocked again
+				hasFocus = Fit.Dom.Contained(me.GetDomElement(), Fit.Dom.GetFocused()) === true;
+			}
+		}
+
+		return focusStateLocked;
+	}
 
 	this._internal.ExecuteWithNoOnChange = function(cb)
 	{
@@ -3060,19 +3105,19 @@ Fit.Controls.ControlBase = function(controlId)
 			Fit.Dom.Data(container, key, val);
 
 		return Fit.Dom.Data(container, key);
-	},
+	}
 
 	this._internal.AddDomElement = function(elm)
 	{
 		Fit.Validation.ExpectDomElement(elm);
 		Fit.Dom.InsertBefore(txtValue, elm); //Fit.Dom.Add(container, elm);
-	},
+	}
 
 	this._internal.RemoveDomElement = function(elm)
 	{
 		Fit.Validation.ExpectDomElement(elm);
 		Fit.Dom.Remove(elm);
-	},
+	}
 
 	this._internal.Validate = function(force)
 	{
@@ -4346,10 +4391,24 @@ Fit.Dom.Remove = function(elm)
 {
 	Fit.Validation.ExpectNode(elm);
 
-	if (elm.parentElement === null)
-		return; // Element not rooted
+	// Remove element if mounted
 
-	elm.parentElement.removeChild(elm);
+	if (elm.parentElement === undefined)
+	{
+		// Remove TextNode in IE
+		// https://developer.mozilla.org/en-US/docs/Web/API/Node/parentElement
+		// "On some browsers, the parentElement property is only defined on nodes that
+		//  are themselves an Element. In particular, it is not defined on text nodes."
+
+		if (elm.parentNode !== null) // Notice: might be null even though TextNode is added to a parent node, if entire document was cleared using document.body.innerHTML="";
+		{
+			elm.parentNode.removeChild(elm);
+		}
+	}
+	else if (elm.parentElement !== null)
+	{
+		elm.parentElement.removeChild(elm);
+	}
 }
 
 /// <function container="Fit.Dom" name="Attribute" access="public" static="true" returns="string">
@@ -4800,7 +4859,7 @@ Fit.Dom.SetCaretPosition = function(input, pos)
 /// 		Object returned contains an X and Y property
 /// 		with the desired integer values (pixels).
 /// 		Contrary to Fit.Dom.GetPosition(elm, true) which returns
-/// 		the position to the margin edge, this function returns the 
+/// 		the position to the margin edge, this function returns the
 /// 		position of the element's border edge, and is the recommended
 /// 		approach.
 /// 		Null will be returned if element is not visible.
@@ -4813,7 +4872,7 @@ Fit.Dom.GetBoundingPosition = function(elm)
 
 	if (Fit.Dom.IsVisible(elm) === false)
 		return null;
-	
+
 	var bcr = elm.getBoundingClientRect();
 
 	return { X: Math.round(bcr.x || bcr.left), Y: Math.round(bcr.y || bcr.top) }; // Several legacy browsers use top/left instead of x/y
@@ -5724,18 +5783,18 @@ Fit.Events.AddHandler = function()
 
 /// <function container="Fit.Events" name="RemoveHandler" access="public" static="true">
 /// 	<description> Remove event handler given by Event ID returned from Fit.Events.AddHandler(..) </description>
-/// 	<param name="element" type="DOMElement"> EventTarget (e.g. Window or DOMElement) from which event handler is removed </param>
+/// 	<param name="element" type="EventTarget"> EventTarget (e.g. Window or DOMElement) from which event handler is removed </param>
 /// 	<param name="eventId" type="integer"> Event ID identifying handler to remove </param>
 /// </function>
 /// <function container="Fit.Events" name="RemoveHandler" access="public" static="true">
 /// 	<description> Remove event handler for specified event on given EventTarget </description>
-/// 	<param name="element" type="DOMElement"> EventTarget (e.g. Window or DOMElement) from which event handler is removed </param>
+/// 	<param name="element" type="EventTarget"> EventTarget (e.g. Window or DOMElement) from which event handler is removed </param>
 /// 	<param name="event" type="string"> Event name without 'on' prefix (e.g. 'load', 'mouseover', 'click' etc.) </param>
 /// 	<param name="eventFunction" type="function"> JavaScript function to remove </param>
 /// </function>
 /// <function container="Fit.Events" name="RemoveHandler" access="public" static="true">
 /// 	<description> Remove event handler for specified event on given EventTarget </description>
-/// 	<param name="element" type="DOMElement"> EventTarget (e.g. Window or DOMElement) from which event handler is removed </param>
+/// 	<param name="element" type="EventTarget"> EventTarget (e.g. Window or DOMElement) from which event handler is removed </param>
 /// 	<param name="event" type="string"> Event name without 'on' prefix (e.g. 'load', 'mouseover', 'click' etc.) </param>
 /// 	<param name="useCapture" type="boolean">
 /// 		Value indicating whether event handler was registered using event capturing (True) or event bubbling (False).
@@ -6335,7 +6394,7 @@ Fit._internal.Events.CheckMutations = function()
 	// collection being iterated, and we do not want to risk invoking mutation observers that
 	// have been removed.
 	Fit._internal.Events.MutationCheckExecuting = true;
-	
+
 	var toRemove = [];
 
 	Fit.Array.ForEach(Fit._internal.Events.MutationObservers, function(mo)
@@ -6750,7 +6809,7 @@ Fit.Http.Request = function(uri)
 			formData = {};
 			ensureContentTypeHeaderForFormData();
 		}
-		
+
 		formData[key] = { Value: value, Encode: (uriEncode !== false) };
 	}
 
@@ -6761,7 +6820,7 @@ Fit.Http.Request = function(uri)
 		Fit.Validation.ExpectBoolean(uriEncode, true);
 
 		Fit.Browser.Log("Use of deprecated AddData(..) function to set form data on instance of Fit.Http.Request - please use AddFormData(..) instead!")
-		
+
 		me.AddFormData(key, value, uriEncode);
 	}
 
@@ -7031,7 +7090,26 @@ Fit.Http.Request = function(uri)
 	this.GetResponseHeader = function(key)
 	{
 		Fit.Validation.ExpectString(key);
-		return httpRequest.getResponseHeader(key);
+
+		var headerValue = httpRequest.getResponseHeader(key);
+
+		if (headerValue === "" && Fit.Browser.GetBrowser() === "MSIE" && Fit.Browser.GetVersion() < 10) // Legacy IE returns an empty string for non-existing headers - make sure it exists or return Null if it does not
+		{
+			var found = false;
+
+			Fit.Array.ForEach(me.GetResponseHeaders(), function(header)
+			{
+				if (header.Key.toLowerCase() === key.toLowerCase())
+				{
+					found = true;
+					return false; // Break loop
+				}
+			});
+
+			headerValue = (found === true ? headerValue : null);
+		}
+
+		return headerValue;
 	}
 
 	// Events
@@ -7139,7 +7217,7 @@ Fit.Http.Request = function(uri)
 		{
 			Fit.Array.ForEach(onStateChange, function(handler) { handler(me); });
 		},
-		
+
 		FireOnSuccess: function()
 		{
 			Fit.Array.ForEach(onSuccessHandlers, function(handler) { handler(me); });
@@ -11732,12 +11810,18 @@ Fit.Controls.DatePicker = function(ctlId)
 
 			Fit.Loader.ExecuteScript(Fit.GetUrl() + "/Resources/JqueryUI-1.11.4.custom/external/jquery/jquery.js", function(src)
 			{
+				if (me === null)
+					return; // Control was disposed while waiting for jQuery to load
+
 				jquery = $;
 				Fit._internal.Controls.DatePicker.jQuery = $; // jQuery instance is shared between multiple instances of DatePicker
 				$.noConflict(true);
 
 				Fit.Loader.ExecuteScript(Fit.GetUrl() + "/Resources/JqueryUI-1.11.4.custom/jquery-ui.js", function(src)
 				{
+					if (me === null)
+						return; // Control was disposed while waiting for jQuery UI to load
+
 					createDatePicker();
 					cb();
 
@@ -11800,6 +11884,11 @@ Fit.Controls.DatePicker = function(ctlId)
 
 					Fit.Loader.ExecuteScript(Fit.GetUrl() + "/Resources/JqueryUI-1.11.4.custom/i18n/datepicker-" + locale + ".js", function(src)
 					{
+						if (me === null)
+						{
+							return; // Control was disposed while waiting for locale to load
+						}
+
 						if (datepicker.jq.datepicker.regional[locale])
 						{
 							me.Show(); // Causes beforeShow to be fired again
@@ -11813,7 +11902,8 @@ Fit.Controls.DatePicker = function(ctlId)
 
 				// Update settings in case they were changed
 
-				var val = me.Value();
+				var val = me.Value();			// Always returns value in the YYYY-MM-DD[ hh:mm] format, but returns an empty string if value entered is invalid
+				var actualValue = input.value;	// Since me.Value() returns an empty string if value is invalid, which might be the case if date is only partially entered, we keep the actual value entered as well
 
 				if (updateCalConf === true) // Only update settings if actually changed, as this results in input value being updated, causing cursor position to change in IE
 				{
@@ -11843,8 +11933,21 @@ Fit.Controls.DatePicker = function(ctlId)
 
 				open = true;
 
-				if (val !== me.Value()) // Value cleared because locale loaded has a format different from the one previously loaded
+				// The calendar widget clears the input value if it is invalid, which will be the case if user is in the process of entering a
+				// value while the calendar widget is loading, or if a new locale is loaded with a format different from the one previously loaded.
+
+				if (val === "" && actualValue !== "" && input.value === "")
 				{
+					// An invalid (possibly partial) date value was entered. The 'val' variable is empty because me.Value() returns an empty string for invalid
+					// values, while 'actualValue' is not, as it originates from the input field directly. Since input.value is now empty, the calendar widget
+					// has cleared the input field due to the invalid format. We therefore restore it to allow the user to proceed entering the value.
+					input.value = actualValue;
+				}
+				else if (val !== me.Value())
+				{
+					// The calendar widget cleared the input field because locale loaded has a format different from the one previously loaded.
+					// We restore it by re-assigning the 'val' value using me.Value(..) which uses the generic YYYY-MM-DD[ hh:mm] format.
+
 					me._internal.ExecuteWithNoOnChange(function()
 					{
 						me.Value(val);
@@ -13052,6 +13155,19 @@ Fit.Controls.Dialog = function(controlId)
 
 Fit.Controls.Dialog._internal = {};
 
+/// <container name="Fit.Controls.DialogInterface">
+/// 	Simple interface for controlling Prompt, Confirm, and Alert dialogs
+/// </container>
+/// <function container="Fit.Controls.DialogInterface" name="Dismiss" access="public">
+/// 	<description> Dismiss dialog without taking any action </description>
+/// </function>
+/// <function container="Fit.Controls.DialogInterface" name="Confirm" access="public">
+/// 	<description> Confirm dialog - equivalent to clicking the OK button </description>
+/// </function>
+/// <function container="Fit.Controls.DialogInterface" name="Cancel" access="public">
+/// 	<description> Cancel dialog - equivalent to clicking the Cancel button, or the OK button on an Alert dialog </description>
+/// </function>
+
 Fit.Controls.Dialog._internal.BaseDialog = function(content, showCancel, cb)
 {
 	Fit.Validation.ExpectString(content);
@@ -13084,15 +13200,21 @@ Fit.Controls.Dialog._internal.BaseDialog = function(content, showCancel, cb)
 
 	Fit.Internationalization.OnLocaleChanged(localize);
 
+	// Destructor
+
+	var dispose = function()
+	{
+		Fit.Internationalization.RemoveOnLocaleChanged(localize);
+		d.Dispose();
+	}
+
 	// Configure and add buttons
 
 	cmdOk.Icon("check");
 	cmdOk.Type(Fit.Controls.ButtonType.Success);
 	cmdOk.OnClick(function(sender)
 	{
-		Fit.Internationalization.RemoveOnLocaleChanged(localize);
-
-		d.Dispose();
+		dispose();
 
 		if (Fit.Validation.IsSet(cb) === true)
 			cb(true);
@@ -13106,9 +13228,7 @@ Fit.Controls.Dialog._internal.BaseDialog = function(content, showCancel, cb)
 		cmdCancel.Type(Fit.Controls.ButtonType.Danger);
 		cmdCancel.OnClick(function(sender)
 		{
-			Fit.Internationalization.RemoveOnLocaleChanged(localize);
-
-			d.Dispose();
+			dispose();
 
 			if (Fit.Validation.IsSet(cb) === true)
 				cb(false);
@@ -13120,10 +13240,10 @@ Fit.Controls.Dialog._internal.BaseDialog = function(content, showCancel, cb)
 
 	// Open dialog
 
-	return { Dialog: d, ConfirmButton: cmdOk, CancelButton: cmdCancel }; // NOTICE: CancelButton might be null !
+	return { Dialog: d, ConfirmButton: cmdOk, CancelButton: cmdCancel, Dismiss: function() { dispose(); } }; // NOTICE: CancelButton might be null !
 }
 
-/// <function container="Fit.Controls.Dialog" name="Alert" access="public" static="true">
+/// <function container="Fit.Controls.Dialog" name="Alert" access="public" static="true" returns="Fit.Controls.DialogInterface">
 /// 	<description> Display alert dialog </description>
 /// 	<param name="content" type="string"> Content to display in alert dialog </param>
 /// 	<param name="cb" type="function" default="undefined"> Optional callback function invoked when OK button is clicked </param>
@@ -13140,9 +13260,18 @@ Fit.Controls.Dialog.Alert = function(content, cb)
 	});
 	baseDialog.Dialog.Open();
 	baseDialog.ConfirmButton.Focused(true);
+
+	var interface =
+	{
+		Dismiss: function() { baseDialog.Dismiss(); },
+		Confirm: function() { baseDialog.ConfirmButton.Click(); },
+		Cancel: function() { baseDialog.ConfirmButton.Click(); } // An alert dialog has no cancel button so we trigger the OK button instead which in turn triggers the callback which is consistent with the behaviour of Prompt and Confirm
+	};
+
+	return interface;
 }
 
-/// <function container="Fit.Controls.Dialog" name="Confirm" access="public" static="true">
+/// <function container="Fit.Controls.Dialog" name="Confirm" access="public" static="true" returns="Fit.Controls.DialogInterface">
 /// 	<description> Display confirmation dialog with OK and Cancel buttons </description>
 /// 	<param name="content" type="string"> Content to display in confirmation dialog </param>
 /// 	<param name="cb" type="function">
@@ -13158,9 +13287,18 @@ Fit.Controls.Dialog.Confirm = function(content, cb)
 	var baseDialog = Fit.Controls.Dialog._internal.BaseDialog(content, true, cb);
 	baseDialog.Dialog.Open();
 	baseDialog.ConfirmButton.Focused(true);
+
+	var interface =
+	{
+		Dismiss: function() { baseDialog.Dismiss(); },
+		Confirm: function() { baseDialog.ConfirmButton.Click(); },
+		Cancel: function() { baseDialog.CancelButton.Click(); }
+	};
+
+	return interface;
 }
 
-/// <function container="Fit.Controls.Dialog" name="Prompt" access="public" static="true">
+/// <function container="Fit.Controls.Dialog" name="Prompt" access="public" static="true" returns="Fit.Controls.DialogInterface">
 /// 	<description> Display prompt dialog that allows for user input </description>
 /// 	<param name="content" type="string"> Content to display in prompt dialog </param>
 /// 	<param name="defaultValue" type="string"> Default value in input field </param>
@@ -13212,6 +13350,15 @@ Fit.Controls.Dialog.Prompt = function(content, defaultValue, cb)
 
 	baseDialog.Dialog.Open();
 	txt.Focused(true);
+
+	var interface =
+	{
+		Dismiss: function() { baseDialog.Dismiss(); },
+		Confirm: function() { baseDialog.ConfirmButton.Click(); },
+		Cancel: function() { baseDialog.CancelButton.Click(); }
+	};
+
+	return interface;
 }
 
 Fit.Internationalization.AddLocalization(Fit.Controls.Dialog,
@@ -16509,7 +16656,7 @@ Fit.Controls.WSDropDown = function(ctlId)
 			requestCount--;
 
 			fireEventHandlers(onResponseHandlers, list, eventArgs);
-			
+
 			cmdOpen.className = classes;
 			currentRequest = null;
 
@@ -16591,9 +16738,9 @@ Fit.Controls.WSDropDown = function(ctlId)
 		tree.OnAbort(function(sender, eventArgs)
 		{
 			requestCount--;
-			
+
 			fireEventHandlers(onAbortHandlers, tree, eventArgs);
-			
+
 			if (requestCount === 0)
 			{
 				cmdOpen.className = classes;
@@ -16849,7 +16996,7 @@ Fit.Controls.WSDropDown = function(ctlId)
 	this.ClearData = function(cb)
 	{
 		Fit.Validation.ExpectFunction(cb, true);
-		
+
 		// Postpone if WebService operation is currently running
 
 		if (requestCount > 0)
@@ -16861,12 +17008,12 @@ Fit.Controls.WSDropDown = function(ctlId)
 
 		// Clear data/cache/state
 
-		hideLinesForFlatData = true;	// Make TreeView hide helper lines if nodes received have no children	
+		hideLinesForFlatData = true;	// Make TreeView hide helper lines if nodes received have no children
 		dataRequested = false;			// Make data in TreeView reload via ensureTreeViewData() when DropDown is opened
 		autoUpdatedSelections = null;	// Remove cached result from AutoUpdateSelected(..) used when multiple calls to the function is made
 
 		// Cancel pending search operation if scheduled
-		
+
 		cancelSearch();
 
 		// Invoke callback
@@ -16924,6 +17071,8 @@ Fit.Controls.WSDropDown = function(ctlId)
 
 		list.Destroy();
 		tree.Destroy();
+
+		cancelSearch();
 
 		me = list = tree = search = forceNewSearch = hideLinesForFlatData = dataRequested = dataLoading = requestCount = onDataLoadedCallback = suppressTreeOnOpen = timeOut = currentRequest = classes = autoUpdatedSelections = onRequestHandlers = onResponseHandlers = null;
 
@@ -17032,7 +17181,7 @@ Fit.Controls.WSDropDown = function(ctlId)
 
 	function searchData(value)
 	{
-		// Abort time responsible for starting search request X milliseconds after user stops typing
+		// Abort timer responsible for starting search request X milliseconds after user stops typing
 
 		cancelSearch();
 
@@ -17129,7 +17278,7 @@ Fit.Controls.WSDropDown = function(ctlId)
 				eventArgs.Children = newArgs.Data;
 			else if (eventArgs.Items) // WSListView
 				eventArgs.Items = newArgs.Data;
-			
+
 			if (newArgs.Request !== eventArgs.Request)
 			{
 				// Support for changing request instans to
@@ -18309,19 +18458,93 @@ Fit.Controls.Input = function(ctlId)
 	{
 		Fit.Validation.ExpectBoolean(focus, true);
 
-		var elm = ((designEditor !== null) ? designEditor : input);
+		var elm = ((designEditor !== null) ? designEditor : input); // Notice: designEditor is an instance of CKEditor, not a DOM element
 
 		if (Fit.Validation.IsSet(focus) === true)
 		{
 			if (focus === true)
+			{
+				if (Fit._internal.Controls.Input.ActiveEditorForDialog === me)
+				{
+					// Remove flag used to auto close editor dialog, in case Focused(false)
+					// was called followed by Focused(true), while editor dialog was loading.
+					delete Fit._internal.Controls.Input.ActiveDialogForEditorCanceled;
+				}
+
 				elm.focus();
-			else if (elm !== designEditor) // Blur doesn't work for CKEditor!
-				elm.blur();
+			}
+			else // Remove focus
+			{
+				if (designEditor !== null)
+				{
+					if (Fit._internal.Controls.Input.ActiveEditorForDialog === me)
+					{
+						if (Fit._internal.Controls.Input.ActiveDialogForEditor !== null)
+						{
+							// A dialog (e.g. link or image dialog) is currently open, and will now be closed
+
+							// Hide dialog - fires dialog's OnHide event and returns focus to editor
+							Fit._internal.Controls.Input.ActiveDialogForEditor.hide();
+
+							// CKEditor instance has no blur() function, so we call blur() on DOM element currently focused within CKEditor
+							Fit.Dom.GetFocused().blur();
+
+							// Fire OnBlur manually as blur() above didn't trigger this, as it normally
+							// would. The call to the dialog's hide() function fires its OnHide event
+							// which disables the focus lock, but does so asynchronously, which is
+							// why OnBlur does not fire via ControlBase's onfocusout handler.
+							me._internal.FireOnBlur();
+						}
+						else
+						{
+							// A dialog (e.g. link or image dialog) is currently loading. This situation
+							// can be triggered for debugging purposes by adding the following code in the
+							// beforeCommandExec event handler:
+							// setTimeout(function() { me.Focused(false); }, 0);
+							// Alternatively register an onwheel/onscroll handler on the document that
+							// removes focus from the control, and quickly scroll the document while the
+							// dialog is loading. Use network throttling to increase the load time of the
+							// dialog if necessary.
+
+							// Make dialog close automatically when loaded and shown - handled in dialog's OnShow event handler
+							Fit._internal.Controls.Input.ActiveDialogForEditorCanceled = true;
+
+							// CKEditor instance has no blur() function, so we call blur() on DOM element currently focused within CKEditor.
+							// Notice that OnBlur does not fire immediately (focus state is locked), but does so when dialog's OnHide event fires (async).
+							// While we could fire it immediately and prevent it from firing when the dialog's OnHide event fires, it would prevent
+							// developers from using the OnBlur event to dispose a control in Design Mode, since CKEditor fails when being disposed
+							// while dialogs are open. Focused() will return False after the call to blur() below though - as expected.
+							Fit.Dom.GetFocused().blur();
+						}
+					}
+					else
+					{
+						// Make sure this control is focused so that one control instance can not
+						// be used to accidentially remove focus from another control instance.
+						if (Fit.Dom.Contained(me.GetDomElement(), Fit.Dom.GetFocused()) === true)
+						{
+							// CKEditor instance has no blur() function, so we call blur() on DOM element currently focused within CKEditor
+							Fit.Dom.GetFocused().blur();
+						}
+					}
+				}
+				else
+				{
+					elm.blur();
+				}
+			}
 		}
 
 		if (designEditor !== null)
 		{
-			return (designEditor._focused === true); // Focused element is found in an iFrame so we have to rely on the HTML Editor instance to provide this information
+			// Considered focused if a dialog is opened.
+			// DISABLED:
+			// Only one element on a page can be focused, and with this approach, two individual
+			// controls could both return True from Focused() which does not seem appropriate.
+			/*if (Fit._internal.Controls.Input.ActiveEditorForDialog === me)
+				return true;*/
+
+			return Fit.Dom.Contained(me.GetDomElement(), Fit.Dom.GetFocused());
 		}
 
 		return (Fit.Dom.GetFocused() === elm);
@@ -18371,8 +18594,49 @@ Fit.Controls.Input = function(ctlId)
 	{
 		// This will destroy control - it will no longer work!
 
+		if (Fit._internal.Controls.Input.ActiveEditorForDialog === me)
+		{
+			if (Fit._internal.Controls.Input.ActiveDialogForEditor === null)
+			{
+				// Dialog is currently loading.
+				// CKEditor will throw an error if disposed while a dialog (e.g. the link dialog) is loading,
+				// leaving a modal layer on the page behind, making it unusable. This may happen if disposed
+				// from e.g. a DOM event handler, a mutation observer, a timer, or an AJAX request. The input control
+				// itself does not fire any events while the dialog is loading which could trigger this situation, so
+				// this can only happen from "external code".
+
+				// WARNING: This has the potential to leak memory if dialog never loads and resumes task of disposing control!
+				Fit._internal.Controls.Input.ActiveEditorForDialogDestroyed = designEditor;
+				Fit.Dom.Remove(me.GetDomElement());
+
+				// Detect memory leak
+				/* setTimeout(function()
+				{
+					if (me !== null)
+					{
+						Fit.Browser.Log("WARNING: Input in DesignMode was not properly disposed in time - potential memory leak detected");
+					}
+				}, 5000); // Usually the load time for a dialog is barely measurable, so 5 seconds seems sufficient */
+
+				return;
+			}
+			else
+			{
+				Fit._internal.Controls.Input.ActiveDialogForEditor.hide(); // Fires dialog's OnHide event
+			}
+		}
+
 		if (designEditor !== null)
+		{
+			// Destroying editor also fires OnHide event for any dialog currently open, which will clean up
+			// Fit._internal.Controls.Input.ActiveEditorForDialog;
+			// Fit._internal.Controls.Input.ActiveEditorForDialogDestroyed;
+			// Fit._internal.Controls.Input.ActiveEditorForDialogDisabledPostponed;
+			// Fit._internal.Controls.Input.ActiveDialogForEditor;
+			// Fit._internal.Controls.Input.ActiveDialogForEditorCanceled;
+
 			designEditor.destroy();
+		}
 
 		Fit.Internationalization.RemoveOnLocaleChanged(localize);
 
@@ -18564,6 +18828,8 @@ Fit.Controls.Input = function(ctlId)
 
 			if (val === true && input.tagName === "INPUT")
 			{
+				var focused = me.Focused();
+
 				var oldInput = input;
 				me._internal.RemoveDomElement(oldInput);
 
@@ -18577,11 +18843,16 @@ Fit.Controls.Input = function(ctlId)
 				if (me.Height().Value === -1)
 					me.Height(150);
 
+				if (focused === true)
+					input.focus();
+
 				me._internal.Data("multiline", "true");
 				repaint();
 			}
 			else if (val === false && input.tagName === "TEXTAREA")
 			{
+				var focused = me.Focused();
+
 				var oldInput = input;
 				me._internal.RemoveDomElement(oldInput);
 
@@ -18605,6 +18876,9 @@ Fit.Controls.Input = function(ctlId)
 				me._internal.AddDomElement(input);
 
 				me.Height(-1);
+
+				if (focused === true)
+					input.focus();
 
 				wasMultiLineBefore = false;
 
@@ -18737,8 +19011,20 @@ Fit.Controls.Input = function(ctlId)
 		{
 			var designMode = (me._internal.Data("designmode") === "true");
 
+			if (Fit._internal.Controls.Input.ActiveEditorForDialog === me && Fit._internal.Controls.Input.ActiveEditorForDialogDisabledPostponed === true)
+				designMode = false; // Not considered in Design Mode if scheduled to be disabled (postponed because a dialog is currently loading)
+
 			if (val === true && designMode === false)
 			{
+				if (Fit._internal.Controls.Input.ActiveEditorForDialog === me)
+				{
+					// Control is actually already in Design Mode, but waiting
+					// for dialog to finish loading, so DesignMode can be disabled (scheduled).
+					// Remove flag responsible for disabling DesignMode so it remains an editor.
+					delete Fit._internal.Controls.Input.ActiveEditorForDialogDisabledPostponed;
+					return;
+				}
+
 				if (me.MultiLine() === true)
 					wasMultiLineBefore = true;
 				else
@@ -18752,11 +19038,121 @@ Fit.Controls.Input = function(ctlId)
 
 					Fit.Loader.LoadScript(Fit.GetUrl() + "/Resources/CKEditor/ckeditor.js", function(src) // Using Fit.GetUrl() rather than Fit.GetPath() to allow editor to be used on e.g. JSFiddle (Cross-Origin Resource Sharing policy)
 					{
+						// WARNING: Control could potentially have been disposed at this point, but
+						// we still need to finalize the configuration of CKEditor which is global.
+
 						if (Fit.Validation.IsSet(Fit._internal.Controls.Input.DefaultSkin) === true)
 						{
 							CKEDITOR.config.skin = Fit._internal.Controls.Input.DefaultSkin;
 						}
-						
+
+						// Register OnShow and OnHide event handlers when a dialog is opened for the first time.
+						// IMPORTANT: These event handlers are shared by all input control instances in Design Mode,
+						// so we cannot use 'me' to access the current control for which a dialog is opened.
+						// Naturally 'me' will always be a reference to the first control that opened a given dialog.
+						CKEDITOR.on("dialogDefinition", function(e) // OnDialogDefinition fires only once
+						{
+							//var dialogName = e.data.name;
+							var dialog = e.data.definition.dialog;
+
+							dialog.on("show", function(ev)
+							{
+								if (Fit._internal.Controls.Input.ActiveDialogForEditorCanceled)
+								{
+									// Focused(false) was called on control while dialog was loading - close dialog
+
+									if (Fit.Browser.GetBrowser() === "MSIE" && Fit.Browser.GetVersion() < 9)
+									{
+										// CKEditor uses setTimeout(..) to focus an input field in the dialog, but if the dialog is
+										// closed immediately, that input field will be removed from DOM along with the dialog of course,
+										// which in IE8 results in an error:
+										// "Can't move focus to the control because it is invisible, not enabled, or of a type that does not accept the focus."
+										// Other browsers simply ignore the request to focus a control that is no longer found in DOM.
+										setTimeout(function()
+										{
+											ev.sender.hide(); // Fires OnHide
+										}, 100);
+									}
+									else
+									{
+										ev.sender.hide(); // Fires OnHide
+									}
+
+									return;
+								}
+
+								if (Fit._internal.Controls.Input.ActiveEditorForDialog === undefined)
+									return; // Control was disposed while waiting for dialog to load and open
+
+								// Keep instance to dialog so we can close it if e.g. Focused(false) is invoked
+								Fit._internal.Controls.Input.ActiveDialogForEditor = ev.sender;
+
+								if (Fit._internal.Controls.Input.ActiveEditorForDialogDestroyed)
+								{
+									// Dispose() was called on control while dialog was loading.
+									// Since destroying editor while a dialog is loading would cause
+									// an error in CKEditor, the operation has been postponed til dialog's
+									// OnShow event fires, and the dialog is ready.
+									setTimeout(function()
+									{
+										// Dispose() calls destroy() on editor which closes dialog and causes the dialog's OnHide event to fire.
+										// Dispose() uses Fit._internal.Controls.Input.ActiveDialogForEditor, which is why it is set above, before
+										// checking whether control has been destroyed (scheduled for destruction).
+										Fit._internal.Controls.Input.ActiveEditorForDialog.Dispose();
+									}, 0); // Postponed - CKEditor throws an error if destroyed from OnShow event handler
+
+									return;
+								}
+
+								if (Fit._internal.Controls.Input.ActiveEditorForDialogDisabledPostponed)
+								{
+									setTimeout(function()
+									{
+										delete Fit._internal.Controls.Input.ActiveEditorForDialogDisabledPostponed;
+
+										// DesignMode(false) calls destroy() on editor which closes dialog and causes the dialog's OnHide event to fire.
+										Fit._internal.Controls.Input.ActiveEditorForDialog.DesignMode(false);
+									}, 0); // Postponed - CKEditor throws an error if destroyed from OnShow event handler
+
+									return;
+								}
+							});
+
+							dialog.on("hide", function(ev) // Fires when user closes dialog, or when hide() is called on dialog, or if destroy() is called on editor instance from Dispose() or DesignMode(false)
+							{
+								var inputControl = Fit._internal.Controls.Input.ActiveEditorForDialog;
+								var showCanceledDueToBlur = Fit._internal.Controls.Input.ActiveDialogForEditorCanceled === true;
+
+								// Clean up global references accessible while dialog is open
+								delete Fit._internal.Controls.Input.ActiveEditorForDialog;
+								delete Fit._internal.Controls.Input.ActiveEditorForDialogDestroyed;
+								delete Fit._internal.Controls.Input.ActiveEditorForDialogDisabledPostponed;
+								delete Fit._internal.Controls.Input.ActiveDialogForEditor;
+								delete Fit._internal.Controls.Input.ActiveDialogForEditorCanceled;
+
+								// Disable focus lock - let ControlBase handle OnFocus and OnBlur automatically again.
+								// This is done postponed since unlocking it immediately will cause OnFocus to fire when
+								// dialog returns focus to the editor.
+								setTimeout(function()
+								{
+									if (inputControl.GetDomElement() === null)
+										return; // Control was disposed - OnHide was fired because destroy() was called on editor instance from Dispose()
+
+									inputControl._internal.FocusStateLocked(false);
+
+									if (showCanceledDueToBlur === true)
+									{
+										// Undo focus which dialog returned to editor.
+										// ControlBase fires OnBlur because focus state was unlocked above.
+										Fit.Dom.GetFocused().blur();
+									}
+								}, 0);
+							});
+						});
+
+						if (me === null)
+							return; // Control was disposed while waiting for jQuery UI to load
+
 						createEditor();
 					});
 				}
@@ -18789,13 +19185,70 @@ Fit.Controls.Input = function(ctlId)
 			}
 			else if (val === false && designMode === true)
 			{
-				designEditor.destroy(); // Editor content automatically synchronized to input control when destroyed
+				var focused = me.Focused();
+
+				if (Fit._internal.Controls.Input.ActiveEditorForDialog === me)
+				{
+					if (Fit._internal.Controls.Input.ActiveDialogForEditor !== null)
+					{
+						focused = true; // Always considered focused when a dialog is open - Focused() returns False which is actually the truth
+						Fit._internal.Controls.Input.ActiveDialogForEditor.hide(); // Fires dialog's OnHide event
+					}
+					else
+					{
+						// Dialog is still loading - calling designEditor.destroy() below will cause an error,
+						// leaving a modal layer on the page behind, making it unusable. This may happen if Design Mode is disabled
+						// from e.g. a DOM event handler, a mutation observer, a timer, or an AJAX request. The input control
+						// itself does not fire any events while the dialog is loading which could trigger this situation, so
+						// this can only happen from "external code".
+
+						// WARNING: This has the potential to leak memory if dialog never loads and resumes task of destroying control!
+						Fit._internal.Controls.Input.ActiveEditorForDialogDisabledPostponed = true;
+
+						// Detect memory leak
+						/* setTimeout(function()
+						{
+							if (me !== null && me.DesignMode() === false && Fit._internal.Controls.Input.ActiveEditorForDialog === me)
+							{
+								Fit.Browser.Log("WARNING: Input in DesignMode was not properly disposed in time - potential memory leak detected");
+							}
+						}, 5000); // Usually the load time for a dialog is barely measurable, so 5 seconds seems sufficient */
+
+						return;
+					}
+				}
+
+				// Destroy editor - content is automatically synchronized to input control.
+				// Calling destroy() fires OnHide for any dialog currently open, which in turn
+				// disables locked focus state and returns focus to the control.
+				designEditor.destroy();
 				designEditor = null;
 
 				me._internal.Data("designmode", "false");
 
 				if (wasMultiLineBefore === false)
 					me.MultiLine(false);
+
+				if (focused === true)
+				{
+					if (Fit.Browser.GetBrowser() === "MSIE" && Fit.Browser.GetVersion() < 9 && me.MultiLine() === false)
+					{
+						// On IE8 input.focus() does not work if input field is switched to a single line control
+						// above (MultiLine(false)). Wrapping the code in setTimeout(..) solves the problem.
+
+						setTimeout(function()
+						{
+							if (me === null)
+								return; // Control was disposed
+
+							input.focus();
+						}, 0);
+					}
+					else
+					{
+						input.focus();
+					}
+				}
 
 				repaint();
 			}
@@ -18842,6 +19295,11 @@ Fit.Controls.Input = function(ctlId)
 
 			setTimeout(function() // Queue to allow control to be rooted
 			{
+				if (me === null)
+				{
+					return; // Control was disposed
+				}
+
 				if (retry() === false)
 				{
 					// Still not rooted - add observer to create editor instance once control is rooted
@@ -18864,11 +19322,25 @@ Fit.Controls.Input = function(ctlId)
 		var locale = Fit.Internationalization.Locale().length === 2 ? Fit.Internationalization.Locale() : Fit.Internationalization.Locale().substring(0, 2);
 		var lang = Fit.Array.Contains(langSupport, locale) === true ? locale : "en";
 
+		// Prevent control from losing focus when HTML editor is initialized,
+		// e.g. if Design Mode is enabled when ordinary input control gains focus.
+		// This also prevents control from losing focus if toolbar is clicked without
+		// hitting a button. A value of -1 makes it focusable, but keeps it out of
+		// tab flow (keyboard navigation).
+		me.GetDomElement().tabIndex = -1;
+
+		var focused = me.Focused();
+		if (focused === true)
+		{
+			me.GetDomElement().focus(); // Outer container is focusable - tabIndex set above
+		}
+
 		designEditor = CKEDITOR.replace(me.GetId() + "_DesignMode",
 		{
 			//allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_allowed_content_rules and http://docs.ckeditor.com/#!/api/CKEDITOR.config-cfg-allowedContent
 			language: lang,
 			disableNativeSpellChecker: me.CheckSpelling() === false,
+			startupFocus: focused === true ? "end" : false,
 			extraPlugins: "justify,pastefromword",
 			toolbar:
 			[
@@ -18894,6 +19366,11 @@ Fit.Controls.Input = function(ctlId)
 			{
 				instanceReady: function()
 				{
+					if (focused === true)
+					{
+						me.Focused(true); // Focus actual input area rather than outer container temporarily focused further up
+					}
+
 					var h = me.Height();
 					me.Height(((h.Value >= 150 && h.Unit === "px") ? h.Value : 150));
 
@@ -18903,16 +19380,60 @@ Fit.Controls.Input = function(ctlId)
 				{
 					input.onkeyup();
 				},
-				focus: function()
+				beforeCommandExec: function(ev)
 				{
-					designEditor._focused = true;
-					me._internal.FireOnFocus();
-				}/*,
-				blur: function() // Not needed when editable area is a <div> (divarea plugin) - ControlBase implements focus/blur handling for all controls, which also ensures that e.g. OnBlur fires for editor before OnClick on e.g. a button
-				{
-					delete designEditor._focused;
-					me._internal.FireOnBlur();
-				}*/
+					if (ev && ev.data && ev.data.command && ev.data.command.dialogName)
+					{
+						// Command triggered was a dialog
+
+						// IE9-IE11 does not fire OnFocus when user clicks a dialog button directly,
+						// without placing the text cursor in the editing area first. To avoid this
+						// problem, we simply ignore dialog commands if control does not already
+						// have focus. We target all versions of IE for consistency.
+						if (me.Focused() === false && Fit.Browser.GetBrowser() === "MSIE")
+						{
+							ev.cancel();
+							return;
+						}
+
+						// Prevent multiple control instances from opening a dialog at the same time.
+						// This is very unlikely to happen, as it requires the second dialog to be
+						// triggered programmatically, since a modal layer is immediately placed on top
+						// of the page when clicking a button that opens a dialog, preventing additional
+						// interaction with editors.
+						// Naturally conflicting CSS causing the modal layer to remain hidden could
+						// allow the user to trigger multiple dialogs. Better safe than sorry.
+						if (Fit._internal.Controls.Input.ActiveEditorForDialog)
+						{
+							ev.cancel();
+							return;
+						}
+
+						// Make sure OnFocus fires before locking focus state
+
+						if (me.Focused() === false)
+						{
+							// Control not focused - make sure OnFocus fires when a button is clicked,
+							// and make sure ControlBase internally considers itself focused, so there is
+							// no risk of OnFocus being fire twice without OnBlur firing in between,
+							// when focus state is unlocked, and focus is perhaps re-assigned to another
+							// DOM element within the control, which will be the case if the design editor
+							// is switched back to an ordinary input field (e.g. using DesignMode(false)).
+							me.Focused(true);
+						}
+
+						// Prevent control from firing OnBlur when dialogs are opened.
+						// Notice that locking the focus state will also prevent OnFocus
+						// from being fired automatically.
+						me._internal.FocusStateLocked(true);
+
+						// Make control available to global dialog event handlers which
+						// cannot access individual control instances otherwise.
+
+						Fit._internal.Controls.Input.ActiveEditorForDialog = me;	// Editor instance is needed when OnHide event is fired for dialog on global CKEditor instance
+						Fit._internal.Controls.Input.ActiveDialogForEditor = null;	// Dialog instance associated with editor will be set when dialog's OnShow event fires
+					}
+				}
 			}
 		});
 	}
@@ -18989,10 +19510,7 @@ Fit.Controls.Input = function(ctlId)
 	{
 		if (me.DesignMode() === true)
 		{
-			// Re-create editor with new language.
-			// NOTICE minor issue: Changing language while link dialog (and possibly any dialog)
-			// is open, breaks the editor with a "Cannot read property 'blur' of null" error.
-			
+			// Re-create editor with new language
 			reloadEditor();
 		}
 	}
@@ -19727,6 +20245,9 @@ Fit.Controls.WSListView = function(ctlId)
 
 		var onSuccess = function(data)
 		{
+			if (me === null)
+				return; // Control was disposed while waiting for data to be loaded
+
 			// Fire OnResponse
 
 			eventArgs.Items = ((data instanceof Array) ? data : []);
@@ -19755,11 +20276,17 @@ Fit.Controls.WSListView = function(ctlId)
 
 		var onFailure = function(httpStatusCode)
 		{
+			if (me === null)
+				return; // Control was disposed while waiting for data to be loaded
+
 			Fit.Validation.ThrowError("Unable to get data - request failed with HTTP Status code " + httpStatusCode)
 		};
 
 		var onAbort = function()
 		{
+			if (me === null)
+				return; // Control was disposed while waiting for data to be loaded
+
 			fireEventHandlers(onAbortHandlers, eventArgs);
 		}
 
@@ -23399,6 +23926,9 @@ Fit.Controls.WSTreeView = function(ctlId)
 
 		var onSuccess = function(children)
 		{
+			if (me === null)
+				return; // Control was disposed while waiting for data to be loaded
+
 			// Fire OnResponse
 
 			eventArgs.Children = ((children instanceof Array) ? children : []);
@@ -23459,11 +23989,17 @@ Fit.Controls.WSTreeView = function(ctlId)
 
 		var onFailure = function(httpStatusCode)
 		{
+			if (me === null)
+				return; // Control was disposed while waiting for data to be loaded
+
 			Fit.Validation.ThrowError("Unable to get children for " + ((node !== null) ? "node '" + node.Title() + "'" : "root level") + " - request failed with HTTP Status code " + httpStatusCode)
 		}
 
 		var onAbort = function()
 		{
+			if (me === null)
+				return; // Control was disposed while waiting for data to be loaded
+
 			if (request._loadingIndicator !== undefined) // Loading indicator not set when requesting root nodes
 			{
 				Fit.Dom.Remove(request._loadingIndicator);
