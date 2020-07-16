@@ -29,7 +29,7 @@ echo "Fit._internal.Validation.DebugMode = false;" >> JSShopBundle.temp.js
 if [[ -x "$(command -v uglifyjs)" ]] ; then
 	echo "Minifying using Uglify"
 
-	uglifyjs JSShopBundle.temp.js --output JSShopBundle.js
+	uglifyjs JSShopBundle.temp.js --ie8 --output JSShopBundle.js
 	rm JSShopBundle.temp.js
 else
 	echo "Minifying using javascript-minifier.com"
