@@ -124,6 +124,8 @@
 			DoneSuccess:		"Færdig - alle ordre behandlet",
 			DoneFailure:		"Færdig - følgende ordre fejlede",
 			Order:				"Bestilling",
+			SearchErrorField:	"Søgeudtrykket refererer et ukendt felt",
+			SearchErrorOperator:"Søgeudtrykket benytter en ugyldig operator",
 
 			// Dialog: Customer details
 			CustomerDetails:	"Kundedetaljer",

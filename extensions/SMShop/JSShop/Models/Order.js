@@ -246,14 +246,31 @@ JSShop.Models.Order.RetrieveAll = function(search, fromTimestamp, toTimestamp, c
 
 	if (search !== "")
 	{
-		Fit.Array.ForEach(["FirstName", "LastName", "Address", "City", "ZipCode", "Email", "Phone", "Message", "AltFirstName", "AltLastName", "AltAddress", "AltCity", "AltZipCode"], function(field)
+		var expr = /^\$(.+?) (.+?) (.+)$/.exec(search); // E.g. "$FirstName = James" or "$ZipCode >= 5000"
+
+		if (expr !== null)
 		{
+			var field = expr[1];	// E.g. FirstName, AltFirstName, CustData2
+			var operator = expr[2];	// E.g. CONTAINS, <, <=, >, >=, =, !=
+			var match = expr[3];	// E.g. "James"
+
 			var and = [];
 			Fit.Array.Add(and, { Field: "Time", Operator: ">=", Value: fromTimestamp });
 			Fit.Array.Add(and, { Field: "Time", Operator: "<=", Value: toTimestamp });
-			Fit.Array.Add(and, { Field: field, Operator: "CONTAINS", Value: search });
+			Fit.Array.Add(and, { Field: field, Operator: operator.toUpperCase(), Value: match });
 			Fit.Array.Add(or, and);
-		});
+		}
+		else
+		{
+			Fit.Array.ForEach(["FirstName", "LastName", "Address", "City", "ZipCode", "Email", "Phone", "Message", "AltFirstName", "AltLastName", "AltAddress", "AltCity", "AltZipCode"], function(field)
+			{
+				var and = [];
+				Fit.Array.Add(and, { Field: "Time", Operator: ">=", Value: fromTimestamp });
+				Fit.Array.Add(and, { Field: "Time", Operator: "<=", Value: toTimestamp });
+				Fit.Array.Add(and, { Field: field, Operator: "CONTAINS", Value: search });
+				Fit.Array.Add(or, and);
+			});
+		}
 	}
 	else
 	{

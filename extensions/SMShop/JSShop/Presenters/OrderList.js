@@ -327,21 +327,63 @@ JSShop.Presenters.OrderList = function()
 			{
 				onComplete();
 			}
+		},
+		function()
+		{
+			cmdUpdate.Enabled(true);
 		});
 	}
 
-	function loadOrderModels(search, fromTimeStamp, toTimeStamp, onComplete)
+	function loadOrderModels(search, fromTimeStamp, toTimeStamp, onComplete, onError)
 	{
 		Fit.Validation.ExpectString(search);
 		Fit.Validation.ExpectInteger(fromTimeStamp);
 		Fit.Validation.ExpectInteger(toTimeStamp);
 		Fit.Validation.ExpectFunction(onComplete);
+		Fit.Validation.ExpectFunction(onError);
+
+		var expr = /^\$(.+?) (.+?) (.+)$/.exec(search); // E.g. "$FirstName = James" or "$ZipCode >= 5000"
+
+		if (expr !== null)
+		{
+			var field = expr[1];	// E.g. FirstName, AltFirstName, CustData2
+			var operator = expr[2];	// E.g. CONTAINS, <, <=, >, >=, =, !=
+			//var match = expr[3];	// E.g. "James"
+
+			if (Fit.Array.Contains(Fit.Array.GetKeys((new JSShop.Models.Order("-1")).GetProperties()), field) === false)
+			{
+				Fit.Controls.Dialog.Alert(lang.OrderList.SearchErrorField);
+
+				if (Fit.Validation.IsSet(onError) === true)
+				{
+					onError();
+				}
+
+				return;
+			}
+
+			if (operator != "=" && operator != "!=" && operator != "<" && operator != "<=" && operator != ">" && operator != ">=" && operator.toUpperCase() != "CONTAINS")
+			{
+				Fit.Controls.Dialog.Alert(lang.OrderList.SearchErrorOperator);
+
+				if (Fit.Validation.IsSet(onError) === true)
+				{
+					onError();
+				}
+
+				return;
+			}
+		}
 
 		JSShop.Models.Order.RetrieveAll(search, fromTimeStamp, toTimeStamp, function(req, modelInstances)
 		{
 			models = modelInstances;
 			onComplete();
-		} );
+		},
+		function()
+		{
+			onError();
+		});
 	}
 
 	function loadTagModels(onComplete)

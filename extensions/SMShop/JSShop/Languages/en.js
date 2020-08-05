@@ -124,6 +124,8 @@
 			DoneSuccess:		"Done - all orders processed",
 			DoneFailure:		"Done - the following orders failed",
 			Order:				"Order",
+			SearchErrorField:	"Search expression refer to an unknown field",
+			SearchErrorOperator:"Search expression uses an invalid operator",
 
 			// Dialog: Customer details
 			CustomerDetails:	"Customer details",
