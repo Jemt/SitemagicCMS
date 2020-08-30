@@ -4,8 +4,9 @@
 	<entry key="Save" value="Save" />
 	<entry key="Create" value="Create" />
 	<entry key="Clear" value="Clear" />
+	<entry key="DeleteStats" value="Delete statistics" />
 	<entry key="Delete" value="Delete" />
-	<entry key="DeleteModule" value="Delete module?" />
+	<entry key="DeleteConfirmation" value="Are you sure you want to continue?" />
 	<entry key="Disabled" value="Disabled" />
 	<entry key="Top" value="Top" />
 	<entry key="Bottom" value="Bottom" />
@@ -27,5 +28,8 @@
 	<entry key="ModuleName" value="Module name" />
 	<entry key="ModuleDescription" value="Short module description" />
 	<entry key="ModuleCode" value="Module code" />
+	<entry key="Statistics" value="Statistics" />
+	<entry key="Accepted" value="Accepted" />
+	<entry key="Rejected" value="Rejected" />
 	<entry key="WithdrawCookieConsent" value="Withdraw cookie consent" />
 </entries>

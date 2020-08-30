@@ -107,8 +107,19 @@ CREATE TABLE IF NOT EXISTS SMCookieConsent
 (
 	`name`					varchar(100)					DEFAULT NULL,
 	`description`			varchar(255)					DEFAULT NULL,
-	`code`					text							DEFAULT NULL
+	`code`					text							DEFAULT NULL,
+	`acceptedall`			int unsigned					DEFAULT NULL,
+	`rejectedall`			int unsigned					DEFAULT NULL,
+	`acceptedperiod`		int unsigned					DEFAULT NULL,
+	`rejectedperiod`		int unsigned					DEFAULT NULL
 ) ENGINE = InnoDB CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+
+/*
+ALTER TABLE SMCookieConsent ADD `acceptedall` int unsigned DEFAULT NULL AFTER `code`;
+ALTER TABLE SMCookieConsent ADD `rejectedall` int unsigned DEFAULT NULL AFTER `acceptedall`;
+ALTER TABLE SMCookieConsent ADD `acceptedperiod` int unsigned DEFAULT NULL AFTER `rejectedall`;
+ALTER TABLE SMCookieConsent ADD `rejectedperiod` int unsigned DEFAULT NULL AFTER `acceptedperiod`;
+*/
 
 /* SMShop */
 

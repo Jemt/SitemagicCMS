@@ -4,8 +4,9 @@
 	<entry key="Save" value="Gem" />
 	<entry key="Create" value="Opret" />
 	<entry key="Clear" value="Rens" />
+	<entry key="DeleteStats" value="Slet statistik" />
 	<entry key="Delete" value="Slet" />
-	<entry key="DeleteModule" value="Slet modul?" />
+	<entry key="DeleteConfirmation" value="Er du sikker på at du vil fortsætte?" />
 	<entry key="Disabled" value="Deaktiveret" />
 	<entry key="Top" value="Top" />
 	<entry key="Bottom" value="Bund" />
@@ -27,5 +28,8 @@
 	<entry key="ModuleName" value="Modulnavn" />
 	<entry key="ModuleDescription" value="Kort modulbeskrivelse" />
 	<entry key="ModuleCode" value="Modulkode" />
+	<entry key="Statistics" value="Statistik" />
+	<entry key="Accepted" value="Accepteret" />
+	<entry key="Rejected" value="Afvist" />
 	<entry key="WithdrawCookieConsent" value="Tilbagetræk samtykke til cookies" />
 </entries>

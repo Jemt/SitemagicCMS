@@ -2,6 +2,7 @@
 
 SMExtensionManager::Import("SMExtensionCommon", "SMExtensionCommon.class.php", true);
 require_once(dirname(__FILE__) . "/SMCookieConsentHelper.class.php");
+require_once(dirname(__FILE__) . "/SMCookieConsentStatistics.classes.php");
 require_once(dirname(__FILE__) . "/FrmConfig.class.php");
 
 class SMCookieConsent extends SMExtension
@@ -101,6 +102,7 @@ class SMCookieConsent extends SMExtension
 				cs.HideHours = " . $hours . ";
 				cs.Position = '" . $position . "';
 				cs.Modules = " . json_encode($modules) . ";
+				cs.WebService = '" . SMExtensionManager::GetCallbackUrl($this->context->GetExtensionName(), "callbacks/setconsent") . "';
 				SMEventHandler.AddEventHandler(document, 'DOMContentLoaded', function() { cs.Render(); });
 			</script>");
 		}

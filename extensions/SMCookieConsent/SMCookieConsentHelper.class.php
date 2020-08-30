@@ -127,6 +127,10 @@ class SMCookieConsentHelper
 		$kvc["name"] = $name;
 		$kvc["description"] = $description;
 		$kvc["code"] = $code;
+		$kvc["acceptedall"] = "0";
+		$kvc["rejectedall"] = "0";
+		$kvc["acceptedperiod"] = "0";
+		$kvc["rejectedperiod"] = "0";
 
 		$this->db->Insert($kvc);
 		$this->db->Commit();

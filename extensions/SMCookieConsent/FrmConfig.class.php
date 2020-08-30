@@ -45,6 +45,7 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 	private $cmdCreate;
 	private $cmdClear;
 	private $cmdSave;
+	private $cmdDeleteStats;
 	private $cmdDelete;
 
 	public function __construct(SMContext $context)
@@ -118,10 +119,15 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 		$this->cmdClear->SetIcon(SMImageProvider::GetImage(SMImageType::$Clear));
 		$this->cmdClear->SetTitle($this->lang->GetTranslation("Clear"));
 
+		$this->cmdDeleteStats = new SMLinkButton($this->name . "DeleteStats");
+		$this->cmdDeleteStats->SetIcon(SMImageProvider::GetImage(SMImageType::$Update));
+		$this->cmdDeleteStats->SetTitle($this->lang->GetTranslation("DeleteStats"));
+		$this->cmdDeleteStats->SetOnclick("if (SMMessageDialog.ShowConfirmDialog('" . $this->lang->GetTranslation("DeleteConfirmation") . "') === false) { return; }");
+
 		$this->cmdDelete = new SMLinkButton($this->name . "DeleteModule");
 		$this->cmdDelete->SetIcon(SMImageProvider::GetImage(SMImageType::$Delete));
 		$this->cmdDelete->SetTitle($this->lang->GetTranslation("Delete"));
-		$this->cmdDelete->SetOnclick("if (SMMessageDialog.ShowConfirmDialog('" . $this->lang->GetTranslation("DeleteModule") . "') === false) { return; }");
+		$this->cmdDelete->SetOnclick("if (SMMessageDialog.ShowConfirmDialog('" . $this->lang->GetTranslation("DeleteConfirmation") . "') === false) { return; }");
 	}
 
 	private function loadFormData()
@@ -283,6 +289,12 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 				$this->txtModuleDescription->SetValue("");
 				$this->txtModuleCode->SetValue("");
 			}
+			else if ($this->cmdDeleteStats->PerformedPostBack() === true)
+			{
+				// Clear module's statistics for current period
+
+				SMCookieConsentStatistics::ClearModuleStatsForCurrentPeriod($this->lstModules->GetSelectedValue());
+			}
 			else if ($this->cmdDelete->PerformedPostBack() === true)
 			{
 				// Delete module
@@ -352,8 +364,17 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 		$outputModules .= $this->lang->GetTranslation("ModuleCode") . " (JavaScript)<br>";
 		$outputModules .= $this->txtModuleCode->Render();
 
+		if ($editing === true)
+		{
+			$stats = SMCookieConsentStatistics::GetStatistics($this->lstModules->GetSelectedValue());
+
+			$outputModules .= "<br><br>";
+			$outputModules .= "<b>" . $this->lang->GetTranslation("Statistics") . "</b><br>";
+			$outputModules .= $this->lang->GetTranslation("Accepted") . " " . $stats->GetAccepted() . ", " . $this->lang->GetTranslation("Rejected") . " " . $stats->GetRejected();
+		}
+
 		$outputModules .= "<br><br>";
-		$outputModules .= $editing === true ? $this->cmdSave->Render() . " " . $this->cmdClear->Render() . " " . $this->cmdDelete->Render() : $this->cmdCreate->Render();
+		$outputModules .= $editing === true ? $this->cmdSave->Render() . " " . $this->cmdClear->Render() . " " . $this->cmdDeleteStats->Render() . " " . $this->cmdDelete->Render() : $this->cmdCreate->Render();
 
 		// Structure
 

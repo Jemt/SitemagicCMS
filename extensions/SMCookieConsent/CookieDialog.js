@@ -7,6 +7,7 @@ function SMCookieConsent()
 	this.Position = "bottom";	// "top" or "bottom"
 	this.HideHours = 12;		// How many hours until consent dialog is shown again
 	this.Modules = [];			// [{Name:string, Description:String, Code:string}]
+	this.WebService = null;		// URL to webservice accepting object array - e.g. consent=encodeURIComponent(JSON.stringify({Statistics:true,Marketing:false}))
 
 	this.Render = function()
 	{
@@ -62,6 +63,13 @@ function SMCookieConsent()
 
 		var buttonDeny = createButton(me.Deny, function()
 		{
+			var consent = {};
+			for (var i = 0 ; i < checkboxes.length ; i++)
+			{
+				consent[checkboxes[i].Name] = false;
+			}
+			submitConsent(consent);
+
 			document.body.removeChild(panel);
 			SMCookie.SetCookie("SMCookieConsentAllowed", "", me.HideHours * 60 * 60);
 		});
@@ -73,6 +81,7 @@ function SMCookieConsent()
 		var buttonAccept = createButton(me.Accept, function()
 		{
 			var allowed = "";
+			var consent = {};
 
 			for (var i = 0 ; i < checkboxes.length ; i++)
 			{
@@ -81,7 +90,11 @@ function SMCookieConsent()
 					allowed += (allowed !== "" ? "|#|" : "") + checkboxes[i].Name;
 					eval(checkboxes[i].Code);
 				}
+
+				consent[checkboxes[i].Name] = checkboxes[i].Checkbox.IsChecked;
 			}
+
+			submitConsent(consent);
 
 			document.body.removeChild(panel);
 			SMCookie.SetCookie("SMCookieConsentAllowed", encodeURIComponent(allowed), me.HideHours * 60 * 60); // Encoding cookie value to allow use of semicolon which is used in unicode encoding (e.g. &#1234;)
@@ -157,6 +170,16 @@ function SMCookieConsent()
 		};
 
 		return button;
+	}
+
+	function submitConsent(consent)
+	{
+		if (me.WebService)
+		{
+			var r = new SMHttpRequest(me.WebService, true);
+			r.SetData("consent=" + encodeURIComponent(JSON.stringify(consent))); // Encoding consent object as special characters may be contained - e.g. equal sign and ampersand which are used in form data to separate arguments
+			r.Start();
+		}
 	}
 }
 
