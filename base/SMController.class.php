@@ -516,6 +516,11 @@ class SMController
 
 	private function disableMagicQuotes()
 	{
+		if (version_compare(phpversion(), "5.4.0") >= 0)
+		{
+			return; // PHP 5.4.0 or newer detected - PHP 5.4 dropped support for Magic Quotes
+		}
+
 		// Magic Quotes GPC enabled and Magic Quote Sybase disabled:
 		//   The following characters are escaped with a back slash:
 		//   Single quote, double quote, backslash and NULL.
