@@ -358,6 +358,35 @@ class SMPagesFrmEditor implements SMIExtensionForm
 					smPagesSetPageLayout(ed, htmlElement); // Make sure page is initially set to correct Page Layout (Classic or Card)
 
 					document.body.style.display = \"\"; // Page is ready, make it visible again by removing display:none
+
+					// For some strange reason, Chrome sometimes do not display the content of the content frame,
+					// even though it is there. Opening Developer Tools, or hovering a DOM element while
+					// Developer Tools is already open, makes the content appear on the screen.
+					// It is not obvious what the cause of the bug is, but it is only happening in more recent
+					// versions of Chrome, and mostly happens when users save the content or resize the editor.
+					// Forcing Chrome to re-render makes the content appear. Unfortunately there is no
+					// fixed point in time where this works. On slow machines it might be 2-500 ms. after the
+					// editor is loaded, while on faster machines the fix can be applied almost immediately.
+					// To handle this, we force Chrome to re-render multiple times over the cause of several
+					// seconds. The re-render is unnoticable to the user.
+					if (SMBrowser.GetBrowser() === \"Chrome\")
+					{
+						var intTimerCount = 0;
+						var intTimerId = setInterval(function()
+						{
+							intTimerCount++;
+
+							if (intTimerCount === 10)
+							{
+								clearInterval(intTimerId);
+								ifr.style.opacity = \"\";
+							}
+							else
+							{
+								ifr.style.opacity = ((ifr.style.opacity === \"0.99\") ? \"1\" : \"0.99\");
+							}
+						}, 350);
+					}
 				});
 			},
 
