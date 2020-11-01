@@ -18,7 +18,7 @@
 	<!-- optional, may be left out or empty - no extension is loaded in this case (empty page) -->
 	<entry key="DefaultExtension" value="SMPages" />
 	<!-- REQUIRED, Sitemagic Framework won't execute extensions if left out or empty -->
-	<entry key="ExtensionsEnabled" value="SMAnnouncements;SMAutoSeoUrls;SMConfig;SMExtensionCommon;SMLogin;SMPages;SMMenu;SMFiles;SMContact;SMExternalModules;SMDesigner;SMComments;SMRating;SMTips;SMSearch" />
+	<entry key="ExtensionsEnabled" value="SMAnnouncements;SMAutoSeoUrls;SMConfig;SMExtensionCommon;SMLogin;SMPages;SMMenu;SMFiles;SMContact;SMExternalModules;SMDesigner;SMComments;SMRating;SMTips;SMSearch;SMShop" />
 	<!-- optional, may be left out (empty will prevent uploads) - by default no restrictions apply -->
 	<!-- entry key="FileExtensionFilter" value="png;gif;jpg;jpeg;pdf;doc;docx;pages;xls;xlsx;numbers;ppt;pptx;keynote;key;zip;txt" / -->
 	<!-- optional, may be left out or empty - defaults to server setting -->
