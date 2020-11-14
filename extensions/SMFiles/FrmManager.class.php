@@ -257,6 +257,12 @@ class SMFilesFrmManager implements SMIExtensionForm
 		$parent = substr($folder, 0, $lastSlashPos);
 		$newPath = $parent . "/" . $this->txtFolderName->GetValue();
 
+		if (SMFileSystem::FolderExists($newPath) === true)
+		{
+			$this->errorFolders = $this->lang->GetTranslation("AlreadyExists");
+			return;
+		}
+
 		$result = SMFileSystem::Move($folder, $newPath);
 
 		if ($result === false)
@@ -408,6 +414,12 @@ class SMFilesFrmManager implements SMIExtensionForm
 		if ($folder === null)
 		{
 			$this->errorFiles = $this->lang->GetTranslation("FolderMissing");
+			return;
+		}
+
+		if (SMFileSystem::FileExists($folder . "/" . $newFilename) === true)
+		{
+			$this->errorFiles = $this->lang->GetTranslation("AlreadyExists");
 			return;
 		}
 

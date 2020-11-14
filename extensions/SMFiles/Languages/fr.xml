@@ -17,6 +17,7 @@
 	<entry key="ColModified" value="Modifié"/>
 	<entry key="ValidCharacters" value="Caractères autorisés : A-Z, 0-9, point (.), tiret (-) et des traits de soulignement (_)"/>
 	<entry key="InvalidCharacters" value="Charactères invalides en cours d'utilisation"/>
+	<entry key="AlreadyExists" value="Name entered is already in use" />
 	<entry key="FilesystemError" value="Une erreur s'est produite, veuillez réessayer"/>
 	<entry key="FolderMissing" value="Le dossier sélectionné n'existe plus"/>
 	<entry key="FileMissing" value="Le fichier sélectionné n'existe plus"/>

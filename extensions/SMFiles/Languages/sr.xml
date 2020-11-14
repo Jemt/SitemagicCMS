@@ -17,6 +17,7 @@
 	<entry key="ColModified" value="Modifikovan"/>
 	<entry key="ValidCharacters" value="Dozvoljeni karakteri su: A-Z, 0-9, Ta&amp;#269;ka (.), Crte (-), i donje crte (_)"/>
 	<entry key="InvalidCharacters" value="Ne va&amp;#382;e&amp;#263;i karakteri u upotrebi"/>
+	<entry key="AlreadyExists" value="Name entered is already in use" />
 	<entry key="FilesystemError" value="Ne poznata gre&amp;#353;ka, molimo poku&amp;#353;ajte ponovo"/>
 	<entry key="FolderMissing" value="Odabrani folder vi&amp;#353;e ne postoji"/>
 	<entry key="FileMissing" value="Odabrani fajl vi&amp;#353;e ne postoji"/>

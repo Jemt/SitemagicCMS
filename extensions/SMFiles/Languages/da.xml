@@ -17,6 +17,7 @@
 	<entry key="ColModified" value="Ændret" />
 	<entry key="ValidCharacters" value="Tilladte karakterer: A-Z, 0-9, punktum (.), bindestreg (-) og underscore (_)" />
 	<entry key="InvalidCharacters" value="Ugyldige karakterer i brug" />
+	<entry key="AlreadyExists" value="Det indtastede navn eksisterer allerede" />
 	<entry key="FilesystemError" value="Den valgte handling fejlede, prøv venligst igen" />
 	<entry key="FolderMissing" value="Den valgte mappe eksisterer ikke længere" />
 	<entry key="FileMissing" value="Den valgte fil eksisterer ikke længere" />
