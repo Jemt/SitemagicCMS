@@ -2944,6 +2944,15 @@ SMForm.PostBack = function()
 			console.log("Error is most likely caused by misbehavior in IE7/IE8 when canceling post back using OnBeforeUnload.");
 		}
 	}
+
+	setTimeout(function()
+	{
+		// Unset PostBackControl after postback, in case page is not actually reload.
+		// This typically happens if a file is returned for download instead of the page,
+		// or if postback is suppressed using OnBeforeUnload, in which case another call
+		// to SMForm.PostBack() should not automatically repeat the previous postback action.
+		SMDom.SetAttribute("SMPostBackControl", "value", "");
+	}, 0);
 }
 function smFormPostBack() { SMForm.PostBack(); } // Backward compatibility
 
