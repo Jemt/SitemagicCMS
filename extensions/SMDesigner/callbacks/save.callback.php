@@ -38,6 +38,7 @@ $writer = new SMTextFileWriter($templatePath . "/override.css", SMTextFileWriteM
 $writer->Write($css);
 $writer->Close();
 
-SMEnvironment::UpdateClientCacheKey();
+// DISABLED - now using file modification time as cache key instead
+//SMEnvironment::UpdateClientCacheKey();
 
 ?>

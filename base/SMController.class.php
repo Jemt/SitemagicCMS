@@ -144,7 +144,7 @@ class SMController
 		$indexCss = SMTemplateInfo::GetTemplateCssFile(SMTemplateInfo::GetCurrentTemplate());			// index.css, style.css (preferred), or null
 		$indexCss = (($indexCss !== null) ? $indexCss . "?v=" . SMEnvironment::GetVersion() : null);
 		$overrideCss = SMTemplateInfo::GetOverrideCssFile(SMTemplateInfo::GetCurrentTemplate());		// override.css or null
-		$overrideCss = (($overrideCss !== null) ? $overrideCss . "?v=" . SMEnvironment::GetVersion() . "&amp;c=" . SMEnvironment::GetClientCacheKey() : null);
+		$overrideCss = (($overrideCss !== null) ? $overrideCss . "?v=" . SMEnvironment::GetVersion() . "&amp;c=" . SMFileSystem::GetFileModificationTime($overrideCss) /*SMEnvironment::GetClientCacheKey()*/ : null);
 
 		$head = "";
 		$head .= "\n\t<meta name=\"generator\" content=\"Sitemagic CMS\">";

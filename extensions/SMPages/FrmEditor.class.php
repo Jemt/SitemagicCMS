@@ -199,7 +199,7 @@ class SMPagesFrmEditor implements SMIExtensionForm
 		$basicCssFile = SMTemplateInfo::GetBasicCssFile($template);
 		$basicCssFile = (($basicCssFile !== null) ? $basicCssFile . "?v=" . SMEnvironment::GetVersion() : null);
 		$overrideCssFile = SMTemplateInfo::GetOverrideCssFile($template);
-		$overrideCssFile = (($overrideCssFile !== null) ? $overrideCssFile . "?v=" . SMEnvironment::GetVersion() . "&c=" . SMEnvironment::GetClientCacheKey() : null);
+		$overrideCssFile = (($overrideCssFile !== null) ? $overrideCssFile . "?v=" . SMEnvironment::GetVersion() . "&c=" . SMFileSystem::GetFileModificationTime($overrideCssFile) /*SMEnvironment::GetClientCach*/ : null);
 
 		$language = ((SMFileSystem::FileExists(SMExtensionManager::GetExtensionPath($this->context->GetExtensionName()) . "/editor/langs/" . SMLanguageHandler::GetSystemLanguage() . ".js") === true) ? SMLanguageHandler::GetSystemLanguage() : "en");
 		$listdir = SMEnvironment::GetFilesDirectory() . "/editor";
