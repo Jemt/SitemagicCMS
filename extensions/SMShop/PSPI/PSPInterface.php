@@ -17,7 +17,7 @@ interface PSPI
 	/// 	<param name="continueUrl" type="string"> URL to which user is redirected after completing payment - e.g. a receipt </param>
 	/// 	<param name="callbackUrl" type="string">
 	/// 		URL called asynchronously when payment is successfully carried through.
-	/// 		Use PSP::GetCallbackData() to obtain OrderId, TransactionId, Amount, and Currency.
+	/// 		Use PSP::GetCallbackData() to obtain OrderId, TransactionId, Amount, Currency, and MetaData.
 	/// 	</param>
 	/// </function>
 	public function RedirectToPaymentForm($orderId, $amount, $currency, $continueUrl = null, $callbackUrl = null);
@@ -231,11 +231,12 @@ class PSP
 	/// 	<param name="orderId" type="string"> Order ID </param>
 	/// 	<param name="amount" type="integer"> Order amount in smallest possible unit (e.g. Cents for USD) </param>
 	/// 	<param name="currency" type="string"> Currency in the format defined by ISO 4217 (e.g. USD, GBP, or USD) </param>
+	/// 	<param name="metaData" type="PSPPaymentMetaData" default="null"> Additional meta data related to transaction (optional) </param>
 	/// </function>
-	public static function InvokeCallback($callbackUrl, $transactionId, $orderId, $amount, $currency)
+	public static function InvokeCallback($callbackUrl, $transactionId, $orderId, $amount, $currency, $metaData = null)
 	{
-		if (is_string($callbackUrl) === false || is_string($transactionId) === false || is_string($orderId) === false || is_int($amount) === false || is_string($currency) === false)
-			throw new Exception("Invalid argument(s) passed to InvokeCallback(string, string, string, integer, string)");
+		if (is_string($callbackUrl) === false || is_string($transactionId) === false || is_string($orderId) === false || is_int($amount) === false || is_string($currency) === false || ($metaData !== null && ($metaData instanceof PSPPaymentMetaData) === false))
+			throw new Exception("Invalid argument(s) passed to InvokeCallback(string, string, string, integer, string[, PSPPaymentMetaData])");
 
 		if (is_numeric($currency) === true)
 			$currency = self::NumericValueToCurrencyCode($currency); // Ensure consistency: Always pass currency name (e.g. USD) rather than numeric value (e.g. 840)
@@ -245,7 +246,28 @@ class PSP
 		$data["OrderId"] = $orderId;
 		$data["Amount"] = (string)$amount;
 		$data["Currency"] = $currency;
-		$data["Checksum"] = md5(self::getEncryptionKey() . $transactionId . $orderId . $amount . $currency);
+		//$data["Checksum"] = md5(self::getEncryptionKey() . $transactionId . $orderId . $amount . $currency);
+
+		if ($metaData !== null)
+		{
+			$data["MetaData_Card_Type"] = $metaData->GetCard()->Type();
+			$data["MetaData_Card_Identifier"] = $metaData->GetCard()->Identifier();
+			$data["MetaData_Card_ExpiryMonth"] = (string)$metaData->GetCard()->ExpiryMonth();
+			$data["MetaData_Card_ExpiryYear"] = (string)$metaData->GetCard()->ExpiryYear();
+
+			$data["MetaData_Customer_Country"] = $metaData->GetCustomer()->Country();
+			$data["MetaData_Customer_IpAddress"] = $metaData->GetCustomer()->IpAddress();
+		}
+
+		$checksumString = self::getEncryptionKey();
+		foreach (self::getChecksumKeys() as $key)
+		{
+			if (array_key_exists($key, $data) === true) // MetaData might not have been provided
+			{
+				$checksumString .= $data[$key];
+			}
+		}
+		$data["Checksum"] = md5($checksumString);
 
 		return self::Post($callbackUrl, $data);
 	}
@@ -260,6 +282,7 @@ class PSP
 	/// 		 - OrderId (string value).
 	/// 		 - Amount (integer value).
 	/// 		 - Currency (string value): ISO 4217 (e.g. USD, GBP, or USD).
+	/// 		 - MetaData (instance of PSPPaymentMetaData if provided by Payment Service Provider Module, otherwise null)
 	/// 	</description>
 	/// </function>
 	public static function GetCallbackData()
@@ -269,12 +292,37 @@ class PSP
 		$amount = (isset($_POST["Amount"]) ? (int)$_POST["Amount"] : -1);
 		$currency = (isset($_POST["Currency"]) ? $_POST["Currency"] : null);
 		$checksum = (isset($_POST["Checksum"]) ? $_POST["Checksum"] : null);
-		$newChecksum = md5(self::getEncryptionKey() . $transactionId . $orderId . $amount . $currency);
+		//$newChecksum = md5(self::getEncryptionKey() . $transactionId . $orderId . $amount . $currency);
+
+		$newChecksum = self::getEncryptionKey();
+		foreach (self::getChecksumKeys() as $key)
+		{
+			if (array_key_exists($key, $_POST) === true) // MetaData might not have been provided
+			{
+				$newChecksum .= $_POST[$key];
+			}
+		}
+		$newChecksum = md5($newChecksum);
 
 		if ($newChecksum !== $checksum)
 			throw new Exception("SecurityException: Integrity check failed - mismatching checksums");
 
-		return array("TransactionId" => $transactionId, "OrderId" => $orderId, "Amount" => (int)$amount, "Currency" => $currency);
+		$metaData = null;
+
+		if (isset($_POST["MetaData_Card_Type"]) === true)
+		{
+			$metaData = new PSPPaymentMetaData();
+
+			$metaData->GetCard()->Type($_POST["MetaData_Card_Type"]);
+			$metaData->GetCard()->Identifier($_POST["MetaData_Card_Identifier"]);
+			$metaData->GetCard()->ExpiryMonth((int)$_POST["MetaData_Card_ExpiryMonth"]);
+			$metaData->GetCard()->ExpiryYear((int)$_POST["MetaData_Card_ExpiryYear"]);
+
+			$metaData->GetCustomer()->Country($_POST["MetaData_Customer_Country"]);
+			$metaData->GetCustomer()->IpAddress($_POST["MetaData_Customer_IpAddress"]);
+		}
+
+		return array("TransactionId" => $transactionId, "OrderId" => $orderId, "Amount" => (int)$amount, "Currency" => $currency, "MetaData" => $metaData);
 	}
 
 	// Configuration
@@ -423,7 +471,11 @@ class PSP
 
 			if (self::$baseConfig["LogMode"] === "Full")
 			{
+				$jsonData = file_get_contents("php://input");	// Empty string if no input was provided
+				$jsonArray = json_decode($jsonData, true);		// Return null if no data, null, or invalid JSON was provided
+
 				$log .= "\n";
+				$log .= "JSON:" . print_r($jsonArray, true);
 				$log .= "\$_GET:" . print_r($_GET, true);
 				$log .= "\$_POST:" . print_r($_POST, true);
 				//$log .= "\$_SERVER:" . print_r($_SERVER, true);
@@ -513,6 +565,167 @@ class PSP
 	{
 		self::ensureBaseConfig();
 		return self::$baseConfig["EncryptionKey"];
+	}
+
+	private static function getChecksumKeys()
+	{
+		return array(
+			"TransactionId",
+			"OrderId",
+			"Amount",
+			"Currency",
+			"MetaData_Card_Type",
+			"MetaData_Card_Identifier",
+			"MetaData_Card_ExpiryMonth",
+			"MetaData_Card_ExpiryYear",
+			"MetaData_Customer_Country",
+			"MetaData_Customer_IpAddress"
+		);
+	}
+}
+
+
+/// <container name="PSPPaymentMetaData">
+/// 	Class representing payment metadata
+/// </container>
+class PSPPaymentMetaData
+{
+	private $card = null;
+	private $customer = null;
+
+	/// <function container="PSPPaymentMetaData" name="PSPPaymentMetaData" access="public">
+	/// 	<description> Create instance of PSPPaymentMetaData </description>
+	/// </function>
+	public function __construct()
+	{
+		$this->card = new PSPCardDetails();
+		$this->customer = new PSPCustomerDetails();
+	}
+
+	/// <function container="PSPPaymentMetaData" name="GetCard" access="public" returns="PSPCardDetails">
+	/// 	<description> Get credit card information </description>
+	/// </function>
+	public function GetCard()
+	{
+		return $this->card;
+	}
+
+	/// <function container="PSPPaymentMetaData" name="GetCustomer" access="public" returns="PSPCustomerDetails">
+	/// 	<description> Get customer information </description>
+	/// </function>
+	public function GetCustomer()
+	{
+		return $this->customer;
+	}
+}
+
+/// <container name="PSPCardDetails">
+/// 	Class representing credit card details
+/// </container>
+class PSPCardDetails
+{
+	private $type = "";			// E.g. Visa or MasterCard
+	private $identifier = "";	// Last 4 digits, e.g. 0182 - string to preserve leading zeros
+	private $expiresMonth = -1;	// Expiry month with 1 being January and 12 being December
+	private $expiresYear = -1;	// Expiry year, e.g. 2020
+
+	/// <function container="PSPCardDetails" name="Type" access="public" returns="string">
+	/// 	<description> Get/set credit card type (e.g. VISA, Mastercard, etc.) </description>
+	/// 	<param name="newValue" type="string" default="null"> Updates credit card type if provided </param>
+	/// </function>
+	public function Type($newValue = null)
+	{
+		if ($newValue !== null && is_string($newValue) === false)
+			throw new Exception("Invalid argument passed to Type([string])");
+
+		if ($newValue !== null)
+			$this->type = $newValue;
+
+		return $this->type;
+	}
+
+	/// <function container="PSPCardDetails" name="Identifier" access="public" returns="string">
+	/// 	<description> Get/set credit card identifier (last 4 digits) </description>
+	/// 	<param name="newValue" type="string" default="null"> Updates credit card identifier if provided </param>
+	/// </function>
+	public function Identifier($newValue = null)
+	{
+		if ($newValue !== null && is_string($newValue) === false)
+			throw new Exception("Invalid argument passed to Identifier([string])");
+
+		if ($newValue !== null)
+			$this->identifier = $newValue;
+
+		return $this->identifier;
+	}
+
+	/// <function container="PSPCardDetails" name="ExpiryMonth" access="public" returns="integer">
+	/// 	<description> Get/set month credit card expires (1 = January, 12 = December) </description>
+	/// 	<param name="newValue" type="integer" default="-1"> Updates expiry month for credit card if provided </param>
+	/// </function>
+	public function ExpiryMonth($newValue = -1)
+	{
+		if ($newValue !== -1 && is_integer($newValue) === false)
+			throw new Exception("Invalid argument passed to ExpiryMonth([integer])");
+
+		if ($newValue !== -1)
+			$this->expiresMonth = $newValue;
+
+			return $this->expiresMonth;
+	}
+
+	/// <function container="PSPCardDetails" name="ExpiryYear" access="public" returns="integer">
+	/// 	<description> Get/set year credit card expires (e.g. 2020) </description>
+	/// 	<param name="newValue" type="integer" default="-1"> Updates expiry year for credit card if provided </param>
+	/// </function>
+	public function ExpiryYear($newValue = -1)
+	{
+		if ($newValue !== -1 && is_integer($newValue) === false)
+			throw new Exception("Invalid argument passed to ExpiryYear([integer])");
+
+		if ($newValue !== -1)
+			$this->expiresYear = $newValue;
+
+		return $this->expiresYear;
+	}
+}
+
+/// <container name="PSPCustomerDetails">
+/// 	Class representing customer details
+/// </container>
+class PSPCustomerDetails
+{
+	private $country = "";
+	private $ip = "";
+
+	/// <function container="PSPCustomerDetails" name="Country" access="public" returns="string">
+	/// 	<description> Get/set customer's country </description>
+	/// 	<param name="newValue" type="string" default="null"> Updates country if provided </param>
+	/// </function>
+	public function Country($newValue = null)
+	{
+		if ($newValue !== null && is_string($newValue) === false)
+			throw new Exception("Invalid argument passed to Country([string])");
+
+		if ($newValue !== null)
+			$this->country = $newValue;
+
+		return $this->country;
+	}
+
+	/// <function container="PSPCustomerDetails" name="IpAddress" access="public" returns="string">
+	/// 	<description> Get/set customer's IP address </description>
+	/// 	<param name="newValue" type="string" default="null"> Updates IP address if provided </param>
+	/// </function>
+	public function IpAddress($newValue = null)
+	{
+		if ($newValue !== null && is_string($newValue) === false)
+			throw new Exception("Invalid argument passed to IpAddress([string])");
+
+		if ($newValue !== null)
+			$this->ip = $newValue;
+
+		return $this->ip;
 	}
 }
 

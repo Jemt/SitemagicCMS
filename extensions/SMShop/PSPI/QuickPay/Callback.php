@@ -31,7 +31,16 @@ if (isset($_SERVER["HTTP_QUICKPAY_CHECKSUM_SHA256"]) === true && $checksum === $
 		{
 			PSP::Log($name . " - invoking callback:\nTransactionId: " . $data["id"] . "\nOrderId: " . $data["order_id"] . "\nAmount: " . $operation["amount"] . "\nCurrency: " . $data["currency"]);
 
-			PSP::InvokeCallback($data["variables"]["CUSTOM_Callback"], (string)$data["id"], $data["order_id"], (int)$operation["amount"], $data["currency"]);
+			$metaData = new PSPPaymentMetaData();
+			$metaData->GetCard()->Type($data["metadata"]["brand"]);
+			$metaData->GetCard()->Identifier($data["metadata"]["last4"]);
+			$metaData->GetCard()->ExpiryMonth((int)$data["metadata"]["exp_month"]);
+			$metaData->GetCard()->ExpiryYear((int)$data["metadata"]["exp_year"]);
+
+			$metaData->GetCustomer()->Country($data["metadata"]["customer_country"]);
+			$metaData->GetCustomer()->IpAddress($data["metadata"]["customer_ip"]);
+
+			PSP::InvokeCallback($data["variables"]["CUSTOM_Callback"], (string)$data["id"], $data["order_id"], (int)$operation["amount"], $data["currency"], $metaData);
 		}
 	}
 }
