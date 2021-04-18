@@ -45,6 +45,9 @@ JSShop.Models.Order = function(orderId)
 		PaymentMethod: "",					// string
 		TransactionId: "",					// string
 		State: "",							// string (Initial | Authorized | Captured | Canceled)
+		CardType: "",						// string
+		CardId: "",							// string (e.g. 0218 - string to preserve leading zeros)
+		CardExpiry: "",						// string (YYYY-MM)
 		TagIds: "",							// string
 		PromoCode: "",						// string
 		CustData1: "",						// string
@@ -262,7 +265,7 @@ JSShop.Models.Order.RetrieveAll = function(search, fromTimestamp, toTimestamp, c
 		}
 		else
 		{
-			Fit.Array.ForEach(["FirstName", "LastName", "Address", "City", "ZipCode", "Email", "Phone", "Message", "AltFirstName", "AltLastName", "AltAddress", "AltCity", "AltZipCode"], function(field)
+			Fit.Array.ForEach(["Id", "InvoiceId", "FirstName", "LastName", "Address", "City", "ZipCode", "Email", "Phone", "Message", "AltFirstName", "AltLastName", "AltAddress", "AltCity", "AltZipCode"], function(field)
 			{
 				var and = [];
 				Fit.Array.Add(and, { Field: "Time", Operator: ">=", Value: fromTimestamp });

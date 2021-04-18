@@ -521,6 +521,8 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 	$content = str_replace("{[CostCorrectionMessage3]}", $order["CostCorrectionMessage3"], $content);
 	$content = str_replace("{[PaymentMethod]}", $order["PaymentMethod"], $content);
 	$content = str_replace("{[TransactionId]}", $order["TransactionId"], $content);
+	$content = str_replace("{[CardType]}", $order["CardType"], $content);
+	$content = str_replace("{[CardId]}", $order["CardId"], $content);
 	$content = str_replace("{[PromoCode]}", $order["PromoCode"], $content);
 	$content = str_replace("{[CustData1]}", $order["CustData1"], $content);
 	$content = str_replace("{[CustData2]}", $order["CustData2"], $content);
@@ -754,7 +756,7 @@ function SMShopHandleExpression(SMConfiguration $config, $units, $price, $vat, $
 	$expr .= "\nunits = " . (($units !== null) ? $units : "-1") . ";";
 	$expr .= "\nprice = " . (($price !== null) ? $price : "-1") . ";";
 	$expr .= "\nvat = " . (($vat !== null) ? $vat : "-1") . ";";
-	$expr .= "\ncurrency = \"" . (($currency !== null) ? $currency : "-1") . "\";";
+	$expr .= "\ncurrency = \"" . (($currency !== null) ? $currency : "") . "\";";
 	$expr .= "\nweight = " . (($weight !== null) ? $weight : "-1") . ";";
 	$expr .= "\nweightunit = \"" . (($weightUnit !== null) ? $weightUnit : "") . "\";";
 	$expr .= "\nzipcode = \"" . (($zipCode !== null) ? $zipCode : "") . "\";";

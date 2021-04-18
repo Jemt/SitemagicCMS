@@ -92,6 +92,19 @@ else if ($operation === "Auth") // Step 2: Handle response from PSP - Callback i
 	$order["TransactionId"] = $transactionId;
 	$order["State"] = "Authorized";
 
+	if ($data["MetaData"] !== null)
+	{
+		$card = $data["MetaData"]->GetCard();
+
+		$order["CardType"] = $card->Type();
+		$order["CardId"] = $card->Identifier();
+
+		if ($card->ExpiryYear() > -1 && $card->ExpiryMonth() > -1)
+		{
+			$order["CardExpiry"] = $card->ExpiryYear() . "-" . $card->ExpiryMonth();
+		}
+	}
+
 	$ds = new SMDataSource("SMShopOrders");
 
 	if ($ds->GetDataSourceType() === SMDataSourceType::$Xml)

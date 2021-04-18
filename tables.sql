@@ -184,6 +184,9 @@ CREATE TABLE IF NOT EXISTS SMShopOrders
 	`paymentmethod`			varchar(50)						DEFAULT NULL,
 	`transactionid`			varchar(100)					DEFAULT NULL,
 	`state`					varchar(20)						DEFAULT NULL,
+	`cardtype`				varchar(50)						DEFAULT NULL,
+	`cardid`				varchar(4)						DEFAULT NULL,
+	`cardexpiry`			varchar(7)						DEFAULT NULL,
 	`tagids`				varchar(255)					DEFAULT NULL,
 	`promocode`				varchar(240)					DEFAULT NULL,
 	`custdata1`				text							DEFAULT NULL,
@@ -294,3 +297,11 @@ ALTER TABLE SMPages MODIFY `template` VARCHAR(255);
 ALTER TABLE SMPages MODIFY `keywords` VARCHAR(255);
 ALTER TABLE SMPages MODIFY `description` VARCHAR(255);
 ALTER TABLE SMPages MODIFY `password` VARCHAR(255);
+
+/* Extend SMShopOrders with new fields related to credit card information */
+ALTER TABLE SMShopOrders ADD `cardtype` VARCHAR(50) DEFAULT NULL AFTER `state`;
+ALTER TABLE SMShopOrders ADD `cardid` VARCHAR(4) DEFAULT NULL AFTER `cardtype`;
+ALTER TABLE SMShopOrders ADD `cardexpiry` VARCHAR(7) DEFAULT NULL AFTER `cardid`;
+UPDATE SMShopOrders SET `cardtype` = "" WHERE `cardtype` IS NULL;
+UPDATE SMShopOrders SET `cardid` = "" WHERE `cardid` IS NULL;
+UPDATE SMShopOrders SET `cardexpiry` = "" WHERE `cardexpiry` IS NULL;
