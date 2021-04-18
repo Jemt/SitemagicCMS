@@ -302,6 +302,3 @@ ALTER TABLE SMPages MODIFY `password` VARCHAR(255);
 ALTER TABLE SMShopOrders ADD `cardtype` VARCHAR(50) DEFAULT NULL AFTER `state`;
 ALTER TABLE SMShopOrders ADD `cardid` VARCHAR(4) DEFAULT NULL AFTER `cardtype`;
 ALTER TABLE SMShopOrders ADD `cardexpiry` VARCHAR(7) DEFAULT NULL AFTER `cardid`;
-UPDATE SMShopOrders SET `cardtype` = "" WHERE `cardtype` IS NULL;
-UPDATE SMShopOrders SET `cardid` = "" WHERE `cardid` IS NULL;
-UPDATE SMShopOrders SET `cardexpiry` = "" WHERE `cardexpiry` IS NULL;

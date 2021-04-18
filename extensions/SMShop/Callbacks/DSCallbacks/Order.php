@@ -521,8 +521,8 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 	$content = str_replace("{[CostCorrectionMessage3]}", $order["CostCorrectionMessage3"], $content);
 	$content = str_replace("{[PaymentMethod]}", $order["PaymentMethod"], $content);
 	$content = str_replace("{[TransactionId]}", $order["TransactionId"], $content);
-	$content = str_replace("{[CardType]}", $order["CardType"], $content);
-	$content = str_replace("{[CardId]}", $order["CardId"], $content);
+	$content = str_replace("{[CardType]}", (($order["CardType"] !== null) ? $order["CardType"] : ""), $content); // CardType did not exist in earlier versions
+	$content = str_replace("{[CardId]}", (($order["CardId"] !== null) ? $order["CardId"] : ""), $content); // CardId did not exist in earlier versions
 	$content = str_replace("{[PromoCode]}", $order["PromoCode"], $content);
 	$content = str_replace("{[CustData1]}", $order["CustData1"], $content);
 	$content = str_replace("{[CustData2]}", $order["CustData2"], $content);
