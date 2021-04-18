@@ -19,6 +19,12 @@ JSShop.Presenters.OrderList = function()
 	var txtTo = null;
 	var cmdUpdate = null;
 
+	var defaultSortHeader = null;
+	var defaultSortName = null;
+	var sortHeader = null;
+	var sortName = null;
+	var sortOrder = null;
+
 	var cmdExport = null;
 	var cmdInvoice = null;
 	var cmdCapture = null;
@@ -52,7 +58,7 @@ JSShop.Presenters.OrderList = function()
 	function createControls()
 	{
 		txtSearch = new Fit.Controls.Input("JSShopSearch");
-		txtSearch.Width(140);
+		txtSearch.Width(12, "em");
 		txtSearch.GetDomElement().title = lang.OrderList.Search;
 		txtSearch.Placeholder(lang.OrderList.Search + "..");
 
@@ -89,7 +95,7 @@ JSShop.Presenters.OrderList = function()
 				txtFrom.Value(v);
 			}
 		});
-		txtFrom.Width(140);
+		txtFrom.Width(9, "em");
 		txtFrom.Value(Fit.Date.Format(new Date(), lang.Locale.DateFormat));
 		txtFrom.GetDomElement().title = lang.OrderList.DisplayFromDate;
 
@@ -123,7 +129,7 @@ JSShop.Presenters.OrderList = function()
 				txtTo.Value(v);
 			}
 		});
-		txtTo.Width(140);
+		txtTo.Width(9, "em");
 		txtTo.Value(Fit.Date.Format(new Date(), lang.Locale.DateFormat));
 		txtTo.GetDomElement().title = lang.OrderList.DisplayToDate;
 
@@ -319,6 +325,8 @@ JSShop.Presenters.OrderList = function()
 				}
 			});
 
+			sortModels();
+
 			populateOrderDataToView();
 
 			cmdUpdate.Enabled(true);
@@ -410,13 +418,144 @@ JSShop.Presenters.OrderList = function()
 		view.Content.ToolbarConfigButton = cmdConfig && cmdConfig.GetDomElement() || null;
 
 		view.Content.HeaderSelectAll = chkSelectAll.GetDomElement();
-		view.Content.HeaderHeaderOrderId = lang.OrderList.OrderId;
+		view.Content.HeaderOrderId = createSortHeader("Id", lang.OrderList.OrderId, true); // True = default sort column
 		view.Content.HeaderTime = lang.OrderList.Time;
-		view.Content.HeaderCustomer = lang.OrderList.Customer;
-		view.Content.HeaderAmount = lang.OrderList.Amount;
-		view.Content.HeaderPaymentMethod = lang.OrderList.PaymentMethod;
-		view.Content.HeaderState = lang.OrderList.State;
-		view.Content.HeaderInvoiceId = lang.OrderList.InvoiceId;
+		//view.Content.HeaderCustomer = createSortHeader("Customer", lang.OrderList.Customer); // Notice: "Customer" is not really a field in the model - sortModels() gives this special treatment by combining FirstName and LastName
+		view.Content.HeaderCustomer = lang.OrderList.Customer; // Not sortable - characters are sorted based on their position in the character table where e.g. Å incorrectly comes before Æ and Ø
+		view.Content.HeaderAmount = createSortHeader("Price", lang.OrderList.Amount);
+		view.Content.HeaderPaymentMethod = createSortHeader("PaymentMethod", lang.OrderList.PaymentMethod);
+		view.Content.HeaderState = createSortHeader("State", lang.OrderList.State);
+		view.Content.HeaderInvoiceId = createSortHeader("InvoiceId", lang.OrderList.InvoiceId);
+	}
+
+	function createSortHeader(name, title, isDefaultSort)
+	{
+		Fit.Validation.ExpectStringValue(name);
+		Fit.Validation.ExpectStringValue(title);
+		Fit.Validation.ExpectBoolean(isDefaultSort, true);
+
+		var header = document.createElement("a");
+		header.href = "javascript:";
+		header.innerHTML = title;
+		header.onclick = function()
+		{
+			if (sortHeader !== null)
+			{
+				Fit.Dom.Data(sortHeader, "sort", null);
+			}
+
+			if (name === sortName)
+			{
+				// This column is already sorted - switch from ASC to DESC if
+				// currently ASC, or remove sorting from column if currently DESC.
+
+				if (sortOrder === "ASC")
+				{
+					sortOrder = "DESC";
+				}
+				else // if (sortName === "DESC")
+				{
+					sortHeader = defaultSortHeader || null;
+					sortName = defaultSortName || null;
+					sortOrder = defaultSortName !== null ? "ASC" : null;
+				}
+			}
+			else
+			{
+				sortHeader = header;
+				sortName = name;
+				sortOrder = "ASC";
+			}
+
+			if (sortHeader !== null)
+			{
+				Fit.Dom.Data(sortHeader, "sort", sortOrder);
+			}
+
+			sortModels();
+			populateOrderDataToView();
+		}
+
+		var icon = document.createElement("i");
+		icon.className = "fa"; // ASC/DESC icon controlled using CSS and data-sort attribute set on header
+		header.appendChild(icon);
+
+		if (isDefaultSort === true)
+		{
+			defaultSortHeader = header;
+			defaultSortName = name;
+
+			sortHeader = header;
+			sortName = name;
+			sortOrder = "ASC";
+
+			Fit.Dom.Data(sortHeader, "sort", sortOrder);
+		}
+
+		return header;
+	}
+
+	function sortModels()
+	{
+		var sortColumns = { "Id": "ASC" }; // Always sort by Id - Id sort becomes secondary if another sort column is selected, since we order by Id first
+
+		if (sortName !== null)
+		{
+			sortColumns[sortName] = sortOrder;
+		}
+
+		Fit.Array.ForEach(sortColumns, function(colId)
+		{
+			var sortField = colId;
+			var sortFieldOrder = sortColumns[colId]
+
+			var sort = true;
+			while (sort === true)
+			{
+				sort = false;
+
+				for (var i = 0 ; i < models.length ; i++)
+				{
+					if (i + 1 < models.length)
+					{
+						var current = models[i];
+						var next = models[i + 1];
+
+						var currentValue = null;
+						var nextValue = null;
+
+						if (sortField === "State")
+						{
+							currentValue = getStateTitle(current.State());
+							nextValue = getStateTitle(next.State());
+						}
+						/*else if (sortField === "Customer") // Does not actually exist - this is FirstName and LastName combined
+						{
+							currentValue = current.FirstName() + " " + current.LastName();
+							nextValue = next.FirstName() + " " + next.LastName();
+						}*/
+						else if (sortField === "PaymentMethod") // Also include Card Type
+						{
+							currentValue = current.PaymentMethod() + current.CardType();
+							nextValue = next.PaymentMethod() + next.CardType();
+						}
+						else
+						{
+							var currentValue = current[sortField]();
+							var nextValue = next[sortField]();
+						}
+
+						if ((sortFieldOrder === "ASC" && currentValue > nextValue) || (sortFieldOrder === "DESC" && currentValue < nextValue))
+						{
+							models[i] = next;
+							models[i + 1] = current;
+
+							sort = true;
+						}
+					}
+				}
+			}
+		});
 	}
 
 	function populateOrderDataToView() // May be invoked multiple times to refresh the view (e.g. to refresh tags when renamed/deleted)
@@ -521,11 +660,13 @@ JSShop.Presenters.OrderList = function()
 
 			item.Select = model._presenter.checkBox.GetDomElement();
 			item.OrderId = model.Id();
-			item.Time = Fit.Date.Format(new Date(model.Time()), lang.Locale.DateFormat + " " + lang.Locale.TimeFormat);
+			item.FullTime = Fit.Date.Format(new Date(model.Time()), lang.Locale.DateFormat + " " + lang.Locale.TimeFormat);
+			item.ShortTime = Fit.Date.Format(new Date(model.Time()), lang.Locale.ShortDateFormat + " " + lang.Locale.TimeFormat);
 			item.Customer = model._presenter.lnkCustomerDetails;
 			item.Currency = model.Currency();
 			item.Amount = model._presenter.lnkAmountWithDetails;
 			item.PaymentMethod = model.PaymentMethod();
+			item.CardType = model.CardType();
 			item.State = model._presenter.stateElement;
 			item.InvoiceId = model._presenter.invoiceElement;
 		});
@@ -1198,7 +1339,7 @@ JSShop.Presenters.OrderList = function()
 	{
 		var execute = function()
 		{
-			var data = [ "Id", "Time", "ClientIp", "Company", "FirstName", "LastName", "Address", "ZipCode", "City", "Email", "Phone", "Message", "AltCompany", "AltFirstName", "AltLastName", "AltAddress", "AltZipCode", "AltCity", "Price", "Vat", "Currency", "Weight", "WeightUnit", "CostCorrection1", "CostCorrectionVat1", "CostCorrectionMessage1", "CostCorrection2", "CostCorrectionVat2", "CostCorrectionMessage2", "CostCorrection3", "CostCorrectionVat3", "CostCorrectionMessage3", "PaymentMethod", "TransactionId", "State", "TagIds", "PromoCode", "CustData1", "CustData2", "CustData3" ];
+			var data = [ "Id", "InvoiceId", "Time", "ClientIp", "Company", "FirstName", "LastName", "Address", "ZipCode", "City", "Email", "Phone", "Message", "AltCompany", "AltFirstName", "AltLastName", "AltAddress", "AltZipCode", "AltCity", "Price", "Vat", "Currency", "Weight", "WeightUnit", "CostCorrection1", "CostCorrectionVat1", "CostCorrectionMessage1", "CostCorrection2", "CostCorrectionVat2", "CostCorrectionMessage2", "CostCorrection3", "CostCorrectionVat3", "CostCorrectionMessage3", "PaymentMethod", "CardType", "CardId", "CardExpiry", "TransactionId", "State", "TagIds", "PromoCode", "CustData1", "CustData2", "CustData3" ];
 			var renames = { "TagIds": "Tags" };
 			var items = [];
 
@@ -1519,111 +1660,135 @@ JSShop.Presenters.OrderList = function()
 	function sendInvoices()
 	{
 		var processing = [];
-		var failed = [];
-		var scheduled = 0;
-		var processed = 0;
+
+		var proceed = function()
+		{
+			var failed = [];
+			var scheduled = 0;
+			var processed = 0;
+
+			if (processing.length === 0)
+				return;
+
+			var scheduled = processing.length;
+
+			var statusDialog = new JSShop.Presenters.StatusDialog();
+			statusDialog.Text(lang.OrderList.Processing);
+			statusDialog.Modal(true);
+			statusDialog.WarnOnExit(true, lang.OrderList.NavigateAway);
+			statusDialog.Open();
+
+			var execute = null;
+			execute = function(model)
+			{
+				Fit.Validation.ExpectInstance(model, JSShop.Models.Order);
+
+				model.SendInvoice(function(req, m) // Success handler
+				{
+					processed++;
+					statusDialog.Progress(Fit.Math.Round((processed/scheduled) * 100));
+
+					if (processing.length === 0) // No more requests to be made
+					{
+						if (processed === scheduled) // All responses have been received
+						{
+							statusDialog.Dispose();
+
+							if (failed.length === 0)
+								Fit.Controls.Dialog.Alert(lang.OrderList.DoneSuccess);
+							else
+								Fit.Controls.Dialog.Alert(lang.OrderList.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
+						}
+					}
+					else // More requests to be made
+					{
+						var nextModel = processing[0];
+						Fit.Array.Remove(processing, nextModel);
+						execute(nextModel);
+					}
+
+					// SendInvoice(..), CapturePayment(..), and CancelPayment(..)
+					// functions on Model does not update data. Calling Retrieve(..)
+					// to fetch newly assigned Invoice ID.
+
+					model.Retrieve(function(req, m)
+					{
+						model._presenter.invoiceElement.innerHTML = model.InvoiceId();
+					});
+				},
+				function(req, m) // Error handler
+				{
+					Fit.Array.Add(failed, model.Id());
+
+					processed++;
+					statusDialog.Progress(Fit.Math.Round((processed/scheduled) * 100));
+
+					if (processing.length === 0) // No more requests to be made
+					{
+						if (processed === scheduled) // All responses have been received
+						{
+							statusDialog.Dispose();
+							Fit.Controls.Dialog.Alert(lang.OrderList.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
+						}
+					}
+					else // More requests to be made
+					{
+						var nextModel = processing[0];
+						Fit.Array.Remove(processing, nextModel);
+						execute(nextModel);
+					}
+				});
+			}
+
+			var maxConcurrentRequests = 3;
+			var startProcessing = [];
+
+			// Get up to a maximum of X number of models (specified in maxConcurrentRequests)
+			for (var i = 0 ; i < maxConcurrentRequests ; i++)
+			{
+				if (i <= processing.length - 1)
+				{
+					Fit.Array.Add(startProcessing, processing[i]);
+				}
+			}
+
+			// Remove models from processing array
+			Fit.Array.ForEach(startProcessing, function(model)
+			{
+				Fit.Array.Remove(processing, model);
+			});
+
+			// Invoke requests
+			Fit.Array.ForEach(startProcessing, function(model)
+			{
+				execute(model);
+			});
+		};
+
+		var notCaptured = [];
 
 		Fit.Array.ForEach(process, function(model)
 		{
+			if (JSShop.Settings.CaptureBeforeInvoice === true && model.State() !== "Captured")
+			{
+				Fit.Array.Add(notCaptured, model.Id());
+				return; // Skip model
+			}
+
 			Fit.Array.Add(processing, model);
 		});
 
-		if (processing.length === 0)
-			return;
-
-		var scheduled = processing.length;
-
-		var statusDialog = new JSShop.Presenters.StatusDialog();
-		statusDialog.Text(lang.OrderList.Processing);
-		statusDialog.Modal(true);
-		statusDialog.WarnOnExit(true, lang.OrderList.NavigateAway);
-		statusDialog.Open();
-
-		var execute = null;
-		execute = function(model)
+		if (notCaptured.length > 0)
 		{
-			Fit.Validation.ExpectInstance(model, JSShop.Models.Order);
-
-			model.SendInvoice(function(req, m) // Success handler
+			Fit.Controls.Dialog.Alert(lang.OrderList.IgnoresUncaptured + ":<br><br>" + notCaptured.join(((notCaptured.length <= 10) ? "<br>" : ", ")), function()
 			{
-				processed++;
-				statusDialog.Progress(Fit.Math.Round((processed/scheduled) * 100));
-
-				if (processing.length === 0) // No more requests to be made
-				{
-					if (processed === scheduled) // All responses have been received
-					{
-						statusDialog.Dispose();
-
-						if (failed.length === 0)
-							Fit.Controls.Dialog.Alert(lang.OrderList.DoneSuccess);
-						else
-							Fit.Controls.Dialog.Alert(lang.OrderList.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
-					}
-				}
-				else // More requests to be made
-				{
-					var nextModel = processing[0];
-					Fit.Array.Remove(processing, nextModel);
-					execute(nextModel);
-				}
-
-				// SendInvoice(..), CapturePayment(..), and CancelPayment(..)
-				// functions on Model does not update data. Calling Retrieve(..)
-				// to fetch newly assigned Invoice ID.
-
-				model.Retrieve(function(req, m)
-				{
-					model._presenter.invoiceElement.innerHTML = model.InvoiceId();
-				});
-			},
-			function(req, m) // Error handler
-			{
-				Fit.Array.Add(failed, model.Id());
-
-				processed++;
-				statusDialog.Progress(Fit.Math.Round((processed/scheduled) * 100));
-
-				if (processing.length === 0) // No more requests to be made
-				{
-					if (processed === scheduled) // All responses have been received
-					{
-						statusDialog.Dispose();
-						Fit.Controls.Dialog.Alert(lang.OrderList.DoneFailure + ":<br><br>" + failed.join(((failed.length <= 10) ? "<br>" : ", ")));
-					}
-				}
-				else // More requests to be made
-				{
-					var nextModel = processing[0];
-					Fit.Array.Remove(processing, nextModel);
-					execute(nextModel);
-				}
+				proceed();
 			});
 		}
-
-		var maxConcurrentRequests = 3;
-		var startProcessing = [];
-
-		// Get up to a maximum of X number of models (specified in maxConcurrentRequests)
-		for (var i = 0 ; i < maxConcurrentRequests ; i++)
+		else
 		{
-			if (i <= processing.length - 1)
-			{
-				Fit.Array.Add(startProcessing, processing[i]);
-			}
+			proceed();
 		}
-
-		// Remove models from processing array
-		Fit.Array.ForEach(startProcessing, function(model)
-		{
-			Fit.Array.Remove(processing, model);
-		});
-
-		// Invoke requests
-		Fit.Array.ForEach(startProcessing, function(model)
-		{
-			execute(model);
-		});
 	}
 
 	init();

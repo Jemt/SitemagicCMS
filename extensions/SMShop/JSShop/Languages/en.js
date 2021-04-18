@@ -7,7 +7,8 @@
 			DecimalSeparator:	".",
 			Currency:			"USD",
 			WeightUnit:			"Lbs",
-			DateFormat:			"DD-MM-YYYY",
+			ShortDateFormat:	"MM-DD",
+			DateFormat:			"YYYY-MM-DD",
 			TimeFormat:			"hh:mm"
 		},
 

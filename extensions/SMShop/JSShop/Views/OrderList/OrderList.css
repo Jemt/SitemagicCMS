@@ -24,14 +24,37 @@ div.JSShopOrderListButtons div.FitUiControlDropDown div.FitUiControlDropDownItem
 table.JSShopOrderList
 {
     width: 100%;
+	border-spacing: 0px;
 }
 table.JSShopOrderList td
 {
-    padding: 0.25em;
+    padding: 0.75em 0.2em;
 	padding-right: 2em;
+	border-bottom: 1px solid silver;
+	vertical-align: top;
 }
 
 tr.JSShopOrderListHeader td
 {
     font-weight: bold;
+}
+tr.JSShopOrderListHeader a i
+{
+	position: absolute;
+	margin-left: 0.25em;
+}
+tr.JSShopOrderListHeader a[data-sort="ASC"] i:before
+{
+    content: "\f160";
+}
+tr.JSShopOrderListHeader a[data-sort="DESC"] i:before
+{
+    content: "\f161";
+}
+
+table.JSShopOrderList div.FitUiControlCheckBox /* Improve checkbox alignment with text cells */
+{
+	display: block;
+	width: 1.25em; /* Make outline on focus fit checkbox width */
+	font-size: 0.9em;
 }
