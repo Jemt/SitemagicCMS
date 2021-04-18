@@ -71,6 +71,10 @@ JSShop.Models.Config = function(id)
 
 			NextOrderId:	{ Value: 1, Dirty: false },
 			NextInvoiceId:	{ Value: 1, Dirty: false }
+		},
+		Behaviour: // Required object, including all contained objects and properties
+		{
+			CaptureBeforeInvoice: false
 		}
 	};
 
@@ -96,6 +100,7 @@ JSShop.Models.Config = function(id)
 				Fit.Validation.ExpectArray(props.CostCorrections);
 				Fit.Validation.ExpectString(props.AdditionalData);
 				Fit.Validation.ExpectObject(props.Identifiers);
+				Fit.Validation.ExpectObject(props.Behaviour);
 
 				// Validate inner properties
 				Fit.Validation.ExpectString(props.Basic.TermsPage);
@@ -110,6 +115,7 @@ JSShop.Models.Config = function(id)
 				Fit.Validation.ExpectObject(props.Identifiers.NextInvoiceId);
 				Fit.Validation.ExpectInteger(props.Identifiers.NextInvoiceId.Value);
 				Fit.Validation.ExpectBoolean(props.Identifiers.NextInvoiceId.Dirty);
+				Fit.Validation.ExpectBoolean(props.Behaviour.CaptureBeforeInvoice);
 
 				// Validate arrays and contained objects
 

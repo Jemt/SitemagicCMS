@@ -126,6 +126,7 @@
 			Order:				"Order",
 			SearchErrorField:	"Search expression refer to an unknown field",
 			SearchErrorOperator:"Search expression uses an invalid operator",
+			IgnoresUncaptured:	"The following orders are ignored as they have not been withdrawn first",
 
 			// Dialog: Customer details
 			CustomerDetails:	"Customer details",
@@ -178,7 +179,9 @@
 			NextOrderId:		"Next order number",
 			NextInvoiceId:		"Next invoice number",
 			InvalidJson:		"Invalid JSON object",
-			InvalidExpression:	"Invalid expression"
+			InvalidExpression:	"Invalid expression",
+			Behaviour:			"Behaviour",
+			CaptureFirst:		"An order must be captured before sending an invoice"
 		},
 
 		Common:

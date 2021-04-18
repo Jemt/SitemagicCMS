@@ -210,12 +210,14 @@ else if ($operation === "Invoice") // Called from JSShop
 	$orderId = SMEnvironment::GetPostValue("OrderId", SMValueRestriction::$Numeric);
 	$order = getOrder($orderId);
 
-	/*if ($order["State"] !== "Captured")
+	$config = new SMConfiguration(SMEnvironment::GetDataDirectory() . "/SMShop/Config.xml.php");
+
+	if ($config->GetEntry("CaptureBeforeInvoice") === "true" && $order["State"] !== "Captured")
 	{
 		header("HTTP/1.1 500 Internal Server Error");
 		echo "Order with ID '" . $orderId . "' is not in state 'Captured'";
 		exit;
-	}*/
+	}
 
 	SMShopSendMail($order, true);
 }

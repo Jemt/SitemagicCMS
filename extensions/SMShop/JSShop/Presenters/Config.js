@@ -322,6 +322,8 @@ JSShop.Presenters.Config = function()
 
 		Fit.Array.Add(options, lang.Config.Identifiers);
 
+		Fit.Array.Add(options, lang.Config.Behaviour);
+
 		showOptions(btn, options, function(selectedValue)
 		{
 			loadAdvanced(btn, selectedValue);
@@ -399,6 +401,13 @@ JSShop.Presenters.Config = function()
 			itm.PropertyName = lang.Config.NextInvoiceId;
 			itm.PropertyValue = createInput(orgNextInvoiceId, function(sender, val) { if (parseInt(val).toString() === val && parseInt(val) > 0 && orgNextInvoiceId !== val) { config.Identifiers.NextInvoiceId.Value = parseInt(val); config.Identifiers.NextInvoiceId.Dirty = true; } else { config.Identifiers.NextInvoiceId.Value = parseInt(orgNextInvoiceId); config.Identifiers.NextInvoiceId.Dirty = false; } });
 		}
+		else if (section === lang.Config.Behaviour)
+		{
+			var captureBeforeInvoice = config.Behaviour.CaptureBeforeInvoice;
+			itm = tpl.Content.Properties.AddItem();
+			itm.PropertyName = lang.Config.CaptureFirst;
+			itm.PropertyValue = createCheckbox(captureBeforeInvoice, function(sender, checked) { config.Behaviour.CaptureBeforeInvoice = checked; });
+		}
 
 		tpl.Update();
 	}
@@ -450,6 +459,21 @@ JSShop.Presenters.Config = function()
 		ctl.Value(value);
 		ctl.OnChange(function(sender) { onChange(sender, ctl.Value()); });
 		ctl.Width(95, "%");
+
+		ctl.GetDomElement().FitControl = ctl;
+
+		return ctl.GetDomElement();
+	}
+
+	function createCheckbox(checked, onChange)
+	{
+		Fit.Validation.ExpectBoolean(checked);
+		Fit.Validation.ExpectFunction(onChange);
+
+		var ctl = new Fit.Controls.CheckBox(Fit.Data.CreateGuid());
+		ctl.Checked(checked);
+		ctl.Label(lang.Config.Enabled);
+		ctl.OnChange(function(sender) { onChange(sender, ctl.Checked()); });
 
 		ctl.GetDomElement().FitControl = ctl;
 

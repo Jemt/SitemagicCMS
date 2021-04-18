@@ -126,6 +126,7 @@
 			Order:				"Bestilling",
 			SearchErrorField:	"Søgeudtrykket refererer et ukendt felt",
 			SearchErrorOperator:"Søgeudtrykket benytter en ugyldig operator",
+			IgnoresUncaptured:	"Følgende ordre ignoreres da de ikke er blevet hævet først",
 
 			// Dialog: Customer details
 			CustomerDetails:	"Kundedetaljer",
@@ -178,7 +179,9 @@
 			NextOrderId:		"Næste ordrenummer",
 			NextInvoiceId:		"Næste fakturanummer",
 			InvalidJson:		"Ugyldigt JSON objekt",
-			InvalidExpression:	"Ugyldigt udtryk"
+			InvalidExpression:	"Ugyldigt udtryk",
+			Behaviour:			"Adfærd",
+			CaptureFirst:		"En ordre skal hæves før udsendelse af en faktura"
 		},
 
 		Common:

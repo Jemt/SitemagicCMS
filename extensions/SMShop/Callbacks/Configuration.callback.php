@@ -139,7 +139,8 @@ function SMShopGetConfiguration($pspmHardcodedSettings)
 	"PaymentMethods": [' . $paymentModulesStr . '],
 	"CostCorrections": [ ' . $costCorrections . ' ],
 	"AdditionalData": "' . SMStringUtilities::JsonEncode($configuration->GetEntryOrEmpty("AdditionalData")) . '",
-	"Identifiers": { "NextOrderId": { "Value": ' . $nextOrderId . ', "Dirty": false }, "NextInvoiceId": { "Value": ' . $nextInvoiceId . ', "Dirty": false } }';
+	"Identifiers": { "NextOrderId": { "Value": ' . $nextOrderId . ', "Dirty": false }, "NextInvoiceId": { "Value": ' . $nextInvoiceId . ', "Dirty": false } },
+	"Behaviour": { "CaptureBeforeInvoice": ' . ($configuration->GetEntry("CaptureBeforeInvoice") === "true" ? "true" : "false") . ' }';
 
 	return "{" . $json . "\n}";
 }
@@ -190,6 +191,9 @@ function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 				"Value"				=> array("DataType" => "number"),
 				"Dirty"				=> array("DataType" => "boolean")
 			))
+		)),
+		"Behaviour"				=> array("DataType" => "object", "Schema" => array(
+			"CaptureBeforeInvoice"	=> array("DataType" => "boolean")
 		))
 	);
 
@@ -319,6 +323,12 @@ function SMShopSetConfiguration($data, $pspmHardcodedSettings)
 	// Additional data
 
 	$configuration->SetEntry("AdditionalData", $data["AdditionalData"]);
+
+	// Behaviour
+
+	$configuration->SetEntry("CaptureBeforeInvoice", $data["Behaviour"]["CaptureBeforeInvoice"] === true ? "true" : "false");
+
+	// Commit
 
 	$configuration->Commit();
 }
