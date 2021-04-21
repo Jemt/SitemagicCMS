@@ -8,7 +8,7 @@
 			Currency:			"DKK",
 			WeightUnit:			"Kg",
 			ShortDateFormat:	"DD/MM",
-			DateFormat:			"DD/MM-YYYY",
+			DateFormat:			"DD-MM-YYYY",
 			TimeFormat:			"hh:mm"
 		},
 
