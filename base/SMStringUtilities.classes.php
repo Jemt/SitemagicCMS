@@ -454,7 +454,7 @@ class SMStringUtilities
 		// Encode characters extending ASCII.
 		// Behaviour must be identical to SMStringUtilities.UnicodeEncode(..) client side!
 		// Also passing data through utf8_decode(..) since remaining ISO-8859-1 characters are still encoded as UTF-8.
-		return utf8_decode(preg_replace_callback("/[^\x{00}-\x{7F}]/u", "smStringUtilitiesUnicodeEncodeReplaceCallback", $unicodeStr));
+		return SMStringUtilities::Utf8Decode(preg_replace_callback("/[^\x{00}-\x{7F}]/u", "smStringUtilitiesUnicodeEncodeReplaceCallback", $unicodeStr));
 	}
 
 	/// <function container="base/SMStringUtilities" name="UnicodeDecode" access="public" static="true" returns="string">
@@ -467,8 +467,26 @@ class SMStringUtilities
 		SMTypeCheck::CheckObject(__METHOD__, "str", $str, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "isUnicode", $isUnicode, SMTypeCheckType::$Boolean);
 
-		$str = ($isUnicode === false ? utf8_encode($str) : $str); // Make sure an ISO-8859-1 string is transformed into UTF-8 - however, calling utf8_encode(..) on a string already unicode encoded will cause characters such as "זרו" to be corrupted
+		$str = ($isUnicode === false ? SMStringUtilities::Utf8Encode($str) : $str); // Make sure an ISO-8859-1 string is transformed into UTF-8 - however, calling utf8_encode(..) on a string already unicode encoded will cause characters such as "זרו" to be corrupted
 		return preg_replace_callback("/&#\d+;/", "smStringUtilitiesUnicodeDecodeReplaceCallback", $str);
+	}
+
+	/// <function container="base/SMStringUtilities" name="Utf8Decode" access="public" static="true" returns="string">
+	/// 	<description> Returns UTF-8 encoded string as ISO-8859-1 - replacement for utf8_decode(..) in PHP </description>
+	/// 	<param name="str" type="string"> Value to decode </param>
+	/// </function>
+	public static function Utf8Decode($utf8String)
+	{
+		return mb_convert_encoding($utf8String, "ISO-8859-1", "UTF-8"); // Replaces utf8_decode(..) in PHP 8.2.0+
+	}
+
+	/// <function container="base/SMStringUtilities" name="Utf8Encode" access="public" static="true" returns="string">
+	/// 	<description> Returns ISO-8859-1 encoded string as UTF-8 - replacement for utf8_encode(..) in PHP </description>
+	/// 	<param name="str" type="string"> Value to encode </param>
+	/// </function>
+	public static function Utf8Encode($iso88591String)
+	{
+		return mb_convert_encoding($iso88591String, "UTF-8", "ISO-8859-1"); // Replaces utf8_encode(..) in PHP 8.2.0+
 	}
 
 	/// <function container="base/SMStringUtilities" name="EscapeJson" access="public" static="true" returns="string">

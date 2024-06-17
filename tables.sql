@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS SMComments
 
 CREATE TABLE IF NOT EXISTS SMContact
 (
-	`id`					varchar(32)						DEFAULT NULL,
+	`id`					varchar(39)						DEFAULT NULL, /* e.g. CONF10_GUID = 39 chars */
 	`title`					varchar(255)					DEFAULT NULL,
 	`type`					varchar(10)						DEFAULT NULL,
 	`position`				integer							DEFAULT NULL

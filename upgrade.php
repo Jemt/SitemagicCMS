@@ -214,11 +214,16 @@ function getExtrationDirectory()
 	return null;
 }
 
+function utf8Decode($utf8String)
+{
+	return mb_convert_encoding($utf8String, "ISO-8859-1", "UTF-8"); // Replaces utf8_decode(..) in PHP 8.2.0+
+}
+
 function errorHandler($errNo, $errMsg, $errFile, $errLine)
 {
 	// Data is passed to error handler by PHP in UTF-8 encoding!
-	$errMsg = utf8_decode($errMsg);
-	$errFile = utf8_decode($errFile);
+	$errMsg = utf8Decode($errMsg);
+	$errFile = utf8Decode($errFile);
 
 	fail("Error occurred on line " . $errLine . ".<br>Error message: " . $errMsg);
 }

@@ -112,14 +112,14 @@ class SMConfiguration
 		if ($this->xml !== null)
 		{
 			foreach ($this->xml->entry as $entry)
-				$keys[] = utf8_decode((string)$entry["key"]);
+				$keys[] = SMStringUtilities::Utf8Decode((string)$entry["key"]);
 		}
 		else
 		{
 			$entries = $this->dom->getElementsByTagName("entry"); // DOMNodeList
 
 			foreach ($entries as $entryItem)
-				$keys[] = utf8_decode($entryItem->getAttribute("key"));
+				$keys[] = SMStringUtilities::Utf8Decode($entryItem->getAttribute("key"));
 		}
 
 		return $keys;
@@ -153,9 +153,9 @@ class SMConfiguration
 
 		foreach ($entries as $entryItem)
 		{
-			if (utf8_decode($entryItem->getAttribute("key")) === $entry)
+			if (SMStringUtilities::Utf8Decode($entryItem->getAttribute("key")) === $entry)
 			{
-				$entryItem->setAttribute("value", utf8_encode($value));
+				$entryItem->setAttribute("value", SMStringUtilities::Utf8Encode($value));
 				$found = true;
 
 				break;
@@ -165,8 +165,8 @@ class SMConfiguration
 		if ($found === false)
 		{
 			$node = $this->dom->createElement("entry");
-			$node->setAttribute("key", utf8_encode($entry));
-			$node->setAttribute("value", utf8_encode($value));
+			$node->setAttribute("key", SMStringUtilities::Utf8Encode($entry));
+			$node->setAttribute("value", SMStringUtilities::Utf8Encode($value));
 
 			$this->dom->firstChild->appendChild($node);
 		}
@@ -189,7 +189,7 @@ class SMConfiguration
 
 		foreach ($entries as $entryItem)
 		{
-			if (utf8_decode($entryItem->getAttribute("key")) === $entry)
+			if (SMStringUtilities::Utf8Decode($entryItem->getAttribute("key")) === $entry)
 			{
 				$this->dom->firstChild->removeChild($entryItem);
 				$this->dirty = true;
@@ -250,8 +250,8 @@ class SMConfiguration
 		if ($this->xml !== null)
 		{
 			foreach ($this->xml->entry as $current)
-				if (utf8_decode((string)$current["key"]) === $entry)
-					return utf8_decode((string)$current["value"]);
+				if (SMStringUtilities::Utf8Decode((string)$current["key"]) === $entry)
+					return SMStringUtilities::Utf8Decode((string)$current["value"]);
 		}
 		else
 		{
@@ -259,8 +259,8 @@ class SMConfiguration
 
 			foreach ($entries as $entryItem)
 			{
-				if (utf8_decode($entryItem->getAttribute("key")) === $entry)
-					return utf8_decode($entryItem->getAttribute("value"));
+				if (SMStringUtilities::Utf8Decode($entryItem->getAttribute("key")) === $entry)
+					return SMStringUtilities::Utf8Decode($entryItem->getAttribute("value"));
 			}
 		}
 

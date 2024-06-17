@@ -57,7 +57,7 @@ class SMTextFileWriter
 		else
 			$fOpenAccessMode = "a";
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		$this->fileHandler = fopen($pathUtf8, $fOpenAccessMode);
 
 		if ($this->fileHandler === false)
@@ -113,7 +113,7 @@ class SMTextFileReader
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "path", $path, SMTypeCheckType::$String);
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 
 		if (is_file($pathUtf8) === false)
 			throw new Exception("File '" . $path . "' does not exist");
@@ -129,7 +129,7 @@ class SMTextFileReader
 	/// </function>
 	public function ReadAll()
 	{
-		$pathUtf8 = utf8_encode($this->path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($this->path);
 		$content = file_get_contents($pathUtf8);
 
 		if ($content === false)
