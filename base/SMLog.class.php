@@ -8,8 +8,8 @@ function SMErrorHandler($errNo, $errMsg, $errFile, $errLine)
 	SMTypeCheck::CheckObject(__METHOD__, "errLine", $errLine, SMTypeCheckType::$Integer);
 
 	// Data is passed to error handler by PHP in UTF-8 encoding!
-	$errMsg = utf8_decode($errMsg);
-	$errFile = utf8_decode($errFile);
+	$errMsg = SMStringUtilities::Utf8Decode($errMsg);
+	$errFile = SMStringUtilities::Utf8Decode($errFile);
 
 	SMLog::Log($errFile, $errLine, "Error " . $errNo . ": " . $errMsg);
 	return true; // Tell PHP that the error has been handled - execution will proceed

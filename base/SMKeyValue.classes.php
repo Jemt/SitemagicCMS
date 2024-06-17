@@ -168,6 +168,7 @@ class SMKeyValueCollection implements ArrayAccess, Iterator, Countable
 
 	// Used to assign value to eksisting KeyValue.
 	// Automatically creates KeyValue if not found.
+	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value)
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "offset", $offset, SMTypeCheckType::$String);
@@ -192,6 +193,7 @@ class SMKeyValueCollection implements ArrayAccess, Iterator, Countable
 	}
 
 	// Used by isset()
+	#[\ReturnTypeWillChange]
 	public function offsetExists($offset)
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "offset", $offset, SMTypeCheckType::$String);
@@ -199,6 +201,7 @@ class SMKeyValueCollection implements ArrayAccess, Iterator, Countable
 	}
 
 	// Used to delete a KeyValue using unset()
+	#[\ReturnTypeWillChange]
 	public function offsetUnset($offset)
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "offset", $offset, SMTypeCheckType::$String);
@@ -226,6 +229,7 @@ class SMKeyValueCollection implements ArrayAccess, Iterator, Countable
 	}
 
 	// Used to get value
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "offset", $offset, SMTypeCheckType::$String);
@@ -236,26 +240,31 @@ class SMKeyValueCollection implements ArrayAccess, Iterator, Countable
 
 	// Interface Iterator
 
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return $this->collNumIndexed[$this->idx]->GetValue();
 	}
 
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return $this->collNumIndexed[$this->idx]->GetKey();
 	}
 
+	#[\ReturnTypeWillChange]
 	public function next()
 	{
 		$this->idx = $this->idx + 1;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function rewind()
 	{
 		$this->idx = 0;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function valid()
 	{
 		return ($this->idx < count($this->collNumIndexed));
@@ -263,6 +272,7 @@ class SMKeyValueCollection implements ArrayAccess, Iterator, Countable
 
 	// Interface Countable
 
+	#[\ReturnTypeWillChange]
 	public function count()
 	{
 		return count($this->collNumIndexed);

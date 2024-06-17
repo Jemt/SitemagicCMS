@@ -41,7 +41,7 @@ class SMFileSystem
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "path", $path, SMTypeCheckType::$String);
 
-		$path = utf8_encode($path);
+		$path = SMStringUtilities::Utf8Encode($path);
 		return @mkdir($path, 0777, true); // Created with highest possible permissions allowed by parent folder
 	}
 
@@ -74,8 +74,8 @@ class SMFileSystem
 
 		// Copy
 
-		$sourceUtf8 = utf8_encode($source);
-		$destinationUtf8 = utf8_encode($destination);
+		$sourceUtf8 = SMStringUtilities::Utf8Encode($source);
+		$destinationUtf8 = SMStringUtilities::Utf8Encode($destination);
 
 		if ($overwriteExisting === false && is_file($destinationUtf8) === true)
 			return false;
@@ -85,7 +85,7 @@ class SMFileSystem
 			// Make sure destination directory exists
 
 			$folderPath = ((strpos($destination, "/") !== false) ? substr($destination, 0, strrpos($destination, "/")) : ""); // Get target folder (remove filename). No slash(es) in destination, then copy file to script root.
-			$folderPathUtf8 = utf8_encode($folderPath);
+			$folderPathUtf8 = SMStringUtilities::Utf8Encode($folderPath);
 
 			if ($folderPath !== "" && is_dir($folderPathUtf8) === false) // $folderPath === "" means script root (which already exists)
 			{
@@ -115,8 +115,8 @@ class SMFileSystem
 
 		$result = false;
 
-		$sourceFolderUtf8 = utf8_encode($sourceFolder);
-		$destinationFolderUtf8 = utf8_encode($destinationFolder);
+		$sourceFolderUtf8 = SMStringUtilities::Utf8Encode($sourceFolder);
+		$destinationFolderUtf8 = SMStringUtilities::Utf8Encode($destinationFolder);
 
 		// Make sure destination folder exists
 
@@ -135,7 +135,7 @@ class SMFileSystem
 
 		foreach ($files as $file)
 		{
-			$fileUtf8 = utf8_encode($file);
+			$fileUtf8 = SMStringUtilities::Utf8Encode($file);
 
 			if ($overwriteExisting === true || is_file($destinationFolderUtf8 . "/" . $fileUtf8) === false)
 			{
@@ -153,7 +153,7 @@ class SMFileSystem
 
 		foreach ($folders as $folder)
 		{
-			$folderUtf8 = utf8_encode($folder);
+			$folderUtf8 = SMStringUtilities::Utf8Encode($folder);
 
 			// Avoid infinite recursive loop if user copies e.g. files/images to files/images/backup.
 			// PHP function realpath(..) is used to make sure the two paths are comparable if /../ is used in $sourceFolder:
@@ -182,8 +182,8 @@ class SMFileSystem
 		SMTypeCheck::CheckObject(__METHOD__, "path", $path, SMTypeCheckType::$String);
 		SMTypeCheck::CheckObject(__METHOD__, "newPath", $newPath, SMTypeCheckType::$String);
 
-		$pathUtf8 = utf8_encode($path);
-		$newPathUtf8 = utf8_encode($newPath);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
+		$newPathUtf8 = SMStringUtilities::Utf8Encode($newPath);
 
 		return rename($pathUtf8, $newPathUtf8);
 	}
@@ -206,7 +206,7 @@ class SMFileSystem
 		if ($path === "") // Empty means script root
 			$path = ".";
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 
 		if (is_file($pathUtf8) === true)
 		{
@@ -247,7 +247,7 @@ class SMFileSystem
 				continue;
 
 			$item = $folderPath . "/" . $item;
-			$itemUtf8 = utf8_encode($item);
+			$itemUtf8 = SMStringUtilities::Utf8Encode($item);
 
 			if (is_dir($itemUtf8) === true)
 				$result = self::deleteFolderRecursively($item);
@@ -258,7 +258,7 @@ class SMFileSystem
 				return false;
 		}
 
-		$folderPathUtf8 = utf8_encode($folderPath);
+		$folderPathUtf8 = SMStringUtilities::Utf8Encode($folderPath);
 		return rmdir($folderPathUtf8);
 	}
 
@@ -270,7 +270,7 @@ class SMFileSystem
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "path", $path, SMTypeCheckType::$String);
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		$bytes = filesize($pathUtf8);
 
 		if ($bytes === false)
@@ -287,7 +287,7 @@ class SMFileSystem
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "path", $path, SMTypeCheckType::$String);
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		$timestamp = filemtime($pathUtf8);
 
 		if ($timestamp === false)
@@ -307,7 +307,7 @@ class SMFileSystem
 		if ($path === "") // Empty means script root
 			$path = ".";
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		$fsItems = scandir($pathUtf8);
 
 		if ($fsItems === false)
@@ -317,7 +317,7 @@ class SMFileSystem
 
 		foreach ($fsItems as $fsItem)
 			if (is_file($pathUtf8 . "/" . $fsItem) === true)
-				$files[] = utf8_decode($fsItem);
+				$files[] = SMStringUtilities::Utf8Decode($fsItem);
 
 		return $files;
 	}
@@ -333,7 +333,7 @@ class SMFileSystem
 		if ($path === "") // Empty means script root
 			$path = ".";
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		$fsItems = scandir($pathUtf8);
 
 		if ($fsItems === false)
@@ -343,7 +343,7 @@ class SMFileSystem
 
 		foreach ($fsItems as $fsItem)
 			if ($fsItem !== "." && $fsItem !== ".." && is_dir($pathUtf8 . "/" . $fsItem) === true)
-				$directories[] = utf8_decode($fsItem);
+				$directories[] = SMStringUtilities::Utf8Decode($fsItem);
 
 		return $directories;
 	}
@@ -359,7 +359,7 @@ class SMFileSystem
 		if ($path === "") // Empty means script root
 			$path = ".";
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		$fsItems = scandir($pathUtf8);
 
 		if ($fsItems === false)
@@ -369,7 +369,7 @@ class SMFileSystem
 
 		foreach ($fsItems as $fsItem)
 			if ($fsItem !== "." && $fsItem !== "..")
-				$items[] = utf8_decode($fsItem);
+				$items[] = SMStringUtilities::Utf8Decode($fsItem);
 
 		return $items;
 	}
@@ -446,8 +446,8 @@ class SMFileSystem
 
 		// Create unique filename if file already exists
 
-		$moveToFolderUtf8 = utf8_encode($moveToFolder);
-		$newFilenameUtf8 = utf8_encode($newFilename);
+		$moveToFolderUtf8 = SMStringUtilities::Utf8Encode($moveToFolder);
+		$newFilenameUtf8 = SMStringUtilities::Utf8Encode($newFilename);
 
 		if (file_exists($moveToFolderUtf8 . "/" . $newFilenameUtf8) === true)
 		{
@@ -466,7 +466,7 @@ class SMFileSystem
 				$newFilename .= "_" . time();
 			}
 
-			$newFilenameUtf8 = utf8_encode($newFilename);
+			$newFilenameUtf8 = SMStringUtilities::Utf8Encode($newFilename);
 		}
 
 		// Move file from temp directory to target directory
@@ -516,7 +516,7 @@ class SMFileSystem
 		header("Content-Type: application/unknown");
 		header("Content-Transfer-Encoding: binary");
 
-		$filePathUtf8 = utf8_encode($filePath);
+		$filePathUtf8 = SMStringUtilities::Utf8Encode($filePath);
 		$res = readfile($filePathUtf8); // Write to output buffer - $res contains number of bytes written
 
 		if ($res === false)
@@ -537,7 +537,7 @@ class SMFileSystem
 		if ($path === "") // Empty means script root
 			$path = ".";
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		return is_dir($pathUtf8);
 	}
 
@@ -549,7 +549,7 @@ class SMFileSystem
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "path", $path, SMTypeCheckType::$String);
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		return is_file($pathUtf8);
 	}
 
@@ -561,7 +561,7 @@ class SMFileSystem
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "path", $path, SMTypeCheckType::$String);
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		return (is_file($pathUtf8) === true && is_writable($pathUtf8) === true);
 	}
 
@@ -576,7 +576,7 @@ class SMFileSystem
 		if ($path === "") // Empty means script root
 			$path = ".";
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		return (is_dir($pathUtf8) === true && is_writable($pathUtf8) === true);
 	}
 
@@ -588,7 +588,7 @@ class SMFileSystem
 	{
 		SMTypeCheck::CheckObject(__METHOD__, "path", $path, SMTypeCheckType::$String);
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		return (is_file($pathUtf8) === true && is_readable($pathUtf8) === true);
 	}
 
@@ -603,7 +603,7 @@ class SMFileSystem
 		if ($path === "") // Empty means script root
 			$path = ".";
 
-		$pathUtf8 = utf8_encode($path);
+		$pathUtf8 = SMStringUtilities::Utf8Encode($path);
 		return (is_dir($pathUtf8) === true && is_readable($pathUtf8) === true);
 	}
 }

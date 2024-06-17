@@ -40,7 +40,7 @@ function smImageMontageGetExifData($file)
 		$fnumb = "";
 		$speed = "";
 
-		$exif = exif_read_data(utf8_encode($file), "IFD0", 0);
+		$exif = exif_read_data(SMStringUtilities::Utf8Encode($file), "IFD0", 0);
 
 		if (isset($exif["DateTime"]) === true)
 		{
@@ -58,7 +58,7 @@ function smImageMontageGetExifData($file)
 			$focal = round((int)$tmp[0]/(int)$tmp[1], 0) . "mm";
 		}
 
-		$exif = exif_read_data(utf8_encode($file), "EXIF", 0);
+		$exif = exif_read_data(SMStringUtilities::Utf8Encode($file), "EXIF", 0);
 
 		if (isset($exif["ExposureTime"]) === true)
 			$expos = $exif["ExposureTime"] . "s";
