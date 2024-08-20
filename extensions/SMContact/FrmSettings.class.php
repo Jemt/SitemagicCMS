@@ -10,6 +10,8 @@ class SMContactFrmSettings implements SMIExtensionForm
 	private $messageFieldForm;
 	private $messageFieldList;
 
+	private $lstConfigs;
+
 	private $txtRecipients;
 	private $txtSubject;
 	private $txtSuccessMessage;

@@ -39,6 +39,8 @@
 class SMTemplate
 {
 	private $content;
+	private $isHtml5;
+	private $resources;
 	private $closed;
 
 	/// <function container="base/SMTemplate" name="__construct" access="public">
@@ -51,6 +53,7 @@ class SMTemplate
 
 		$this->content = "";
 		$this->isHtml5 = false;
+		$this->resources = array();
 		$this->closed = false;
 
 		if ($templateFile !== null)
