@@ -39,6 +39,7 @@
 class SMTemplate
 {
 	private $content;
+	private $resources;
 	private $closed;
 
 	/// <function container="base/SMTemplate" name="__construct" access="public">
@@ -50,6 +51,7 @@ class SMTemplate
 		SMTypeCheck::CheckObject(__METHOD__, "templateFile", (($templateFile !== null) ? $templateFile : ""), SMTypeCheckType::$String);
 
 		$this->content = "";
+		$this->resources = array();
 		$this->closed = false;
 
 		if ($templateFile !== null)
