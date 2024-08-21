@@ -20,6 +20,8 @@
 
 	<!-- Confirmation and Invoice mail -->
 	<entry key="DecimalSeparator" value="." />
+	<entry key="ConfirmationTitle" value="Confirmation e-mail from webshop" />
+	<entry key="InvoiceTitle" value="Invoice e-mail from webshop" />
 
 	<!-- Config -->
 	<entry key="ConfigTitle" value="Webshop settings" />

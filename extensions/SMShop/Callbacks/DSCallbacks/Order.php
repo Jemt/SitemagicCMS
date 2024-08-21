@@ -349,6 +349,8 @@ function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyVa
 
 	// Send mail
 
+	$lang = new SMLanguageHandler(SMExtensionManager::GetExecutingExtension());
+
 	$mail = new SMMail();
 	$mail->AddRecipient($mailAddress);
 	$mail->SetSubject((($title !== null && $title !== "") ? $title : $lang->GetTranslation((($asInvoice === false) ? "Confirmation" : "Invoice") . "Title")));
@@ -401,7 +403,7 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 		if (count($data) < 2)
 		{
 			header("HTTP/1.1 500 Internal Server Error");
-			echo "E-mail template file '" . $file . "' is malformed";
+			echo "E-mail template file '" . $template . "' is malformed";
 			exit;
 		}
 
@@ -530,9 +532,9 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 	$content = str_replace("{[OrderYear]}", date("Y", ((int)$order["Time"])/1000), $content);
 	$content = str_replace("{[OrderMonth]}", date("m", ((int)$order["Time"])/1000), $content);
 	$content = str_replace("{[OrderDay]}", date("d", ((int)$order["Time"])/1000), $content);
-	$content = str_replace("{[InvoiceYear]}", date("Y", ((int)$order["InvoiceTime"])/1000), $content);
-	$content = str_replace("{[InvoiceMonth]}", date("m", ((int)$order["InvoiceTime"])/1000), $content);
-	$content = str_replace("{[InvoiceDay]}", date("d", ((int)$order["InvoiceTime"])/1000), $content);
+	$content = str_replace("{[InvoiceYear]}", $asInvoice === true ? date("Y", ((int)$order["InvoiceTime"])/1000) : "", $content);
+	$content = str_replace("{[InvoiceMonth]}", $asInvoice === true ? date("m", ((int)$order["InvoiceTime"])/1000) : "", $content);
+	$content = str_replace("{[InvoiceDay]}", $asInvoice === true ? date("d", ((int)$order["InvoiceTime"])/1000) : "", $content);
 	$content = str_replace("{[DateYear]}", date("Y"), $content);
 	$content = str_replace("{[DateMonth]}", date("m"), $content);
 	$content = str_replace("{[DateDay]}", date("d"), $content);
@@ -662,7 +664,7 @@ function SMShopGeneratePdfAttachments($content)
 
 			$pdf->AddPage();
 
-			$pdf->writeHTML(utf8_encode($pdfContent), false);
+			$pdf->writeHTML(SMStringUtilities::Utf8Encode($pdfContent), false);
 			$pdf->Output($pdfFiles[$filename], "F");
 
 			$content = str_replace($fullMatch, "", $content);

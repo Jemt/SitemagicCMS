@@ -20,6 +20,8 @@
 
 	<!-- Confirmation and Invoice mail -->
 	<entry key="DecimalSeparator" value="," />
+	<entry key="ConfirmationTitle" value="Bekræftelses e-mail fra webshop" />
+	<entry key="InvoiceTitle" value="Faktura e-mail fra webshop" />
 
 	<!-- Config -->
 	<entry key="ConfigTitle" value="WebShop indstillinger" />
