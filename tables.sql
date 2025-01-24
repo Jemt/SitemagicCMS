@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS SMCookieConsent
 (
 	`name`					varchar(100)					DEFAULT NULL,
 	`description`			varchar(255)					DEFAULT NULL,
+	`checked`				boolean							DEFAULT NULL,
 	`code`					text							DEFAULT NULL,
 	`acceptedall`			int unsigned					DEFAULT NULL,
 	`rejectedall`			int unsigned					DEFAULT NULL,
@@ -120,6 +121,8 @@ ALTER TABLE SMCookieConsent ADD `rejectedall` int unsigned DEFAULT NULL AFTER `a
 ALTER TABLE SMCookieConsent ADD `acceptedperiod` int unsigned DEFAULT NULL AFTER `rejectedall`;
 ALTER TABLE SMCookieConsent ADD `rejectedperiod` int unsigned DEFAULT NULL AFTER `acceptedperiod`;
 */
+
+/*ALTER TABLE SMCookieConsent ADD `checked` boolean DEFAULT NULL AFTER `description`;*/
 
 /* SMShop */
 

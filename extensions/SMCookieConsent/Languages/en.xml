@@ -9,6 +9,7 @@
 	<entry key="DeleteConfirmation" value="Are you sure you want to continue?" />
 	<entry key="Disabled" value="Disabled" />
 	<entry key="Top" value="Top" />
+	<entry key="Center" value="Center" />
 	<entry key="Bottom" value="Bottom" />
 	<entry key="Hour" value="Hour" />
 	<entry key="Hours" value="Hours" />
@@ -22,11 +23,13 @@
 	<entry key="DialogContent" value="Dialog content (content page)" />
 	<entry key="DialogPosition" value="Dialog position" />
 	<entry key="ConsentDuration" value="Consent duration" />
-	<entry key="DenyButtonText" value="Deny button text" />
-	<entry key="AcceptButtonText" value="Accept button text" />
+	<entry key="DenyButtonText" value="Button text: Deny" />
+	<entry key="AcceptSelectedButtonText" value="Button text: Accept selected" />
+	<entry key="AcceptAllButtonText" value="Button text: Accept all" />
 	<entry key="Modules" value="Modules" />
 	<entry key="ModuleName" value="Module name" />
 	<entry key="ModuleDescription" value="Short module description" />
+	<entry key="ModuleDefaultChecked" value="Checked by default" />
 	<entry key="ModuleCode" value="Module code" />
 	<entry key="Statistics" value="Statistics" />
 	<entry key="Accepted" value="Accepted" />

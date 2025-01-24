@@ -9,6 +9,7 @@
 	<entry key="DeleteConfirmation" value="Er du sikker på at du vil fortsætte?" />
 	<entry key="Disabled" value="Deaktiveret" />
 	<entry key="Top" value="Top" />
+	<entry key="Center" value="Midten" />
 	<entry key="Bottom" value="Bund" />
 	<entry key="Hour" value="Time" />
 	<entry key="Hours" value="Timer" />
@@ -22,11 +23,13 @@
 	<entry key="DialogContent" value="Dialogindhold (indholdsside)" />
 	<entry key="DialogPosition" value="Dialogs placering" />
 	<entry key="ConsentDuration" value="Varighed for samtykke" />
-	<entry key="DenyButtonText" value="Afvis-knappens tekst" />
-	<entry key="AcceptButtonText" value="Accept-knappens tekst" />
+	<entry key="DenyButtonText" value="Knap-tekst: Afvis" />
+	<entry key="AcceptSelectedButtonText" value="Knap-tekst: Accepter valgte" />
+	<entry key="AcceptAllButtonText" value="Knap-tekst: Accepter alle" />
 	<entry key="Modules" value="Moduler" />
 	<entry key="ModuleName" value="Modulnavn" />
 	<entry key="ModuleDescription" value="Kort modulbeskrivelse" />
+	<entry key="ModuleDefaultChecked" value="Afkrydset som standard" />
 	<entry key="ModuleCode" value="Modulkode" />
 	<entry key="Statistics" value="Statistik" />
 	<entry key="Accepted" value="Accepteret" />

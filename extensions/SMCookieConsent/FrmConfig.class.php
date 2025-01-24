@@ -35,12 +35,14 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 	private $lstPosition;
 	private $lstConsentDuration;
 	private $txtDenyText;
-	private $txtAcceptText;
+	private $txtAcceptSelectedText;
+	private $txtAcceptAllText;
 	private $cmdDialogSave;
 
 	private $lstModules;
 	private $txtModuleName;
 	private $txtModuleDescription;
+	private $chkDefaultChecked;
 	private $txtModuleCode;
 	private $cmdCreate;
 	private $cmdClear;
@@ -80,9 +82,13 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 		$this->txtDenyText->SetAttribute(SMInputAttributeText::$MaxLength, "100");
 		$this->txtDenyText->SetAttribute(SMInputAttributeText::$Style, "width: 100%;");
 
-		$this->txtAcceptText = new SMInput($this->name . "AcceptText", SMInputType::$Text);
-		$this->txtAcceptText->SetAttribute(SMInputAttributeText::$MaxLength, "100");
-		$this->txtAcceptText->SetAttribute(SMInputAttributeText::$Style, "width: 100%;");
+		$this->txtAcceptSelectedText = new SMInput($this->name . "AcceptSelectedText", SMInputType::$Text);
+		$this->txtAcceptSelectedText->SetAttribute(SMInputAttributeText::$MaxLength, "100");
+		$this->txtAcceptSelectedText->SetAttribute(SMInputAttributeText::$Style, "width: 100%;");
+
+		$this->txtAcceptAllText = new SMInput($this->name . "AcceptAllText", SMInputType::$Text);
+		$this->txtAcceptAllText->SetAttribute(SMInputAttributeText::$MaxLength, "100");
+		$this->txtAcceptAllText->SetAttribute(SMInputAttributeText::$Style, "width: 100%;");
 
 		$this->cmdDialogSave = new SMLinkButton($this->name . "SaveSettings");
 		$this->cmdDialogSave->SetIcon(SMImageProvider::GetImage(SMImageType::$Save));
@@ -101,6 +107,8 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 		$this->txtModuleDescription = new SMInput($this->name . "ModuleDescription", SMInputType::$Text);
 		$this->txtModuleDescription->SetAttribute(SMInputAttributeText::$MaxLength, "250");
 		$this->txtModuleDescription->SetAttribute(SMInputAttributeText::$Style, "width: 100%;");
+
+		$this->chkDefaultChecked = new SMInput($this->name . "ModuleDefaultChecked", SMInputType::$Checkbox);
 
 		$this->txtModuleCode = new SMInput($this->name . "ModuleCode", SMInputType::$Textarea);
 		$this->txtModuleCode->SetAttribute(SMInputAttributeText::$Style, "width: 100%; height: 200px;");
@@ -144,6 +152,7 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 		$this->lstPosition->SetOptions(array());
 		$this->lstPosition->AddOption(new SMOptionListItem($this->name . "PositionDisabled", $this->lang->GetTranslation("Disabled"), "disabled"));
 		$this->lstPosition->AddOption(new SMOptionListItem($this->name . "PositionTop", $this->lang->GetTranslation("Top"), "top"));
+		$this->lstPosition->AddOption(new SMOptionListItem($this->name . "PositionCenter", $this->lang->GetTranslation("Center"), "center"));
 		$this->lstPosition->AddOption(new SMOptionListItem($this->name . "PositionBottom", $this->lang->GetTranslation("Bottom"), "bottom"));
 
 		$this->lstConsentDuration->SetOptions(array());
@@ -168,7 +177,8 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 			$this->lstPosition->SetSelectedValue($this->cookieContentHelper->GetDialogPosition());
 			$this->lstConsentDuration->SetSelectedValue((string)$this->cookieContentHelper->GetConsentDuration());
 			$this->txtDenyText->SetValue($this->cookieContentHelper->GetDenyText());
-			$this->txtAcceptText->SetValue($this->cookieContentHelper->GetAcceptText());
+			$this->txtAcceptSelectedText->SetValue($this->cookieContentHelper->GetAcceptSelectedText());
+			$this->txtAcceptAllText->SetValue($this->cookieContentHelper->GetAcceptAllText());
 		}
 
 		// Modules data
@@ -189,10 +199,12 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 			if ($moduleName !== null && $moduleName !== "")
 			{
 				$moduleDescription = $this->cookieContentHelper->GetModuleDescription($moduleName);
+				$moduleDefaultChecked = $this->cookieContentHelper->GetModuleDefaultChecked($moduleName);
 				$moduleCode = $this->cookieContentHelper->GetModuleCode($moduleName);
 
 				$this->txtModuleName->SetValue($moduleName);
 				$this->txtModuleDescription->SetValue($moduleDescription);
+				$this->chkDefaultChecked->SetChecked($moduleDefaultChecked);
 				$this->txtModuleCode->SetValue($moduleCode);
 
 			}
@@ -200,6 +212,7 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 			{
 				$this->txtModuleName->SetValue("");
 				$this->txtModuleDescription->SetValue("");
+				$this->chkDefaultChecked->SetChecked(false);
 				$this->txtModuleCode->SetValue("");
 			}
 		}
@@ -217,7 +230,8 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 				$this->cookieContentHelper->SetDialogPosition($this->lstPosition->GetSelectedValue());
 				$this->cookieContentHelper->SetConsentDuration((int)$this->lstConsentDuration->GetSelectedValue());
 				$this->cookieContentHelper->SetDenyText($this->txtDenyText->GetValue());
-				$this->cookieContentHelper->SetAcceptText($this->txtAcceptText->GetValue());
+				$this->cookieContentHelper->SetAcceptSelectedText($this->txtAcceptSelectedText->GetValue());
+				$this->cookieContentHelper->SetAcceptAllText($this->txtAcceptAllText->GetValue());
 
 				SMEnvironment::DestroyCookieValue("SMCookieConsentAllowed");
 
@@ -239,12 +253,13 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 					return;
 				}
 
-				$this->cookieContentHelper->AddModule($this->txtModuleName->GetValue(), $this->txtModuleDescription->GetValue(), $this->txtModuleCode->GetValue());
+				$this->cookieContentHelper->AddModule($this->txtModuleName->GetValue(), $this->txtModuleDescription->GetValue(), $this->chkDefaultChecked->GetChecked(), $this->txtModuleCode->GetValue());
 
 				$this->loadFormData();
 
 				$this->txtModuleName->SetValue("");
 				$this->txtModuleDescription->SetValue("");
+				$this->chkDefaultChecked->SetChecked(false);
 				$this->txtModuleCode->SetValue("");
 
 				SMEnvironment::DestroyCookieValue("SMCookieConsentAllowed");
@@ -267,13 +282,14 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 					return;
 				}
 
-				$this->cookieContentHelper->SetModule($this->lstModules->GetSelectedValue(), $this->txtModuleName->GetValue(), $this->txtModuleDescription->GetValue(), $this->txtModuleCode->GetValue());
+				$this->cookieContentHelper->SetModule($this->lstModules->GetSelectedValue(), $this->txtModuleName->GetValue(), $this->txtModuleDescription->GetValue(), $this->chkDefaultChecked->GetChecked(), $this->txtModuleCode->GetValue());
 
 				$this->loadFormData();
 
 				$this->lstModules->SetSelectedValue("");
 				$this->txtModuleName->SetValue("");
 				$this->txtModuleDescription->SetValue("");
+				$this->chkDefaultChecked->SetChecked(false);
 				$this->txtModuleCode->SetValue("");
 
 				SMEnvironment::DestroyCookieValue("SMCookieConsentAllowed");
@@ -287,6 +303,7 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 				$this->lstModules->SetSelectedValue("");
 				$this->txtModuleName->SetValue("");
 				$this->txtModuleDescription->SetValue("");
+				$this->chkDefaultChecked->SetChecked(false);
 				$this->txtModuleCode->SetValue("");
 			}
 			else if ($this->cmdDeleteStats->PerformedPostBack() === true)
@@ -306,6 +323,7 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 				$this->lstModules->SetSelectedValue("");
 				$this->txtModuleName->SetValue("");
 				$this->txtModuleDescription->SetValue("");
+				$this->chkDefaultChecked->SetChecked(false);
 				$this->txtModuleCode->SetValue("");
 
 				SMEnvironment::DestroyCookieValue("SMCookieConsentAllowed");
@@ -337,8 +355,12 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 		$outputSettings .= $this->txtDenyText->Render();
 
 		$outputSettings .= "<br><br>";
-		$outputSettings .= $this->lang->GetTranslation("AcceptButtonText") . "<br>";
-		$outputSettings .= $this->txtAcceptText->Render();
+		$outputSettings .= $this->lang->GetTranslation("AcceptSelectedButtonText") . "<br>";
+		$outputSettings .= $this->txtAcceptSelectedText->Render();
+
+		$outputSettings .= "<br><br>";
+		$outputSettings .= $this->lang->GetTranslation("AcceptAllButtonText") . "<br>";
+		$outputSettings .= $this->txtAcceptAllText->Render();
 
 		$outputSettings .= "<br><br>";
 		$outputSettings .= $this->cmdDialogSave->Render();
@@ -359,6 +381,9 @@ class SMCookieConsentFrmConfig implements SMIExtensionForm
 		$outputModules .= "<br><br>";
 		$outputModules .= $this->lang->GetTranslation("ModuleDescription") . "<br>";
 		$outputModules .= $this->txtModuleDescription->Render();
+
+		$outputModules .= "<br><br>";
+		$outputModules .= $this->chkDefaultChecked->Render() . " " . $this->lang->GetTranslation("ModuleDefaultChecked");
 
 		$outputModules .= "<br><br>";
 		$outputModules .= $this->lang->GetTranslation("ModuleCode") . " (JavaScript)<br>";

@@ -3,24 +3,38 @@ function SMCookieConsent()
 	var me = this;
 	this.Text = "We use cookies to give you the best possible experience";
 	this.Deny = "Deny";
-	this.Accept = "Accept";
-	this.Position = "bottom";	// "top" or "bottom"
+	this.AcceptSelected = "Accept selected";
+	this.AcceptAll = "Accept all";
+	this.Position = "bottom";	// "top" or "bottom" or "center"
+	this.Modal = false;			// Whether to prevent interaction with website until cookies have been denied/accepted
 	this.HideHours = 12;		// How many hours until consent dialog is shown again
 	this.Modules = [];			// [{Name:string, Description:String, Code:string}]
 	this.WebService = null;		// URL to webservice accepting object array - e.g. consent=encodeURIComponent(JSON.stringify({Statistics:true,Marketing:false}))
 
 	this.Render = function()
 	{
+		if (SMCookieConsent.SuppressRender === true)
+		{
+			return;
+		}
+
 		if (window.parent !== window)
 		{
 			return; // Currently within a dialog/popup - do not render consent dialog in this case
 		}
 
+		// Modal background layer
+
+		var bgLayer = document.createElement("div");
+		bgLayer.className = "SMCookieConsentPanelBackground";
+		bgLayer.style.display = me.Modal === false ? "none" : "";
+		document.body.appendChild(bgLayer);
+
 		// Panel
 
 		var panel = document.createElement("div");
 		panel.className = "SMCookieConsentPanel";
-		panel.style[me.Position.toLowerCase() === "top" ? "top" : "bottom"] = "0px";
+		panel.setAttribute("data-position", me.Position.toLowerCase());
 		document.body.appendChild(panel);
 
 		// Description
@@ -47,7 +61,7 @@ function SMCookieConsent()
 		for (var i = 0 ; i < me.Modules.length ; i++)
 		{
 			var module = me.Modules[i];
-			var chk = { Name: module.Name, Checkbox: createCheckbox(module.Name, module.Description, true), Code: module.Code };
+			var chk = { Name: module.Name, Checkbox: createCheckbox(module.Name, module.Description, module.Checked), Code: module.Code };
 
 			checkboxes.push(chk);
 			checkboxContainer.appendChild(chk.Checkbox);
@@ -70,22 +84,24 @@ function SMCookieConsent()
 			}
 			submitConsent(consent);
 
+			document.body.removeChild(bgLayer);
 			document.body.removeChild(panel);
+
 			SMCookie.SetCookie("SMCookieConsentAllowed", "", me.HideHours * 60 * 60);
 		});
 		buttonDeny.className += " SMCookieConsentButtonDeny";
 		buttons.appendChild(buttonDeny);
 
-		// Accept button
+		// Accept buttons
 
-		var buttonAccept = createButton(me.Accept, function()
+		var acceptCookies = function(forceAll)
 		{
 			var allowed = "";
 			var consent = {};
 
 			for (var i = 0 ; i < checkboxes.length ; i++)
 			{
-				if (checkboxes[i].Checkbox.IsChecked === true)
+				if (forceAll === true || checkboxes[i].Checkbox.IsChecked === true)
 				{
 					allowed += (allowed !== "" ? "|#|" : "") + checkboxes[i].Name;
 					eval(checkboxes[i].Code);
@@ -96,11 +112,23 @@ function SMCookieConsent()
 
 			submitConsent(consent);
 
+			document.body.removeChild(bgLayer);
 			document.body.removeChild(panel);
+
 			SMCookie.SetCookie("SMCookieConsentAllowed", encodeURIComponent(allowed), me.HideHours * 60 * 60); // Encoding cookie value to allow use of semicolon which is used in unicode encoding (e.g. &#1234;)
+		};
+
+		var buttonAcceptSelected = createButton(me.AcceptSelected, function()
+		{
+			acceptCookies();
 		});
-		buttonAccept.className += " SMCookieConsentButtonAccept";
-		buttons.appendChild(buttonAccept);
+		buttons.appendChild(buttonAcceptSelected);
+
+		var buttonAcceptAll = createButton(me.AcceptAll, function()
+		{
+			acceptCookies(true);
+		});
+		buttons.appendChild(buttonAcceptAll);
 
 		// SMDesigner integration
 
@@ -112,9 +140,13 @@ function SMCookieConsent()
 		buttonDeny.setAttribute("data-id", "Cookie Deny Button");
 		buttonDeny.setAttribute("data-preserve", "true");
 
-		buttonAccept.className += " SMDesignerElement"
-		buttonAccept.setAttribute("data-id", "Cookie Accept Button");
-		buttonAccept.setAttribute("data-preserve", "true");
+		buttonAcceptSelected.className += " SMDesignerElement"
+		buttonAcceptSelected.setAttribute("data-id", "Cookie Accept Selected Button");
+		buttonAcceptSelected.setAttribute("data-preserve", "true");
+
+		buttonAcceptAll.className += " SMDesignerElement"
+		buttonAcceptAll.setAttribute("data-id", "Cookie Accept Button");
+		buttonAcceptAll.setAttribute("data-preserve", "true");
 	}
 
 	function createCheckbox(title, description, checked)
@@ -188,3 +220,5 @@ SMCookieConsent.ResetConsent = function()
 	SMCookie.RemoveCookie('SMCookieConsentAllowed');
 	location.href=location.href;
 }
+
+SMCookieConsent.SuppressRender = false; // Allow pages to set this property to True to suppress CookieDialog - e.g. for the cookie information page

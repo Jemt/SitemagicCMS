@@ -80,7 +80,7 @@ class SMCookieConsent extends SMExtension
 		$modules = array();
 		foreach ($cs->GetModules() as $module)
 		{
-			$modules[] = array("Name" => $module, "Description" => $cs->GetModuleDescription($module), "Code" => $cs->GetModuleCode($module));
+			$modules[] = array("Name" => $module, "Description" => $cs->GetModuleDescription($module), "Checked" => $cs->GetModuleDefaultChecked($module), "Code" => $cs->GetModuleCode($module));
 		}
 
 		$allowed = SMEnvironment::GetCookieValue("SMCookieConsentAllowed"); // Null if user has not yet either denied or accepted cookies
@@ -90,7 +90,8 @@ class SMCookieConsent extends SMExtension
 			// User has not denied/accepted cookies yet
 
 			$deny = $cs->GetDenyText();
-			$accept = $cs->GetAcceptText();
+			$acceptSelected = $cs->GetAcceptSelectedText();
+			$acceptAll = $cs->GetAcceptAllText();
 			$hours = $cs->GetConsentDuration();
 
 			$template->AddToHeadSection("
@@ -98,9 +99,11 @@ class SMCookieConsent extends SMExtension
 				var cs = new SMCookieConsent();
 				cs.Text = '" . str_replace("'", "\\'", str_replace("\r", "", str_replace("\n", "", $text))) . "';
 				cs.Deny = '" . ($deny !== "" ? $deny : "Deny") . "';
-				cs.Accept = '" . ($accept !== "" ? $accept : "Accept") . "';
+				cs.AcceptSelected = '" . ($acceptSelected !== "" ? $acceptSelected : "Accept selected") . "';
+				cs.AcceptAll = '" . ($acceptAll !== "" ? $acceptAll : "Accept all") . "';
 				cs.HideHours = " . $hours . ";
 				cs.Position = '" . $position . "';
+				cs.Modal = " . (SMExtensionManager::GetExecutingExtension() === "SMPages" ? "true" : "false") . ";
 				cs.Modules = " . json_encode($modules) . ";
 				cs.WebService = '" . SMExtensionManager::GetCallbackUrl($this->context->GetExtensionName(), "callbacks/setconsent") . "';
 				SMEventHandler.AddEventHandler(document, 'DOMContentLoaded', function() { cs.Render(); });
