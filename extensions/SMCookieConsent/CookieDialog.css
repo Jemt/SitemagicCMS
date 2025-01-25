@@ -17,7 +17,7 @@ div.SMCookieConsentPanel
 	right: 0px;
 	bottom: 0px;
 	padding: 2em;
-	max-height: 50%;
+	max-height: 96%;
 	overflow: auto;
 	border: 1px solid #333;
 	background: #333; /* Legacy IE fallback */
@@ -62,8 +62,7 @@ div.SMCookieConsentButtons
 div.SMCookieConsentCheckbox
 {
 	display: inline-block;
-	margin-left: 0.75em;
-	margin-right: 0.75em;
+	margin: 0.25em 0.75em;
 	cursor: pointer;
 }
 div.SMCookieConsentCheckbox input

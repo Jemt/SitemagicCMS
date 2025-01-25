@@ -103,7 +103,7 @@ class SMCookieConsent extends SMExtension
 				cs.AcceptAll = '" . ($acceptAll !== "" ? $acceptAll : "Accept all") . "';
 				cs.HideHours = " . $hours . ";
 				cs.Position = '" . $position . "';
-				cs.Modal = " . (SMExtensionManager::GetExecutingExtension() === "SMPages" ? "true" : "false") . ";
+				cs.Modal = " . (SMExtensionManager::GetExecutingExtension() === $this->context->GetExtensionName() ? "false" : "true") . ";
 				cs.Modules = " . json_encode($modules) . ";
 				cs.WebService = '" . SMExtensionManager::GetCallbackUrl($this->context->GetExtensionName(), "callbacks/setconsent") . "';
 				SMEventHandler.AddEventHandler(document, 'DOMContentLoaded', function() { cs.Render(); });

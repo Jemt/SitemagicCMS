@@ -138,7 +138,7 @@ class SMCookieConsentHelper
 		$kvc = new SMKeyValueCollection();
 		$kvc["name"] = $name;
 		$kvc["description"] = $description;
-		$kvc["checked"] = $checked === true ? "true" : "false";
+		$kvc["checked"] = $checked === true ? "1" : "0";
 		$kvc["code"] = $code;
 		$kvc["acceptedall"] = "0";
 		$kvc["rejectedall"] = "0";
@@ -160,7 +160,7 @@ class SMCookieConsentHelper
 		$kvc = new SMKeyValueCollection();
 		$kvc["name"] = $newName;
 		$kvc["description"] = $newDescription;
-		$kvc["checked"] = $newChecked === true ? "true" : "false";
+		$kvc["checked"] = $newChecked === true ? "1" : "0";
 		$kvc["code"] = $newCode;
 
 		if ($this->db->Update($kvc, "name = '" . $this->db->Escape($name) . "'") === 0)
@@ -197,7 +197,7 @@ class SMCookieConsentHelper
 		SMTypeCheck::CheckObject(__METHOD__, "name", $name, SMTypeCheckType::$String);
 
 		$kvc = $this->db->Select("*", "name = '" . $this->db->Escape($name) . "'");
-		return ((count($kvc) !== 0) ? $kvc[0]["checked"] === "true" : false);
+		return ((count($kvc) !== 0) ? $kvc[0]["checked"] === "1" : false);
 	}
 
 	public function GetModuleCode($name)

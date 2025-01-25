@@ -88,6 +88,8 @@ function SMCookieConsent()
 			document.body.removeChild(panel);
 
 			SMCookie.SetCookie("SMCookieConsentAllowed", "", me.HideHours * 60 * 60);
+
+			SMCookieConsent.OnChange();
 		});
 		buttonDeny.className += " SMCookieConsentButtonDeny";
 		buttons.appendChild(buttonDeny);
@@ -107,7 +109,7 @@ function SMCookieConsent()
 					eval(checkboxes[i].Code);
 				}
 
-				consent[checkboxes[i].Name] = checkboxes[i].Checkbox.IsChecked;
+				consent[checkboxes[i].Name] = forceAll === true || checkboxes[i].Checkbox.IsChecked;
 			}
 
 			submitConsent(consent);
@@ -116,6 +118,8 @@ function SMCookieConsent()
 			document.body.removeChild(panel);
 
 			SMCookie.SetCookie("SMCookieConsentAllowed", encodeURIComponent(allowed), me.HideHours * 60 * 60); // Encoding cookie value to allow use of semicolon which is used in unicode encoding (e.g. &#1234;)
+
+			SMCookieConsent.OnChange();
 		};
 
 		var buttonAcceptSelected = createButton(me.AcceptSelected, function()
@@ -215,10 +219,24 @@ function SMCookieConsent()
 	}
 }
 
+SMCookieConsent.ClearConsent = function()
+{
+	SMCookie.RemoveCookie("SMCookieConsentAllowed");
+}
+
 SMCookieConsent.ResetConsent = function()
 {
-	SMCookie.RemoveCookie('SMCookieConsentAllowed');
+	SMCookieConsent.ClearConsent();
 	location.href=location.href;
 }
 
-SMCookieConsent.SuppressRender = false; // Allow pages to set this property to True to suppress CookieDialog - e.g. for the cookie information page
+SMCookieConsent.GetConsent = function()
+{
+	var consentString = SMCookie.GetCookie("SMCookieConsentAllowed") || "";
+	consentString = decodeURIComponent(consentString);
+	consentString = SMStringUtilities.UnicodeDecode(consentString);
+	return consentString && consentString.split("|#|") || [];
+}
+
+SMCookieConsent.SuppressRender = false;		// Allow pages to set this property to True to suppress CookieDialog - e.g. for the cookie information page
+SMCookieConsent.OnChange = function() {}; 	// Allow pages to perform logic when consent is changed
