@@ -5,6 +5,8 @@
 	<entry key="Username" value="admin" />
 	<!-- REQUIRED, throws custom exception if missing -->
 	<entry key="Password" value="admin" />
+	<!-- optional, may be left out or empty -->
+	<entry key="AccessToken" value="" />
 	<!-- optional, may be left out or empty - defaults to 'en' -->
 	<entry key="Language" value="en" />
 	<!-- optional, may be left out or empty - defaults to empty collection -->

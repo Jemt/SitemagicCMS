@@ -56,6 +56,24 @@ class SMAuthentication
 	/// </function>
 	public static function Authorized()
 	{
+		// Authorization via header
+
+		$config = SMEnvironment::GetConfiguration();
+		$accessToken = $config->GetEntry("AccessToken");
+
+		if ($accessToken !== null && $accessToken !== "")
+		{
+			foreach (getallheaders() as $key => $value)
+			{
+				if (strtolower($key) === "authorization")
+				{
+					return $value === $accessToken;
+				}
+			}
+		}
+
+		// Authorization via session
+
 		if (SMEnvironment::GetSessionValue("SitemagicLogin") === null)
 			return false;
 
