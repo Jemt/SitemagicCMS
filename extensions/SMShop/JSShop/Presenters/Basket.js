@@ -11,6 +11,7 @@ JSShop.Presenters.Basket = function()
 	var tpl = null;
 	var basket = JSShop.Models.Basket;
 	var lang = JSShop.Language.Translations;
+	var productsLoading = false;
 
 	var zipCode = "";
 	var paymentMethod = "";
@@ -69,12 +70,11 @@ JSShop.Presenters.Basket = function()
 
 	function populateView() // May be called multiple times to update basket
 	{
-		if (tpl.Content === null)
+		if (tpl.Content === null || productsLoading === true)
 		{
 			// Skip, external code tried to update basket while still loading,
-			// e.g. by calling ZipCode(..), PaymentMethod(..), Update(), or something
-			// else that calls this function. It is safe to just ignore it (return out)
-			// as the most recent data will be loaded once the template is done loading.
+			// e.g. by calling ZipCode(..), PaymentMethod(..), Update(), etc.
+			// Most recent values will be used once resources are loaded and view is populated.
 			return;
 		}
 
@@ -123,6 +123,8 @@ JSShop.Presenters.Basket = function()
 
 		Fit.Array.ForEach(items, function(item)
 		{
+			productsLoading = true;
+
 			item.Product = new JSShop.Models.Product(item.ProductId);
 			item.View = tpl.Content.ProductEntries.AddItem();
 
@@ -134,6 +136,8 @@ JSShop.Presenters.Basket = function()
 
 				if (itemCount === 0) // All products loaded
 				{
+					productsLoading = false;
+
 					// Populate template
 
 					var productEntry = null;
