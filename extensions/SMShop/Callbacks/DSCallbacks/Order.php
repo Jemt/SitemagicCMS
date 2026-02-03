@@ -570,6 +570,7 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 			$orderLine[$listType . "Amount"] = $entry["Units"];
 			$orderLine[$listType . "ProductId"] = $entry["ProductId"];
 			$orderLine[$listType . "ProductTitle"] = $products[0]["Title"];
+			$orderLine[$listType . "ProductDescription"] = $products[0]["Description"];
 			$orderLine[$listType . "ProductPriceExclVat"] = number_format($pricing["UnitPriceExclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
 			$orderLine[$listType . "ProductPriceInclVat"] = number_format($pricing["UnitPriceInclVat"], 2, $lang->GetTranslation("DecimalSeparator"), "");
 			$orderLine[$listType . "ProductDiscountMessage"] = $entry["DiscountMessage"];
@@ -595,6 +596,7 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 				$orderLine["OrderLineAmount"] = "1";
 				$orderLine["OrderLineProductId"] = "";
 				$orderLine["OrderLineProductTitle"] = $order["CostCorrectionMessage" . $i];
+				$orderLine["OrderLineProductDescription"] = "";
 				$orderLine["OrderLineProductPriceExclVat"] = number_format((float)$order["CostCorrection" . $i], 2, $lang->GetTranslation("DecimalSeparator"), "");
 				$orderLine["OrderLineProductPriceInclVat"] = number_format((float)$order["CostCorrection" . $i] + (float)$order["CostCorrectionVat" . $i], 2, $lang->GetTranslation("DecimalSeparator"), "");
 				$orderLine["OrderLineTotalExclVat"] = $orderLine["OrderLineProductPriceExclVat"];
