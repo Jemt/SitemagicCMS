@@ -117,6 +117,7 @@
 			StateInitial:		"Initiel",
 			StateAuthorized:	"Godkendt",
 			StateCaptured:		"Hævet",
+			StateRefunded:		"Refunderet",
 			StateCanceled:		"Afvist",
 			SelectOrders:		"Vælg venligst en eller flere ordre",
 			ConfirmAction:		"Bekræft venligst handlingen",

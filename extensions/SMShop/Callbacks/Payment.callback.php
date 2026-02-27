@@ -159,6 +159,35 @@ else if ($operation === "Capture") // Called from JSShop
 	$ds->Update($order, "Id = '" . $ds->Escape($order["Id"]) . "'");
 	$ds->Commit();
 }
+else if ($operation === "Refund") // Called from JSShop
+{
+	if (SMAuthentication::Authorized() === false)
+	{
+		header("HTTP/1.1 500 Internal Server Error");
+		echo "Unauthorized - unable to refund payment";
+		exit;
+	}
+
+	$orderId = SMEnvironment::GetPostValue("OrderId", SMValueRestriction::$Numeric);
+	$order = getOrder($orderId);
+
+	if ($order["State"] !== "Captured")
+	{
+		header("HTTP/1.1 500 Internal Server Error");
+		echo "Order with ID '" . $orderId . "' is not in state 'Captured'";
+		exit;
+	}
+
+	$order["State"] = "Refunded";
+
+	$ds = new SMDataSource("SMShopOrders");
+
+	if ($ds->GetDataSourceType() === SMDataSourceType::$Xml)
+		$ds->Lock();
+
+	$ds->Update($order, "Id = '" . $ds->Escape($order["Id"]) . "'");
+	$ds->Commit();
+}
 else if ($operation === "Cancel") // Called from JSShop
 {
 	if (SMAuthentication::Authorized() === false)

@@ -117,6 +117,7 @@
 			StateInitial:		"Initial",
 			StateAuthorized:	"Authorized",
 			StateCaptured:		"Withdrawn",
+			StateRefunded:		"Refunded",
 			StateCanceled:		"Rejected",
 			SelectOrders:		"Please select one or multiple orders",
 			ConfirmAction:		"Please confirm action",

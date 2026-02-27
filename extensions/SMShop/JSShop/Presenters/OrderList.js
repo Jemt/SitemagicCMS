@@ -688,6 +688,8 @@ JSShop.Presenters.OrderList = function()
 			return lang.OrderList.StateAuthorized;
 		else if (state === "Captured")
 			return lang.OrderList.StateCaptured;
+		else if (state === "Refunded")
+			return lang.OrderList.StateRefunded;
 		else if (state === "Canceled")
 			return lang.OrderList.StateCanceled;
 
