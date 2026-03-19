@@ -271,9 +271,10 @@ function SMShopProcessNewOrder(SMKeyValueCollection $order)
 	}
 }
 
-function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyValueCollection $additionalArgs = null) // $additionalArgs may be used by e.g. PSPM modules to send an e-mail with additional data - not pretty depending on the inners of SMShop though!
+function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyValueCollection $additionalArgs = null, $forceTemplate = null) // $additionalArgs may be used by e.g. PSPM modules to send an e-mail with additional data - not pretty depending on the inners of SMShop though!
 {
 	SMTypeCheck::CheckObject(__METHOD__, "asInvoice", $asInvoice, SMTypeCheckType::$Boolean);
+	SMTypeCheck::CheckObject(__METHOD__, "forceTemplate", $forceTemplate !== null ? $forceTemplate : "", SMTypeCheckType::$String);
 
 	if ($asInvoice === true && $order["InvoiceId"] === "")
 	{
@@ -314,7 +315,7 @@ function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyVa
 		$order["InvoiceTime"] = $update["InvoiceTime"];
 	}
 
-	$data = SMShopGetOrderConfirmationData($order, $asInvoice);
+	$data = SMShopGetOrderConfirmationData($order, $asInvoice, $forceTemplate);
 
 	if ($data === null)
 		return; // Expression used to choose mail template returned nothing, which means no e-mail should be sent
@@ -371,9 +372,10 @@ function SMShopSendMail(SMKeyValueCollection $order, $asInvoice = false, SMKeyVa
 
 // Helpers
 
-function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice = false)
+function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice = false, $forceTemplate = null)
 {
 	SMTypeCheck::CheckObject(__METHOD__, "asInvoice", $asInvoice, SMTypeCheckType::$Boolean);
+	SMTypeCheck::CheckObject(__METHOD__, "forceTemplate", $forceTemplate !== null ? $forceTemplate : "", SMTypeCheckType::$String);
 
 	$config = new SMConfiguration(SMEnvironment::GetDataDirectory() . "/SMShop/Config.xml.php");
 
@@ -383,10 +385,17 @@ function SMShopGetOrderConfirmationData(SMKeyValueCollection $order, $asInvoice 
 
 	$template = (($asInvoice === false) ? "OrderConfirmation.html" : "Invoice.html");
 
-	if ($asInvoice === false && $config->GetEntryOrEmpty("ConfirmationMailTemplateExpression") !== "")
-		$template = SMShopHandleExpression($config, null, $order["Price"], $order["Vat"], $order["Currency"], $order["Weight"], $order["WeightUnit"], (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $config->GetEntryOrEmpty("ConfirmationMailTemplateExpression"), "string");
-	else if ($asInvoice === true && $config->GetEntryOrEmpty("InvoiceMailTemplateExpression") !== "")
-		$template = SMShopHandleExpression($config, null, $order["Price"], $order["Vat"], $order["Currency"], $order["Weight"], $order["WeightUnit"], (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $config->GetEntryOrEmpty("InvoiceMailTemplateExpression"), "string");
+	if ($forceTemplate !== null)
+	{
+		$template = $forceTemplate;
+	}
+	else
+	{
+		if ($asInvoice === false && $config->GetEntryOrEmpty("ConfirmationMailTemplateExpression") !== "")
+			$template = SMShopHandleExpression($config, null, $order["Price"], $order["Vat"], $order["Currency"], $order["Weight"], $order["WeightUnit"], (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $config->GetEntryOrEmpty("ConfirmationMailTemplateExpression"), "string");
+		else if ($asInvoice === true && $config->GetEntryOrEmpty("InvoiceMailTemplateExpression") !== "")
+			$template = SMShopHandleExpression($config, null, $order["Price"], $order["Vat"], $order["Currency"], $order["Weight"], $order["WeightUnit"], (($order["AltZipCode"] !== "") ? $order["AltZipCode"] : $order["ZipCode"]), $order["PaymentMethod"], $order["PromoCode"], $order["CustData1"], $order["CustData2"], $order["CustData3"], $config->GetEntryOrEmpty("InvoiceMailTemplateExpression"), "string");
+	}
 
 	if ($template === "")
 		return null;

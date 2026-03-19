@@ -159,7 +159,7 @@ else if ($operation === "Capture") // Called from JSShop
 	$ds->Update($order, "Id = '" . $ds->Escape($order["Id"]) . "'");
 	$ds->Commit();
 }
-else if ($operation === "Refund") // Called from JSShop
+else if ($operation === "Refund")
 {
 	if (SMAuthentication::Authorized() === false)
 	{
@@ -226,6 +226,21 @@ else if ($operation === "Cancel") // Called from JSShop
 
 	$ds->Update($order, "Id = '" . $ds->Escape($order["Id"]) . "'");
 	$ds->Commit();
+}
+else if ($operation === "SendConfirmation")
+{
+	if (SMAuthentication::Authorized() === false)
+	{
+		header("HTTP/1.1 500 Internal Server Error");
+		echo "Unauthorized - unable to send confirmation e-mail";
+		exit;
+	}
+
+	$orderId = SMEnvironment::GetPostValue("OrderId", SMValueRestriction::$Numeric);
+	$forceTemplate = SMEnvironment::GetPostValue("ForceTemplate", SMValueRestriction::$Filename); // Optional
+
+	$order = getOrder($orderId);
+	SMShopSendMail($order, false, null, $forceTemplate);
 }
 else if ($operation === "Invoice") // Called from JSShop
 {
