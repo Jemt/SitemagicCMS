@@ -85,7 +85,31 @@ class SMCookieConsent extends SMExtension
 
 		$allowed = SMEnvironment::GetCookieValue("SMCookieConsentAllowed"); // Null if user has not yet either denied or accepted cookies
 
-		if ($allowed === null)
+		$userAgent = strtolower((string)SMEnvironment::GetEnvironmentValue("HTTP_USER_AGENT")); // Cast to string in case null is returned
+		$scanners = array("cookiebot", "cookieinformation");
+		$isCookieScanner = false;
+
+		foreach ($scanners as $scanner)
+		{
+			if (strpos($userAgent, $scanner) !== false)
+			{
+				$isCookieScanner = true;
+				break;
+			}
+		}
+
+		if ($isCookieScanner === true)
+		{
+			$js = "";
+			foreach ($cs->GetModules() as $module)
+			{
+				$js .= "(function(){" . $cs->GetModuleCode($module) . "})();";
+			}
+
+			$template = $this->context->GetTemplate();
+			$template->AddToHeadSection("<script>" . $js . "</script>");
+		}
+		else if ($allowed === null)
 		{
 			// User has not denied/accepted cookies yet
 
